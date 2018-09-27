@@ -9,9 +9,9 @@
 	<key>postdata_url</key>
 	<string>https://firmware.synapsewear.com/postdata.php</string>
 	<key>use_osc_recv</key>
-	<true/>
+	<false/>
 	<key>is_debug</key>
-	<true/>
+	<false/>
 	<key>debugs</key>
 	<array>
 		<string>Files</string>
