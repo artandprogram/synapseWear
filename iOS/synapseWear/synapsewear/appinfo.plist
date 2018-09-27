@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>device_name</key>
+	<string>synapse</string>
+	<key>firmware_domain</key>
+	<string>https://firmware.synapsewear.com/</string>
+	<key>postdata_url</key>
+	<string>https://firmware.synapsewear.com/postdata.php</string>
+	<key>use_osc_recv</key>
+	<true/>
+	<key>is_debug</key>
+	<true/>
+	<key>debugs</key>
+	<array>
+		<string>Files</string>
+	</array>
+</dict>
+</plist>
