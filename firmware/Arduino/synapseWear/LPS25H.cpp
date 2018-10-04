@@ -1,7 +1,6 @@
 // LPS25H library for synapseWear
 
 #include "LPS25H.h"
-#include "Wire.h"
 
 bool LPS25H::begin()
 {
