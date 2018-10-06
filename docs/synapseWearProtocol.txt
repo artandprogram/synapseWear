@@ -1,0 +1,98 @@
+Basic Rules
+
+————
+When the payload is > 20 bytes use the following format:
+0x00 0xff 0xXX 0xYY 0xZZ … 0xZZ 0x00 0xff
+
+Where 0x00 0xff is the header and footer, 0xXX is the total byte length (including header / footer), 0xYY is the data type, most likely 0x00, 0xZZ is data
+————
+When the payload is <= 20 bytes do not add header, footer or size
+0xXX 0xYY …
+
+Where 0xXX is the command or request, 0xYY … is the value(s) or data
+
+sW → iOS refers to data from the synapseWear to iOS device
+iOS → sW refers to data from iOS device to synapseWear 
+————
+
+Command List
+
+Reserved:
+0x00: OK
+0x01: NG (Error)
+
+sW → iOS
+S1: Send data データ送信: 0x02 (Over 20 bytes, so: 0x00 0x0ff 0xXX 0x02 … 0x00 0xff format listed above)
+
+iOS → sW
+I1: Start sending data データ送信開始：0x02
+I2: Stop sending data データ送信停止: 0x03
+I3: Change data rate 送信間隔確認・変更：0x04
+I4: Turn sensors on/off センサー調整: 0x05
+I5: Check firmware version ファームウェアバージョン確認: 0x06
+I6: Associate with device デバイス紐付け: 0x10
+I7: Update firmware ファームウェアアップデート 0xfe
+I8: Force firmware update 強制ファームウェアアップデート: 0x11 
+I9: Reset association 紐づけリセット：0x12
+I10: FLash LED once LEDを一度光らせる：0x13
+
+————
+I1:
+Send: iOS → sW 0x02 0xX1 … 0xX8 (0xX1-8 is the access key from I6)
+Response:
+  OK: sW → iOS 0x00
+  NG: sW → iOS 0x01
+————
+I2:
+Send: iOS → sW 0x03 0xX1 … 0xX8 (0xX1-8 is the access key from I6)
+Response:
+  OK: sW → iOS 0x00
+  NG: sW → iOS 0x01
+————
+I3:
+Send: iOS → sW 0x04 0xX1 0xX2 0xX3 0xX4 0xYY (0xX1 … 0xX4: ms を uint32_t として送信, 0xYY: モード、0x00 Normal, 0x01 Live, 0x02 Low Power)
+Response:
+  OK: sW → iOS 0x00
+  NG: sW → iOS 0x01
+————
+I4:
+Send: iOS → sW 0x05 0xX0 0xX1 0xX2 0xX3 0xX4 0xX5 0xX6 0xX7 0xX8
+                    CO2 TEMP  HUM  LIGH AIRP SND  MOV  ANG  LED (0x00 off, 0x01 on)
+Response:
+  OK: sW → iOS 0x00
+  NG: sW → iOS 0x01  
+————
+I5:
+Send: iOS → sW 0x06
+Response:
+  OK: sW → iOS 0x00 0xXX 0xYY 0xZ1 … 0XZ4 (0xXX: FIRMWARE_VERSION_MAJOR, 0xYY: FIRMWARE_VERSION_MAJOR, 0xZ1 … 0xZ4 uint32_t YYYYMMDD date) 
+————
+I6:
+Send: iOS → sW 0x10
+Response:
+  OK: sW → iOS 0x00 0xX1 … 0xX8 (0x00: Association possible, 0xXX: 8 byte access key store in app)
+      iOS → sW 0x00 (received, access key not saved if not received)
+  NG: sW → iOS 0x01 (Already associated)
+————
+I7:
+Send: iOS → sW 0xfe 0xX1 … 0xX8 (0xX1-8 is the access key from I6)
+Response:
+  OK: sW → iOS 0x00 authentication ok, device will enter ota mode
+  NG: sW → iOS 0x01 authentication failed, force by sending I8
+————
+I8:
+Send: iOS → sW 0x11
+Response:
+  no response, device will enter ota mode
+————
+I9:
+Send: iOS → sW 0x12 0x01
+Response:
+  no response, device is reset
+————
+I10:
+Send: iOS → sW 0x13
+Response:
+  no response, LED flashes once
+
+synapseWearProtocol V1.3 20180518
