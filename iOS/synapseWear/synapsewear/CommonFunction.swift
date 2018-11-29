@@ -96,4 +96,49 @@ class CommonFunction {
 
         return value * 1.8 + 32.0
     }
+    
+    static func saveForTodayExtension(co2:Int?, battery:Float, temp:Float, humidity:Int, pressure:Float) {
+        //print(Date().timeIntervalSince1970)
+        let co2Value = co2 ?? -1
+        
+        if let userDefaults = UserDefaults(suiteName: "group.com.artandprogram.sW"){
+            var graphData = userDefaults.array(forKey: "graphData") ?? Array<Int>(repeating: -1, count: 35)
+            
+            let lastUpdatedAt:TimeInterval = userDefaults.double(forKey: "updatedAt")
+            let lastDate = Date(timeIntervalSince1970: lastUpdatedAt)
+            let now = Date()
+            
+            if lastDate.timeIntervalSinceNow < -2100{
+                graphData = Array<Int>(repeating: -1, count: 35)
+                graphData.insert(co2Value, at: 0)
+            }else{
+                let calendar = Calendar(identifier: .gregorian)
+                var dc = calendar.dateComponents([.minute], from: lastDate, to: now)
+                let mins = dc.minute ?? 0
+                if mins > 0 {
+                    graphData.insert(co2Value, at: 0)
+                    let nullArray = Array<Int>(repeating: -1, count: mins - 1)
+                    graphData.insert(contentsOf: nullArray, at: 1)
+                    print(graphData)
+                }else{
+                    var newVal = co2Value
+                    if let lastVal = graphData[0] as? Int{
+                        if lastVal > 0 {
+                            newVal = (lastVal + co2Value ) / 2
+                        }
+                    }
+                    graphData[0] = newVal
+                }
+            }
+            graphData = graphData.prefix(35).map{ $0 }
+            
+            userDefaults.set(co2Value, forKey: "co2")
+            userDefaults.set(battery, forKey: "battery")
+            userDefaults.set(temp, forKey: "temp")
+            userDefaults.set(humidity, forKey: "humidity")
+            userDefaults.set(pressure, forKey: "pressure")
+            userDefaults.set(now.timeIntervalSince1970, forKey: "updatedAt")
+            userDefaults.set(graphData, forKey: "graphData")
+        }
+    }
 }
