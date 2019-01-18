@@ -3076,6 +3076,17 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             DispatchQueue.global(qos: .background).async {
                 synapseObject.checkSynapseDataSave(timeInterval: timeInterval)
             }
+            
+            DispatchQueue.global(qos: .background).async {
+                if let battery = synapseObject.synapseValues.battery,
+                   let temp = synapseObject.synapseValues.temp,
+                   let humidity = synapseObject.synapseValues.humidity,
+                   let pressure = synapseObject.synapseValues.pressure {
+                    
+                    let co2 = synapseObject.synapseValues.co2
+                    CommonFunction.saveForTodayExtension(co2: co2, battery: battery, temp: temp, humidity: humidity, pressure: pressure)
+                }
+            }
         }
 
         DispatchQueue.global(qos: .background).async {

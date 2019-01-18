@@ -159,6 +159,10 @@
 		87FE16681F3C225A0031046D /* press.png in Resources */ = {isa = PBXBuildFile; fileRef = 87FE165F1F3C225A0031046D /* press.png */; };
 		87FE16691F3C225A0031046D /* sound.png in Resources */ = {isa = PBXBuildFile; fileRef = 87FE16601F3C225A0031046D /* sound.png */; };
 		87FE166A1F3C225A0031046D /* temp.png in Resources */ = {isa = PBXBuildFile; fileRef = 87FE16611F3C225A0031046D /* temp.png */; };
+		9CE12C7321AD2E1B000BE4B9 /* NotificationCenter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9CE12C7221AD2E1B000BE4B9 /* NotificationCenter.framework */; };
+		9CE12C7621AD2E1B000BE4B9 /* TodayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CE12C7521AD2E1B000BE4B9 /* TodayViewController.swift */; };
+		9CE12C7921AD2E1B000BE4B9 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9CE12C7721AD2E1B000BE4B9 /* MainInterface.storyboard */; };
+		9CE12C7D21AD2E1C000BE4B9 /* todayExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 9CE12C7121AD2E1B000BE4B9 /* todayExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		C2C4D108CC50E625C36C983D /* Pods_synapsewearTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 74720B7F850E3E2F11F3D87B /* Pods_synapsewearTests.framework */; };
 /* End PBXBuildFile section */
 
@@ -177,7 +181,28 @@
 			remoteGlobalIDString = 87064E3E1EAEDF8D00E34C31;
 			remoteInfo = synapsewear;
 		};
+		9CE12C7B21AD2E1C000BE4B9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 87064E371EAEDF8D00E34C31 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9CE12C7021AD2E1B000BE4B9;
+			remoteInfo = todayExtension;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		9CE12C8121AD2E1C000BE4B9 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				9CE12C7D21AD2E1C000BE4B9 /* todayExtension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		19D4BFA5CC0BDDDD170127EA /* Pods_synapsewear.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_synapsewear.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -403,6 +428,12 @@
 		87FE16601F3C225A0031046D /* sound.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = sound.png; path = images/sound.png; sourceTree = "<group>"; };
 		87FE16611F3C225A0031046D /* temp.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = temp.png; path = images/temp.png; sourceTree = "<group>"; };
 		8D96B3CCD1706F3330FA87C7 /* Pods-synapsewearTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-synapsewearTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-synapsewearTests/Pods-synapsewearTests.debug.xcconfig"; sourceTree = "<group>"; };
+		9CE12C7121AD2E1B000BE4B9 /* todayExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = todayExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		9CE12C7221AD2E1B000BE4B9 /* NotificationCenter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NotificationCenter.framework; path = System/Library/Frameworks/NotificationCenter.framework; sourceTree = SDKROOT; };
+		9CE12C7521AD2E1B000BE4B9 /* TodayViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayViewController.swift; sourceTree = "<group>"; };
+		9CE12C7821AD2E1B000BE4B9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
+		9CE12C7A21AD2E1C000BE4B9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		9CE12C8221AD3A7F000BE4B9 /* todayExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = todayExtension.entitlements; sourceTree = "<group>"; };
 		E232E72E51E87A02AF294FEB /* Pods-synapsewearUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-synapsewearUITests.release.xcconfig"; path = "Pods/Target Support Files/Pods-synapsewearUITests/Pods-synapsewearUITests.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -432,6 +463,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		9CE12C6E21AD2E1B000BE4B9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9CE12C7321AD2E1B000BE4B9 /* NotificationCenter.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -455,6 +494,7 @@
 				19D4BFA5CC0BDDDD170127EA /* Pods_synapsewear.framework */,
 				74720B7F850E3E2F11F3D87B /* Pods_synapsewearTests.framework */,
 				4BA16B57B6FC5D0602FF4713 /* Pods_synapsewearUITests.framework */,
+				9CE12C7221AD2E1B000BE4B9 /* NotificationCenter.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -465,6 +505,7 @@
 				87064E411EAEDF8D00E34C31 /* synapsewear */,
 				87064E561EAEDF8E00E34C31 /* synapsewearTests */,
 				87064E611EAEDF8E00E34C31 /* synapsewearUITests */,
+				9CE12C7421AD2E1B000BE4B9 /* todayExtension */,
 				87064E401EAEDF8D00E34C31 /* Products */,
 				02A459D75C15448A9F86A836 /* Pods */,
 				84BEC61A30D1599C305D87EE /* Frameworks */,
@@ -477,6 +518,7 @@
 				87064E3F1EAEDF8D00E34C31 /* synapsewear.app */,
 				87064E531EAEDF8E00E34C31 /* synapsewearTests.xctest */,
 				87064E5E1EAEDF8E00E34C31 /* synapsewearUITests.xctest */,
+				9CE12C7121AD2E1B000BE4B9 /* todayExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -905,6 +947,17 @@
 			path = view_parts;
 			sourceTree = "<group>";
 		};
+		9CE12C7421AD2E1B000BE4B9 /* todayExtension */ = {
+			isa = PBXGroup;
+			children = (
+				9CE12C8221AD3A7F000BE4B9 /* todayExtension.entitlements */,
+				9CE12C7521AD2E1B000BE4B9 /* TodayViewController.swift */,
+				9CE12C7721AD2E1B000BE4B9 /* MainInterface.storyboard */,
+				9CE12C7A21AD2E1C000BE4B9 /* Info.plist */,
+			);
+			path = todayExtension;
+			sourceTree = "<group>";
+		};
 		EB6CDCEE1F1C71F4003294AA /* audio */ = {
 			isa = PBXGroup;
 			children = (
@@ -925,11 +978,12 @@
 				87064E3C1EAEDF8D00E34C31 /* Frameworks */,
 				87064E3D1EAEDF8D00E34C31 /* Resources */,
 				8253D709289BAA04D5A992E1 /* [CP] Embed Pods Frameworks */,
-				1F5DC0FC820C420CC9A95080 /* [CP] Copy Pods Resources */,
+				9CE12C8121AD2E1C000BE4B9 /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				9CE12C7C21AD2E1C000BE4B9 /* PBXTargetDependency */,
 			);
 			name = synapsewear;
 			productName = synapsewear;
@@ -944,8 +998,6 @@
 				87064E4F1EAEDF8E00E34C31 /* Sources */,
 				87064E501EAEDF8E00E34C31 /* Frameworks */,
 				87064E511EAEDF8E00E34C31 /* Resources */,
-				2464648AE9E0DC744CCC98BE /* [CP] Embed Pods Frameworks */,
-				C450A8B571455AEDCF99FD9D /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -965,8 +1017,6 @@
 				87064E5A1EAEDF8E00E34C31 /* Sources */,
 				87064E5B1EAEDF8E00E34C31 /* Frameworks */,
 				87064E5C1EAEDF8E00E34C31 /* Resources */,
-				7D1F5DCC21A2382FEE2EA22E /* [CP] Embed Pods Frameworks */,
-				78E54C145A07C992D2D8B870 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -978,21 +1028,41 @@
 			productReference = 87064E5E1EAEDF8E00E34C31 /* synapsewearUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		9CE12C7021AD2E1B000BE4B9 /* todayExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9CE12C7E21AD2E1C000BE4B9 /* Build configuration list for PBXNativeTarget "todayExtension" */;
+			buildPhases = (
+				9CE12C6D21AD2E1B000BE4B9 /* Sources */,
+				9CE12C6E21AD2E1B000BE4B9 /* Frameworks */,
+				9CE12C6F21AD2E1B000BE4B9 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = todayExtension;
+			productName = todayExtension;
+			productReference = 9CE12C7121AD2E1B000BE4B9 /* todayExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
 		87064E371EAEDF8D00E34C31 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 0820;
+				LastSwiftUpdateCheck = 1010;
 				LastUpgradeCheck = 0940;
 				ORGANIZATIONNAME = "art and program, Inc. For license and other information refer to https://github.com/artandprogram/synapseWear";
 				TargetAttributes = {
 					87064E3E1EAEDF8D00E34C31 = {
 						CreatedOnToolsVersion = 8.2.1;
-						DevelopmentTeam = 873D53WAVK;
+						DevelopmentTeam = Z6J82AJ46Y;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 1;
+							};
 							com.apple.BackgroundModes = {
 								enabled = 1;
 							};
@@ -1010,6 +1080,16 @@
 						CreatedOnToolsVersion = 8.2.1;
 						ProvisioningStyle = Automatic;
 						TestTargetID = 87064E3E1EAEDF8D00E34C31;
+					};
+					9CE12C7021AD2E1B000BE4B9 = {
+						CreatedOnToolsVersion = 10.1;
+						DevelopmentTeam = Z6J82AJ46Y;
+						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};
@@ -1029,6 +1109,7 @@
 				87064E3E1EAEDF8D00E34C31 /* synapsewear */,
 				87064E521EAEDF8E00E34C31 /* synapsewearTests */,
 				87064E5D1EAEDF8E00E34C31 /* synapsewearUITests */,
+				9CE12C7021AD2E1B000BE4B9 /* todayExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -1123,78 +1204,31 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		9CE12C6F21AD2E1B000BE4B9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9CE12C7921AD2E1B000BE4B9 /* MainInterface.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		1F5DC0FC820C420CC9A95080 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-synapsewear/Pods-synapsewear-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		2464648AE9E0DC744CCC98BE /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-synapsewearTests/Pods-synapsewearTests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		78E54C145A07C992D2D8B870 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-synapsewearUITests/Pods-synapsewearUITests-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		7D1F5DCC21A2382FEE2EA22E /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-synapsewearUITests/Pods-synapsewearUITests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		8253D709289BAA04D5A992E1 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-synapsewear/Pods-synapsewear-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
+				"${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftyJSON.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1207,13 +1241,16 @@
 			files = (
 			);
 			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
 			);
 			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-synapsewearUITests-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 		B5BC67BA60D36D48E2E90858 /* [CP] Check Pods Manifest.lock */ = {
@@ -1222,28 +1259,16 @@
 			files = (
 			);
 			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
 			);
 			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-synapsewear-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
-			showEnvVarsInLog = 0;
-		};
-		C450A8B571455AEDCF99FD9D /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-synapsewearTests/Pods-synapsewearTests-resources.sh\"\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 		EAC65F634A52E64755E2B1CE /* [CP] Check Pods Manifest.lock */ = {
@@ -1252,13 +1277,16 @@
 			files = (
 			);
 			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
 			);
 			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-synapsewearTests-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -1366,6 +1394,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		9CE12C6D21AD2E1B000BE4B9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9CE12C7621AD2E1B000BE4B9 /* TodayViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -1379,6 +1415,11 @@
 			target = 87064E3E1EAEDF8D00E34C31 /* synapsewear */;
 			targetProxy = 87064E5F1EAEDF8E00E34C31 /* PBXContainerItemProxy */;
 		};
+		9CE12C7C21AD2E1C000BE4B9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9CE12C7021AD2E1B000BE4B9 /* todayExtension */;
+			targetProxy = 9CE12C7B21AD2E1C000BE4B9 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
@@ -1388,6 +1429,14 @@
 				87064E4C1EAEDF8D00E34C31 /* Base */,
 			);
 			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		9CE12C7721AD2E1B000BE4B9 /* MainInterface.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				9CE12C7821AD2E1B000BE4B9 /* Base */,
+			);
+			name = MainInterface.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -1506,11 +1555,12 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 5C414737B350088D0B3A0A5A /* Pods-synapsewear.debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = NO;
 				CODE_SIGN_ENTITLEMENTS = synapsewear/synapsewear.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEVELOPMENT_TEAM = 873D53WAVK;
+				DEVELOPMENT_TEAM = Z6J82AJ46Y;
 				INFOPLIST_FILE = synapsewear/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -1526,11 +1576,12 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 83FB77087BB4F5076758E0C5 /* Pods-synapsewear.release.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = NO;
 				CODE_SIGN_ENTITLEMENTS = synapsewear/synapsewear.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEVELOPMENT_TEAM = 873D53WAVK;
+				DEVELOPMENT_TEAM = Z6J82AJ46Y;
 				INFOPLIST_FILE = synapsewear/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -1600,6 +1651,55 @@
 			};
 			name = Release;
 		};
+		9CE12C7F21AD2E1C000BE4B9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = todayExtension/todayExtension.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = Z6J82AJ46Y;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = todayExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.artandprogram.sW.todayExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		9CE12C8021AD2E1C000BE4B9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = todayExtension/todayExtension.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = Z6J82AJ46Y;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = todayExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.artandprogram.sW.todayExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1635,6 +1735,15 @@
 			buildConfigurations = (
 				87064E6E1EAEDF8E00E34C31 /* Debug */,
 				87064E6F1EAEDF8E00E34C31 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9CE12C7E21AD2E1C000BE4B9 /* Build configuration list for PBXNativeTarget "todayExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9CE12C7F21AD2E1C000BE4B9 /* Debug */,
+				9CE12C8021AD2E1C000BE4B9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

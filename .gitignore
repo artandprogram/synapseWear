@@ -1,1 +1,6 @@
-.DS_Store
+*.DS_Store
+iOS/SynapseWear/Pods/*
+Podfile.lock
+xcuserdata/
+*xcuserstate
+*.xcworkspace
