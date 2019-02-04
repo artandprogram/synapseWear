@@ -9,7 +9,7 @@ target 'synapsewear' do
     #pod 'AlamofireImage', :git => 'https://github.com/Alamofire/AlamofireImage.git'
     #pod 'AFNetworking'
     pod 'SwiftyJSON', :git => 'https://github.com/SwiftyJSON/SwiftyJSON.git'
-    #pod 'F53OSC', :git => 'https://github.com/Figure53/F53OSC.git'
+    pod 'F53OSC', :git => 'https://github.com/Figure53/F53OSC.git'
 end
 
 target 'synapsewearTests' do

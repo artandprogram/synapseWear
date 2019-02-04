@@ -1,49 +1,54 @@
 synapseWear Sensor Data Breakdown (S1 from synapseWearData.txt.txt)
 
-00 FF 20 02 00 17 01 90 01 B4 FF DB 20 7C 01 AD FF A0 00 41 FF FD 49 00 7B 00 55 FF 22 32 20 3D 03 F2 01 00 00 FF
-1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38
+00 ff 24 02 ff ff cb 04 19 8c 16 d0 05 57 4d 88 f4 c8 ff ff ff 00 ff 03 ef 55 ff ff ca 80 55 0e ff ff 00 ff
+0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35
 
-1  -  4 Header ヘッダー
-5  -  6 Counter (+1 per cycle) カウンター（単純に送信毎に +1)
-7  -  8 CO2 (400 - 8192, これ以外、表示しなくても良い、0の場合は初期化中）
-9  - 14 Accelerometer 加速度
+0  -  1 Header ヘッダー
+
+2       Length
+
+3       Type (02 = Sensor data)   
+
+4  -  5 CO2 (400 - 8192, これ以外、表示しなくても良い、0の場合は初期化中）
+
+6  -  11 Accelerometer 加速度
         int16_t ax = -(data[0] << 8 | data[1]);
         int16_t ay = -(data[2] << 8 | data[3]);
         int16_t az = data[4] << 8 | data[5];
 
-15 - 20 Gyro　
+12 - 17 Gyro　
         int16_t gx = -(data[0] << 8 | data[1]);
         int16_t gy = -(data[2] << 8 | data[3]);
         int16_t gz = data[4] << 8 | data[5];
 
-21 - 22 Light 照度
+18 - 19 Light 照度
         Same format as CO2 CO2 と同様
 
-23 - 24 Temperature (in Celsius) 温度
+20 - 21 Temperature (in Celsius) 温度
         float decimal = data[1] / 256.0;
         return data[0] + decimal;
 
-25 - 26 Humidity 湿度
+22 - 23 Humidity 湿度
         float decimal = data[1] / 256.0;
         return data[0] + decimal;	
 
-27 - 28 Air pressure 空気圧
+24 - 25 Air pressure 空気圧
 	return data[0]*256+data[1]+data[2]/256.0;
 	（data[0], data[1] は CO2 と同様）
         
-29 - 30 tVOC
+26 - 27 tVOC
         計算方法は CO2 と同様
 
-31 - 32 Battery voltage デバイスの電圧
+28 - 29 Battery voltage デバイスの電圧
         int value = (data[0] << 4) | (data[1] >> 4);
         return map(value, 0x000, 0xFFF, 0, 50000) / 10000.0;
 
-33 - 34 % Remaining battery 電池の残量
+30 - 31 % Remaining battery 電池の残量
         float decimal = data[1] / 256.0;
         return data[0] + decimal;	
 
-35 - 36 Environmental Sound 環境音量
+32 - 33 Environmental Sound 環境音量
         float decimal = data[1] / 256.0;
         return data[0] + decimal;	
 
-37 - 38	Footer フッター
+34 - 35	Footer フッター
