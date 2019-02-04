@@ -1,0 +1,37 @@
+PODS:
+  - Alamofire (4.4.0)
+  - F53OSC (1.0.2)
+  - SwiftyJSON (3.1.4)
+
+DEPENDENCIES:
+  - Alamofire (from `https://github.com/Alamofire/Alamofire.git`)
+  - F53OSC (from `https://github.com/Figure53/F53OSC.git`)
+  - SwiftyJSON (from `https://github.com/SwiftyJSON/SwiftyJSON.git`)
+
+EXTERNAL SOURCES:
+  Alamofire:
+    :git: https://github.com/Alamofire/Alamofire.git
+  F53OSC:
+    :git: https://github.com/Figure53/F53OSC.git
+  SwiftyJSON:
+    :git: https://github.com/SwiftyJSON/SwiftyJSON.git
+
+CHECKOUT OPTIONS:
+  Alamofire:
+    :commit: f0d23a7a8477e3d2c9f03afcc097d0bef4448208
+    :git: https://github.com/Alamofire/Alamofire.git
+  F53OSC:
+    :commit: d895b2e7a1b5bcf07c0f7d69483ece8f847219b2
+    :git: https://github.com/Figure53/F53OSC.git
+  SwiftyJSON:
+    :commit: 03bcacb1a7a428e569eecd0afb2d811c8d0e1f56
+    :git: https://github.com/SwiftyJSON/SwiftyJSON.git
+
+SPEC CHECKSUMS:
+  Alamofire: 4c2bf7fa03c4a626163606de0a417568c270575e
+  F53OSC: 9ddea807ecb8367d708995b10ab2c5decc6630fe
+  SwiftyJSON: 05cf0e98a950e2ba343735264f5a96b81e755d00
+
+PODFILE CHECKSUM: 5121c378d16a391c94a7d0bfce24096752200f54
+
+COCOAPODS: 1.5.3
