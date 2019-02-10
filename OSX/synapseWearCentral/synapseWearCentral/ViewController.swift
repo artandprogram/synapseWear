@@ -84,6 +84,7 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
     let synapseTimeInterval: TimeInterval = 1.0
     let synapseValidSensors: [String: Bool] = [:]
     let synapseTimeIntervals: [TimeInterval] = [
+        0.05,
         0.1,
         1.0,
         10.0,
@@ -919,7 +920,7 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
 
         let now: Date = Date()
         let data: [UInt8] = synapseObject.receiveData
-        synapseObject.synapseData.insert(["time": now.timeIntervalSince1970, "data": data], at: 0)
+        synapseObject.synapseData.insert(["time": now.timeIntervalSince1970, "data": data, "uuid": synapseObject.synapse?.peripheral.identifier.uuidString], at: 0)
         if synapseObject.synapseData.count > self.synapseDataMax {
             synapseObject.synapseData.removeLast()
         }
@@ -1650,13 +1651,16 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
         if self.synapseData.count > 0 {
             let synapse = self.synapseData[0]
             //print("setSynapseValues: \(synapse)")
-            if let time = synapse["time"] as? TimeInterval, let data = synapse["data"] as? [UInt8] {
+            if let time = synapse["time"] as? TimeInterval, let data = synapse["data"] as? [UInt8], let uuid = synapse["uuid"] as? String {
                 let formatter = DateFormatter()
                 formatter.locale = Locale(identifier: "en_US_POSIX")
                 formatter.dateFormat = "yyyyMMddHHmmss"
                 self.synapseNowDate = formatter.string(from: Date(timeIntervalSince1970: time))
                 //print("setSynapseNowDate: \(self.synapseNowDate)")
                 self.synapseValues.time = time
+                self.synapseValues.timeSec = Int(time)
+                self.synapseValues.timeMillis = Int(time.truncatingRemainder(dividingBy: 1)*10000)
+                self.synapseValues.uuid = uuid
 
                 let axBak: Int? = self.synapseValues.ax
                 let ayBak: Int? = self.synapseValues.ay
@@ -2082,6 +2086,9 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
                 0, // tvoc
                 0, // volt
                 0, // pow
+                0, // time seconds
+                0, // time millis
+                0, // uuid
             ]
             if let time = self.synapseValues.time {
                 arguments[0] = time
@@ -2131,7 +2138,16 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
             if let pow = self.synapseValues.battery {
                 arguments[15] = pow
             }
-            //print("sendOSC: \(arguments)")
+            if let timeSec = self.synapseValues.timeSec {
+                arguments[16] = timeSec
+            }
+            if let timeMillis = self.synapseValues.timeMillis {
+                arguments[17] = timeMillis
+            }
+            if let uuid = self.synapseValues.uuid {
+                arguments[18] = uuid
+            }
+            print("sendOSC: \(arguments)")
             self.sendMessage(client: oscClient, addressPattern: "/synapseWear", arguments: arguments)
         }
     }
@@ -2319,7 +2335,10 @@ class SynapseValues {
     var power: Float?
     var battery: Float?
     var isConnected: Bool = false
-    
+    var timeSec: Int?
+    var timeMillis: Int?
+    var uuid: String?
+
     init(_ name: String? = nil) {
 
         self.name = name
