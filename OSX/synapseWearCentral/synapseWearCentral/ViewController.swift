@@ -2147,7 +2147,7 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
             if let uuid = self.synapseValues.uuid {
                 arguments[18] = uuid
             }
-            print("sendOSC: \(arguments)")
+            //print("sendOSC: \(arguments)")
             self.sendMessage(client: oscClient, addressPattern: "/synapseWear", arguments: arguments)
         }
     }

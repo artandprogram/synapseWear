@@ -82,7 +82,7 @@ static CBUUID *service_uuid;
     else if ([deviceName isEqualToString:@"Simblee"]) {
         [self setUuidsSimblee];
     }
-    //NSLog(@"setUuids deviceName: %@, service_uuid: %@", deviceName, service_uuid);
+    NSLog(@"setUuids deviceName: %@, service_uuid: %@", deviceName, service_uuid);
 
     services = [NSArray arrayWithObjects:
                 service_uuid,
