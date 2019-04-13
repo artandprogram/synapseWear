@@ -3,6 +3,8 @@ synapseWear Sensor Data Breakdown (S1 from synapseWearData.txt.txt)
 00 ff 24 02 ff ff cb 04 19 8c 16 d0 05 57 4d 88 f4 c8 ff ff ff 00 ff 03 ef 55 ff ff ca 80 55 0e ff ff 00 ff
 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35
 
+00 25 36 02 25 25 25 22 04 16 63 18 23 46 20 17 05 65 25 25 25 00 25 00 00 00 25 25 20 00 10 66 25 25 00 25
+
 0  -  1 Header ヘッダー
 
 2       Length
@@ -28,11 +30,10 @@ synapseWear Sensor Data Breakdown (S1 from synapseWearData.txt.txt)
         float decimal = data[1] / 256.0;
         return data[0] + decimal;
 
-22 - 23 Humidity 湿度
-        float decimal = data[1] / 256.0;
-        return data[0] + decimal;	
+22 - 22 Humidity 湿度
+	Single byte, int8_t
 
-24 - 25 Air pressure 空気圧
+23 - 25 Air pressure 空気圧
 	return data[0]*256+data[1]+data[2]/256.0;
 	（data[0], data[1] は CO2 と同様）
         
