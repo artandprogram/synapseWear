@@ -90,4 +90,46 @@ class SynapseFileManager: NSObject {
         }
         return true
     }
+
+    func setValues(baseURL: URL, uuid: String, bytes: [UInt8], date: Date) -> Bool {
+
+        let dayFormatter: DateFormatter = DateFormatter()
+        dayFormatter.locale = Locale(identifier: "en_US_POSIX")
+        dayFormatter.dateFormat = "yyyyMMdd"
+        let day: String = dayFormatter.string(from: date)
+
+        var filePath: URL = baseURL.appendingPathComponent(uuid)
+        var isDir: ObjCBool = false
+        var exists: Bool = self.fileManager.fileExists(atPath: filePath.path, isDirectory: &isDir)
+        if !exists || !isDir.boolValue {
+            return false
+        }
+
+        filePath = filePath.appendingPathComponent(day)
+        exists = self.fileManager.fileExists(atPath: filePath.path, isDirectory: &isDir)
+        if !exists || !isDir.boolValue {
+            if exists && !isDir.boolValue {
+                do {
+                    try fileManager.removeItem(atPath: filePath.path)
+                }
+                catch {
+                    return false
+                }
+            }
+            do {
+                try fileManager.createDirectory(atPath: filePath.path, withIntermediateDirectories: true, attributes: nil)
+            }
+            catch {
+                return false
+            }
+        }
+
+        let filename: String = "\(date.timeIntervalSince1970)"
+        filePath = filePath.appendingPathComponent(filename)
+        let output = OutputStream(toFileAtPath: filePath.path, append: true)
+        output?.open()
+        output?.write(bytes, maxLength: bytes.count)
+        output?.close()
+        return true
+    }
 }

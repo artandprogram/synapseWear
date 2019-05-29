@@ -274,6 +274,7 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
             if tableView.clickedColumn == 1 {
                 if self.synapses[tableView.clickedRow].synapseValues.isConnected {
                     self.synapses[tableView.clickedRow].synapseScanLatestDate = Date()
+                    self.synapses[tableView.clickedRow].synapseValues.isDisconnected = true
                     synapse.disconnect()
                 }
                 else {
@@ -783,9 +784,12 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
                 if self.synapses[row].synapseValues.isConnected {
                     str = "○"
                 }
-                else if let date = self.synapses[row].synapseScanLatestDate, date.timeIntervalSinceNow < -self.synapseScanLimitTimeInterval {
+                else if self.synapses[row].synapseValues.isDisconnected {
                     str = "×"
                 }
+                /*else if let date = self.synapses[row].synapseScanLatestDate, date.timeIntervalSinceNow < -self.synapseScanLimitTimeInterval {
+                    str = "×"
+                }*/
                 //print("Connect tableColumn: \(self.synapses[row].synapseScanLatestDate)")
             }
             else if tableColumn.identifier.rawValue == "Received" {
@@ -903,8 +907,16 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
                 synapseObject.synapseScanLatestDate = Date()
                 synapseObject.vc = self
                 self.synapses.append(synapseObject)
+                //print("add: \(synapseObject)")
+                synapseIndex = self.synapses.count - 1
 
                 self.tableView.reloadData()
+            }
+
+            if synapseIndex >= 0 && synapseIndex < self.synapses.count {
+                if !self.synapses[synapseIndex].synapseValues.isDisconnected {
+                    self.rfduinoManager.connect(self.synapses[synapseIndex].synapse)
+                }
             }
         }
     }
@@ -918,20 +930,27 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
     
     func setSynapseData(synapseObject: SynapseObject) {
 
-        let now: Date = Date()
-        let data: [UInt8] = synapseObject.receiveData
-        synapseObject.synapseData.insert(["time": now.timeIntervalSince1970, "data": data, "uuid": synapseObject.synapse?.peripheral.identifier.uuidString], at: 0)
-        if synapseObject.synapseData.count > self.synapseDataMax {
-            synapseObject.synapseData.removeLast()
-        }
-        //print("setSynapseData: \(time)")
-        synapseObject.setSynapseValues()
-        synapseObject.synapseReceivedCount += 1
-
-        if let baseURL = synapseObject.synapseDataSaveDir, let synapse = synapseObject.synapse {
-            DispatchQueue.global(qos: .background).async {
-                _ = self.synapseFileManager.setValues(baseURL: baseURL, uuid: synapse.peripheral.identifier.uuidString, values: Data(bytes: data), date: now)
+        if let synapse = synapseObject.synapse {
+            let now: Date = Date()
+            let data: [UInt8] = synapseObject.receiveData
+            synapseObject.synapseData.insert(["time": now.timeIntervalSince1970, "data": data, "uuid": synapse.peripheral.identifier.uuidString], at: 0)
+            if synapseObject.synapseData.count > self.synapseDataMax {
+                synapseObject.synapseData.removeLast()
             }
+            //print("setSynapseData: \(time)")
+            synapseObject.setSynapseValues()
+            synapseObject.synapseReceivedCount += 1
+
+            if let baseURL = synapseObject.synapseDataSaveDir, let connectedDate = synapseObject.synapseValues.connectedDate {
+                DispatchQueue.global(qos: .background).async {
+                    _ = self.synapseFileManager.setValues(baseURL: baseURL, uuid: synapse.peripheral.identifier.uuidString, bytes: data, date: connectedDate)
+                }
+            }
+            /*if let baseURL = synapseObject.synapseDataSaveDir {
+                DispatchQueue.global(qos: .background).async {
+                    _ = self.synapseFileManager.setValues(baseURL: baseURL, uuid: synapse.peripheral.identifier.uuidString, values: Data(bytes: data), date: now)
+                }
+            }*/
         }
     }
 
@@ -1129,6 +1148,8 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
             if Int(bytes[0]) == 0 {
                 print("receiveAccessKeyToDevice OK")
                 synapseObject.synapseValues.isConnected = true
+                synapseObject.synapseValues.isDisconnected = false
+                synapseObject.synapseValues.connectedDate = Date()
                 synapseObject.synapseSendModeSuspension = false
                 synapseObject.synapseSendMode = SendMode.I0
 
@@ -2335,6 +2356,8 @@ class SynapseValues {
     var power: Float?
     var battery: Float?
     var isConnected: Bool = false
+    var isDisconnected: Bool = false
+    var connectedDate: Date?
     var timeSec: Int?
     var timeMillis: Int?
     var uuid: String?
@@ -2363,5 +2386,7 @@ class SynapseValues {
         self.power = nil
         self.battery = nil
         self.isConnected = false
+        //self.isDisconnected = false
+        self.connectedDate = nil
     }
 }
