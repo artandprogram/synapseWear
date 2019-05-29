@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+                name="statusViewModel"
+                type="com.synapsewear.app.status.StatusViewModel"/>
+    </data>
+
+
+    <LinearLayout
+            android:background="@drawable/gradient_background"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            tools:context=".app.status.StatusActivity">
+
+        <include
+                android:id="@+id/layout_toolbar_status"
+                layout="@layout/toolbar_base"
+                app:drawableEnd="@{@drawable/ic_settings}"
+                app:title="@{@string/status}"/>
+
+        <ScrollView
+                android:id="@+id/sv_status"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                <include
+                        layout="@layout/item_status_row"
+                        app:statusValue="@{statusViewModel.connectedDevice.macAddress}"
+                        app:statusLabel="@{@string/mac_address}"/>
+
+                <include
+                        layout="@layout/item_status_row"
+                        app:statusValue="@{context.getString(statusViewModel.connectedDevice.status.getStatusResource())}"
+                        app:statusLabel="@{@string/status}"/>
+
+                <include
+                        layout="@layout/item_status_row"
+                        app:statusValue="@{statusViewModel.connectedDevice.synapseValues.time}"
+                        app:statusLabel="@{@string/time}"/>
+
+                <include
+                        layout="@layout/item_status_row"
+                        app:statusValue="@{statusViewModel.connectedDevice.synapseValues.CO2}"
+                        app:statusLabel="@{@string/CO2}"/>
+
+                <include
+                        layout="@layout/item_status_row"
+                        app:statusValue="@{statusViewModel.connectedDevice.synapseValues.getAccelerometerArray()}"
+                        app:statusLabel="@{@string/accelerometer}"/>
+
+                <include
+                        layout="@layout/item_status_row"
+                        app:statusValue="@{statusViewModel.connectedDevice.synapseValues.light}"
+                        app:statusLabel="@{@string/light}"/>
+
+                <include
+                        layout="@layout/item_status_row"
+                        app:statusValue="@{statusViewModel.connectedDevice.synapseValues.getGyroscopeArray()}"
+                        app:statusLabel="@{@string/gyro}"/>
+
+                <include
+                        layout="@layout/item_status_row"
+                        app:statusValue="@{statusViewModel.connectedDevice.synapseValues.airPressure}"
+                        app:statusLabel="@{@string/pressure}"/>
+
+                <include
+                        layout="@layout/item_status_row"
+                        app:statusValue="@{statusViewModel.convertedTemperature}"
+                        app:statusLabel="@{@string/temperature}"/>
+
+                <include
+                        layout="@layout/item_status_row"
+                        app:statusValue="@{statusViewModel.connectedDevice.synapseValues.humidity}"
+                        app:statusLabel="@{@string/humidity}"/>
+
+                <include
+                        layout="@layout/item_status_row"
+                        app:statusValue="@{statusViewModel.connectedDevice.synapseValues.environmentalSound}"
+                        app:statusLabel="@{@string/environmental_sound}"/>
+
+                <include
+                        layout="@layout/item_status_row"
+                        app:statusValue="@{statusViewModel.connectedDevice.synapseValues.tVOC}"
+                        app:statusLabel="@{@string/tVOC}"/>
+
+                <include
+                        layout="@layout/item_status_row"
+                        app:statusValue="@{statusViewModel.connectedDevice.synapseValues.voltage}"
+                        app:statusLabel="@{@string/volt}"/>
+
+                <include
+                        layout="@layout/item_status_row"
+                        app:statusValue="@{statusViewModel.connectedDevice.synapseValues.remainingBattery}"
+                        app:statusLabel="@{@string/pow}"/>
+
+                <include
+                        app:statusValue="@{statusViewModel.deviceSettings.oscSettings.oscSendEnabled ? @string/on : @string/off}"
+                        layout="@layout/item_status_row"
+                        app:statusLabel="@{@string/osc_send_mode}"/>
+
+                <include
+                        app:statusValue="@{statusViewModel.deviceSettings.oscSettings.oscIP.isEmpty() ? `` : @string/address_port_placeholder(statusViewModel.deviceSettings.oscSettings.oscIP, statusViewModel.deviceSettings.oscSettings.oscPort)}"
+                        layout="@layout/item_status_row"
+                        app:statusLabel="@{@string/address_or_port}"/>
+
+            </LinearLayout>
+
+        </ScrollView>
+
+    </LinearLayout>
+</layout>

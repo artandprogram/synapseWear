@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+        xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <variable
+                name="label"
+                type="String"/>
+
+        <variable
+                name="inputValue"
+                type="String"/>
+
+        <variable
+                name="isLastRow"
+                type="boolean"/>
+    </data>
+
+    <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/settings_item_height"
+            android:background="@color/colorWhite">
+
+        <LinearLayout
+                android:layout_alignParentTop="true"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+            <TextView
+                    android:layout_marginStart="@dimen/margin_medium"
+                    android:layout_width="wrap_content"
+                    style="@style/MediumTextStyle"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text="@{label}"/>
+
+            <EditText
+                    android:textSize="@dimen/text_size_normal"
+                    android:inputType="number|numberDecimal"
+                    android:digits="0123456789."
+                    android:lines="1"
+                    android:layout_marginEnd="@dimen/margin_medium"
+                    android:layout_width="0dp"
+                    android:background="@color/colorTransparent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@={inputValue}"
+                    android:layout_gravity="center_vertical"
+                    android:gravity="end"
+                    android:textColor="@color/colorAccent"/>
+        </LinearLayout>
+
+        <View
+                android:visibility="@{!isLastRow}"
+                android:layout_alignParentBottom="true"
+                style="@style/SeparatorWithMarginStyle"/>
+    </RelativeLayout>
+</layout>

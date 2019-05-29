@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/nav_settings"
+        app:startDestination="@id/settingsMenuFragment">
+
+    <fragment
+            tools:layout="@layout/fragment_settings_menu"
+            android:id="@+id/settingsMenuFragment"
+            android:name="com.synapsewear.app.settings.menu.SettingsMenuFragment"
+            android:label="SettingsMenuFragment">
+        <action
+                android:id="@+id/actionNavigateToSettingsDevices"
+                app:destination="@id/devicesFragment"/>
+        <action
+                android:id="@+id/actionNavigateToSettingsInterval"
+                app:destination="@id/intervalSettingsFragment"/>
+        <action
+                android:id="@+id/actionNavigateToSettingsOscFragment"
+                app:destination="@id/settingsOscFragment"/>
+        <action
+                android:id="@+id/actionNavigateToSettingsUploadFragment"
+                app:destination="@id/settingsUploadFragment"/>
+        <action
+                android:id="@+id/actionNavigateToSettingsFirmwareFragment"
+                app:destination="@id/settingsFirmwareFragment"/>
+    </fragment>
+
+    <fragment
+            tools:layout="@layout/fragment_settings_details_list"
+            android:id="@+id/devicesFragment"
+            android:name="com.synapsewear.app.settings.devices.SettingsDevicesFragment"
+            android:label="SettingsDevicesFragment"/>
+    <fragment
+            tools:layout="@layout/fragment_settings_details_list"
+            android:id="@+id/intervalSettingsFragment"
+            android:name="com.synapsewear.app.settings.interval.SettingsIntervalFragment"
+            android:label="SettingsIntervalFragment"/>
+    <fragment
+            tools:layout="@layout/fragment_settings_osc"
+            android:id="@+id/settingsOscFragment"
+            android:name="com.synapsewear.app.settings.osc.SettingsOscFragment"
+            android:label="SettingsOscFragment"/>
+    <fragment
+            android:id="@+id/settingsUploadFragment"
+            android:name="com.synapsewear.app.settings.upload.SettingsUploadFragment"
+            android:label="SettingsUploadFragment"/>
+    <fragment
+            android:id="@+id/settingsFirmwareFragment"
+            android:name="com.synapsewear.app.settings.firmware.SettingsFirmwareFragment"
+            android:label="SettingsFirmwareFragment"/>
+</navigation>

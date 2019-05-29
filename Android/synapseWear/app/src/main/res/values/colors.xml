@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#D9DADF</color>
+    <color name="colorPrimaryDark">#858585</color>
+    <color name="colorAccent">#E2125A</color>
+
+    <color name="colorWhite">#FFFFFF</color>
+    <color name="colorBlack">#000000</color>
+    <color name="colorTransparent">#00000000</color>
+
+    <color name="colorBackgroundGradientStart">@color/colorPrimaryDark</color>
+    <color name="colorBackgroundGradientEnd">#BCBCBD</color>
+
+    <color name="colorBaseBackground">#DEDFE3</color>
+    <color name="colorBaseGray">#808080</color>
+    <color name="colorBaseHint">@color/colorBaseBackground</color>
+
+    <color name="colorPurple">#5B1289</color>
+</resources>

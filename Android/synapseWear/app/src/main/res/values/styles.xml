@@ -1,0 +1,41 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
+        <item name="android:windowBackground">@drawable/splash_screen</item>
+        <item name="android:windowAnimationStyle">@style/CustomActivityAnimation</item>
+
+
+    </style>
+
+    <style name="CustomActivityAnimation" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/out_to_left</item>
+        <item name="android:activityOpenExitAnimation">@anim/in_from_right</item>
+        <item name="android:activityCloseEnterAnimation">@anim/in_from_left</item>
+        <item name="android:activityCloseExitAnimation">@anim/out_to_right</item>
+    </style>
+
+    <style name="TitleTextStyle">
+        <item name="android:textSize">@dimen/text_size_big</item>
+        <item name="android:textColor">@color/colorBlack</item>
+        <item name="android:letterSpacing">0.1</item>
+        <item name="android:gravity">center_horizontal</item>
+    </style>
+
+    <style name="MediumTextStyle">
+        <item name="android:textSize">@dimen/text_size_normal</item>
+        <item name="android:textColor">@color/colorBaseGray</item>
+    </style>
+
+    <style name="SeparatorWithMarginStyle">
+        <item name="android:layout_height">@dimen/list_item_divider_height</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_marginStart">@dimen/margin_medium</item>
+        <item name="android:background">@color/colorBaseHint</item>
+    </style>
+
+
+</resources>

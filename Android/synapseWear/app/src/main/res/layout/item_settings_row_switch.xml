@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        >
+
+    <data>
+
+        <variable
+                name="label"
+                type="String"/>
+
+        <variable
+                name="isLastRow"
+                type="boolean"/>
+
+        <variable
+                name="drawable"
+                type="android.graphics.drawable.Drawable"/>
+
+        <variable
+                name="switchValue"
+                type="boolean"/>
+
+        <variable
+                name="isImageSpace"
+                type="boolean"/>
+    </data>
+
+    <LinearLayout
+            android:background="@color/colorWhite"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/settings_item_height">
+
+        <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_weight="1"
+                android:layout_height="0dp">
+
+            <ImageView
+                    android:id="@+id/iv_layout_setting_switch"
+                    android:layout_width="24dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:src="@{drawable}"
+                    android:visibility="@{drawable != null || isImageSpace}"
+                    android:layout_height="24dp"
+                    android:layout_marginStart="@dimen/margin_medium"
+                    tools:src="@drawable/ic_angle"/>
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{label}"
+                    android:layout_toEndOf="@id/iv_layout_setting_switch"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="@dimen/margin_medium"
+                    tools:text="@string/synapseWear"
+                    style="@style/MediumTextStyle"/>
+
+            <Switch
+                    android:checked="@={switchValue}"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="@dimen/margin_medium"/>
+        </RelativeLayout>
+
+        <View
+                android:visibility="@{!isLastRow}"
+                style="@style/SeparatorWithMarginStyle"
+                />
+    </LinearLayout>
+</layout>
