@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+                name="settingsViewModel"
+                type="com.synapsewear.app.settings.SettingsViewModel"/>
+    </data>
+
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        <include
+                android:layout_marginTop="@dimen/settings_item_margin"
+                app:label="@{@string/CO2}"
+                app:switchValue="@={settingsViewModel.deviceSettings.sensorsValues.co2Sensor}"
+                app:drawable="@{@drawable/ic_co2}"
+                android:layout_height="@dimen/settings_item_height"
+                android:layout_width="match_parent"
+                layout="@layout/item_settings_row_switch"/>
+
+        <include
+                app:label="@{@string/temperature}"
+                app:switchValue="@={settingsViewModel.deviceSettings.sensorsValues.temperatureSensor}"
+                app:drawable="@{@drawable/ic_temperature}"
+                layout="@layout/item_settings_row_switch"/>
+
+        <include
+                app:label="@{@string/humidity}"
+                app:switchValue="@={settingsViewModel.deviceSettings.sensorsValues.humiditySensor}"
+                app:drawable="@{@drawable/ic_humidity}"
+                layout="@layout/item_settings_row_switch"/>
+
+        <include
+                app:label="@{@string/illumination}"
+                app:switchValue="@={settingsViewModel.deviceSettings.sensorsValues.illuminationSensor}"
+                app:drawable="@{@drawable/ic_illumination}"
+                layout="@layout/item_settings_row_switch"/>
+
+        <include
+                app:label="@{@string/air_pressure}"
+                app:switchValue="@={settingsViewModel.deviceSettings.sensorsValues.pressureSensor}"
+                app:drawable="@{@drawable/ic_air_pressure}"
+                layout="@layout/item_settings_row_switch"/>
+
+        <include
+                app:label="@{@string/environmental_sound}"
+                app:switchValue="@={settingsViewModel.deviceSettings.sensorsValues.soundSensor}"
+                app:drawable="@{@drawable/ic_environmental_sound}"
+                layout="@layout/item_settings_row_switch"/>
+
+        <include
+                app:label="@{@string/movement}"
+                app:switchValue="@={settingsViewModel.deviceSettings.sensorsValues.movementSensor}"
+                app:drawable="@{@drawable/ic_movement}"
+                layout="@layout/item_settings_row_switch"/>
+
+        <include
+                app:label="@{@string/angle}"
+                app:switchValue="@={settingsViewModel.deviceSettings.sensorsValues.angleSensor}"
+                app:drawable="@{@drawable/ic_angle}"
+                layout="@layout/item_settings_row_switch"/>
+
+        <include
+                android:layout_height="@dimen/settings_item_height"
+                android:layout_width="match_parent"
+                android:layout_marginBottom="@dimen/settings_item_margin"
+                app:isLastRow="@{true}"
+                app:isImageSpace="@{true}"
+                app:switchValue="@={settingsViewModel.deviceSettings.sensorsValues.ledSensor}"
+                app:label="@{@string/led}"
+                layout="@layout/item_settings_row_switch"/>
+
+    </LinearLayout>
+</layout>

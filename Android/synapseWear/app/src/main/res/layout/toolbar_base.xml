@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        >
+
+    <data>
+
+        <variable
+                name="title"
+                type="String"/>
+
+        <variable
+                name="drawableEnd"
+                type="android.graphics.drawable.Drawable"/>
+
+    </data>
+
+    <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        <TextView
+                android:layout_centerInParent="true"
+                style="@style/TitleTextStyle"
+                android:text="@{title}"
+                tools:text="@string/status"
+                android:layout_width="wrap_content"
+                android:layout_margin="@dimen/margin_medium"
+                android:layout_height="wrap_content"/>
+
+        <ImageView
+                android:id="@+id/iv_toolbar_base_end"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@{drawableEnd}"
+                tools:src="@drawable/ic_cancel"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="@dimen/margin_medium"/>
+    </RelativeLayout>
+</layout>

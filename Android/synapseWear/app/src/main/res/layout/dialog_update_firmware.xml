@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+
+    <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        <TextView
+                android:id="@+id/tv_update_firmware_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin_medium"
+                android:textColor="@color/colorBlack"
+                android:text="@string/downloading_update_file"
+                style="@style/MediumTextStyle"/>
+
+        <ProgressBar
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:max="100"
+                android:layout_margin="@dimen/margin_medium"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:id="@+id/pb_update_firmware"/>
+
+        <TextView
+                android:id="@+id/tv_dialog_cancel"
+                android:layout_gravity="center_horizontal"
+                android:layout_margin="@dimen/margin_medium"
+                android:layout_width="wrap_content"
+                android:textColor="@color/colorAccent"
+                android:layout_height="wrap_content"
+                style="@style/MediumTextStyle"
+                android:text="@string/cancel"/>
+    </LinearLayout>
+</layout>

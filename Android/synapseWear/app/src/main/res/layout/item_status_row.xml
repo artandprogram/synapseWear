@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+                name="statusLabel"
+                type="String"/>
+
+        <variable
+                name="statusFormat"
+                type="int"/>
+
+        <variable
+                name="statusValue"
+                type="Object"/>
+
+        <variable
+                name="synapseArray"
+                type="java.util.ArrayList"/>
+
+        <import type="com.synapsewear.data.enums.StatusState"/>
+    </data>
+
+    <LinearLayout
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginTop="@dimen/margin_small"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/text_size_normal"
+                android:textColor="@color/colorBlack"
+                android:text="@{@string/status_placeholder(statusLabel)}"/>
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/text_size_small"
+                android:textColor="@color/colorPurple"
+                android:layout_marginStart="@dimen/margin_small"
+                app:synapseValue="@{statusValue ?? synapseArray}"/>
+    </LinearLayout>
+</layout>

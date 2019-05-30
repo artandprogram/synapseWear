@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+                name="settingsViewModel"
+                type="com.synapsewear.app.settings.SettingsViewModel"/>
+    </data>
+
+    <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        <include
+                android:layout_height="@dimen/settings_item_height"
+                android:layout_width="match_parent"
+                app:switchValue="@={settingsViewModel.deviceSettings.uploadSettings.uploadEnabled}"
+                app:label="@{@string/send}"
+                layout="@layout/item_settings_row_switch"/>
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/settings_item_height"
+                android:background="@color/colorWhite">
+            <EditText
+                    android:textSize="@dimen/text_size_normal"
+                    android:inputType="textUri"
+                    android:lines="1"
+                    android:layout_weight="1"
+                    android:text="@={settingsViewModel.deviceSettings.uploadSettings.uploadURL}"
+                    android:hint="@string/upload_url"
+                    android:layout_marginStart="@dimen/margin_medium"
+                    android:layout_marginEnd="@dimen/margin_medium"
+                    android:layout_width="0dp"
+                    android:background="@color/colorTransparent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:textColor="@color/colorAccent"/>
+        </LinearLayout>
+
+        <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorBlack"
+                style="@style/MediumTextStyle"
+                android:layout_margin="@dimen/margin_medium"
+                android:text="@string/upload_description"/>
+
+    </LinearLayout>
+</layout>

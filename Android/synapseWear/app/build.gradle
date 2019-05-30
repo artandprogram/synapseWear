@@ -1,0 +1,75 @@
+apply plugin: 'com.android.application'
+
+apply plugin: 'kotlin-android'
+
+apply plugin: 'kotlin-android-extensions'
+
+apply plugin: 'kotlin-kapt'
+
+android {
+    compileSdkVersion 28
+    defaultConfig {
+        applicationId "com.synapsewear"
+        minSdkVersion 21
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+        vectorDrawables.useSupportLibrary = true
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    dataBinding {
+        enabled = true
+    }
+
+    compileOptions {
+        targetCompatibility = "8"
+        sourceCompatibility = "8"
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    // android
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$versions.kotlin"
+    implementation "androidx.appcompat:appcompat:$versions.appcompat"
+    implementation "androidx.core:core-ktx:$versions.ktx"
+    implementation "androidx.constraintlayout:constraintlayout:$versions.constraintLayout"
+
+    // architecture components
+    implementation "androidx.lifecycle:lifecycle-extensions:$versions.lifecycle"
+    kapt "androidx.lifecycle:lifecycle-compiler:$versions.lifecycle"
+    implementation "androidx.navigation:navigation-fragment:$versions.navigation"
+    implementation "androidx.navigation:navigation-ui:$versions.navigation"
+
+    // rxJava
+    implementation "com.polidea.rxandroidble2:rxandroidble:$versions.rxAndroidBle"
+    implementation "io.reactivex.rxjava2:rxandroid:$versions.rxAndroid"
+    implementation "io.reactivex.rxjava2:rxkotlin:$versions.rxKotlin"
+    implementation "com.jakewharton.rx2:replaying-share:$versions.replayingShare"
+
+    //kotson
+    implementation "com.github.salomonbrys.kotson:kotson:$versions.kotson"
+
+    //timber
+    implementation "com.jakewharton.timber:timber:$versions.timber"
+
+    //osc
+    implementation "com.illposed.osc:javaosc-core:$versions.javaosc"
+
+    //okhttp
+    implementation "com.squareup.okhttp3:okhttp:$versions.okhttp"
+
+    // tests
+    testImplementation "junit:junit:$versions.junit"
+    androidTestImplementation "androidx.test:runner:$versions.testRunner"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$versions.espresso"
+}
