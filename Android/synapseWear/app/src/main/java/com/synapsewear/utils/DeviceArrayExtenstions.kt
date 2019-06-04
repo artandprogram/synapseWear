@@ -1,5 +1,6 @@
 package com.synapsewear.utils
 
+import timber.log.Timber
 import java.nio.ByteBuffer
 
 fun Boolean.toSynapseByte(): Byte {
@@ -13,11 +14,10 @@ fun Boolean.toSynapseByte(): Byte {
 fun ByteArray.toSynapseInt(range: IntRange, isUnsigned: Boolean): Int? {
     if (range.count() < 2 || this.size < range.elementAt(1)) return null
 
-
     return if (isUnsigned)
-        this[range.elementAt(0)].toInt() shl 8 or this[range.elementAt(1)].toInt()
+        ((this[range.elementAt(0)].toCustomUInt() shl 8) or (this[range.elementAt(1)].toCustomUInt()))
     else
-        this[range.elementAt(0)].toCustomUInt() shl 8 or this[range.elementAt(1)].toCustomUInt()
+        ((this[range.elementAt(0)].toInt() shl 8) or (this[range.elementAt(1)].toInt()))
 }
 
 fun ByteArray.toDate(range: IntRange): Int? {
