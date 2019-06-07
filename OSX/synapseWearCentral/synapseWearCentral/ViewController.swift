@@ -58,8 +58,10 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
     @IBOutlet var tableView: NSTableView!
     @IBOutlet var detailAreaView: NSScrollView!
     @IBOutlet var uuidLabel: NSTextField!
-    @IBOutlet var valueLabel: NSTextField!
-    @IBOutlet var valueLabelLower: NSTextField!
+    @IBOutlet var directoryLabel: NSTextField!
+    @IBOutlet var directoryButton: NSButton!
+    //@IBOutlet var valueLabel: NSTextField!
+    //@IBOutlet var valueLabelLower: NSTextField!
     @IBOutlet var firmwareLabel: NSTextField!
     @IBOutlet var firmwareComboBox: NSComboBox!
     @IBOutlet var firmwareUpdateButton: NSButton!
@@ -93,16 +95,14 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         ]
     let synapseCrystalInfo: SynapseCrystalStruct = SynapseCrystalStruct()
     let synapseFileManager: SynapseFileManager = SynapseFileManager()
-
     var rfduinoManager: RFduinoManager!
     var rfduinos: [Any] = []
     var synapses: [SynapseObject] = []
     var synapseDeviceName: String = ""
     var firmwares: [[String: Any]] = []
     var checkScanningTimer: Timer?
-
     var loadingView: LoadingView!
-    //var testView: NSView!
+    var dataViewController: DataViewController?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -137,6 +137,9 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         self.tableView.action = #selector(onItemClicked)
         self.tableView.doubleAction = #selector(onItemDoubleClicked)
         self.tableView.delegate = self
+
+        self.directoryButton.action = #selector(directoryButtonAction)
+
         // For Firmware Update
         self.firmwareComboBox.usesDataSource = true
         self.firmwareComboBox.completes = true
@@ -163,6 +166,25 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         self.setDetailAreaLabels()
 
         NotificationCenter.default.addObserver(self, selector: #selector(self.resized), name: NSWindow.didResizeNotification, object: nil)
+    }
+
+    func setSizeDirectoryViews() {
+
+        self.directoryLabel.sizeToFit()
+        var w: CGFloat = self.directoryLabel.frame.size.width
+        let h: CGFloat = 20.0
+        if self.directoryLabel.frame.origin.x + self.directoryLabel.frame.size.width + self.directoryButton.frame.size.width > NSApp.windows.first!.frame.size.width {
+            w = NSApp.windows.first!.frame.size.width - (self.directoryLabel.frame.origin.x + self.directoryButton.frame.size.width)
+            
+        }
+        self.directoryLabel.frame = NSRect(x: self.directoryLabel.frame.origin.x,
+                                           y: self.directoryLabel.frame.origin.y,
+                                           width: w,
+                                           height: h)
+        self.directoryButton.frame = NSRect(x: self.directoryLabel.frame.origin.x + self.directoryLabel.frame.size.width,
+                                           y: self.directoryButton.frame.origin.y,
+                                           width: self.directoryButton.frame.size.width,
+                                           height: self.directoryButton.frame.size.height)
     }
 
     // For Firmware Update
@@ -225,14 +247,14 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
                                       y: self.uuidLabel.frame.origin.y,
                                       width: self.detailAreaView.frame.size.width - self.uuidLabel.frame.origin.x * 2,
                                       height: self.uuidLabel.frame.size.height)
-        self.valueLabel.frame = NSRect(x: self.valueLabel.frame.origin.x,
+        /*self.valueLabel.frame = NSRect(x: self.valueLabel.frame.origin.x,
                                        y: self.valueLabel.frame.origin.y,
                                        width: self.detailAreaView.frame.size.width - self.valueLabel.frame.origin.x * 2,
                                        height: self.valueLabel.frame.size.height)
         self.valueLabelLower.frame = NSRect(x: self.valueLabelLower.frame.origin.x,
                                             y: self.valueLabelLower.frame.origin.y,
                                             width: self.detailAreaView.frame.size.width - self.valueLabel.frame.origin.x * 2,
-                                            height: self.valueLabelLower.frame.size.height)
+                                            height: self.valueLabelLower.frame.size.height)*/
         self.timeIntervalComboBox.frame = NSRect(x: self.timeIntervalComboBox.frame.origin.x,
                                                  y: self.timeIntervalComboBox.frame.origin.y,
                                                  width: self.timeIntervalComboBox.frame.size.width,
@@ -242,6 +264,7 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
                                         width: self.view.frame.size.width,
                                         height: self.view.frame.size.height)
 
+        self.setSizeDirectoryViews()
         self.setSizeFirmwareViews()
     }
 
@@ -251,6 +274,7 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
 
         //print("onItemClicked: row \(tableView.clickedRow), col \(tableView.clickedColumn)")
         self.setDetailAreaLabels()
+        self.setSizeDirectoryViews()
 
         /*if tableView.clickedRow >= 0 && tableView.clickedColumn >= 0 {
             let rowRect = tableView.rect(ofRow: tableView.clickedRow)
@@ -271,7 +295,18 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
 
         //print("onItemDoubleClicked: row \(tableView.clickedRow), col \(tableView.clickedColumn)")
         if tableView.clickedRow < self.synapses.count, let synapse = self.synapses[tableView.clickedRow].synapse {
-            if tableView.clickedColumn == 1 {
+            if tableView.clickedColumn == 0 {
+                if self.dataViewController == nil {
+                    self.dataViewController = storyboard?.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "DataViewController")) as? DataViewController
+                    self.dataViewController?.synapseNo = tableView.clickedRow
+                    self.dataViewController?.synapseValues = self.synapses[tableView.clickedRow].synapseValues
+                    self.dataViewController?.mainViewController = self
+                    if let dataViewController = self.dataViewController {
+                        self.presentViewControllerAsModalWindow(dataViewController)
+                    }
+                }
+            }
+            else if tableView.clickedColumn == 1 {
                 if self.synapses[tableView.clickedRow].synapseValues.isConnected {
                     self.synapses[tableView.clickedRow].synapseScanLatestDate = Date()
                     self.synapses[tableView.clickedRow].synapseValues.isDisconnected = true
@@ -283,17 +318,22 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
                     }
 
                     self.rfduinoManager.connect(synapse)
-
+                    /*
                     if self.synapses[tableView.clickedRow].synapseDataSaveDir == nil && !self.synapses[tableView.clickedRow].synapseDataSaveDirChecked {
                         self.setSynapseDataSaveDir(tableView.clickedRow)
-                    }
+                    }*/
                     self.synapses[tableView.clickedRow].synapseDataSaveDirChecked = true
                 }
             }
-            else if tableView.clickedColumn == 3 {
+            /*else if tableView.clickedColumn == 3 {
                 self.setSynapseDataSaveDir(tableView.clickedRow)
-            }
+            }*/
         }
+    }
+
+    @objc private func directoryButtonAction() {
+
+        self.setSynapseDataSaveDir(tableView.selectedRow)
     }
 
     @objc private func firmwareUpdateButtonAction() {
@@ -442,7 +482,11 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
                             self.synapses[index].saveSynapseSettingData(isSaveDir: true, isSaveSendData: false, isSaveOSCData: false)
                         }
                     }
-                    self.tableView.reloadData(forRowIndexes: IndexSet(integer: index), columnIndexes: IndexSet(integer: 3))
+                    if let url = self.synapses[index].synapseDataSaveDir {
+                        self.directoryLabel.stringValue = "Directory : \(url.path)"
+                        self.setSizeDirectoryViews()
+                    }
+                    //self.tableView.reloadData(forRowIndexes: IndexSet(integer: index), columnIndexes: IndexSet(integer: 3))
                 }
             }
         }
@@ -460,7 +504,8 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         }
 
         self.setUUIDLabel()
-        self.setValueLabel()
+        //self.setDataCountLabel()
+        //self.setValueLabel()
         self.setDetailAreaSettings()
         self.setFirmwareSettingArea()
         self.setOSCSettingArea()
@@ -476,6 +521,42 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         }
     }
 
+    func setDataCountLabel() {
+
+        self.uuidLabel.stringValue = ""
+        if tableView.selectedRow >= 0 && tableView.selectedRow < self.synapses.count {
+            let formatter: NumberFormatter = NumberFormatter()
+            formatter.numberStyle = .decimal
+            if let str = formatter.string(from: self.synapses[tableView.selectedRow].synapseReceivedCount as NSNumber) {
+                self.uuidLabel.stringValue = str
+
+                if let _ = self.synapses[tableView.selectedRow].synapseValues.connectedDate {
+                    self.uuidLabel.stringValue = "Data Count : \(self.uuidLabel.stringValue)\(self.makeConnectedDateString(tableView.selectedRow))"
+                }
+            }
+        }
+    }
+
+    func makeConnectedDateString(_ index: Int) -> String {
+
+        var h: Int = 0
+        var m: Int = 0
+        var s: Int = 0
+        if index < self.synapses.count, let date = self.synapses[index].synapseValues.connectedDate {
+            var time: TimeInterval = Date().timeIntervalSince(date)
+            if time >= 3600 {
+                h = Int(floor(time / 3600.0))
+                time -= Double(h) * 3600
+            }
+            if time >= 60 {
+                m = Int(floor(time / 60.0))
+                time -= Double(m) * 60
+            }
+            s = Int(floor(time))
+        }
+        return "\(String(format:"%d", h)):\(String(format:"%02d", m)):\(String(format:"%02d", s))"
+    }
+    /*
     func setValueLabel() {
 
         self.valueLabel.stringValue = ""
@@ -485,9 +566,11 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
             self.valueLabelLower.stringValue = self.synapses[tableView.selectedRow].getSynapseValuesLower()
         }
     }
-
+     */
     func setDetailAreaSettings() {
 
+        self.directoryButton.isEnabled = false
+        self.directoryLabel.stringValue = "Directory : "
         self.timeIntervalComboBox.isEnabled = false
         self.co2CheckButton.isEnabled = false
         self.tempCheckButton.isEnabled = false
@@ -510,6 +593,10 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         self.angleCheckButton.state = .off
         self.ledCheckButton.state = .off
         if tableView.selectedRow >= 0 && tableView.selectedRow < self.synapses.count {
+            if let url = self.synapses[tableView.selectedRow].synapseDataSaveDir {
+                self.directoryLabel.stringValue = "Directory : \(url.path)"
+            }
+
             for (index, time) in self.synapseTimeIntervals.enumerated() {
                 if self.synapses[tableView.selectedRow].synapseTimeInterval == time {
                     self.timeIntervalComboBox.selectItem(at: index)
@@ -555,6 +642,7 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
             }
 
             if self.synapses[tableView.selectedRow].synapseValues.isConnected {
+                self.directoryButton.isEnabled = true
                 self.timeIntervalComboBox.isEnabled = true
                 self.co2CheckButton.isEnabled = true
                 self.tempCheckButton.isEnabled = true
@@ -782,37 +870,97 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
             }
             else if tableColumn.identifier.rawValue == "Connect" {
                 if self.synapses[row].synapseValues.isConnected {
-                    str = "○"
+                    str = self.makeConnectedDateString(row)
                 }
                 else if self.synapses[row].synapseValues.isDisconnected {
-                    str = "×"
+                    str = "Disconnected"
                 }
                 /*else if let date = self.synapses[row].synapseScanLatestDate, date.timeIntervalSinceNow < -self.synapseScanLimitTimeInterval {
                     str = "×"
                 }*/
+                else {
+                    str = "Lost"
+                }
                 //print("Connect tableColumn: \(self.synapses[row].synapseScanLatestDate)")
             }
-            else if tableColumn.identifier.rawValue == "Received" {
+            else if tableColumn.identifier.rawValue == "CO2" {
+                str = "-"
+                if let co2 = self.synapses[row].synapseValues.co2 {
+                    str = String(co2)
+                }
+            }
+            else if tableColumn.identifier.rawValue == "TEMP" {
+                str = "-"
+                if let temp = self.synapses[row].synapseValues.temp {
+                    str = String(format:"%.1f", temp)
+                }
+            }
+            else if tableColumn.identifier.rawValue == "HUM" {
+                str = "-"
+                if let humidity = self.synapses[row].synapseValues.humidity {
+                    str = String(humidity)
+                }
+            }
+            else if tableColumn.identifier.rawValue == "LIT" {
+                str = "-"
+                if let light = self.synapses[row].synapseValues.light {
+                    str = String(light)
+                }
+            }
+            else if tableColumn.identifier.rawValue == "AIR" {
+                str = "-"
+                if let pressure = self.synapses[row].synapseValues.pressure {
+                    str = String(format:"%.2f", pressure)
+                }
+            }
+            else if tableColumn.identifier.rawValue == "SND" {
+                str = "-"
+                if let sound = self.synapses[row].synapseValues.sound {
+                    str = String(sound)
+                }
+            }
+            /*else if tableColumn.identifier.rawValue == "Received" {
                 str = "\(self.synapses[row].synapseReceivedCount)"
             }
             else if tableColumn.identifier.rawValue == "Directory" {
                 if let url = self.synapses[row].synapseDataSaveDir {
                     str = url.path
                 }
-            }
+            }*/
+
             //print("viewFor: \(str)")
             let cell = tableView.makeView(withIdentifier: tableColumn.identifier, owner: self) as! NSTableCellView
-            cell.textField?.stringValue = str
+            if tableColumn.identifier.rawValue == "Battery" {
+                for subview in cell.subviews {
+                    if let levelIndicator = subview as? NSLevelIndicator {
+                        levelIndicator.doubleValue = 0
+                        if let battery = self.synapses[row].synapseValues.battery {
+                            levelIndicator.doubleValue = Double(ceil(battery / 20.0))
+                        }
+                    }
+                }
+            }
+            else {
+                cell.textField?.stringValue = str
+            }
             //print("viewFor: \(cell.subviews.count)")
             return cell
         }
         return nil
     }
-
-    /*func tableView(_ tableView: NSTableView, heightOfRow row: Int) -> CGFloat {
+    /*
+    func tableView(_ tableView: NSTableView, heightOfRow row: Int) -> CGFloat {
 
         return 26.0
-    }*/
+    }
+     */
+    func tableView(_ tableView: NSTableView, didAdd rowView: NSTableRowView, forRow row: Int) {
+
+        rowView.backgroundColor = NSColor.white
+        if row % 2 == 1 {
+            rowView.backgroundColor = NSColor.lightGray.withAlphaComponent(0.1)
+        }
+    }
 
     // MARK: mark - ComboBox methods
 
@@ -862,7 +1010,7 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
     @objc func checkScanning() {
 
         for i in 0..<self.synapses.count {
-            self.tableView.reloadData(forRowIndexes: IndexSet(integer: i), columnIndexes: IndexSet(integersIn: 1..<3))
+            self.tableView.reloadData(forRowIndexes: IndexSet(integer: i), columnIndexes: IndexSet(integersIn: 1..<9))
         }
     }
 
@@ -941,6 +1089,8 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
             synapseObject.setSynapseValues()
             synapseObject.synapseReceivedCount += 1
 
+            //self.setDataCountLabel()
+
             if let baseURL = synapseObject.synapseDataSaveDir, let connectedDate = synapseObject.synapseValues.connectedDate {
                 DispatchQueue.global(qos: .background).async {
                     _ = self.synapseFileManager.setValues(baseURL: baseURL, uuid: synapse.peripheral.identifier.uuidString, bytes: data, date: connectedDate)
@@ -993,8 +1143,8 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
             if let synapse = synapseObject.synapse, synapse.peripheral.identifier == rfduino.peripheral.identifier {
                 synapseObject.disconnectSynapse()
 
-                self.tableView.reloadData(forRowIndexes: IndexSet(integer: index), columnIndexes: IndexSet(integer: 1))
-                //self.tableView.reloadData(forRowIndexes: IndexSet(integer: index), columnIndexes: IndexSet(integersIn: 1..<3))
+                //self.tableView.reloadData(forRowIndexes: IndexSet(integer: index), columnIndexes: IndexSet(integer: 1))
+                self.tableView.reloadData(forRowIndexes: IndexSet(integer: index), columnIndexes: IndexSet(integersIn: 1..<3))
                 if index == tableView.selectedRow {
                     self.setDetailAreaLabels()
                 }
@@ -1012,8 +1162,8 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
                 if let synapse = synapseObject.synapse, synapse.peripheral.identifier == peripheral.identifier {
                     synapseObject.disconnectSynapse()
 
-                    self.tableView.reloadData(forRowIndexes: IndexSet(integer: index), columnIndexes: IndexSet(integer: 1))
-                    //self.tableView.reloadData(forRowIndexes: IndexSet(integer: index), columnIndexes: IndexSet(integersIn: 1..<3))
+                    //self.tableView.reloadData(forRowIndexes: IndexSet(integer: index), columnIndexes: IndexSet(integer: 1))
+                    self.tableView.reloadData(forRowIndexes: IndexSet(integer: index), columnIndexes: IndexSet(integersIn: 1..<3))
                     if index == tableView.selectedRow {
                         self.setDetailAreaLabels()
                     }
@@ -1100,15 +1250,21 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
                 if Int(synapseObject.receiveData[3]) == 2 {
                     self.setSynapseData(synapseObject: synapseObject)
 
+                    self.tableView.reloadData(forRowIndexes: IndexSet(integer: index), columnIndexes: IndexSet(integersIn: 1..<9))
                     //print("setReceiveData: \(index) - \(tableView.selectedRow)")
-                    if index == tableView.selectedRow {
+                    /*if index == tableView.selectedRow {
                         //print("setReceiveData: \(index)")
                         self.setValueLabel()
-                    }
+                    }*/
                     /*if index >= 0 {
                         //print("setReceiveData: \(index)")
                         self.tableView.reloadData(forRowIndexes: IndexSet(integer: index), columnIndexes: IndexSet(integer: 2))
                     }*/
+
+                    if let dataViewController = self.dataViewController, let synapseNo = dataViewController.synapseNo, synapseNo == index {
+                        dataViewController.synapseValues = self.synapses[index].synapseValues
+                        dataViewController.tableView.reloadData()
+                    }
                 }
             }
 
@@ -1673,7 +1829,7 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
             let synapse = self.synapseData[0]
             //print("setSynapseValues: \(synapse)")
             if let time = synapse["time"] as? TimeInterval, let data = synapse["data"] as? [UInt8], let uuid = synapse["uuid"] as? String {
-                let formatter = DateFormatter()
+                let formatter: DateFormatter = DateFormatter()
                 formatter.locale = Locale(identifier: "en_US_POSIX")
                 formatter.dateFormat = "yyyyMMddHHmmss"
                 self.synapseNowDate = formatter.string(from: Date(timeIntervalSince1970: time))
@@ -2237,7 +2393,7 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
 
     func updateFirmwearStart(_ url: URL) {
 
-        //print("updateFirmwearStart: \(url)")
+        print("updateFirmwearStart: \(url)")
         self.synapseFirmwareIsUpdate = true
         self.synapseFirmwareUpdatePercentage = 0
         self.synapseFirmwareUpdateMessage = "Update Firmwear Start"

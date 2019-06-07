@@ -64,6 +64,7 @@
 		87F4968C211AA3C0008FC4FF /* IOBluetoothUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87F49689211AA305008FC4FF /* IOBluetoothUI.framework */; };
 		87F4968E211AA444008FC4FF /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87F4968D211AA444008FC4FF /* CoreBluetooth.framework */; };
 		87F49690211AE5FB008FC4FF /* SettingDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F4968F211AE5FB008FC4FF /* SettingDataManager.swift */; };
+		DD5333DA22A65B0C0007532E /* DataViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD5333D922A65B0C0007532E /* DataViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -283,6 +284,7 @@
 		87F49689211AA305008FC4FF /* IOBluetoothUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOBluetoothUI.framework; path = System/Library/Frameworks/IOBluetoothUI.framework; sourceTree = SDKROOT; };
 		87F4968D211AA444008FC4FF /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
 		87F4968F211AE5FB008FC4FF /* SettingDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingDataManager.swift; sourceTree = "<group>"; };
+		DD5333D922A65B0C0007532E /* DataViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -392,6 +394,7 @@
 			children = (
 				87426A18211832CB00D9EDA3 /* AppDelegate.swift */,
 				87426A1A211832CB00D9EDA3 /* ViewController.swift */,
+				DD5333D922A65B0C0007532E /* DataViewController.swift */,
 				87591C1E212D3549004DE8AB /* LoadingView.swift */,
 				87280AF3212C11180030963A /* FirmwearView.swift */,
 				878F7C1A2122B1F3002C940B /* SynapseFileManager.swift */,
@@ -751,6 +754,7 @@
 				871C742F213CDFE700DEA18F /* NSString+F53OSCString.m in Sources */,
 				87591C19212D0F9D004DE8AB /* ApiManager.swift in Sources */,
 				87F49631211AA064008FC4FF /* RFduino.m in Sources */,
+				DD5333DA22A65B0C0007532E /* DataViewController.swift in Sources */,
 				874F3909212AB05000BD9F3B /* DFUOperationsDetails.m in Sources */,
 				871C7430213CDFE700DEA18F /* F53OSCClient.m in Sources */,
 				874F3912212AB05000BD9F3B /* mztools.c in Sources */,
