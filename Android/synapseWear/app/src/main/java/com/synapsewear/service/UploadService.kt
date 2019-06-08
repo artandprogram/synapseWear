@@ -6,7 +6,12 @@ import com.synapsewear.data.settings.UploadSettings
 import com.synapsewear.data.upload.UploadData
 import com.synapsewear.data.upload.UploadSensors
 import io.reactivex.Completable
+import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.addTo
+import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -47,16 +52,29 @@ class UploadService(private val networkService: NetworkService) {
         if (calendarLastAdded.get(Calendar.MINUTE) == calendarNow.get(Calendar.MINUTE)) {
             arrayToAdd.add(synapseValues)
         } else {
-            Completable.create {
+            Single.just {
                 createAverageValuesArray(dateLastAdded!!.time)
-                if (calendarLastAdded.get(Calendar.MINUTE) != calendarNow.get(Calendar.MINUTE) && uploadSettings.uploadEnabled) {
-                    networkService.createPostRequest(uploadSettings.uploadURL, uploadData).subscribe()
-                    uploadData.uploadSensorArray.clear()
+            }.subscribe({
+                if (calendarLastAdded.get(Calendar.MINUTE) != calendarNow.get(Calendar.MINUTE)
+                    && uploadSettings.uploadEnabled) {
+                    sendData()
                 }
                 dateLastAdded = dateNow
-
-            }.subscribe().let { disposable.add(it) }
+            },{
+                Timber.e(it)
+            })
+                .let { disposable.add(it) }
         }
+    }
+
+    private fun sendData(){
+        networkService
+            .createPostRequest(uploadSettings.uploadURL, uploadData)
+            .subscribe({
+                uploadData.uploadSensorArray.clear()
+            },{
+                Timber.e(it)
+            }).addTo(disposable)
     }
 
     private fun createAverageValuesArray(date: Long) {
