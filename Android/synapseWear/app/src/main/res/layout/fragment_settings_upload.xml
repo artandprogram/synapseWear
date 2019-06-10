@@ -3,6 +3,7 @@
         xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
+
         <variable
                 name="settingsViewModel"
                 type="com.synapsewear.app.settings.SettingsViewModel"/>
@@ -25,6 +26,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/settings_item_height"
                 android:background="@color/colorWhite">
+
             <EditText
                     android:textSize="@dimen/text_size_normal"
                     android:inputType="textUri"

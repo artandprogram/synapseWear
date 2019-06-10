@@ -1,6 +1,5 @@
 package com.synapsewear.utils
 
-import timber.log.Timber
 import java.nio.ByteBuffer
 
 fun Boolean.toSynapseByte(): Byte {
