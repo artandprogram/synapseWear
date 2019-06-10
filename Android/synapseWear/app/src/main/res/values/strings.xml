@@ -62,7 +62,7 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="alert_pair_placeholder">Pair with %s</string>
-    
+
     <string name="error_location_services_disabled">Please turn on the location service</string>
     <string name="error_bluetooth_not_available">Bluetooth is not available</string>
 

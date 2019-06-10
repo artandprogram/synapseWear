@@ -4,6 +4,7 @@
         xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
+
         <variable
                 name="settingsViewModel"
                 type="com.synapsewear.app.settings.SettingsViewModel"/>
