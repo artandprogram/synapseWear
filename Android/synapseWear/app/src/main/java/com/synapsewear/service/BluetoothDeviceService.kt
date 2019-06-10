@@ -1,5 +1,6 @@
 package com.synapsewear.service
 
+import android.os.Handler
 import com.polidea.rxandroidble2.RxBleDevice
 import com.synapsewear.app.SynapseWearApplication
 import com.synapsewear.data.device.SynapseValues
@@ -14,6 +15,8 @@ import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.subjects.PublishSubject
 import timber.log.Timber
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class BluetoothDeviceService(
@@ -130,15 +133,16 @@ class BluetoothDeviceService(
     }
 
     fun updateDeviceSettings(isInBackground: Boolean) {
-        if (connectionService.deviceToken == null) return
-
         sharedPrefRepository.getSettings()?.let {
             deviceSettings = it
         }
+
         oscService.changeSettings(deviceSettings.oscSettings)
         uploadService.changeSettings(deviceSettings.uploadSettings)
 
         compositeDisposable.clear()
+
+        if (connectionService.deviceToken == null) return
 
         connectedDevice?.status = StatusState(StatusState.ASSOCIATED)
 

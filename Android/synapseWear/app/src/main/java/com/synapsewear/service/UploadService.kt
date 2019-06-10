@@ -49,15 +49,16 @@ class UploadService(private val networkService: NetworkService) {
         if (calendarLastAdded.get(Calendar.MINUTE) == calendarNow.get(Calendar.MINUTE)) {
             arrayToAdd.add(synapseValues)
         } else {
-            Single.create<Void> {
+            Single.create<Date> {
                 createAverageValuesArray(dateLastAdded!!.time)
+                it.onSuccess(dateNow)
             }.subscribe({
-                if (calendarLastAdded.get(Calendar.MINUTE) != calendarNow.get(Calendar.MINUTE)
+                if (calendarLastAdded.get(Calendar.HOUR) != calendarNow.get(Calendar.HOUR)
                     && uploadSettings.uploadEnabled
                 ) {
                     sendData()
                 }
-                dateLastAdded = dateNow
+                dateLastAdded = it
             }, {
                 Timber.e(it)
             })
