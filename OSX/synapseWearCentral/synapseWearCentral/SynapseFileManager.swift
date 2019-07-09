@@ -44,7 +44,7 @@ class SynapseFileManager: NSObject {
         return res
     }
 
-    func setValues(baseURL: URL, uuid: String, values: Data, date: Date) -> Bool {
+    func setValues(baseURL: URL, uuid: String, data: Data, date: Date) -> Bool {
 
         let dayFormatter: DateFormatter = DateFormatter()
         dayFormatter.locale = Locale(identifier: "en_US_POSIX")
@@ -81,13 +81,17 @@ class SynapseFileManager: NSObject {
         filePath = filePath.appendingPathComponent(filename)
         //print("setValues: \(date) \(filename)" )
         //print("setValues: \([UInt8](values))" )
-        let fileURL = URL(fileURLWithPath: filePath.path)
+        let output = OutputStream(toFileAtPath: filePath.path, append: true)
+        output?.open()
+        let _ = data.withUnsafeBytes { output?.write($0, maxLength: data.count) }
+        output?.close()
+        /*let fileURL = URL(fileURLWithPath: filePath.path)
         do {
             try values.write(to: fileURL)
         }
         catch {
             return false
-        }
+        }*/
         return true
     }
 

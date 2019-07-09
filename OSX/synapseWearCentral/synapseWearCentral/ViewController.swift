@@ -1092,15 +1092,19 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
             //self.setDataCountLabel()
 
             if let baseURL = synapseObject.synapseDataSaveDir, let connectedDate = synapseObject.synapseValues.connectedDate {
+                /*
                 DispatchQueue.global(qos: .background).async {
                     _ = self.synapseFileManager.setValues(baseURL: baseURL, uuid: synapse.peripheral.identifier.uuidString, bytes: data, date: connectedDate)
                 }
-            }
-            /*if let baseURL = synapseObject.synapseDataSaveDir {
-                DispatchQueue.global(qos: .background).async {
-                    _ = self.synapseFileManager.setValues(baseURL: baseURL, uuid: synapse.peripheral.identifier.uuidString, values: Data(bytes: data), date: now)
+                 */
+                //print("setSynapseData: \(synapseObject.synapseValues.makeSynapseFileRecord())")
+                let data: Data? = synapseObject.synapseValues.makeSynapseFileRecord().data(using: .utf8)
+                if let data = data {
+                    DispatchQueue.global(qos: .background).async {
+                        _ = self.synapseFileManager.setValues(baseURL: baseURL, uuid: synapse.peripheral.identifier.uuidString, data: data, date: connectedDate)
+                    }
                 }
-            }*/
+            }
         }
     }
 
@@ -1783,6 +1787,8 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
             if let oscPort = setting[self.settingDataManager.synapseOSCPortKey] as? String {
                 self.oscPort = oscPort
             }
+
+            self.synapseDataSaveDir = self.synapseDataSaveDirDefault
         }
     }
 
@@ -1816,7 +1822,7 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
                 settingData[self.settingDataManager.synapseOSCIPAddressKey] = self.oscIPAddress
                 settingData[self.settingDataManager.synapseOSCPortKey] = self.oscPort
             }
-            //print("settingData: \(settingData)")
+            print("saveSynapseSettingData: \(settingData)")
             self.settingDataManager.setSynapseSettingData(synapse.peripheral.identifier.uuidString, data: settingData)
         }
     }
@@ -2544,5 +2550,75 @@ class SynapseValues {
         self.isConnected = false
         //self.isDisconnected = false
         self.connectedDate = nil
+    }
+
+    func makeSynapseFileRecord() -> String {
+
+        var str: String = ""
+        if let time = self.time {
+            str = "\(str)\(time)"
+        }
+        str = "\(str),"
+        if let co2 = self.co2 {
+            str = "\(str)\(co2)"
+        }
+        str = "\(str),"
+        if let ax = self.ax {
+            str = "\(str)\(ax)"
+        }
+        str = "\(str),"
+        if let ay = self.ay {
+            str = "\(str)\(ay)"
+        }
+        str = "\(str),"
+        if let az = self.az {
+            str = "\(str)\(az)"
+        }
+        str = "\(str),"
+        if let gx = self.gx {
+            str = "\(str)\(gx)"
+        }
+        str = "\(str),"
+        if let gy = self.gy {
+            str = "\(str)\(gy)"
+        }
+        str = "\(str),"
+        if let gz = self.gz {
+            str = "\(str)\(gz)"
+        }
+        str = "\(str),"
+        if let light = self.light {
+            str = "\(str)\(light)"
+        }
+        str = "\(str),"
+        if let temp = self.temp {
+            str = "\(str)\(temp)"
+        }
+        str = "\(str),"
+        if let humidity = self.humidity {
+            str = "\(str)\(humidity)"
+        }
+        str = "\(str),"
+        if let pressure = self.pressure {
+            str = "\(str)\(pressure)"
+        }
+        str = "\(str),"
+        if let tvoc = self.tvoc {
+            str = "\(str)\(tvoc)"
+        }
+        str = "\(str),"
+        if let power = self.power {
+            str = "\(str)\(power)"
+        }
+        str = "\(str),"
+        if let battery = self.battery {
+            str = "\(str)\(battery)"
+        }
+        str = "\(str),"
+        if let sound = self.sound {
+            str = "\(str)\(sound)"
+        }
+        str = "\(str)\n"
+        return str
     }
 }

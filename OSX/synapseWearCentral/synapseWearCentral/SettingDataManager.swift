@@ -29,6 +29,7 @@ class SettingDataManager: NSObject {
         if synapseId.count > 0, let baseData = userDefaults.object(forKey: self.settingSynapsesKey) as? [String: Any], let data = baseData[synapseId] as? [String: Any] {
             res = data
         }
+        //print("getSynapseSettingData: \(res)")
         return res
     }
 
