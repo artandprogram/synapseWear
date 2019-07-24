@@ -366,4 +366,9 @@ class NavigationController: UINavigationController {
 
         self.topVC.mainSynapseObject.changeSynapseSendData()
     }
+
+    func sendLEDFlashToDevice() {
+
+        self.topVC.sendLEDFlashToDevice(self.topVC.mainSynapseObject)
+    }
 }

@@ -16,6 +16,7 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
         "firmware_version",
         "sensors",
         "temperature_scale",
+        "flash_led",
         "bottom",
         ]
     let synapseCrystalInfo: SynapseCrystalStruct = SynapseCrystalStruct()
@@ -161,6 +162,9 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
                 num = self.sensors.count + 2
             }
             else if self.settings[section] == "temperature_scale" {
+                num = 3
+            }
+            else if self.settings[section] == "flash_led" {
                 num = 3
             }
             else if self.settings[section] == "bottom" {
@@ -415,6 +419,25 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
                     return cell
                 }
             }
+            else if self.settings[indexPath.section] == "flash_led" {
+                if indexPath.row == 0 || indexPath.row == 2 {
+                    cell = UITableViewCell(style: .default, reuseIdentifier: "line_cell")
+                    cell.backgroundColor = UIColor.black.withAlphaComponent(0.1)
+                    cell.selectionStyle = .none
+                }
+                else if indexPath.row == 1 {
+                    let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "temperature_scale_cell")
+                    cell.backgroundColor = UIColor.white
+                    cell.iconImageView.isHidden = true
+                    cell.titleLabel.text = "Flash LED"
+                    cell.textField.isEnabled = false
+                    cell.textField.text = ""
+                    cell.swicth.isHidden = true
+                    cell.arrowView.isHidden = true
+                    cell.lineView.isHidden = true
+                    return cell
+                }
+            }
         }
         return cell
     }
@@ -438,6 +461,9 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
                 height = 44.0
             }
             else if self.settings[section] == "temperature_scale" {
+                height = 44.0
+            }
+            else if self.settings[section] == "flash_led" {
                 height = 44.0
             }
             else if self.settings[section] == "bottom" {
@@ -509,6 +535,14 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
                     height = cell.cellH
                 }
             }
+            else if self.settings[indexPath.section] == "flash_led" {
+                if indexPath.row == 0 || indexPath.row == 2 {
+                    height = 1.0
+                }
+                else if indexPath.row == 1 {
+                    height = cell.cellH
+                }
+            }
         }
         return height
     }
@@ -571,6 +605,11 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
                     }
                     tableView.reloadData()
                     //tableView.reloadRows(at: [indexPath], with: UITableViewRowAnimation.none)
+                }
+            }
+            else if self.settings[indexPath.section] == "flash_led" {
+                if let nav = self.navigationController as? SettingNavigationViewController {
+                    nav.sendLEDFlashToDevice()
                 }
             }
         }

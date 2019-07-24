@@ -6,7 +6,7 @@
 //
 
 import XCTest
-@testable import synapsewear
+@testable import Pods_synapsewear
 
 class synapsewearTests: XCTestCase {
     

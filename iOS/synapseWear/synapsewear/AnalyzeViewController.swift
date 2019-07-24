@@ -32,7 +32,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
     var graphMinList: [String: Double] = [:]
     var graphDisplays: [String: Bool] = [:]
     var changeGraphTimer: Timer?
-    var changeGraphTimerCnt: Int = 0
+    //var changeGraphTimerCnt: Int = 0
     var timeRange: TimeInterval = 1.0
     var baseDate: Date? = nil
     var startDate: Date? = nil
@@ -76,6 +76,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
     var graphDatePicker: UIDatePicker?
     var graphDatePickerSetBtn: UIButton?
     var graphDatePickerCancelBtn: UIButton?
+    var graphDatePickerRealtimeBtn: UIButton?
     var graphMusicButton: UIButton!
     var displaySettingButton: UIButton!
     var displaySettingView: UIView?
@@ -84,6 +85,10 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
     var graphDataSmallOpenButton: UIButton!
     var graphDataSmallDateLabel: UILabel!
     var graphDataView: UIView?
+    // realtime variables
+    var isRealtime: Bool = false
+    var realtimeGraphTimer: Timer?
+    var realtimeGraphLastTime: TimeInterval?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -104,6 +109,9 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         if self.isSoundPlay {
             self.stopAudio()
         }
+
+        self.realtimeGraphTimer?.invalidate()
+        self.realtimeGraphTimer = nil
     }
 
     override func didReceiveMemoryWarning() {
@@ -215,6 +223,32 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         self.minFormatter.dateFormat = "mm"
         self.secFormatter.locale = Locale(identifier: "en_US_POSIX")
         self.secFormatter.dateFormat = "ss"
+
+        self.setNotificationCenter()
+    }
+
+    // MARK: mark - NotificationCenter methods
+
+    func setNotificationCenter() {
+
+        NotificationCenter.default.addObserver(self, selector: #selector(viewWillEnterForeground(
+            notification:)), name: Notification.Name.UIApplicationWillEnterForeground, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(viewDidEnterBackground(
+            notification:)), name: Notification.Name.UIApplicationDidEnterBackground, object: nil)
+    }
+
+    @objc func viewWillEnterForeground(notification: Notification) {
+
+        if self.isRealtime {
+            self.isRealtime = false
+            self.changeRealtimeGraphDataStart()
+        }
+    }
+
+    @objc func viewDidEnterBackground(notification: Notification) {
+
+        self.realtimeGraphTimer?.invalidate()
+        self.realtimeGraphTimer = nil
     }
 
     override func setView() {
@@ -377,17 +411,11 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         self.closeGraphDataSmallView()
         self.setHiddenLoadingView(false)
 
-        self.changeGraphTimerCnt = 0
         self.changeGraphTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.changeGraphData), userInfo: nil, repeats: true)
-        self.changeGraphTimer?.fire()
     }
 
     @objc func changeGraphData() {
 
-        if self.changeGraphTimerCnt <= 0 {
-            self.changeGraphTimerCnt += 1
-            return
-        }
         self.changeGraphTimer?.invalidate()
         self.changeGraphTimer = nil
 
@@ -395,11 +423,24 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         self.setGraphViews()
         self.changeGraphIsHiddenAction()
 
-        let dateFormatter: DateFormatter = DateFormatter()
-        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-        dateFormatter.dateFormat = "yyyy.M.d HH:mm"
-        self.dateStartLabel.text = dateFormatter.string(from: self.startDate!)
-        self.dateEndLabel.text = dateFormatter.string(from: self.endDate!)
+        self.setDateLabels()
+
+        self.setHiddenLoadingView(true)
+    }
+
+    func setDateLabels() {
+
+        if self.isRealtime {
+            self.dateStartLabel.text = "------------"
+            self.dateEndLabel.text = "------------"
+        }
+        else {
+            let dateFormatter: DateFormatter = DateFormatter()
+            dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+            dateFormatter.dateFormat = "yyyy.M.d HH:mm"
+            self.dateStartLabel.text = dateFormatter.string(from: self.startDate!)
+            self.dateEndLabel.text = dateFormatter.string(from: self.endDate!)
+        }
 
         self.dateStartLabel.sizeToFit()
         var w: CGFloat = self.dateStartButton.frame.size.width
@@ -407,12 +448,19 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
             w = self.dateStartLabel.frame.size.width
         }
         var h: CGFloat = self.dateStartButton.frame.size.height / 2
-        self.dateStartLabel.frame = CGRect(x: self.dateStartLabel.frame.origin.x, y: self.dateStartLabel.frame.origin.y, width: w, height: h)
+        self.dateStartLabel.frame = CGRect(x: self.dateStartLabel.frame.origin.x,
+                                           y: self.dateStartLabel.frame.origin.y,
+                                           width: w,
+                                           height: h)
+
         var x: CGFloat = w + 8.0
         if x + self.dateStartArrow.frame.size.width > self.dateStartButton.frame.size.width {
             x = self.dateStartButton.frame.size.width - self.dateStartArrow.frame.size.width
         }
-        self.dateStartArrow.frame = CGRect(x: x + self.dateStartLabel.frame.origin.x, y: self.dateStartArrow.frame.origin.y, width: self.dateStartArrow.frame.size.width, height: self.dateStartArrow.frame.size.height)
+        self.dateStartArrow.frame = CGRect(x: x + self.dateStartLabel.frame.origin.x,
+                                           y: self.dateStartArrow.frame.origin.y,
+                                           width: self.dateStartArrow.frame.size.width,
+                                           height: self.dateStartArrow.frame.size.height)
 
         self.dateEndLabel.sizeToFit()
         w = self.dateEndButton.frame.size.width
@@ -420,12 +468,19 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
             w = self.dateEndLabel.frame.size.width
         }
         h = self.dateEndButton.frame.size.height / 2
-        self.dateEndLabel.frame = CGRect(x: self.dateEndLabel.frame.origin.x, y: self.dateEndLabel.frame.origin.y, width: w, height: h)
+        self.dateEndLabel.frame = CGRect(x: self.dateEndLabel.frame.origin.x,
+                                         y: self.dateEndLabel.frame.origin.y,
+                                         width: w,
+                                         height: h)
+
         x = w + 8.0
         if x + self.dateEndArrow.frame.size.width > self.dateEndButton.frame.size.width {
             x = self.dateEndButton.frame.size.width - self.dateEndArrow.frame.size.width
         }
-        self.dateEndArrow.frame = CGRect(x: x + self.dateEndLabel.frame.origin.x, y: self.dateEndArrow.frame.origin.y, width: self.dateEndArrow.frame.size.width, height: self.dateEndArrow.frame.size.height)
+        self.dateEndArrow.frame = CGRect(x: x + self.dateEndLabel.frame.origin.x,
+                                         y: self.dateEndArrow.frame.origin.y,
+                                         width: self.dateEndArrow.frame.size.width,
+                                         height: self.dateEndArrow.frame.size.height)
 
         self.setHiddenLoadingView(true)
     }
@@ -500,76 +555,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         var date: Date = self.endDate!
         self.graphCnt = 0
         while date >= self.startDate! {
-            self.graphDates.insert(date, at: 0)
-            let day: String = self.dayFormatter.string(from: date)
-            let hour: String = self.hourFormatter.string(from: date)
-            let min: String = self.minFormatter.string(from: date)
-            let sec: String = self.secFormatter.string(from: date)
-            //print("setGraphData: date -> \(day)\(hour)\(min)\(sec)")
-            for (_, element) in self.graphCategories.enumerated() {
-                let key: String = element.key
-                let values: [String: Double?] = self.getGraphValues(key: key, timeRange: self.timeRange, day: day, hour: hour, min: min, sec: sec, date: date, hourCnt: hourCnt)
-                var value: Double? = nil
-                if let val = values["value"] {
-                    value = val
-                }
-                var minVal: Double? = nil
-                if let val = values["minVal"] {
-                    minVal = val
-                }
-                var maxVal: Double? = nil
-                if let val = values["maxVal"] {
-                    maxVal = val
-                }
-                //print("setGraphData: \(key) -> \(value), \(minVal), \(maxVal)")
-                self.graphDataList[key]?.insert(value, at: 0)
-                if let value = value {
-                    if let max = self.graphMaxList[key] {
-                        if max < value {
-                            self.graphMaxList[key] = value
-                        }
-                    }
-                    else {
-                        self.graphMaxList[key] = value
-                    }
-                    if let min = self.graphMinList[key] {
-                        if min > value {
-                            self.graphMinList[key] = value
-                        }
-                    }
-                    else {
-                        self.graphMinList[key] = value
-                    }
-
-                    if minVal == nil {
-                        minVal = value
-                    }
-                    if maxVal == nil {
-                        maxVal = value
-                    }
-                }
-
-                if let minVal = minVal {
-                    if let min = self.graphMinValues[key] {
-                        if min > minVal {
-                            self.graphMinValues[key] = minVal
-                        }
-                    }
-                    else {
-                        self.graphMinValues[key] = minVal
-                    }
-                }
-                if let maxVal = maxVal {
-                    if let max = self.graphMaxValues[key] {
-                        if max < maxVal {
-                            self.graphMaxValues[key] = maxVal
-                        }
-                    }
-                    else {
-                        self.graphMaxValues[key] = maxVal
-                    }
-                }
-            }
+            self.setGraphDataOfDate(date, hourCnt: hourCnt)
 
             self.graphCnt += 1
             if self.timeRange == 3600.0 && hourCnt > 1 {
@@ -584,6 +570,103 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
 
         if self.timeRange == 3600.0 && hourCnt > 1 {
             self.timeRange = self.timeRange * Double(hourCnt)
+        }
+    }
+
+    func setGraphDataOfDate(_ date: Date, hourCnt: Int = 0, position: Int = -1) {
+
+        if position >= 0 {
+            if position < graphDates.count {
+                self.graphDates[position] = date
+            }
+            else {
+                self.graphDates.append(date)
+            }
+        }
+        else {
+            self.graphDates.insert(date, at: 0)
+        }
+
+        let day: String = self.dayFormatter.string(from: date)
+        let hour: String = self.hourFormatter.string(from: date)
+        let min: String = self.minFormatter.string(from: date)
+        let sec: String = self.secFormatter.string(from: date)
+        //print("setGraphData: date -> \(day)\(hour)\(min)\(sec)")
+        for (_, element) in self.graphCategories.enumerated() {
+            let key: String = element.key
+            let values: [String: Double?] = self.getGraphValues(key: key, timeRange: self.timeRange, day: day, hour: hour, min: min, sec: sec, date: date, hourCnt: hourCnt)
+            var value: Double? = nil
+            if let val = values["value"] {
+                value = val
+            }
+            var minVal: Double? = nil
+            if let val = values["minVal"] {
+                minVal = val
+            }
+            var maxVal: Double? = nil
+            if let val = values["maxVal"] {
+                maxVal = val
+            }
+            //print("setGraphData: \(key) -> \(value), \(minVal), \(maxVal)")
+            if position >= 0 {
+                if let graphDataListOfKey = self.graphDataList[key], position < graphDataListOfKey.count {
+                    self.graphDataList[key]?[position] = value
+                }
+                else {
+                    //print("setGraphData: \(key) -> \(value)")
+                    self.graphDataList[key]?.append(value)
+                }
+            }
+            else {
+                self.graphDataList[key]?.insert(value, at: 0)
+            }
+
+            if let value = value {
+                if let max = self.graphMaxList[key] {
+                    if max < value {
+                        self.graphMaxList[key] = value
+                    }
+                }
+                else {
+                    self.graphMaxList[key] = value
+                }
+                if let min = self.graphMinList[key] {
+                    if min > value {
+                        self.graphMinList[key] = value
+                    }
+                }
+                else {
+                    self.graphMinList[key] = value
+                }
+                
+                if minVal == nil {
+                    minVal = value
+                }
+                if maxVal == nil {
+                    maxVal = value
+                }
+            }
+            
+            if let minVal = minVal {
+                if let min = self.graphMinValues[key] {
+                    if min > minVal {
+                        self.graphMinValues[key] = minVal
+                    }
+                }
+                else {
+                    self.graphMinValues[key] = minVal
+                }
+            }
+            if let maxVal = maxVal {
+                if let max = self.graphMaxValues[key] {
+                    if max < maxVal {
+                        self.graphMaxValues[key] = maxVal
+                    }
+                }
+                else {
+                    self.graphMaxValues[key] = maxVal
+                }
+            }
         }
     }
 
@@ -850,8 +933,22 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         for (_, element) in self.graphCategories.enumerated() {
             let key: String = element.key
             if let max = self.graphMaxList[key], let min = self.graphMinList[key] {
-                self.graphMaxRanges[key] = max
-                self.graphMinRanges[key] = min - (max - min)
+                if let value = self.graphMaxRanges[key] {
+                    if value < max {
+                        self.graphMaxRanges[key] = max
+                    }
+                }
+                else {
+                    self.graphMaxRanges[key] = max
+                }
+                if let value = self.graphMinRanges[key] {
+                    if value > min - (max - min) {
+                        self.graphMinRanges[key] = min - (max - min)
+                    }
+                }
+                else {
+                    self.graphMinRanges[key] = min - (max - min)
+                }
                 //self.graphMinRanges[key] = min / 2
 
                 if let def = self.graphRangeDefault[key] {
@@ -876,6 +973,177 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         //print("setGraphRanges Min: \(self.graphMinRanges)")
     }
 
+    func changeRealtimeGraphDataStart() {
+
+        if !self.isRealtime {
+            self.closeGraphDataSmallView()
+            self.setHiddenLoadingView(false)
+
+            self.realtimeGraphTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.setRealtimeGraphData), userInfo: nil, repeats: true)
+        }
+        self.isRealtime = true
+    }
+
+    @objc func setRealtimeGraphData() {
+
+        self.realtimeGraphTimer?.invalidate()
+        self.realtimeGraphTimer = nil
+
+        self.timeRange = 10.0
+        let width: Double = Double(self.baseView.frame.size.width - self.graphSpaceR)
+        self.graphCnt = Int(ceil(width / self.timeRange)) + 1
+
+        self.endDate = Date()
+        self.startDate = Date(timeInterval: -self.timeRange * Double(self.graphCnt), since: self.endDate!)
+        self.realtimeGraphLastTime = self.endDate!.timeIntervalSince1970
+
+        self.graphDates = []
+        for (_, element) in self.graphCategories.enumerated() {
+            let key: String = element.key
+            self.graphDataList[key] = []
+        }
+        self.graphMaxList = [:]
+        self.graphMinList = [:]
+        self.graphMinValues = [:]
+        self.graphMaxValues = [:]
+
+        if self.synapseRecordFileManager == nil {
+            return
+        }
+
+        var date: Date = self.endDate!
+        while date >= self.startDate! {
+            self.setGraphDataOfDate(date)
+
+            let time: TimeInterval = floor(date.timeIntervalSince1970 / 10) * 10 - self.timeRange
+            date = Date(timeIntervalSince1970: time)
+            //print("setRealtimeGraphData Date: \(date)")
+        }
+        //print("Data: \(self.graphDataList)")
+        self.setGraphRanges()
+
+        self.setGraphViews()
+        self.changeGraphIsHiddenAction()
+
+        self.setDateLabels()
+        self.setHiddenLoadingView(true)
+
+        self.realtimeGraphTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(self.updateRealtimeGraphData), userInfo: nil, repeats: true)
+    }
+
+    @objc func updateRealtimeGraphData() {
+
+        self.endDate = Date()
+        if let realtimeGraphLastTime = self.realtimeGraphLastTime, floor(self.endDate!.timeIntervalSince1970 / 10) != floor(realtimeGraphLastTime / 10) {
+            self.setGraphDataOfDate(Date(timeIntervalSince1970: floor(realtimeGraphLastTime / 10) * 10), position: self.graphDates.count - 1)
+            self.setGraphDataOfDate(self.endDate!, position: self.graphDates.count)
+
+            self.graphDates.removeFirst()
+            for (_, element) in self.graphCategories.enumerated() {
+                self.graphDataList[element.key]?.removeFirst()
+            }
+        }
+        else {
+            self.setGraphDataOfDate(self.endDate!, position: self.graphDates.count - 1)
+        }
+        self.startDate = Date(timeInterval: -self.timeRange * Double(self.graphCnt), since: self.endDate!)
+        self.realtimeGraphLastTime = self.endDate!.timeIntervalSince1970
+
+        self.setGraphRanges()
+
+        self.setGraphViews()
+        self.changeGraphIsHiddenAction()
+
+        if !self.selectLineView.isHidden {
+            self.setSelectPoint(self.selectLineView.frame.origin.x)
+            if self.graphSelectpt >= 0 {
+                self.enableGraphDataSmallView()
+            }
+        }
+    }
+
+    func setRealtimeGraphViewSize() {
+
+        self.graphBlock = CGFloat(self.timeRange)
+        var lastW: CGFloat = 0
+        if let endDate = self.endDate {
+            lastW = CGFloat(endDate.timeIntervalSince1970 - floor(endDate.timeIntervalSince1970 / 10) * 10)
+        }
+        if lastW <= 0.0 {
+            lastW = self.graphBlock
+        }
+        self.graphW = self.graphBlock * CGFloat(self.graphCnt - 1) + lastW + self.graphCirclePointW
+        self.graphX = self.baseView.frame.size.width - self.graphSpaceR - self.graphW
+        self.graphY = self.graphSpace
+        self.graphH = self.baseView.frame.size.height - self.graphY * 2
+        self.setGraphScaleLines()
+        //print("setRealtimeGraphViewSize: \(self.graphBlock) / \(self.timeRange)")
+    }
+
+    func makeRealtimeGraphImage(_ data: [Double?], color: UIColor, imageW: CGFloat, imageH: CGFloat, minValue: Double, maxValue: Double) -> UIImage? {
+
+        var image: UIImage? = nil
+        let w: CGFloat = self.graphBlock
+        var h: CGFloat = CGFloat(maxValue - minValue)
+        if h <= 0 {
+            h = 0
+        }
+        var sx: CGFloat = -1
+        var sy: CGFloat? = nil
+        var lx: CGFloat? = nil
+        var ly: CGFloat? = nil
+        UIGraphicsBeginImageContextWithOptions(CGSize(width: imageW, height: imageH), false, 0)
+        color.setStroke()
+        for (index, element) in data.enumerated() {
+            var ex: CGFloat = w * CGFloat(index)
+            if index == data.count - 1 {
+                ex = imageW - self.graphCirclePointW
+            }
+            var ey: CGFloat? = nil
+            if let yVal = element {
+                ey = imageH - self.graphCirclePointW
+                if h > 0 {
+                    ey = (imageH - self.graphCirclePointW * 2) * (1.0 - CGFloat(yVal - minValue) / h) + self.graphCirclePointW
+                }
+            }
+            if sy != nil {
+                var x: CGFloat = sx + 1.0
+                var y: CGFloat = sy! + 1.0
+                if ey != nil {
+                    x = ex
+                    y = ey!
+                }
+
+                let path: UIBezierPath = UIBezierPath()
+                path.move(to: CGPoint(x: sx, y: sy!))
+                //path.addQuadCurve(to: CGPoint(x: ex, y: ey), controlPoint: CGPoint(x: sx, y: ey))
+                path.addLine(to: CGPoint(x: x, y: y))
+                path.lineWidth = 1.0
+                path.stroke()
+            }
+            sx = ex
+            sy = ey
+            if sy != nil {
+                lx = sx
+                ly = sy
+            }
+            /*if index == data.count - 1 {
+             lx = ex
+             ly = ey
+             }*/
+        }
+
+        if lx != nil && ly != nil {
+            let circlePath: UIBezierPath = UIBezierPath(ovalIn: CGRect(x: lx! - self.graphCirclePointW, y: ly! - self.graphCirclePointW, width: self.graphCirclePointW * 2, height: self.graphCirclePointW * 2))
+            color.setFill()
+            circlePath.fill()
+        }
+
+        image = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return image
+    }
+
     // MARK: mark - GraphView methods
 
     func setGraphViews() {
@@ -884,16 +1152,12 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
             element.removeFromSuperview()
         }
 
-        self.graphX = 0
-        self.graphY = self.graphSpace
-        self.graphW = self.baseView.frame.size.width - self.graphSpaceR
-        self.graphH = self.baseView.frame.size.height - self.graphY * 2
-        self.graphBlock = 0
-        if self.graphCnt > 1 {
-            self.graphBlock = (self.graphW - self.graphCirclePointW) / CGFloat(self.graphCnt - 1)
-            self.setGraphScaleLines()
+        if self.isRealtime {
+            self.setRealtimeGraphViewSize()
         }
-        //print("setGraphViews: \(self.graphBlock) / \(self.timeRange)")
+        else {
+            self.setGraphViewSize()
+        }
 
         for (index, element) in self.graphCategories.enumerated() {
             if let data = self.graphDataList[element.key] {
@@ -911,10 +1175,29 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                 imageView.tag = index
                 imageView.frame = CGRect(x: self.graphX, y: self.graphY, width: self.graphW, height: self.graphH)
                 imageView.backgroundColor = UIColor.clear
-                imageView.image = self.makeGraphImage(data, color: element.graphColor, imageW: imageView.frame.size.width, imageH: imageView.frame.size.height, minValue: min, maxValue: max)
+                if self.isRealtime {
+                    imageView.image = self.makeRealtimeGraphImage(data, color: element.graphColor, imageW: imageView.frame.size.width, imageH: imageView.frame.size.height, minValue: min, maxValue: max)
+                }
+                else {
+                    imageView.image = self.makeGraphImage(data, color: element.graphColor, imageW: imageView.frame.size.width, imageH: imageView.frame.size.height, minValue: min, maxValue: max)
+                }
                 self.baseView.addSubview(imageView)
             }
         }
+    }
+
+    func setGraphViewSize() {
+
+        self.graphX = 0
+        self.graphY = self.graphSpace
+        self.graphW = self.baseView.frame.size.width - self.graphSpaceR
+        self.graphH = self.baseView.frame.size.height - self.graphY * 2
+        self.graphBlock = 0
+        if self.graphCnt > 1 {
+            self.graphBlock = (self.graphW - self.graphCirclePointW) / CGFloat(self.graphCnt - 1)
+            self.setGraphScaleLines()
+        }
+        //print("setGraphViewSize: \(self.graphBlock) / \(self.timeRange)")
     }
 
     func makeGraphImage(_ data: [Double?], color: UIColor, imageW: CGFloat, imageH: CGFloat, minValue: Double, maxValue: Double) -> UIImage? {
@@ -989,7 +1272,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
     func setGraphScaleLines() {
 
         if self.graphBlock > 0 {
-            var pt: CGFloat = self.graphW - self.graphCirclePointW
+            var pt: CGFloat = self.graphX + self.graphW - self.graphCirclePointW
             var blockBase: CGFloat = self.graphBlock * 6
             let cntBase: CGFloat = ceil(pt / blockBase)
 
@@ -1059,6 +1342,11 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
     @objc func setDisplaySettingView() {
 
         if let nav = self.navigationController as? NavigationController {
+            if self.isRealtime {
+                self.realtimeGraphTimer?.invalidate()
+                self.realtimeGraphTimer = nil
+            }
+
             var x: CGFloat = 0
             var y: CGFloat = 0
             var w: CGFloat = nav.view.frame.size.width
@@ -1549,8 +1837,6 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
 
     func changeGraphIsHiddenAction() {
 
-        self.closeGraphDataSmallView()
-
         for (_, element) in self.baseView.subviews.enumerated() {
             if let iv = element as? UIImageView {
                 if iv.tag < self.graphCategories.count {
@@ -1564,8 +1850,15 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
 
     @objc func closeDisplaySettingView() {
 
-        self.setGraphViews()
-        self.changeGraphIsHiddenAction()
+        if self.isRealtime {
+            self.isRealtime = false
+            self.changeRealtimeGraphDataStart()
+        }
+        else {
+            self.closeGraphDataSmallView()
+            self.setGraphViews()
+            self.changeGraphIsHiddenAction()
+        }
 
         self.graphRangeViewParts = nil
         self.displaySettingView?.removeFromSuperview()
@@ -1616,20 +1909,48 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         self.graphDatePickerSetBtn?.addTarget(self, action: #selector(self.setGraphDateAction(_:)), for: .touchUpInside)
         self.graphDatePickerView?.addSubview(self.graphDatePickerSetBtn!)
 
-        x = self.view.frame.size.width - (w + x)
+        x += w + x
+        w = 120.0
+        self.graphDatePickerRealtimeBtn = UIButton()
+        self.graphDatePickerRealtimeBtn?.tag = 2
+        self.graphDatePickerRealtimeBtn?.frame = CGRect(x: x, y: y, width: w, height: h)
+        self.graphDatePickerRealtimeBtn?.setTitle("Realtime", for: .normal)
+        self.graphDatePickerRealtimeBtn?.setTitleColor(.white, for: .normal)
+        self.graphDatePickerRealtimeBtn?.titleLabel?.font = UIFont(name: "HelveticaNeue", size: 18.0)
+        self.graphDatePickerRealtimeBtn?.backgroundColor = .clear
+        self.graphDatePickerRealtimeBtn?.clipsToBounds = true
+        self.graphDatePickerRealtimeBtn?.layer.cornerRadius = h / 2
+        self.graphDatePickerRealtimeBtn?.layer.borderColor = UIColor.white.cgColor
+        self.graphDatePickerRealtimeBtn?.layer.borderWidth = 1.0
+        self.graphDatePickerRealtimeBtn?.addTarget(self, action: #selector(self.setGraphDateAction(_:)), for: .touchUpInside)
+        self.graphDatePickerView?.addSubview(self.graphDatePickerRealtimeBtn!)
+
+        w = 40.0
+        x = self.view.frame.size.width - (w + 10.0)
         self.graphDatePickerCancelBtn = UIButton()
-        self.graphDatePickerCancelBtn?.tag = 2
+        self.graphDatePickerCancelBtn?.tag = 0
         self.graphDatePickerCancelBtn?.frame = CGRect(x: x, y: y, width: w, height: h)
-        self.graphDatePickerCancelBtn?.setTitle("Cancel", for: .normal)
-        self.graphDatePickerCancelBtn?.setTitleColor(.white, for: .normal)
-        self.graphDatePickerCancelBtn?.titleLabel?.font = UIFont(name: "HelveticaNeue", size: 18.0)
+        //self.graphDatePickerCancelBtn?.setTitle("Cancel", for: .normal)
+        //self.graphDatePickerCancelBtn?.setTitleColor(.white, for: .normal)
+        //self.graphDatePickerCancelBtn?.titleLabel?.font = UIFont(name: "HelveticaNeue", size: 18.0)
         self.graphDatePickerCancelBtn?.backgroundColor = .clear
-        self.graphDatePickerCancelBtn?.clipsToBounds = true
-        self.graphDatePickerCancelBtn?.layer.cornerRadius = h / 2
-        self.graphDatePickerCancelBtn?.layer.borderColor = UIColor.white.cgColor
-        self.graphDatePickerCancelBtn?.layer.borderWidth = 1.0
+        //self.graphDatePickerCancelBtn?.clipsToBounds = true
+        //self.graphDatePickerCancelBtn?.layer.cornerRadius = h / 2
+        //self.graphDatePickerCancelBtn?.layer.borderColor = UIColor.white.cgColor
+        //self.graphDatePickerCancelBtn?.layer.borderWidth = 1.0
         self.graphDatePickerCancelBtn?.addTarget(self, action: #selector(self.setGraphDateAction(_:)), for: .touchUpInside)
         self.graphDatePickerView?.addSubview(self.graphDatePickerCancelBtn!)
+
+        w = 18.0
+        h = 18.0
+        x = (self.graphDatePickerCancelBtn!.frame.size.width - w) / 2
+        y = (self.graphDatePickerCancelBtn!.frame.size.height - h) / 2
+        let closeIcon: CrossView = CrossView()
+        closeIcon.frame = CGRect(x: x, y: y, width: w, height: h)
+        closeIcon.backgroundColor = .clear
+        closeIcon.isUserInteractionEnabled = false
+        closeIcon.lineColor = UIColor.white
+        self.graphDatePickerCancelBtn!.addSubview(closeIcon)
 
         self.graphDatePicker?.date = Date()
         self.graphDatePicker?.minimumDate = Date()
@@ -1647,6 +1968,9 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
             self.graphDatePicker?.maximumDate = Date(timeInterval: -self.timeRangeMin, since: self.endDate!)
 
             self.graphDatePicker?.date = self.startDate!
+            if self.isRealtime, let startDate = self.startDate {
+                self.graphDatePicker?.date = Date(timeIntervalSince1970: floor(startDate.timeIntervalSince1970 / 300) * 300)
+            }
         }
         else if sender.tag == 2 {
             self.graphDatePicker?.minimumDate = Date(timeInterval: self.timeRangeMin, since: self.startDate!)
@@ -1660,18 +1984,35 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
             self.graphDatePicker?.maximumDate = dateFormatter.date(from: "\(dateStr)00")
 
             self.graphDatePicker?.date = self.endDate!
+            if self.isRealtime, let endDate = self.endDate {
+                self.graphDatePicker?.date = Date(timeIntervalSince1970: ceil(endDate.timeIntervalSince1970 / 300) * 300)
+            }
         }
     }
 
     @objc func setGraphDateAction(_ sender: UIButton) {
 
         if sender.tag == 1 {
+            self.realtimeGraphTimer?.invalidate()
+            self.realtimeGraphTimer = nil
+            if self.isRealtime {
+                if let startDate = self.startDate {
+                    self.startDate = Date(timeIntervalSince1970: floor(startDate.timeIntervalSince1970 / 300) * 300)
+                }
+                if let endDate = self.endDate {
+                    self.endDate = Date(timeIntervalSince1970: ceil(endDate.timeIntervalSince1970 / 300) * 300)
+                }
+                //print("setGraphDateAction: \(self.startDate), \(self.endDate)")
+            }
+            self.isRealtime = false
+
             if self.graphDatePickerView?.tag == 1 {
                 self.startDate = self.graphDatePicker?.date
             }
             else if self.graphDatePickerView?.tag == 2 {
                 self.endDate = self.graphDatePicker?.date
             }
+            //print("setGraphDateAction2: \(self.startDate), \(self.endDate)")
         }
 
         self.graphDatePickerSetBtn?.removeFromSuperview()
@@ -1685,6 +2026,9 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
 
         if sender.tag == 1 {
             self.reloadGraphDataAction()
+        }
+        else if sender.tag == 2 {
+            self.changeRealtimeGraphDataStart()
         }
     }
 
@@ -1738,13 +2082,30 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
 
         self.graphSelectpt = -1
         if self.graphBlock > 0 {
+            self.setSelectPoint(x)
+
+            var lineX: CGFloat = CGFloat(self.graphSelectpt) * self.graphBlock
+            if self.isRealtime && self.graphSelectpt == self.graphCnt - 1 {
+                lineX = self.graphX + self.graphW - self.graphCirclePointW
+            }
+            self.selectLineView.frame = CGRect(x: lineX,
+                                               y: self.selectLineView.frame.origin.y,
+                                               width: self.selectLineView.frame.size.width,
+                                               height: self.selectLineView.frame.size.height)
+            self.selectLineView.isHidden = false
+        }
+    }
+
+    func setSelectPoint(_ x: CGFloat) {
+
+        if self.graphBlock > 0 {
             self.graphSelectpt = Int(floor(x / self.graphBlock))
+            if self.isRealtime {
+                self.graphSelectpt = Int(floor((x - self.graphX) / self.graphBlock))
+            }
             if self.graphSelectpt > self.graphCnt - 1 {
                 self.graphSelectpt = self.graphCnt - 1
             }
-            let lineX: CGFloat = CGFloat(self.graphSelectpt) * self.graphBlock
-            self.selectLineView.frame = CGRect(x: lineX, y: self.selectLineView.frame.origin.y, width: self.selectLineView.frame.size.width, height: self.selectLineView.frame.size.height)
-            self.selectLineView.isHidden = false
         }
     }
 
@@ -2309,4 +2670,6 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
             }
         }
     }
+
+    // MARK: mark - Realtime methods
 }

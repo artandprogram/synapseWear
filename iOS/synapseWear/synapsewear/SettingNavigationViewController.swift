@@ -217,6 +217,11 @@ class SettingNavigationViewController: NavigationController, DeviceAssociatedDel
         self.nav?.changeSynapseSendData()
     }
 
+    override func sendLEDFlashToDevice() {
+
+        self.nav?.sendLEDFlashToDevice()
+    }
+
     // MARK: mark - SettingNavigationViewController methods
 
     @objc func closeAction() {

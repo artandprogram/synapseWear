@@ -3053,7 +3053,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         }
         //print("setSynapseData: \(time)")
         synapseObject.setSynapseValues()
-
+        /*
         var values: Data? = Data(bytes: synapseObject.receiveData)
         var time: TimeInterval? = self.appDelegate.synapseTimeInterval
         DispatchQueue.global(qos: .background).async {
@@ -3061,7 +3061,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             values = nil
             time = nil
         }
-
+         */
         if synapseObject.synapseValues.isConnected {
             synapseObject.setSynapseMaxAndMinValues()
 
