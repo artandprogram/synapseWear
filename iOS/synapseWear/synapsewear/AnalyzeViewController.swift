@@ -62,6 +62,11 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
     var synapseSoundStartDate: Date?
     var synapseSoundValues: SynapseValues?
     var synapseSoundPt: Int?
+    // realtime variables
+    var isRealtime: Bool = false
+    var realtimeGraphTimer: Timer?
+    var realtimeGraphLastTime: TimeInterval?
+    var realtimeGraphBlock: CGFloat = 1.0
     // views
     var baseView: UIView!
     var selectLineView: UIView!
@@ -85,10 +90,6 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
     var graphDataSmallOpenButton: UIButton!
     var graphDataSmallDateLabel: UILabel!
     var graphDataView: UIView?
-    // realtime variables
-    var isRealtime: Bool = false
-    var realtimeGraphTimer: Timer?
-    var realtimeGraphLastTime: TimeInterval?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -430,7 +431,12 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
 
     func setDateLabels() {
 
-        if self.isRealtime {
+        let dateFormatter: DateFormatter = DateFormatter()
+        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+        dateFormatter.dateFormat = "yyyy.M.d HH:mm"
+        self.dateStartLabel.text = dateFormatter.string(from: self.startDate!)
+        self.dateEndLabel.text = dateFormatter.string(from: self.endDate!)
+        /*if self.isRealtime {
             self.dateStartLabel.text = "------------"
             self.dateEndLabel.text = "------------"
         }
@@ -440,7 +446,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
             dateFormatter.dateFormat = "yyyy.M.d HH:mm"
             self.dateStartLabel.text = dateFormatter.string(from: self.startDate!)
             self.dateEndLabel.text = dateFormatter.string(from: self.endDate!)
-        }
+        }*/
 
         self.dateStartLabel.sizeToFit()
         var w: CGFloat = self.dateStartButton.frame.size.width
@@ -534,15 +540,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         }
         //print("Date: \(String(describing: self.startDate)) - \(String(describing: self.endDate)) Range: \(self.timeRange)")
 
-        self.graphDates = []
-        for (_, element) in self.graphCategories.enumerated() {
-            let key: String = element.key
-            self.graphDataList[key] = []
-        }
-        self.graphMaxList = [:]
-        self.graphMinList = [:]
-        self.graphMinValues = [:]
-        self.graphMaxValues = [:]
+        self.resetGraphData()
 
         if self.synapseRecordFileManager == nil {
             return
@@ -795,15 +793,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
 
     func setGraphDataPerDay() {
 
-        self.graphDates = []
-        for (_, element) in self.graphCategories.enumerated() {
-            let key: String = element.key
-            self.graphDataList[key] = []
-        }
-        self.graphMaxList = [:]
-        self.graphMinList = [:]
-        self.graphMinValues = [:]
-        self.graphMaxValues = [:]
+        self.resetGraphData()
 
         if self.synapseRecordFileManager == nil || self.endDate == nil || self.startDate == nil {
             return
@@ -912,10 +902,22 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                     }
                 }
             }
-
             self.graphCnt += 1
         }
         self.setGraphRanges()
+    }
+
+    func resetGraphData() {
+
+        self.graphDates = []
+        for (_, element) in self.graphCategories.enumerated() {
+            let key: String = element.key
+            self.graphDataList[key] = []
+        }
+        self.graphMaxList = [:]
+        self.graphMinList = [:]
+        self.graphMinValues = [:]
+        self.graphMaxValues = [:]
     }
 
     func makeGraphDateNow() -> Date {
@@ -973,6 +975,8 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         //print("setGraphRanges Min: \(self.graphMinRanges)")
     }
 
+    // MARK: mark - RealtimeGraph methods
+
     func changeRealtimeGraphDataStart() {
 
         if !self.isRealtime {
@@ -997,15 +1001,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         self.startDate = Date(timeInterval: -self.timeRange * Double(self.graphCnt), since: self.endDate!)
         self.realtimeGraphLastTime = self.endDate!.timeIntervalSince1970
 
-        self.graphDates = []
-        for (_, element) in self.graphCategories.enumerated() {
-            let key: String = element.key
-            self.graphDataList[key] = []
-        }
-        self.graphMaxList = [:]
-        self.graphMinList = [:]
-        self.graphMinValues = [:]
-        self.graphMaxValues = [:]
+        self.resetGraphData()
 
         if self.synapseRecordFileManager == nil {
             return
@@ -1021,11 +1017,11 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         }
         //print("Data: \(self.graphDataList)")
         self.setGraphRanges()
+        self.setDateLabels()
 
         self.setGraphViews()
         self.changeGraphIsHiddenAction()
 
-        self.setDateLabels()
         self.setHiddenLoadingView(true)
 
         self.realtimeGraphTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(self.updateRealtimeGraphData), userInfo: nil, repeats: true)
@@ -1050,6 +1046,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         self.realtimeGraphLastTime = self.endDate!.timeIntervalSince1970
 
         self.setGraphRanges()
+        self.setDateLabels()
 
         self.setGraphViews()
         self.changeGraphIsHiddenAction()
@@ -1128,9 +1125,9 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                 ly = sy
             }
             /*if index == data.count - 1 {
-             lx = ex
-             ly = ey
-             }*/
+                lx = ex
+                ly = ey
+            }*/
         }
 
         if lx != nil && ly != nil {
@@ -1211,6 +1208,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         if h <= 0 {
             h = 0
         }
+
         var sx: CGFloat = -1
         var sy: CGFloat? = nil
         var lx: CGFloat? = nil
@@ -1225,14 +1223,12 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                 if h > 0 {
                     ey = (imageH - self.graphCirclePointW * 2) * (1.0 - CGFloat(yVal - minValue) / h) + self.graphCirclePointW
                 }
-                /*
-                if ey! > imageH - self.graphCirclePointW {
+                /*if ey! > imageH - self.graphCirclePointW {
                     ey = imageH - self.graphCirclePointW
                 }
                 else if ey! < self.graphCirclePointW {
                     ey = self.graphCirclePointW
-                }
-                 */
+                }*/
             }
             if sy != nil {
                 var x: CGFloat = sx + 1.0
@@ -1256,7 +1252,6 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                 ly = sy
             }
         }
-
         if lx != nil && ly != nil {
             let circlePath: UIBezierPath = UIBezierPath(ovalIn: CGRect(x: lx! - self.graphCirclePointW, y: ly! - self.graphCirclePointW, width: self.graphCirclePointW * 2, height: self.graphCirclePointW * 2))
             color.setFill()
@@ -1265,7 +1260,6 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
 
         image = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
-
         return image
     }
 
@@ -1740,7 +1734,8 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
             self.graphRangeLongPressTimer?.invalidate()
             self.graphRangeLongPressTimer = nil
             self.graphRangeLongPressPt = nil
-        default:break
+        default:
+            break
         }
     }
 
@@ -1895,6 +1890,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         y = (self.view.frame.size.height - 200.0) / 2 - (44.0 + x)
         w = 90.0
         h = 40.0
+        /*
         self.graphDatePickerSetBtn = UIButton()
         self.graphDatePickerSetBtn?.tag = 1
         self.graphDatePickerSetBtn?.frame = CGRect(x: x, y: y, width: w, height: h)
@@ -1908,22 +1904,31 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         self.graphDatePickerSetBtn?.layer.borderWidth = 1.0
         self.graphDatePickerSetBtn?.addTarget(self, action: #selector(self.setGraphDateAction(_:)), for: .touchUpInside)
         self.graphDatePickerView?.addSubview(self.graphDatePickerSetBtn!)
-
-        x += w + x
+        let bgView1: UIView = UIView()
+        bgView1.frame = CGRect(x: 0, y: 0, width: w, height: h)
+        bgView1.backgroundColor = UIColor.white.withAlphaComponent(0.5)
+        self.graphDatePickerSetBtn?.setBackgroundImage(CommonFunction.getImageFromView(bgView1), for: .highlighted)
+         */
+        //x += w + x
         w = 120.0
         self.graphDatePickerRealtimeBtn = UIButton()
-        self.graphDatePickerRealtimeBtn?.tag = 2
+        //self.graphDatePickerRealtimeBtn?.tag = 2
         self.graphDatePickerRealtimeBtn?.frame = CGRect(x: x, y: y, width: w, height: h)
         self.graphDatePickerRealtimeBtn?.setTitle("Realtime", for: .normal)
         self.graphDatePickerRealtimeBtn?.setTitleColor(.white, for: .normal)
         self.graphDatePickerRealtimeBtn?.titleLabel?.font = UIFont(name: "HelveticaNeue", size: 18.0)
-        self.graphDatePickerRealtimeBtn?.backgroundColor = .clear
         self.graphDatePickerRealtimeBtn?.clipsToBounds = true
         self.graphDatePickerRealtimeBtn?.layer.cornerRadius = h / 2
         self.graphDatePickerRealtimeBtn?.layer.borderColor = UIColor.white.cgColor
         self.graphDatePickerRealtimeBtn?.layer.borderWidth = 1.0
-        self.graphDatePickerRealtimeBtn?.addTarget(self, action: #selector(self.setGraphDateAction(_:)), for: .touchUpInside)
+        self.graphDatePickerRealtimeBtn?.addTarget(self, action: #selector(self.graphDatePickerRealtimeBtnAction(_:)), for: .touchUpInside)
+        //self.graphDatePickerRealtimeBtn?.addTarget(self, action: #selector(self.setGraphDateAction(_:)), for: .touchUpInside)
         self.graphDatePickerView?.addSubview(self.graphDatePickerRealtimeBtn!)
+
+        let bgView: UIView = UIView()
+        bgView.frame = CGRect(x: 0, y: 0, width: w, height: h)
+        bgView.backgroundColor = UIColor.white.withAlphaComponent(0.5)
+        self.graphDatePickerRealtimeBtn?.setBackgroundImage(CommonFunction.getImageFromView(bgView), for: .highlighted)
 
         w = 40.0
         x = self.view.frame.size.width - (w + 10.0)
@@ -1988,13 +1993,46 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                 self.graphDatePicker?.date = Date(timeIntervalSince1970: ceil(endDate.timeIntervalSince1970 / 300) * 300)
             }
         }
+
+        self.checkGraphDatePickerIsRealtime(self.isRealtime)
+    }
+
+    func checkGraphDatePickerIsRealtime(_ flag: Bool) {
+
+        if flag {
+            self.graphDatePickerRealtimeBtn?.backgroundColor = UIColor.fluorescentPink
+            self.graphDatePickerRealtimeBtn?.tag = 2
+        }
+        else {
+            self.graphDatePickerRealtimeBtn?.backgroundColor = .clear
+            self.graphDatePickerRealtimeBtn?.tag = 1
+        }
+
+        if flag {
+            self.graphDatePicker?.isEnabled = false
+        }
+        else {
+            self.graphDatePicker?.isEnabled = true
+        }
+    }
+
+    @objc func graphDatePickerRealtimeBtnAction(_ sender: UIButton) {
+
+        if self.graphDatePickerRealtimeBtn!.tag == 1 {
+            self.checkGraphDatePickerIsRealtime(true)
+        }
+        else if self.graphDatePickerRealtimeBtn!.tag == 2 {
+            self.checkGraphDatePickerIsRealtime(false)
+        }
     }
 
     @objc func setGraphDateAction(_ sender: UIButton) {
 
-        if sender.tag == 1 {
+        if self.graphDatePickerRealtimeBtn!.tag == 1 {
+        //if sender.tag == 1 {
             self.realtimeGraphTimer?.invalidate()
             self.realtimeGraphTimer = nil
+
             if self.isRealtime {
                 if let startDate = self.startDate {
                     self.startDate = Date(timeIntervalSince1970: floor(startDate.timeIntervalSince1970 / 300) * 300)
@@ -2024,10 +2062,12 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         self.graphDatePickerView?.removeFromSuperview()
         self.graphDatePickerView = nil
 
-        if sender.tag == 1 {
+        if self.graphDatePickerRealtimeBtn!.tag == 1 {
+        //if sender.tag == 1 {
             self.reloadGraphDataAction()
         }
-        else if sender.tag == 2 {
+        else if self.graphDatePickerRealtimeBtn!.tag == 2 {
+        //else if sender.tag == 2 {
             self.changeRealtimeGraphDataStart()
         }
     }
@@ -2584,6 +2624,17 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         if let nav = self.navigationController as? NavigationController {
             nav.topVC.stopAudio()
         }
+        if self.isRealtime {
+            self.realtimeGraphTimer?.invalidate()
+            self.realtimeGraphTimer = nil
+
+            if self.graphDates.count > 0 {
+                self.realtimeGraphBlock = (self.graphW - self.graphCirclePointW) / CGFloat(self.graphDates.count)
+            }
+            else {
+                self.realtimeGraphBlock = self.graphBlock
+            }
+        }
 
         self.dateStartButton.isEnabled = false
         self.dateEndButton.isEnabled = false
@@ -2616,6 +2667,10 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         if let nav = self.navigationController as? NavigationController {
             nav.topVC.playAudioStart(synapseObject: nav.topVC.mainSynapseObject)
         }
+        if self.isRealtime {
+            self.isRealtime = false
+            self.changeRealtimeGraphDataStart()
+        }
 
         self.isSoundPlay = false
     }
@@ -2628,7 +2683,11 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
             let pt: Int = Int(floor(time))
             if pt < self.graphDates.count {
                 //print("checkAudio: \(self.graphDates[pt])")
-                let lineX: CGFloat = CGFloat(time) * self.graphBlock
+                var lineX: CGFloat = CGFloat(time) * self.graphBlock
+                if self.isRealtime {
+                    lineX = CGFloat(time) * self.realtimeGraphBlock + self.graphX
+                }
+
                 self.selectLineView.frame = CGRect(x: lineX, y: self.selectLineView.frame.origin.y, width: self.selectLineView.frame.size.width, height: self.selectLineView.frame.size.height)
                 self.selectLineView.isHidden = false
 
@@ -2670,6 +2729,4 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
             }
         }
     }
-
-    // MARK: mark - Realtime methods
 }
