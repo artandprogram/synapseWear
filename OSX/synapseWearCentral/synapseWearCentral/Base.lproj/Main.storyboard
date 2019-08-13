@@ -3,6 +3,7 @@
     <dependencies>
         <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14490.70"/>
+        <plugIn identifier="com.apple.WebKit2IBPlugin" version="14490.70"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -1346,14 +1347,14 @@ Gw
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <scrollView fixedFrame="YES" autohidesScrollers="YES" horizontalLineScroll="22" horizontalPageScroll="10" verticalLineScroll="22" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fIV-1h-X0I">
-                                <rect key="frame" x="0.0" y="0.0" width="450" height="300"/>
+                                <rect key="frame" x="0.0" y="0.0" width="450" height="100"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <clipView key="contentView" ambiguous="YES" id="EKT-C3-YrI">
-                                    <rect key="frame" x="1" y="0.0" width="448" height="299"/>
+                                    <rect key="frame" x="1" y="0.0" width="448" height="99"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" rowSizeStyle="automatic" headerView="Wg2-fb-jH9" viewBased="YES" id="HxO-KE-WyX">
-                                            <rect key="frame" x="0.0" y="0.0" width="450" height="274"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="448" height="74"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <size key="intercellSpacing" width="5" height="5"/>
                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -1395,7 +1396,7 @@ Gw
                                                         </tableCellView>
                                                     </prototypeCellViews>
                                                 </tableColumn>
-                                                <tableColumn identifier="value" width="340" minWidth="20" maxWidth="1000" id="6JU-gU-Wrv">
+                                                <tableColumn identifier="value" width="338" minWidth="20" maxWidth="1000" id="6JU-gU-Wrv">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border">
                                                         <font key="font" metaFont="smallSystem"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -1409,11 +1410,11 @@ Gw
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                     <prototypeCellViews>
                                                         <tableCellView id="3Ba-UY-CR7">
-                                                            <rect key="frame" x="107" y="2" width="340" height="17"/>
+                                                            <rect key="frame" x="107" y="2" width="338" height="17"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
                                                                 <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="d6T-8V-sEt">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="340" height="17"/>
+                                                                    <rect key="frame" x="0.0" y="0.0" width="338" height="17"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                                                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" id="hdG-ff-fks">
                                                                         <font key="font" metaFont="system"/>
@@ -1438,7 +1439,7 @@ Gw
                                         </tableView>
                                     </subviews>
                                 </clipView>
-                                <scroller key="horizontalScroller" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="ftb-Kg-3d1">
+                                <scroller key="horizontalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="ftb-Kg-3d1">
                                     <rect key="frame" x="1" y="283" width="448" height="16"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
@@ -1447,15 +1448,24 @@ Gw
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                                 <tableHeaderView key="headerView" id="Wg2-fb-jH9">
-                                    <rect key="frame" x="0.0" y="0.0" width="450" height="25"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="448" height="25"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </tableHeaderView>
                             </scrollView>
+                            <wkWebView wantsLayer="YES" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ued-gF-EVu">
+                                <rect key="frame" x="0.0" y="100" width="450" height="200"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <wkWebViewConfiguration key="configuration">
+                                    <audiovisualMediaTypes key="mediaTypesRequiringUserActionForPlayback" none="YES"/>
+                                    <wkPreferences key="preferences"/>
+                                </wkWebViewConfiguration>
+                            </wkWebView>
                         </subviews>
                     </view>
                     <connections>
                         <outlet property="scrollView" destination="fIV-1h-X0I" id="tje-mu-DXg"/>
                         <outlet property="tableView" destination="HxO-KE-WyX" id="8s4-i7-H9Q"/>
+                        <outlet property="webView" destination="ued-gF-EVu" id="eIV-fU-QS0"/>
                     </connections>
                 </viewController>
                 <customObject id="o5U-02-yh0" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>

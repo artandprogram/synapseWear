@@ -7,11 +7,13 @@
 //
 
 import Cocoa
+import WebKit
 
-class DataViewController: NSViewController, NSTableViewDataSource, NSTableViewDelegate {
+class DataViewController: NSViewController, NSTableViewDataSource, NSTableViewDelegate, WKNavigationDelegate {
 
     @IBOutlet var scrollView: NSScrollView!
     @IBOutlet var tableView: NSTableView!
+    @IBOutlet var webView: WKWebView!
 
     let aScale: Float = 2.0 / 32768.0
     let gScale: Float = 250.0 / 32768.0
@@ -32,11 +34,25 @@ class DataViewController: NSViewController, NSTableViewDataSource, NSTableViewDe
     var synapseNo: Int?
     var synapseValues: SynapseValues?
     var mainViewController: ViewController?
+    // For Graph Data
+    let synapseGraphUpdateInterval: TimeInterval = 1.0
+    var synapseGraphFlag: Bool = false
+    var synapseGraphFirstFlag: Bool = false
+    var synapseGraphLastUpdate: Date?
+    var synapseGraphLabels: [String] = []
+    var synapseGraphValues: [[[String: Any]]] = []
+    var synapseGraphColors: [String] = []
+    var graphLabels: String?
+    var graphValues: String?
+    var graphColor: String?
+    var synapseGraphUpdateDate: Date?
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         self.viewSetting()
+
+        self.checkGraph()
     }
 
     override func viewWillDisappear() {
@@ -60,6 +76,8 @@ class DataViewController: NSViewController, NSTableViewDataSource, NSTableViewDe
         }
 
         self.tableView.delegate = self
+        //self.webView.uiDelegate = self
+        self.webView.navigationDelegate = self
 
         NotificationCenter.default.addObserver(self, selector: #selector(self.resized), name: NSWindow.didResizeNotification, object: nil)
     }
@@ -69,7 +87,12 @@ class DataViewController: NSViewController, NSTableViewDataSource, NSTableViewDe
         self.scrollView.frame = NSRect(x: 0,
                                        y: 0,
                                        width: NSApp.windows.last!.frame.size.width,
-                                       height: NSApp.windows.last!.frame.size.height - 21.0)
+                                       height: NSApp.windows.last!.frame.size.height - (self.webView.frame.size.height + 21.0))
+        self.webView.frame = NSRect(x: 0,
+                                    y: self.scrollView.frame.size.height,
+                                    width: NSApp.windows.last!.frame.size.width,
+                                    height: self.webView.frame.size.height)
+        self.webView.reload()
     }
 
     // MARK: mark - TableView methods
@@ -213,5 +236,106 @@ class DataViewController: NSViewController, NSTableViewDataSource, NSTableViewDe
             return cell
         }
         return nil
+    }
+
+    // MARK: mark - Graph methods
+
+    @objc func checkGraph() {
+
+        //print("checkGraph")
+        if let synapseValues = self.synapseValues {
+            if synapseValues.isConnected {
+                if self.synapseGraphFlag {
+                    self.updateGraph()
+                }
+                else {
+                    self.initGraph()
+                }
+            }
+            else {
+                self.synapseGraphFlag = false
+            }
+        }
+    }
+
+    func initGraph() {
+
+        self.synapseGraphFlag = true
+        self.synapseGraphLastUpdate = Date()
+        self.setGraph()
+    }
+
+    func updateGraph() {
+
+        let now: Date = Date()
+        var canUpdate: Bool = true
+        if let synapseGraphLastUpdate = self.synapseGraphLastUpdate, now.timeIntervalSince(synapseGraphLastUpdate) < self.synapseGraphUpdateInterval {
+            canUpdate = false
+        }
+        if canUpdate {
+            self.synapseGraphLastUpdate = now
+            self.updateGraphScript()
+        }
+    }
+
+    func makeGraphParameter() -> Bool {
+
+        var res: Bool = true
+        do {
+            let colorsData: Data = try JSONSerialization.data(withJSONObject: self.synapseGraphColors, options: [])
+            self.graphColor = String(data: colorsData, encoding: .utf8)
+            let labelsData: Data = try JSONSerialization.data(withJSONObject: self.synapseGraphLabels, options: [])
+            self.graphLabels = String(data: labelsData, encoding: .utf8)
+            let valuesData: Data = try JSONSerialization.data(withJSONObject: self.synapseGraphValues, options: [])
+            self.graphValues = String(data: valuesData, encoding: .utf8)
+        }
+        catch {
+            print("JSON Encode Error: \(error.localizedDescription)")
+            res = false
+        }
+        return res
+    }
+
+    func setGraph() {
+
+        //print("setGraph: \(self.synapseGraphLastDate)")
+        if self.makeGraphParameter() {
+            if let path: String = Bundle.main.path(forResource: "graph", ofType: "html") {
+                let localHtmlUrl: URL = URL(fileURLWithPath: path, isDirectory: false)
+                self.webView.loadFileURL(localHtmlUrl, allowingReadAccessTo: localHtmlUrl)
+            }
+        }
+    }
+
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+
+        if let labels = self.graphLabels, let values = self.graphValues, let color = self.graphColor {
+            let type: String = "line"
+            let execJsFunc: String = "graph(\"\(type)\", \(labels), \(values), \(color));"
+            //print("execJsFunc: \(execJsFunc)")
+            self.webView.evaluateJavaScript(execJsFunc, completionHandler: { (object, error) -> Void in
+                if let error = error {
+                    print("JS Error: \(error.localizedDescription)")
+                }
+                self.synapseGraphFirstFlag = true
+            })
+        }
+    }
+
+    func updateGraphScript() {
+
+        if !self.synapseGraphFirstFlag {
+            return
+        }
+
+        if self.makeGraphParameter(), let labels = self.graphLabels, let values = self.graphValues {
+            let execJsFunc: String = "updateGraph(\(labels), \(values));"
+            //print("execJsFunc: \(execJsFunc)")
+            self.webView.evaluateJavaScript(execJsFunc, completionHandler: { (object, error) -> Void in
+                if let error = error {
+                    print("JS Error: \(error.localizedDescription)")
+                }
+            })
+        }
     }
 }

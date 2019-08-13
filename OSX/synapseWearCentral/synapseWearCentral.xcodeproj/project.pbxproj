@@ -65,6 +65,9 @@
 		87F4968E211AA444008FC4FF /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87F4968D211AA444008FC4FF /* CoreBluetooth.framework */; };
 		87F49690211AE5FB008FC4FF /* SettingDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F4968F211AE5FB008FC4FF /* SettingDataManager.swift */; };
 		DD5333DA22A65B0C0007532E /* DataViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD5333D922A65B0C0007532E /* DataViewController.swift */; };
+		DD589B0E22FA6FB800C1261A /* graph.js in Resources */ = {isa = PBXBuildFile; fileRef = DD589AFB22FA6FB700C1261A /* graph.js */; };
+		DD589B0F22FA6FB800C1261A /* Chart.min.js in Resources */ = {isa = PBXBuildFile; fileRef = DD589AFC22FA6FB700C1261A /* Chart.min.js */; };
+		DD589B1022FA6FB800C1261A /* graph.html in Resources */ = {isa = PBXBuildFile; fileRef = DD589AFD22FA6FB700C1261A /* graph.html */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -285,6 +288,9 @@
 		87F4968D211AA444008FC4FF /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
 		87F4968F211AE5FB008FC4FF /* SettingDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingDataManager.swift; sourceTree = "<group>"; };
 		DD5333D922A65B0C0007532E /* DataViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataViewController.swift; sourceTree = "<group>"; };
+		DD589AFB22FA6FB700C1261A /* graph.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = graph.js; sourceTree = "<group>"; };
+		DD589AFC22FA6FB700C1261A /* Chart.min.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = Chart.min.js; sourceTree = "<group>"; };
+		DD589AFD22FA6FB700C1261A /* graph.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = graph.html; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -409,6 +415,7 @@
 				87426A21211832CF00D9EDA3 /* Info.plist */,
 				87426A22211832CF00D9EDA3 /* synapseWearCentral.entitlements */,
 				87F49681211AA171008FC4FF /* synapseWearCentral-Bridging-Header.h */,
+				DD589AFA22FA6FB700C1261A /* html */,
 				871C73E3213CDFE700DEA18F /* F53OSC */,
 				87F4962A211AA064008FC4FF /* RFduino */,
 				874F38D2212AB05000BD9F3B /* OTA Bootloader */,
@@ -549,6 +556,16 @@
 				87F49687211AA2FD008FC4FF /* IOBluetooth.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		DD589AFA22FA6FB700C1261A /* html */ = {
+			isa = PBXGroup;
+			children = (
+				DD589AFB22FA6FB700C1261A /* graph.js */,
+				DD589AFC22FA6FB700C1261A /* Chart.min.js */,
+				DD589AFD22FA6FB700C1261A /* graph.html */,
+			);
+			path = html;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -740,6 +757,9 @@
 				874F391C212AB05000BD9F3B /* Settings.save.bundle in Resources */,
 				871C7434213CDFE700DEA18F /* LICENSE.txt in Resources */,
 				87426A20211832CF00D9EDA3 /* Main.storyboard in Resources */,
+				DD589B0E22FA6FB800C1261A /* graph.js in Resources */,
+				DD589B0F22FA6FB800C1261A /* Chart.min.js in Resources */,
+				DD589B1022FA6FB800C1261A /* graph.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
