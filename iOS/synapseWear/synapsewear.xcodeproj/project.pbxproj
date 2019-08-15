@@ -164,6 +164,7 @@
 		9CE12C7921AD2E1B000BE4B9 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9CE12C7721AD2E1B000BE4B9 /* MainInterface.storyboard */; };
 		9CE12C7D21AD2E1C000BE4B9 /* todayExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 9CE12C7121AD2E1B000BE4B9 /* todayExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		C2C4D108CC50E625C36C983D /* Pods_synapsewearTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 74720B7F850E3E2F11F3D87B /* Pods_synapsewearTests.framework */; };
+		DD7957332303BAD500EAC24C /* CommonFunction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87E6EF3B21413236008AD17D /* CommonFunction.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -434,6 +435,8 @@
 		9CE12C7821AD2E1B000BE4B9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
 		9CE12C7A21AD2E1C000BE4B9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9CE12C8221AD3A7F000BE4B9 /* todayExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = todayExtension.entitlements; sourceTree = "<group>"; };
+		DD7957342303F1A400EAC24C /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
+		DD7957362303F1AD00EAC24C /* UserNotificationsUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotificationsUI.framework; path = System/Library/Frameworks/UserNotificationsUI.framework; sourceTree = SDKROOT; };
 		E232E72E51E87A02AF294FEB /* Pods-synapsewearUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-synapsewearUITests.release.xcconfig"; path = "Pods/Target Support Files/Pods-synapsewearUITests/Pods-synapsewearUITests.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -490,6 +493,8 @@
 		84BEC61A30D1599C305D87EE /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				DD7957362303F1AD00EAC24C /* UserNotificationsUI.framework */,
+				DD7957342303F1A400EAC24C /* UserNotifications.framework */,
 				87205BB01EFCB94A003F6B78 /* CoreLocation.framework */,
 				19D4BFA5CC0BDDDD170127EA /* Pods_synapsewear.framework */,
 				74720B7F850E3E2F11F3D87B /* Pods_synapsewearTests.framework */,
@@ -1401,6 +1406,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DD7957332303BAD500EAC24C /* CommonFunction.swift in Sources */,
 				9CE12C7621AD2E1B000BE4B9 /* TodayViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -144,9 +144,12 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
     var updateOSCSynapseViewTimeLast: TimeInterval?
     var updateOSCSynapseValuesViewTimeLast: TimeInterval?
     var oscServer: F53OSCServer?
-    /*
     // Notifications variables
-    var synapseNotifications: AllSynapseNotifications = AllSynapseNotifications() */
+    //var synapseNotifications: AllSynapseNotifications = AllSynapseNotifications()
+    // TodayExtension variables
+    let todayExtensionGraphDataCount: Int = 35
+    var todayExtensionGraphData: [Int] = []
+    var todayExtensionLastTime: TimeInterval?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -158,7 +161,6 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        //print("TopViewController viewWillAppear")
 
         self.appearNavigationArea()
 
@@ -3076,22 +3078,77 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             DispatchQueue.global(qos: .background).async {
                 synapseObject.checkSynapseDataSave(timeInterval: timeInterval)
             }
-            
+
             DispatchQueue.global(qos: .background).async {
-                if let battery = synapseObject.synapseValues.battery,
-                   let temp = synapseObject.synapseValues.temp,
-                   let humidity = synapseObject.synapseValues.humidity,
-                   let pressure = synapseObject.synapseValues.pressure {
-                    
-                    let co2 = synapseObject.synapseValues.co2
-                    CommonFunction.saveForTodayExtension(co2: co2, battery: battery, temp: temp, humidity: humidity, pressure: pressure)
-                }
+                self.setSynapseDataForTodayExtension(synapseObject)
             }
         }
 
         DispatchQueue.global(qos: .background).async {
             self.sendOSC(synapseValues: synapseObject.synapseValues)
         }
+    }
+
+    func setSynapseDataForTodayExtension(_ synapseObject: SynapseObject) {
+
+        let co2: Int? = synapseObject.synapseValues.co2
+        let battery: Float? = synapseObject.synapseValues.battery
+        let temp: Float? = synapseObject.synapseValues.temp
+        let humidity: Int? = synapseObject.synapseValues.humidity
+        let pressure: Float? = synapseObject.synapseValues.pressure
+
+        var flag: Bool = false
+        let time: TimeInterval = floor(Date().timeIntervalSince1970 / 60) * 60
+        if self.todayExtensionGraphData.count != self.todayExtensionGraphDataCount {
+            flag = true
+        }
+        else {
+            if let todayExtensionLastTime = self.todayExtensionLastTime {
+                if time - todayExtensionLastTime >= 60.0 {
+                    flag = true
+                }
+            }
+            else {
+                flag = true
+            }
+        }
+
+        if flag {
+            self.todayExtensionGraphData = []
+            var graphTime: TimeInterval = time
+            for _ in 0..<self.todayExtensionGraphDataCount {
+                var totalData: [Double] = []
+                if let synapseRecordFileManager = synapseObject.synapseRecordFileManager {
+                    let date: Date = Date(timeIntervalSince1970: graphTime)
+                    let formatter: DateFormatter = DateFormatter()
+                    formatter.locale = Locale(identifier: "en_US_POSIX")
+                    formatter.dateFormat = "yyyyMMddHHmmss"
+                    let graphDateStr: String = formatter.string(from: date)
+                    let day: String = String(graphDateStr[graphDateStr.startIndex..<graphDateStr.index(graphDateStr.startIndex, offsetBy: 8)])
+                    let hour: String = String(graphDateStr[graphDateStr.index(graphDateStr.startIndex, offsetBy: 8)..<graphDateStr.index(graphDateStr.startIndex, offsetBy: 10)])
+                    let min: String = String(graphDateStr[graphDateStr.index(graphDateStr.startIndex, offsetBy: 10)..<graphDateStr.index(graphDateStr.startIndex, offsetBy: 12)])
+                    totalData = synapseRecordFileManager.getSynapseRecordTotal(day: day, hour: hour, min: min, sec: nil, type: self.synapseCrystalInfo.co2.key)
+                    //print("saveForTodayExtension: \(graphDateStr), \(totalData)")
+                }
+                if totalData.count > 1 {
+                    self.todayExtensionGraphData.append(Int(totalData[1] / totalData[0]))
+                }
+                else {
+                    self.todayExtensionGraphData.append(-1)
+                }
+                graphTime -= 60
+            }
+            self.todayExtensionLastTime = time
+        }
+        if let co2 = co2 {
+            self.todayExtensionGraphData[0] = co2
+        }
+        else {
+            self.todayExtensionGraphData[0] = -1
+        }
+        //print("saveForTodayExtension: \(time), \(self.todayExtensionGraphData)")
+
+        CommonFunction.saveForTodayExtension(co2: co2, battery: battery, temp: temp, humidity: humidity, pressure: pressure, graphData: self.todayExtensionGraphData)
     }
 
     func reconnectSynapse(_ synapseObject: SynapseObject, uuid: UUID) {
@@ -4214,7 +4271,8 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             notification.userInfo = ["notifyID": notificationId]
             UIApplication.shared.scheduleLocalNotification(notification)
         }
-    }*/
+    }
+     */
 
     // MARK: mark - DebugAreaView methods
 
