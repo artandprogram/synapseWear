@@ -55,7 +55,7 @@ class TodayViewController: UIViewController, NCWidgetProviding {
 
     func reloadData() -> Bool {
 
-        guard let userDefaults = CommonFunction.readForTodayExtension() else {
+        guard let userDefaults = TodayExtensionData.read() else {
             return false
         }
 

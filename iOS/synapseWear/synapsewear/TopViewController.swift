@@ -147,7 +147,6 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
     // Notifications variables
     //var synapseNotifications: AllSynapseNotifications = AllSynapseNotifications()
     // TodayExtension variables
-    let todayExtensionGraphDataCount: Int = 35
     var todayExtensionGraphData: [Int] = []
     var todayExtensionLastTime: TimeInterval?
 
@@ -3099,7 +3098,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
 
         var flag: Bool = false
         let time: TimeInterval = floor(Date().timeIntervalSince1970 / 60) * 60
-        if self.todayExtensionGraphData.count != self.todayExtensionGraphDataCount {
+        if self.todayExtensionGraphData.count != TodayExtensionData.graphDataCount {
             flag = true
         }
         else {
@@ -3116,7 +3115,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         if flag {
             self.todayExtensionGraphData = []
             var graphTime: TimeInterval = time
-            for _ in 0..<self.todayExtensionGraphDataCount {
+            for _ in 0..<TodayExtensionData.graphDataCount {
                 var totalData: [Double] = []
                 if let synapseRecordFileManager = synapseObject.synapseRecordFileManager {
                     let date: Date = Date(timeIntervalSince1970: graphTime)
@@ -3128,7 +3127,6 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                     let hour: String = String(graphDateStr[graphDateStr.index(graphDateStr.startIndex, offsetBy: 8)..<graphDateStr.index(graphDateStr.startIndex, offsetBy: 10)])
                     let min: String = String(graphDateStr[graphDateStr.index(graphDateStr.startIndex, offsetBy: 10)..<graphDateStr.index(graphDateStr.startIndex, offsetBy: 12)])
                     totalData = synapseRecordFileManager.getSynapseRecordTotal(day: day, hour: hour, min: min, sec: nil, type: self.synapseCrystalInfo.co2.key)
-                    //print("saveForTodayExtension: \(graphDateStr), \(totalData)")
                 }
                 if totalData.count > 1 {
                     self.todayExtensionGraphData.append(Int(totalData[1] / totalData[0]))
@@ -3146,9 +3144,8 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         else {
             self.todayExtensionGraphData[0] = -1
         }
-        //print("saveForTodayExtension: \(time), \(self.todayExtensionGraphData)")
 
-        CommonFunction.saveForTodayExtension(co2: co2, battery: battery, temp: temp, humidity: humidity, pressure: pressure, graphData: self.todayExtensionGraphData)
+        TodayExtensionData.save(co2: co2, battery: battery, temp: temp, humidity: humidity, pressure: pressure, graphData: self.todayExtensionGraphData)
     }
 
     func reconnectSynapse(_ synapseObject: SynapseObject, uuid: UUID) {
