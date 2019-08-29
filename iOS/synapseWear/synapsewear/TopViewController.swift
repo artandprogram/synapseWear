@@ -389,7 +389,9 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         //print("TopViewController applicationDidBecomeActiveNotified")
         self.isSynapseAppActive = true
 
-        self.resendSynapseSettingToDeviceStart(self.mainSynapseObject)
+        if self.mainSynapseObject.synapseValues.isConnected {
+            self.resendSynapseSettingToDeviceStart(self.mainSynapseObject)
+        }
 
         if self.canUpdateValuesView {
             if self.mainSynapseObject.synapseValues.isConnected {
@@ -405,7 +407,9 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         //print("TopViewController applicationWillResignActiveNotified")
         self.isSynapseAppActive = false
 
-        self.resendSynapseSettingToDeviceStart(self.mainSynapseObject)
+        if self.mainSynapseObject.synapseValues.isConnected {
+            self.resendSynapseSettingToDeviceStart(self.mainSynapseObject)
+        }
     }
 
     @objc func applicationWillTerminateNotified(notification: Notification) {
@@ -3052,7 +3056,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         if synapseObject.synapseData.count > self.synapseDataMax {
             synapseObject.synapseData.removeLast()
         }
-        //print("setSynapseData: \(time)")
+        //print("setSynapseData: \(synapseObject.synapseData)")
         synapseObject.setSynapseValues()
         /*
         var values: Data? = Data(bytes: synapseObject.receiveData)
@@ -5045,6 +5049,7 @@ class SynapseObject {
     // const
     let synapseCrystalInfo: SynapseCrystalStruct = SynapseCrystalStruct()
     let crystalGeometries: CrystalGeometries = CrystalGeometries()
+    let synapseConnectLastDateKey: String = "synapseConnectLastDate"
     // variables
     var synapseUUID: UUID?
     var synapse: RFduino?
@@ -5102,7 +5107,11 @@ class SynapseObject {
         self.setColorSynapseNode(colorLevel: 0)
 
         if let synapseRecordFileManager = self.synapseRecordFileManager {
-            _ = synapseRecordFileManager.setConnectLog("S")
+            if UserDefaults.standard.object(forKey: self.synapseConnectLastDateKey) != nil, let dic = UserDefaults.standard.dictionary(forKey: self.synapseConnectLastDateKey), let uuid = self.synapseUUID, let time = dic[uuid.uuidString] as? TimeInterval {
+                synapseRecordFileManager.checkEndConnectLog(time)
+            }
+            let _ = synapseRecordFileManager.setStartConnectLog()
+            self.setSynapseConnectLastDate(Date().timeIntervalSince1970)
         }
     }
 
@@ -5111,9 +5120,11 @@ class SynapseObject {
         //print("disconnectSynapse")
         if self.synapseValues.isConnected {
             if let synapseRecordFileManager = self.synapseRecordFileManager {
-                _ = synapseRecordFileManager.setConnectLog("E")
+                let _ = synapseRecordFileManager.setEndConnectLog()
             }
+            self.removeSynapseConnectLastDate()
         }
+
         self.synapse = nil
         self.synapseValues.resetValues()
         self.synapseValuesBak = nil
@@ -5125,6 +5136,29 @@ class SynapseObject {
         self.synapseRecordFileManager = nil
         if let uuid = self.synapseUUID {
             self.setSynapseUUID(uuid)
+        }
+    }
+
+    func setSynapseConnectLastDate(_ time: TimeInterval) {
+
+        if let uuid = self.synapseUUID {
+            var synapseConnectLastDateValues: [String: Any] = [:]
+            if UserDefaults.standard.object(forKey: self.synapseConnectLastDateKey) != nil, let dic = UserDefaults.standard.dictionary(forKey: self.synapseConnectLastDateKey) {
+                synapseConnectLastDateValues = dic
+            }
+            synapseConnectLastDateValues[uuid.uuidString] = time
+            UserDefaults.standard.set(synapseConnectLastDateValues, forKey: self.synapseConnectLastDateKey)
+        }
+    }
+
+    func removeSynapseConnectLastDate() {
+
+        if let uuid = self.synapseUUID {
+            if UserDefaults.standard.object(forKey: self.synapseConnectLastDateKey) != nil, let dic = UserDefaults.standard.dictionary(forKey: self.synapseConnectLastDateKey) {
+                var synapseConnectLastDateValues: [String: Any] = dic
+                synapseConnectLastDateValues[uuid.uuidString] = nil
+                UserDefaults.standard.set(synapseConnectLastDateValues, forKey: self.synapseConnectLastDateKey)
+            }
         }
     }
 
@@ -5724,22 +5758,8 @@ class SynapseObject {
 
         var isOff: Bool = true
         if let synapseRecordFileManager = self.synapseRecordFileManager {
-            var connectDate: Date? = nil
-            let logDays: [String] = synapseRecordFileManager.getDayDirectories()
-            if logDays.count > 0 {
-                let day: String = logDays[0]
-                let logs: [String] = synapseRecordFileManager.getConnectLogs(day: day)
-                if logs.count > 0 {
-                    let log: String = logs[0]
-                    //print("ConnectLog: \(log)")
-                    let arr: [String] = log.components(separatedBy: "_")
-                    if arr.count > 1 {
-                        if let time = Double(arr[0]) {
-                            connectDate = Date(timeIntervalSince1970: time)
-                        }
-                    }
-                }
-            }
+            let connectDate: Date? = synapseRecordFileManager.getConnectLastDate()
+            //print("getConnectLastDate: \(connectDate)")
             if let date = connectDate {
                 let time: TimeInterval = date.timeIntervalSinceNow
                 if -time < self.offColorTime {
@@ -5768,7 +5788,7 @@ class SynapseObject {
     func setSynapseValues() {
 
         if self.synapseData.count > 0 {
-            let synapse = self.synapseData[0]
+            let synapse: [String: Any] = self.synapseData[0]
             //print("setSynapseValues: \(synapse)")
             if let time = synapse["time"] as? TimeInterval, let data = synapse["data"] as? [UInt8] {
                 let formatter = DateFormatter()
@@ -5856,6 +5876,8 @@ class SynapseObject {
                 if let mz = values["mz"] as? Int {
                     synapseValues.mz = mz
                 }*/
+
+                self.setSynapseConnectLastDate(time)
             }
         }
     }

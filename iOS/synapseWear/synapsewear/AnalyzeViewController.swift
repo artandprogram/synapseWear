@@ -64,6 +64,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
     var synapseSoundPt: Int?
     // realtime variables
     let realtimeGraphTimeIntervalKeys: [String] = [
+        "0.2 sec",
         "1 sec",
         "10 sec",
         "1 min",
@@ -71,6 +72,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         "5 min",
     ]
     let realtimeGraphTimeIntervalValues: [String: [String: TimeInterval]] = [
+        "0.2 sec": ["interval": 0.2, "range": 1.0],
         "1 sec": ["interval": 1.0, "range": 10.0],
         "10 sec": ["interval": 10.0, "range": 60.0],
         "1 min": ["interval": 60.0, "range": 600.0],
@@ -113,7 +115,22 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
-        self.changeGraphDataStart()
+        if self.isRealtime {
+            if self.realtimeGraphTimeIntervals.count > 0 {
+                self.realtimeGraphTimeIntervalKey = self.realtimeGraphTimeIntervals[0]
+                if let values = self.realtimeGraphTimeIntervalValues[self.realtimeGraphTimeIntervalKey], let interval = values["interval"] {
+                    self.realtimeGraphTimeInterval = interval
+                    self.isRealtime = false
+                    self.changeRealtimeGraphDataStart()
+                }
+                else {
+                    self.realtimeGraphTimeIntervalKey = ""
+                }
+            }
+        }
+        else {
+            self.changeGraphDataStart()
+        }
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -429,9 +446,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         self.setGraphData()
         self.setGraphViews()
         self.changeGraphIsHiddenAction()
-
         self.setDateLabels()
-
         self.setHiddenLoadingView(true)
     }
 
@@ -1047,13 +1062,16 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
 
         if self.realtimeGraphTimeIntervalKey.count > 0, let values = self.realtimeGraphTimeIntervalValues[self.realtimeGraphTimeIntervalKey], let range = values["range"] {
             self.timeRange = range
-            //print("setRealtimeGraphData: \(self.realtimeGraphTimeInterval), \(self.timeRange)")
+            //print("setRealtimeGraphData time: \(self.realtimeGraphTimeInterval), \(self.timeRange)")
             let width: Double = Double(self.baseView.frame.size.width - self.graphSpaceR)
             self.graphCnt = Int(ceil(width / (self.timeRange / self.realtimeGraphTimeInterval))) + 1
-            //print("setRealtimeGraphData: \(width), \(self.graphCnt)")
+            //print("setRealtimeGraphData width: \(width), \(self.graphCnt)")
 
             self.endDate = Date()
-            let endDateAlt: Date = Date(timeIntervalSince1970: floor(self.endDate!.timeIntervalSince1970 / self.realtimeGraphTimeInterval) * self.realtimeGraphTimeInterval)
+            var endDateAlt: Date = Date(timeIntervalSince1970: floor(self.endDate!.timeIntervalSince1970))
+            if self.realtimeGraphTimeInterval > 1.0 {
+                endDateAlt = Date(timeIntervalSince1970: floor(self.endDate!.timeIntervalSince1970 / self.realtimeGraphTimeInterval) * self.realtimeGraphTimeInterval)
+            }
             self.startDate = Date(timeInterval: -self.timeRange * Double(self.graphCnt), since: endDateAlt)
             self.realtimeGraphLastTime = self.endDate!.timeIntervalSince1970
             //print("setRealtimeGraphData: \(self.startDate), \(self.endDate)")
@@ -1064,39 +1082,43 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                 return
             }
 
-            var count: Int = 0
-            var date: Date = self.endDate!
-            while date >= self.startDate! {
-                if count >= self.graphCnt {
-                    break
-                }
-
-                if count == 0 {
-                    self.setGraphDataOfDate(date, isRealtime: true)
-                }
-                else {
-                    if self.timeRange >= 3600.0 {
-                        self.setGraphDataOfDate(date, hourCnt: 1)
+            if self.realtimeGraphTimeInterval < 1.0 {
+                self.setRealtimeGraphDataWithinSecond(floor(self.startDate!.timeIntervalSince1970))
+            }
+            else {
+                var count: Int = 0
+                var date: Date = self.endDate!
+                while date >= self.startDate! {
+                    if count >= self.graphCnt {
+                        break
+                    }
+                    
+                    if count == 0 {
+                        self.setGraphDataOfDate(date, isRealtime: true)
                     }
                     else {
-                        self.setGraphDataOfDate(date)
+                        if self.timeRange >= 3600.0 {
+                            self.setGraphDataOfDate(date, hourCnt: 1)
+                        }
+                        else {
+                            self.setGraphDataOfDate(date)
+                        }
                     }
+                    
+                    if count == 0 {
+                        date = endDateAlt
+                    }
+                    let time: TimeInterval = floor(date.timeIntervalSince1970 / self.timeRange) * self.timeRange - self.timeRange
+                    date = Date(timeIntervalSince1970: time)
+                    //print("setRealtimeGraphData Date: \(date)")
+                    count += 1
                 }
-
-                if count == 0 {
-                    date = endDateAlt
-                }
-                let time: TimeInterval = floor(date.timeIntervalSince1970 / self.timeRange) * self.timeRange - self.timeRange
-                date = Date(timeIntervalSince1970: time)
-                //print("setRealtimeGraphData Date: \(date)")
-                count += 1
             }
 
             self.setGraphRanges()
-            self.setDateLabels()
-
             self.setGraphViews()
             self.changeGraphIsHiddenAction()
+            self.setDateLabels()
 
             self.realtimeGraphTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(self.updateRealtimeGraphData), userInfo: nil, repeats: true)
         }
@@ -1111,40 +1133,42 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         self.endDate = Date()
         //self.endDate = Date(timeIntervalSince1970: floor(Date().timeIntervalSince1970 / self.realtimeGraphTimeInterval) * self.realtimeGraphTimeInterval)
         if let realtimeGraphLastTime = self.realtimeGraphLastTime {
-            if floor((self.endDate!.timeIntervalSince1970 - self.realtimeGraphTimeInterval) / self.timeRange) != floor((realtimeGraphLastTime - self.realtimeGraphTimeInterval) / self.timeRange) {
-                if self.timeRange >= 3600.0 {
-                    self.setGraphDataOfDate(Date(timeIntervalSince1970: floor((realtimeGraphLastTime - self.realtimeGraphTimeInterval) / self.timeRange) * self.timeRange), hourCnt: 1, position: self.graphDates.count - 1)
-                }
-                else {
-                    self.setGraphDataOfDate(Date(timeIntervalSince1970: floor((realtimeGraphLastTime - self.realtimeGraphTimeInterval) / self.timeRange) * self.timeRange), position: self.graphDates.count - 1)
-                }
-
-                self.setGraphDataOfDate(self.endDate!, position: self.graphDates.count, isRealtime: true)
-
-                self.graphDates.removeFirst()
-                for (_, element) in self.graphCategories.enumerated() {
-                    self.graphDataList[element.key]?.removeFirst()
-                }
+            if self.realtimeGraphTimeInterval < 1.0 {
+                self.setRealtimeGraphDataWithinSecond(floor(realtimeGraphLastTime))
             }
-            /*else if floor(self.endDate!.timeIntervalSince1970 / self.timeRange) != floor(realtimeGraphLastTime / self.timeRange) {
-                self.setGraphDataOfDate(self.endDate!, position: self.graphDates.count - 1)
-            }*/
             else {
-                self.setGraphDataOfDate(self.endDate!, position: self.graphDates.count - 1, isRealtime: true)
+                let checkEndTime: TimeInterval = floor((self.endDate!.timeIntervalSince1970 - self.realtimeGraphTimeInterval) / self.timeRange)
+                let checkLastTime: TimeInterval = floor((realtimeGraphLastTime - self.realtimeGraphTimeInterval) / self.timeRange)
+                if checkEndTime != checkLastTime {
+                    if self.timeRange >= 3600.0 {
+                        self.setGraphDataOfDate(Date(timeIntervalSince1970: checkLastTime * self.timeRange), hourCnt: 1, position: self.graphDates.count - 1)
+                    }
+                    else {
+                        self.setGraphDataOfDate(Date(timeIntervalSince1970: checkLastTime * self.timeRange), position: self.graphDates.count - 1)
+                    }
+                    
+                    self.setGraphDataOfDate(self.endDate!, position: self.graphDates.count, isRealtime: true)
+                    self.graphDates.removeFirst()
+                    for (_, element) in self.graphCategories.enumerated() {
+                        self.graphDataList[element.key]?.removeFirst()
+                    }
+                }
+                /*else if floor(self.endDate!.timeIntervalSince1970 / self.timeRange) != floor(realtimeGraphLastTime / self.timeRange) {
+                    self.setGraphDataOfDate(self.endDate!, position: self.graphDates.count - 1)
+                }*/
+                else {
+                    self.setGraphDataOfDate(self.endDate!, position: self.graphDates.count - 1, isRealtime: true)
+                }
             }
-        }
-        else {
-            self.setGraphDataOfDate(self.endDate!, position: self.graphDates.count - 1, isRealtime: true)
         }
         self.startDate = Date(timeInterval: -self.timeRange * Double(self.graphCnt), since: self.endDate!)
         self.realtimeGraphLastTime = self.endDate!.timeIntervalSince1970
         //print("setGraphData: \(self.graphDates.count) / \(self.graphCnt)")
 
         self.setGraphRanges()
-        self.setDateLabels()
-
         self.setGraphViews()
         self.changeGraphIsHiddenAction()
+        self.setDateLabels()
 
         if !self.selectLineView.isHidden {
             self.setSelectPoint(self.selectLineView.frame.origin.x)
@@ -1236,6 +1260,143 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         image = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         return image
+    }
+
+    func setRealtimeGraphDataWithinSecond(_ lastTime: TimeInterval) {
+
+        if let nav = self.navigationController as? NavigationController {
+            var graphValues: [String: [String: Double?]]? = [:]
+            for synapse in nav.topVC.mainSynapseObject.synapseData {
+                if let time = synapse["time"] as? TimeInterval, let data = synapse["data"] as? [UInt8] {
+                    if time < lastTime {
+                        break
+                    }
+
+                    let timeKey: String = String(format:"%.0f", floor(time))
+                    let values: [String: Any] = nav.topVC.mainSynapseObject.makeSynapseData(data)
+                    for (_, element) in self.graphCategories.enumerated() {
+                        let key: String = element.key
+                        var value: Double? = nil
+                        if key == self.synapseCrystalInfo.co2.key, let co2 = values["co2"] as? Int, co2 >= 400 {
+                            value = Double(co2)
+                        }
+                        else if key == self.synapseCrystalInfo.temp.key, let temp = values["temp"] as? Float {
+                            value = Double(temp)
+                        }
+                        else if key == self.synapseCrystalInfo.hum.key, let humidity = values["humidity"] as? Int {
+                            value = Double(humidity)
+                        }
+                        else if key == self.synapseCrystalInfo.ill.key, let light = values["light"] as? Int {
+                            value = Double(light)
+                        }
+                        else if key == self.synapseCrystalInfo.press.key, let pressure = values["pressure"] as? Float {
+                            value = Double(pressure)
+                        }
+                        else if key == self.synapseCrystalInfo.sound.key, let sound = values["sound"] as? Int {
+                            value = Double(sound)
+                        }
+                        else if key == self.synapseCrystalInfo.volt.key, let power = values["volt"] as? Float {
+                            value = Double(power)
+                        }
+
+                        if graphValues![key] == nil {
+                            graphValues![key] = [:]
+                        }
+                        if let value = value {
+                            graphValues![key]![timeKey] = value
+
+                            if let max = self.graphMaxList[key] {
+                                if max < value {
+                                    self.graphMaxList[key] = value
+                                }
+                            }
+                            else {
+                                self.graphMaxList[key] = value
+                            }
+                            if let min = self.graphMinList[key] {
+                                if min > value {
+                                    self.graphMinList[key] = value
+                                }
+                            }
+                            else {
+                                self.graphMinList[key] = value
+                            }
+                        }
+                    }
+                }
+            }
+
+            let position: Int = self.graphDates.count
+            let stratTime: TimeInterval = floor(Date().timeIntervalSince1970)
+            var time: TimeInterval = stratTime
+            while time >= lastTime {
+                let date: Date = Date(timeIntervalSince1970: time)
+                let index: Int? = self.graphDates.index(of: date)
+                if index == nil {
+                    if position < self.graphDates.count {
+                        self.graphDates.insert(date, at: position)
+                    }
+                    else {
+                        self.graphDates.append(date)
+                    }
+                }
+                //print("setRealtimeGraphDataWithinSecond: \(date), \(index), \(position) << \(self.graphDates.count)")
+
+                let timeKey: String = String(format:"%.0f", floor(time))
+                for (_, element) in self.graphCategories.enumerated() {
+                    let key: String = element.key
+                    var value: Double? = nil
+                    if let values = graphValues![key] {
+                        value = values[timeKey] ?? nil
+                    }
+                    if time == stratTime {
+                        let realtimeGraphValues: [String: Double?] = self.getRealtimeGraphValues(key: key)
+                        value = realtimeGraphValues["value"] ?? nil
+                        if let value = value {
+                            if let max = self.graphMaxList[key] {
+                                if max < value {
+                                    self.graphMaxList[key] = value
+                                }
+                            }
+                            else {
+                                self.graphMaxList[key] = value
+                            }
+                            if let min = self.graphMinList[key] {
+                                if min > value {
+                                    self.graphMinList[key] = value
+                                }
+                            }
+                            else {
+                                self.graphMinList[key] = value
+                            }
+                        }
+                    }
+
+                    if let index = index {
+                        if let graphDataListOfKey = self.graphDataList[key], index < graphDataListOfKey.count {
+                            self.graphDataList[key]?[index] = value
+                        }
+                    }
+                    else {
+                        if let graphDataListOfKey = self.graphDataList[key], position < graphDataListOfKey.count {
+                            self.graphDataList[key]?.insert(value, at: position)
+                        }
+                        else {
+                            self.graphDataList[key]?.append(value)
+                        }
+                    }
+                    //print("setRealtimeGraphDataWithinSecond:   \(key) -> \(value)")
+                }
+                time -= 1.0
+            }
+            while self.graphDates.count > self.graphCnt {
+                self.graphDates.removeFirst()
+                for (_, element) in self.graphCategories.enumerated() {
+                    self.graphDataList[element.key]?.removeFirst()
+                }
+            }
+            graphValues = nil
+        }
     }
 
     // MARK: mark - GraphView methods

@@ -38,7 +38,7 @@ class SettingFileManager: BaseFileManager {
         self.setBaseDir()
     }
 
-    public func getSettingData() -> [String: Any]? {
+    func getSettingData() -> [String: Any]? {
 
         var res: [String: Any]? = nil
         if let data = self.getData(fileName: self.fileName) {
@@ -49,7 +49,7 @@ class SettingFileManager: BaseFileManager {
         return res
     }
 
-    public func getSettingData(_ key: String) -> Any? {
+    func getSettingData(_ key: String) -> Any? {
 
         var value: Any? = nil
         var data: [String: Any]? = self.getSettingData()
@@ -60,7 +60,7 @@ class SettingFileManager: BaseFileManager {
         return value
     }
 
-    public func setSettingData(_ data: [String: Any]) -> Bool {
+    func setSettingData(_ data: [String: Any]) -> Bool {
 
         return self.setData(fileName: self.fileName, data: NSKeyedArchiver.archivedData(withRootObject: data))
     }

@@ -43,7 +43,7 @@ class SynapseRecordFileManager: BaseFileManager {
         //print("SynapseRecordFileManager setSynapseId: \(self.baseDirPath)")
     }
 
-    public func getSynapseRecords(day: String? = nil, type: String? = nil) -> [String] {
+    func getSynapseRecords(day: String? = nil, type: String? = nil) -> [String] {
 
         var res: [String] = []
         var filePath: String = self.baseDirPath
@@ -67,7 +67,7 @@ class SynapseRecordFileManager: BaseFileManager {
         return res.sorted { $1 < $0 }
     }
 
-    public func setSynapseRecord(day: String, time: String, fileName: String) -> Bool {
+    func setSynapseRecord(day: String, time: String, fileName: String) -> Bool {
 
         if day.count <= 0 || time.count <= 0 || fileName.count <= 0 {
             return false
@@ -140,7 +140,7 @@ class SynapseRecordFileManager: BaseFileManager {
         return true
     }
 
-    public func existsSynapseRecord(day: String?, hour: String?, min: String?, sec: String?, type: String?) -> Bool {
+    func existsSynapseRecord(day: String?, hour: String?, min: String?, sec: String?, type: String?) -> Bool {
 
         var res: Bool = false
         var filePath: String = ""
@@ -173,7 +173,7 @@ class SynapseRecordFileManager: BaseFileManager {
         return res
     }
 
-    public func getSynapseRecordTotal(day: String, hour: String, min: String, sec: String?, type: String) -> [Double] {
+    func getSynapseRecordTotal(day: String, hour: String, min: String, sec: String?, type: String) -> [Double] {
 
         let res: [Double] = []
         if day.count <= 0 || hour.count <= 0 || min.count <= 0 || type.count <= 0 {
@@ -218,7 +218,7 @@ class SynapseRecordFileManager: BaseFileManager {
         return res
     }
 
-    public func setSynapseRecordTotal(_ value: Double, day: String, hour: String, min: String, sec: String, type: String) -> Bool {
+    func setSynapseRecordTotal(_ value: Double, day: String, hour: String, min: String, sec: String, type: String) -> Bool {
 
         if day.count <= 0 || hour.count <= 0 || min.count <= 0 || sec.count <= 0 || type.count <= 0 {
             return false
@@ -387,7 +387,7 @@ class SynapseRecordFileManager: BaseFileManager {
         return true
     }
 
-    public func getSynapseRecordTotalIn10min(day: String, hour: String, min: Int, type: String, isSave: Bool) -> Double? {
+    func getSynapseRecordTotalIn10min(day: String, hour: String, min: Int, type: String, isSave: Bool) -> Double? {
 
         var res: Double? = nil
         //var res: Double = 0
@@ -511,7 +511,7 @@ class SynapseRecordFileManager: BaseFileManager {
         return res
     }
 
-    public func getSynapseRecordTotalInHour(day: String, hour: String, type: String, isSave: Bool) -> Double? {
+    func getSynapseRecordTotalInHour(day: String, hour: String, type: String, isSave: Bool) -> Double? {
 
         var res: Double? = nil
         if day.count <= 0 || hour.count <= 0 || type.count <= 0 {
@@ -596,7 +596,7 @@ class SynapseRecordFileManager: BaseFileManager {
         return res
     }
 
-    public func setSynapseRecordTotalInHour(type: String, start: Date? = nil) {
+    func setSynapseRecordTotalInHour(type: String, start: Date? = nil) {
 
         let dayFormatter: DateFormatter = DateFormatter()
         dayFormatter.locale = Locale(identifier: "en_US_POSIX")
@@ -651,7 +651,7 @@ class SynapseRecordFileManager: BaseFileManager {
         }
     }
 
-    public func getSynapseRecordValueType(day: String, hour: String, min: String, type: String, valueType: String) -> [String] {
+    func getSynapseRecordValueType(day: String, hour: String, min: String, type: String, valueType: String) -> [String] {
 
         let res: [String] = []
         if day.count <= 0 || hour.count <= 0 || min.count <= 0 || type.count <= 0 || valueType.count <= 0 {
@@ -678,7 +678,7 @@ class SynapseRecordFileManager: BaseFileManager {
         return res
     }
 
-    public func getSynapseRecordValueTypeIn10min(day: String, hour: String, min: Int, type: String, valueType: String) -> [String]? {
+    func getSynapseRecordValueTypeIn10min(day: String, hour: String, min: Int, type: String, valueType: String) -> [String]? {
 
         if day.count <= 0 || hour.count <= 0 || type.count <= 0 || valueType.count <= 0 {
             return nil
@@ -704,7 +704,7 @@ class SynapseRecordFileManager: BaseFileManager {
         return nil
     }
 
-    public func getSynapseRecordValueTypeInHour(day: String, hour: String, type: String, valueType: String) -> [String]? {
+    func getSynapseRecordValueTypeInHour(day: String, hour: String, type: String, valueType: String) -> [String]? {
 
         if day.count <= 0 || hour.count <= 0 || type.count <= 0 || valueType.count <= 0 {
             return nil
@@ -730,7 +730,7 @@ class SynapseRecordFileManager: BaseFileManager {
         return nil
     }
 
-    public func setSynapseRecordValueType(_ value: String, day: String, hour: String, min: String, type: String, valueType: String) -> Bool {
+    func setSynapseRecordValueType(_ value: String, day: String, hour: String, min: String, type: String, valueType: String) -> Bool {
 
         if day.count <= 0 || hour.count <= 0 || min.count <= 0 || type.count <= 0 || valueType.count <= 0 {
             return false
@@ -854,7 +854,7 @@ class SynapseRecordFileManager: BaseFileManager {
         return true
     }
 
-    public func setSynapseRecordValueTypeIn10min(_ value: String, day: String, hour: String, min: Int, type: String, valueType: String) -> Bool {
+    func setSynapseRecordValueTypeIn10min(_ value: String, day: String, hour: String, min: Int, type: String, valueType: String) -> Bool {
 
         if day.count <= 0 || hour.count <= 0 || type.count <= 0 || valueType.count <= 0 {
             return false
@@ -997,7 +997,7 @@ class SynapseRecordFileManager: BaseFileManager {
         return true
     }
 
-    public func setSynapseRecordValueTypeInHour(_ value: String, day: String, hour: String, type: String, valueType: String) -> Bool {
+    func setSynapseRecordValueTypeInHour(_ value: String, day: String, hour: String, type: String, valueType: String) -> Bool {
 
         if day.count <= 0 || hour.count <= 0 || type.count <= 0 || valueType.count <= 0 {
             return false
@@ -1121,7 +1121,7 @@ class SynapseRecordFileManager: BaseFileManager {
         return true
     }
 
-    public func getDayDirectories() -> [String] {
+    func getDayDirectories() -> [String] {
 
         var res: [String] = []
         let fileManager: FileManager = FileManager()
@@ -1133,7 +1133,7 @@ class SynapseRecordFileManager: BaseFileManager {
         return res.sorted { $1 < $0 }
     }
 
-    public func getConnectLogs(day: String?) -> [String] {
+    func getConnectLogs(day: String?) -> [String] {
 
         var res: [String] = []
         if let day = day, day.count > 0 {
@@ -1148,17 +1148,36 @@ class SynapseRecordFileManager: BaseFileManager {
         return res.sorted { $1 < $0 }
     }
 
-    func setConnectLog(_ type: String) -> Bool {
+    func getConnectLastDate(_ type: String? = nil) -> Date? {
+
+        var connectDate: Date? = nil
+        let logDays: [String] = self.getDayDirectories()
+        for day in logDays {
+            let logs: [String] = self.getConnectLogs(day: day)
+            if logs.count > 0 {
+                let arr: [String] = logs[0].components(separatedBy: "_")
+                if arr.count > 1, let time = Double(arr[0]) {
+                    connectDate = Date(timeIntervalSince1970: time)
+                    if let type = type, type != arr[1] {
+                        connectDate = nil
+                    }
+                    break
+                }
+            }
+        }
+        return connectDate
+    }
+
+    func setConnectLog(_ type: String, date: Date = Date()) -> Bool {
 
         if type.count <= 0 {
             return false
         }
 
-        let now: Date = Date()
         let formatter: DateFormatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.dateFormat = "yyyyMMdd"
-        let day: String = formatter.string(from: now)
+        let day: String = formatter.string(from: date)
 
         var filePath: String = "\(self.baseDirPath)/\(day)"
         let fileManager: FileManager = FileManager()
@@ -1204,7 +1223,7 @@ class SynapseRecordFileManager: BaseFileManager {
             }
         }
 
-        let filename: String = "\(floor(now.timeIntervalSince1970))_\(type)"
+        let filename: String = "\(floor(date.timeIntervalSince1970))_\(type)"
         filePath = "\(filePath)/\(filename)"
         //print("setConnectLog: \(filePath)" )
         exists = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
@@ -1220,6 +1239,23 @@ class SynapseRecordFileManager: BaseFileManager {
             return fileManager.createFile(atPath: filePath, contents: Data(), attributes: nil)
         }
         return true
+    }
+
+    func setStartConnectLog() -> Bool {
+
+        return self.setConnectLog("0S")
+    }
+
+    func setEndConnectLog() -> Bool {
+
+        return self.setConnectLog("1E")
+    }
+
+    func checkEndConnectLog(_ time: TimeInterval) {
+
+        if self.getConnectLastDate("1E") == nil {
+            let _ = self.setConnectLog("1E", date: Date(timeIntervalSince1970: time))
+        }
     }
 
     func setValues(_ values: Data, date: Date, timeInterval: TimeInterval) -> Bool {
@@ -1441,7 +1477,7 @@ class SynapseRecordFileManager: BaseFileManager {
         return true
     }
 
-    public func removeSynapseRecords(_ time: TimeInterval) {
+    func removeSynapseRecords(_ time: TimeInterval) {
 
         self.setBaseDir()
         var synapseIds: [String] = []

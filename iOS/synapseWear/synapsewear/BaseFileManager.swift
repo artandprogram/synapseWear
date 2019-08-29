@@ -42,7 +42,7 @@ class BaseFileManager: NSObject {
         }
     }
 
-    public func getData(fileName: String) -> Data? {
+    func getData(fileName: String) -> Data? {
 
         let filePath: String = "\(self.baseDirPath)/\(fileName)"
         let fileManager: FileManager = FileManager()
@@ -60,7 +60,7 @@ class BaseFileManager: NSObject {
         return nil
     }
 
-    public func setData(fileName: String, data: Data) -> Bool {
+    func setData(fileName: String, data: Data) -> Bool {
 
         let filePath: String = "\(self.baseDirPath)/\(fileName)"
         let fileManager: FileManager = FileManager()
@@ -88,5 +88,4 @@ class BaseFileManager: NSObject {
             return true
         }
     }
-
 }

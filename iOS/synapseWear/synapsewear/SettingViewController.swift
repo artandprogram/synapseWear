@@ -56,10 +56,25 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
             self.temperatureScale = nav.temperatureScale
         }
 
+        if self.isFirst {
+            if let nav = self.navigationController as? SettingNavigationViewController {
+                nav.headerTitle.isHidden = true
+                nav.headerCloseBtn.isHidden = true
+            }
+        }
         if !self.isFirst {
             self.settingTableView.reloadData()
         }
         self.isFirst = false
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        if let nav = self.navigationController as? SettingNavigationViewController {
+            nav.headerTitle.isHidden = false
+            nav.headerCloseBtn.isHidden = false
+        }
     }
 
     override func viewWillDisappear(_ animated: Bool) {
