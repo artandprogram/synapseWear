@@ -9,7 +9,7 @@ import UIKit
 import Alamofire
 import SwiftyJSON
 
-class ApiManager {
+class ApiManager: CommonFunctionProtocol {
 
     public var host: String = ""
     public var url: String = ""

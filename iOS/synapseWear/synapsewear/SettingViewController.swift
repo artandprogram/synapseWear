@@ -122,7 +122,10 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
             self.soundInfo = nav.soundInfo
         }
  
-        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillShow(notification:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(self.keyboardWillShow(notification:)),
+                                               name: NSNotification.Name.UIKeyboardWillShow,
+                                               object: nil)
     }
 
     override func setView() {
@@ -492,7 +495,10 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
 
         if self.tableView(tableView, heightForHeaderInSection: section) > 0 {
             let view: UIView = UIView()
-            view.frame = CGRect(x: 0, y: 0, width: tableView.frame.size.width, height: self.tableView(tableView, heightForHeaderInSection: section))
+            view.frame = CGRect(x: 0,
+                                y: 0,
+                                width: tableView.frame.size.width,
+                                height: self.tableView(tableView, heightForHeaderInSection: section))
             view.backgroundColor = UIColor.clear
             return view
         }

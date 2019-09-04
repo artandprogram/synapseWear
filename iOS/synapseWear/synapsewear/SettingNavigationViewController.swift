@@ -13,7 +13,7 @@ class SettingNavigationViewController: NavigationController, DeviceAssociatedDel
     let synapseCrystalInfo: SynapseCrystalStruct = SynapseCrystalStruct()
     let settingFileManager: SettingFileManager = SettingFileManager()
     // variables
-    var nav: NavigationController?
+    weak var nav: NavigationController?
     //var synapseId: String = ""
     //var synapseIdNew: String = ""
     var synapseInterval: String = ""
@@ -92,13 +92,19 @@ class SettingNavigationViewController: NavigationController, DeviceAssociatedDel
         //self.headerSettingBtn.isHidden = true
 
         self.headerCloseBtn = UIButton()
-        self.headerCloseBtn.frame = CGRect(x: self.headerView.frame.size.width - 44.0, y: 20.0, width: 44.0, height: self.headerView.frame.size.height - 20.0)
+        self.headerCloseBtn.frame = CGRect(x: self.headerView.frame.size.width - 44.0,
+                                           y: 20.0,
+                                           width: 44.0,
+                                           height: self.headerView.frame.size.height - 20.0)
         self.headerCloseBtn.backgroundColor = UIColor.clear
         self.headerCloseBtn.addTarget(self, action: #selector(SettingNavigationViewController.closeAction), for: .touchUpInside)
         self.headerView.addSubview(self.headerCloseBtn)
 
         self.headerCloseIcon = CrossView()
-        self.headerCloseIcon.frame = CGRect(x: (self.headerCloseBtn.frame.size.width - 18.0) / 2, y: (self.headerCloseBtn.frame.size.height - 18.0) / 2, width: 18.0, height: 18.0)
+        self.headerCloseIcon.frame = CGRect(x: (self.headerCloseBtn.frame.size.width - 18.0) / 2,
+                                            y: (self.headerCloseBtn.frame.size.height - 18.0) / 2,
+                                            width: 18.0,
+                                            height: 18.0)
         self.headerCloseIcon.backgroundColor = .clear
         self.headerCloseIcon.isUserInteractionEnabled = false
         self.headerCloseIcon.lineColor = UIColor.black
@@ -112,7 +118,10 @@ class SettingNavigationViewController: NavigationController, DeviceAssociatedDel
         if #available(iOS 11.0, *) {
             y = self.view.safeAreaInsets.top
         }
-        self.headerCloseBtn.frame = CGRect(x: self.headerCloseBtn.frame.origin.x, y: y, width: self.headerCloseBtn.frame.size.width, height: self.headerCloseBtn.frame.size.height)
+        self.headerCloseBtn.frame = CGRect(x: self.headerCloseBtn.frame.origin.x,
+                                           y: y,
+                                           width: self.headerCloseBtn.frame.size.width,
+                                           height: self.headerCloseBtn.frame.size.height)
 
         if self.viewControllers.count > 0, let vc = self.viewControllers[0] as? BaseViewController {
             vc.resizeView()
@@ -142,8 +151,8 @@ class SettingNavigationViewController: NavigationController, DeviceAssociatedDel
             rfduinos = nav.getDeviceList()
         }
         return rfduinos
-    }*/
-
+    }
+     */
     override func getDeviceUUID() -> UUID? {
 
         var uuid: UUID? = nil

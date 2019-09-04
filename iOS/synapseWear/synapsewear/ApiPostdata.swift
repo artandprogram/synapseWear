@@ -20,7 +20,7 @@ class ApiPostdata: ApiManager {
             self.url = url
         }
         else {
-            if let path = Bundle.main.path(forResource: "appinfo", ofType: "plist"), let dict = NSDictionary(contentsOfFile: path) as? [String: Any], let url = dict["postdata_url"] as? String {
+            if let url = self.getAppinfoValue("postdata_url") as? String {
                 self.url = url
             }
         }

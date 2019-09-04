@@ -53,44 +53,47 @@ class BaseViewController: UIViewController {
 
     // MARK: mark - BaseViewController methods
 
-    public func setParam() {
+    func setParam() {
     }
 
-    public func setView() {
+    func setView() {
 
         self.setLoadingView()
     }
 
-    public func resizeView() {
+    func resizeView() {
     }
 
     // MARK: mark - LoadingView methods
 
-    public func setLoadingView() {
+    func setLoadingView() {
 
-        let x: CGFloat = 0
-        let y: CGFloat = 0
-        let w: CGFloat = self.view.frame.width
-        let h: CGFloat = self.view.frame.height
-
+        var x: CGFloat = 0
+        var y: CGFloat = 0
+        var w: CGFloat = self.view.frame.width
+        var h: CGFloat = self.view.frame.height
         self.loadingView = UIView()
         self.loadingView?.frame = CGRect(x: x, y: y, width: w, height: h)
         self.loadingView?.backgroundColor = UIColor.clear
         self.view.addSubview(self.loadingView!)
 
         let loadingBackView: UIView = UIView()
-        loadingBackView.frame = CGRect(x: 0, y: 0, width: self.loadingView!.frame.size.width, height: self.loadingView!.frame.size.height)
+        loadingBackView.frame = CGRect(x: x, y: y, width: w, height: h)
         loadingBackView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
         self.loadingView?.addSubview(loadingBackView)
 
+        w = 50.0
+        h = 50.0
+        x = (self.loadingView!.frame.size.width - w) / 2
+        y = (self.loadingView!.frame.size.height - h) / 2
         self.indicator = UIActivityIndicatorView(activityIndicatorStyle: .white)
-        self.indicator?.frame = CGRect(x: (self.loadingView!.frame.size.width - 50.0) / 2, y: (self.loadingView!.frame.size.height - 50.0) / 2, width: 50.0, height: 50.0)
+        self.indicator?.frame = CGRect(x: x, y: y, width: w, height: h)
         self.loadingView?.addSubview(self.indicator!)
 
         self.setHiddenLoadingView(true)
     }
 
-    public func setHiddenLoadingView(_ flag: Bool) {
+    func setHiddenLoadingView(_ flag: Bool) {
 
         self.loadingView?.isHidden = flag
         if flag {

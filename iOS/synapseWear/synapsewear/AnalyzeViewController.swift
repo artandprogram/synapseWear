@@ -7,7 +7,7 @@
 
 import UIKit
 
-class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableViewDelegate, UIPickerViewDataSource, UIPickerViewDelegate {
+class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableViewDelegate, UIPickerViewDataSource, UIPickerViewDelegate, CommonFunctionProtocol {
 
     // const
     let timeRangeMin: TimeInterval = 5.0 * 60.0
@@ -272,10 +272,16 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
 
     func setNotificationCenter() {
 
-        NotificationCenter.default.addObserver(self, selector: #selector(viewWillEnterForeground(
-            notification:)), name: Notification.Name.UIApplicationWillEnterForeground, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(viewDidEnterBackground(
-            notification:)), name: Notification.Name.UIApplicationDidEnterBackground, object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(viewWillEnterForeground(
+            notification:)),
+                                               name: Notification.Name.UIApplicationWillEnterForeground,
+                                               object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(viewDidEnterBackground(
+            notification:)),
+                                               name: Notification.Name.UIApplicationDidEnterBackground,
+                                               object: nil)
     }
 
     override func setView() {
@@ -303,7 +309,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         startLabel.textColor = UIColor.white
         startLabel.backgroundColor = UIColor.clear
         startLabel.font = UIFont(name: "HelveticaNeue", size: 14.0)
-        startLabel.textAlignment = NSTextAlignment.left
+        startLabel.textAlignment = .left
         startLabel.numberOfLines = 1
         startLabel.alpha = 0.5
         self.view.addSubview(startLabel)
@@ -314,13 +320,16 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         self.dateStartLabel.textColor = UIColor.white
         self.dateStartLabel.backgroundColor = UIColor.clear
         self.dateStartLabel.font = UIFont(name: "HelveticaNeue", size: 16.0)
-        self.dateStartLabel.textAlignment = NSTextAlignment.left
+        self.dateStartLabel.textAlignment = .left
         self.dateStartLabel.numberOfLines = 1
         self.view.addSubview(self.dateStartLabel)
 
         self.dateStartArrow = ArrowView()
-        self.dateStartArrow.frame = CGRect(x: x + w - 8.0, y: y + h + (h - 4.0) / 2, width: 8.0, height: 4.0)
-        self.dateStartArrow.backgroundColor = .clear
+        self.dateStartArrow.frame = CGRect(x: x + w - 8.0,
+                                           y: y + h + (h - 4.0) / 2,
+                                           width: 8.0,
+                                           height: 4.0)
+        self.dateStartArrow.backgroundColor = UIColor.clear
         self.dateStartArrow.triangleColor = UIColor.white
         self.dateStartArrow.alpha = 0.8
         self.view.addSubview(self.dateStartArrow)
@@ -339,7 +348,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         endLabel.textColor = UIColor.white
         endLabel.backgroundColor = UIColor.clear
         endLabel.font = UIFont(name: "HelveticaNeue", size: 14.0)
-        endLabel.textAlignment = NSTextAlignment.left
+        endLabel.textAlignment = .left
         endLabel.numberOfLines = 1
         endLabel.alpha = 0.5
         self.view.addSubview(endLabel)
@@ -350,13 +359,16 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         self.dateEndLabel.textColor = UIColor.white
         self.dateEndLabel.backgroundColor = UIColor.clear
         self.dateEndLabel.font = UIFont(name: "HelveticaNeue", size: 16.0)
-        self.dateEndLabel.textAlignment = NSTextAlignment.left
+        self.dateEndLabel.textAlignment = .left
         self.dateEndLabel.numberOfLines = 1
         self.view.addSubview(self.dateEndLabel)
 
         self.dateEndArrow = ArrowView()
-        self.dateEndArrow.frame = CGRect(x: x + w - 8.0, y: y + h + (h - 4.0) / 2, width: 8.0, height: 4.0)
-        self.dateEndArrow.backgroundColor = .clear
+        self.dateEndArrow.frame = CGRect(x: x + w - 8.0,
+                                         y: y + h + (h - 4.0) / 2,
+                                         width: 8.0,
+                                         height: 4.0)
+        self.dateEndArrow.backgroundColor = UIColor.clear
         self.dateEndArrow.triangleColor = UIColor.white
         self.dateEndArrow.alpha = 0.8
         self.view.addSubview(self.dateEndArrow)
@@ -379,7 +391,10 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         self.view.addSubview(self.graphMusicButton)
 
         let icon1: UIImageView = UIImageView()
-        icon1.frame = CGRect(x: (self.graphMusicButton.frame.size.width - 24.0) / 2, y: (self.graphMusicButton.frame.size.height - 24.0) / 2, width: 24.0, height: 24.0)
+        icon1.frame = CGRect(x: (self.graphMusicButton.frame.size.width - 24.0) / 2,
+                             y: (self.graphMusicButton.frame.size.height - 24.0) / 2,
+                             width: 24.0,
+                             height: 24.0)
         icon1.image = UIImage(named: "music.png")
         icon1.backgroundColor = UIColor.clear
         self.graphMusicButton.addSubview(icon1)
@@ -392,7 +407,10 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         self.view.addSubview(self.displaySettingButton)
 
         let icon2: UIImageView = UIImageView()
-        icon2.frame = CGRect(x: (self.displaySettingButton.frame.size.width - 24.0) / 2, y: (self.displaySettingButton.frame.size.height - 24.0) / 2, width: 24.0, height: 24.0)
+        icon2.frame = CGRect(x: (self.displaySettingButton.frame.size.width - 24.0) / 2,
+                             y: (self.displaySettingButton.frame.size.height - 24.0) / 2,
+                             width: 24.0,
+                             height: 24.0)
         icon2.image = UIImage(named: "graph.png")
         icon2.backgroundColor = UIColor.clear
         self.displaySettingButton.addSubview(icon2)
@@ -435,7 +453,11 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         self.closeGraphDataSmallView()
         self.setHiddenLoadingView(false)
 
-        self.changeGraphTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.changeGraphData), userInfo: nil, repeats: true)
+        self.changeGraphTimer = Timer.scheduledTimer(timeInterval: 0.1,
+                                                     target: self,
+                                                     selector: #selector(self.changeGraphData),
+                                                     userInfo: nil,
+                                                     repeats: true)
     }
 
     @objc func changeGraphData() {
@@ -1048,7 +1070,11 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
             if let time = time {
                 realtimeGraphTime = time
             }
-            self.realtimeGraphTimer = Timer.scheduledTimer(timeInterval: realtimeGraphTime, target: self, selector: #selector(self.setRealtimeGraphData), userInfo: nil, repeats: true)
+            self.realtimeGraphTimer = Timer.scheduledTimer(timeInterval: realtimeGraphTime,
+                                                           target: self,
+                                                           selector: #selector(self.setRealtimeGraphData),
+                                                           userInfo: nil,
+                                                           repeats: true)
         }
         self.isRealtime = true
     }
@@ -1120,7 +1146,11 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
             self.changeGraphIsHiddenAction()
             self.setDateLabels()
 
-            self.realtimeGraphTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(self.updateRealtimeGraphData), userInfo: nil, repeats: true)
+            self.realtimeGraphTimer = Timer.scheduledTimer(timeInterval: 1.0,
+                                                           target: self,
+                                                           selector: #selector(self.updateRealtimeGraphData),
+                                                           userInfo: nil,
+                                                           repeats: true)
         }
     }
 
@@ -1631,7 +1661,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
             y = (closeButton.frame.size.height - h) / 2
             let closeIcon: CrossView = CrossView()
             closeIcon.frame = CGRect(x: x, y: y, width: w, height: h)
-            closeIcon.backgroundColor = .clear
+            closeIcon.backgroundColor = UIColor.clear
             closeIcon.isUserInteractionEnabled = false
             closeIcon.lineColor = UIColor.white
             closeButton.addSubview(closeIcon)
@@ -1655,7 +1685,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
             titleLabel.textColor = UIColor.white
             titleLabel.backgroundColor = UIColor.clear
             titleLabel.font = UIFont(name: "HelveticaNeue", size: 24.0)
-            titleLabel.textAlignment = NSTextAlignment.left
+            titleLabel.textAlignment = .left
             titleLabel.numberOfLines = 1
             mainScrollView.addSubview(titleLabel)
 
@@ -1708,14 +1738,20 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                 label.textColor = UIColor.white
                 label.backgroundColor = UIColor.clear
                 label.font = UIFont(name: "HelveticaNeue", size: 15.0)
-                label.textAlignment = NSTextAlignment.left
+                label.textAlignment = .left
                 label.numberOfLines = 1
                 label.sizeToFit()
-                label.frame = CGRect(x: imageView.frame.origin.x * 2 + imageView.frame.size.width, y: y, width: label.frame.size.width, height: blockW)
+                label.frame = CGRect(x: imageView.frame.origin.x * 2 + imageView.frame.size.width,
+                                     y: y,
+                                     width: label.frame.size.width,
+                                     height: blockW)
                 mainScrollView.addSubview(label)
 
                 let circleView: UIView = UIView()
-                circleView.frame = CGRect(x: label.frame.origin.x + label.frame.size.width + 10.0, y: y + (blockW - 16.0) / 2, width: 16.0, height: 16.0)
+                circleView.frame = CGRect(x: label.frame.origin.x + label.frame.size.width + 10.0,
+                                          y: y + (blockW - 16.0) / 2,
+                                          width: 16.0,
+                                          height: 16.0)
                 circleView.backgroundColor = element.graphColor
                 circleView.layer.cornerRadius = circleView.frame.size.width / 2
                 circleView.clipsToBounds = true
@@ -1739,8 +1775,11 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                 let iconH: CGFloat = 16.0
                 let checkmarkView: CheckmarkView = CheckmarkView()
                 checkmarkView.tag = 1
-                checkmarkView.frame = CGRect(x: (button.frame.size.width - iconW) / 2, y: (button.frame.size.height - iconH) / 2, width: iconW, height: iconH)
-                checkmarkView.backgroundColor = .clear
+                checkmarkView.frame = CGRect(x: (button.frame.size.width - iconW) / 2,
+                                             y: (button.frame.size.height - iconH) / 2,
+                                             width: iconW,
+                                             height: iconH)
+                checkmarkView.backgroundColor = UIColor.clear
                 checkmarkView.triangleColor = UIColor.black
                 checkmarkView.isUserInteractionEnabled = false
                 checkmarkView.isHidden = false
@@ -1766,20 +1805,29 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                 minPlusButton.addGestureRecognizer(minPlusLongPressRecognizer)
 
                 let minPlusViewS: UIView = UIView()
-                minPlusViewS.frame = CGRect(x: minPlusButton.frame.size.width / 3, y: minPlusButton.frame.size.height / 2, width: minPlusButton.frame.size.width / 3 + 1.0, height: 1.0)
+                minPlusViewS.frame = CGRect(x: minPlusButton.frame.size.width / 3,
+                                            y: minPlusButton.frame.size.height / 2,
+                                            width: minPlusButton.frame.size.width / 3 + 1.0,
+                                            height: 1.0)
                 minPlusViewS.backgroundColor = UIColor.white
                 minPlusViewS.isUserInteractionEnabled = false
                 minPlusButton.addSubview(minPlusViewS)
 
                 let minPlusViewL: UIView = UIView()
-                minPlusViewL.frame = CGRect(x: minPlusButton.frame.size.width / 2, y: minPlusButton.frame.size.height / 3, width: 1.0, height: minPlusButton.frame.size.height / 3 + 1.0)
+                minPlusViewL.frame = CGRect(x: minPlusButton.frame.size.width / 2,
+                                            y: minPlusButton.frame.size.height / 3,
+                                            width: 1.0,
+                                            height: minPlusButton.frame.size.height / 3 + 1.0)
                 minPlusViewL.backgroundColor = UIColor.white
                 minPlusViewL.isUserInteractionEnabled = false
                 minPlusButton.addSubview(minPlusViewL)
 
                 let minMinusButton: UIButton = UIButton()
                 minMinusButton.tag = index * 4 + 1
-                minMinusButton.frame = CGRect(x: x - minPlusButton.frame.size.width + 1.0, y: y, width: minPlusButton.frame.size.width, height: minPlusButton.frame.size.height)
+                minMinusButton.frame = CGRect(x: x - minPlusButton.frame.size.width + 1.0,
+                                              y: y,
+                                              width: minPlusButton.frame.size.width,
+                                              height: minPlusButton.frame.size.height)
                 minMinusButton.backgroundColor = UIColor.clear
                 minMinusButton.layer.borderColor = UIColor.white.cgColor
                 minMinusButton.layer.borderWidth = 1.0
@@ -1790,7 +1838,10 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                 minMinusButton.addGestureRecognizer(minMinusLongPressRecognizer)
 
                 let minMinusView: UIView = UIView()
-                minMinusView.frame = CGRect(x: minMinusButton.frame.size.width / 3, y: minMinusButton.frame.size.height / 2, width: minMinusButton.frame.size.width / 3, height: 1.0)
+                minMinusView.frame = CGRect(x: minMinusButton.frame.size.width / 3,
+                                            y: minMinusButton.frame.size.height / 2,
+                                            width: minMinusButton.frame.size.width / 3,
+                                            height: 1.0)
                 minMinusView.backgroundColor = UIColor.white
                 minMinusView.isUserInteractionEnabled = false
                 minMinusButton.addSubview(minMinusView)
@@ -1803,7 +1854,10 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                 minLabel.textAlignment = .left
                 minLabel.numberOfLines = 1
                 minLabel.sizeToFit()
-                minLabel.frame = CGRect(x: 10.0, y: minMinusButton.frame.origin.y, width: minLabel.frame.size.width + 4.0, height: minMinusButton.frame.size.height)
+                minLabel.frame = CGRect(x: 10.0,
+                                        y: minMinusButton.frame.origin.y,
+                                        width: minLabel.frame.size.width + 4.0,
+                                        height: minMinusButton.frame.size.height)
                 mainScrollView.addSubview(minLabel)
 
                 let minUnitLabel: UILabel = UILabel()
@@ -1835,7 +1889,10 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                     minUnitLabel.text = "V"
                 }
                 minUnitLabel.sizeToFit()
-                minUnitLabel.frame = CGRect(x: minMinusButton.frame.origin.x - (minUnitLabel.frame.size.width + 10.0), y: minMinusButton.frame.origin.y, width: minUnitLabel.frame.size.width, height: minMinusButton.frame.size.height)
+                minUnitLabel.frame = CGRect(x: minMinusButton.frame.origin.x - (minUnitLabel.frame.size.width + 10.0),
+                                            y: minMinusButton.frame.origin.y,
+                                            width: minUnitLabel.frame.size.width,
+                                            height: minMinusButton.frame.size.height)
                 mainScrollView.addSubview(minUnitLabel)
 
                 var labelW: CGFloat = minUnitLabel.frame.origin.x - (minLabel.frame.origin.x + minLabel.frame.size.width)
@@ -1843,7 +1900,10 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                     labelW -= 5.0
                 }
                 let minValueLabel: UILabel = UILabel()
-                minValueLabel.frame = CGRect(x: minLabel.frame.origin.x + minLabel.frame.size.width, y: minMinusButton.frame.origin.y, width: labelW, height: minMinusButton.frame.size.height)
+                minValueLabel.frame = CGRect(x: minLabel.frame.origin.x + minLabel.frame.size.width,
+                                             y: minMinusButton.frame.origin.y,
+                                             width: labelW,
+                                             height: minMinusButton.frame.size.height)
                 minValueLabel.backgroundColor = UIColor.clear
                 minValueLabel.font = UIFont(name: "Migu 2M", size: 14.0)
                 minValueLabel.textColor = UIColor.fluorescentPink
@@ -1853,7 +1913,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                 if let value = self.graphMinRanges[element.key] {
                     minValueLabel.text = String(format:"%.1f", value)
                     if element.key == self.synapseCrystalInfo.temp.key, self.appDelegate.temperatureScale == "F" {
-                        minValueLabel.text = String(format:"%.1f", CommonFunction.makeFahrenheitTemperatureValue(Float(value)))
+                        minValueLabel.text = String(format:"%.1f", self.makeFahrenheitTemperatureValue(Float(value)))
                     }
                 }
                 mainScrollView.addSubview(minValueLabel)
@@ -1863,7 +1923,10 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
 
                 let maxPlusButton: UIButton = UIButton()
                 maxPlusButton.tag = index * 4 + 2
-                maxPlusButton.frame = CGRect(x: minPlusButton.frame.origin.x, y: y, width: minPlusButton.frame.size.width, height: minPlusButton.frame.size.height)
+                maxPlusButton.frame = CGRect(x: minPlusButton.frame.origin.x,
+                                             y: y,
+                                             width: minPlusButton.frame.size.width,
+                                             height: minPlusButton.frame.size.height)
                 maxPlusButton.backgroundColor = UIColor.clear
                 maxPlusButton.layer.borderColor = UIColor.white.cgColor
                 maxPlusButton.layer.borderWidth = 1.0
@@ -1874,20 +1937,29 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                 maxPlusButton.addGestureRecognizer(maxPlusLongPressRecognizer)
 
                 let maxPlusViewS: UIView = UIView()
-                maxPlusViewS.frame = CGRect(x: minPlusViewS.frame.origin.x, y: minPlusViewS.frame.origin.y, width: minPlusViewS.frame.size.width, height: minPlusViewS.frame.size.height)
+                maxPlusViewS.frame = CGRect(x: minPlusViewS.frame.origin.x,
+                                            y: minPlusViewS.frame.origin.y,
+                                            width: minPlusViewS.frame.size.width,
+                                            height: minPlusViewS.frame.size.height)
                 maxPlusViewS.backgroundColor = UIColor.white
                 maxPlusViewS.isUserInteractionEnabled = false
                 maxPlusButton.addSubview(maxPlusViewS)
 
                 let maxPlusViewL: UIView = UIView()
-                maxPlusViewL.frame = CGRect(x: minPlusViewL.frame.origin.x, y: minPlusViewL.frame.origin.y, width: minPlusViewL.frame.size.width, height: minPlusViewL.frame.size.height)
+                maxPlusViewL.frame = CGRect(x: minPlusViewL.frame.origin.x,
+                                            y: minPlusViewL.frame.origin.y,
+                                            width: minPlusViewL.frame.size.width,
+                                            height: minPlusViewL.frame.size.height)
                 maxPlusViewL.backgroundColor = UIColor.white
                 maxPlusViewL.isUserInteractionEnabled = false
                 maxPlusButton.addSubview(maxPlusViewL)
 
                 let maxMinusButton: UIButton = UIButton()
                 maxMinusButton.tag = index * 4 + 3
-                maxMinusButton.frame = CGRect(x: x - maxPlusButton.frame.size.width + 1.0, y: y, width: maxPlusButton.frame.size.width, height: maxPlusButton.frame.size.height)
+                maxMinusButton.frame = CGRect(x: x - maxPlusButton.frame.size.width + 1.0,
+                                              y: y,
+                                              width: maxPlusButton.frame.size.width,
+                                              height: maxPlusButton.frame.size.height)
                 maxMinusButton.backgroundColor = UIColor.clear
                 maxMinusButton.layer.borderColor = UIColor.white.cgColor
                 maxMinusButton.layer.borderWidth = 1.0
@@ -1898,14 +1970,20 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                 maxMinusButton.addGestureRecognizer(maxMinusLongPressRecognizer)
 
                 let maxMinusView: UIView = UIView()
-                maxMinusView.frame = CGRect(x: minMinusView.frame.origin.x, y: minMinusView.frame.origin.y, width: minMinusView.frame.size.width, height: minMinusView.frame.size.height)
+                maxMinusView.frame = CGRect(x: minMinusView.frame.origin.x,
+                                            y: minMinusView.frame.origin.y,
+                                            width: minMinusView.frame.size.width,
+                                            height: minMinusView.frame.size.height)
                 maxMinusView.backgroundColor = UIColor.white
                 maxMinusView.isUserInteractionEnabled = false
                 maxMinusButton.addSubview(maxMinusView)
 
                 let maxLabel: UILabel = UILabel()
                 maxLabel.text = "GRAPH RANGE MAX"
-                maxLabel.frame = CGRect(x: minLabel.frame.origin.x, y: maxMinusButton.frame.origin.y, width: minLabel.frame.size.width, height: maxMinusButton.frame.size.height)
+                maxLabel.frame = CGRect(x: minLabel.frame.origin.x,
+                                        y: maxMinusButton.frame.origin.y,
+                                        width: minLabel.frame.size.width,
+                                        height: maxMinusButton.frame.size.height)
                 maxLabel.backgroundColor = UIColor.clear
                 maxLabel.font = UIFont(name: "HelveticaNeue", size: 12.0)
                 maxLabel.textColor = UIColor.white
@@ -1915,7 +1993,10 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
 
                 let maxUnitLabel: UILabel = UILabel()
                 maxUnitLabel.text = minUnitLabel.text
-                maxUnitLabel.frame = CGRect(x: minUnitLabel.frame.origin.x, y: maxMinusButton.frame.origin.y, width: minUnitLabel.frame.size.width, height: maxMinusButton.frame.size.height)
+                maxUnitLabel.frame = CGRect(x: minUnitLabel.frame.origin.x,
+                                            y: maxMinusButton.frame.origin.y,
+                                            width: minUnitLabel.frame.size.width,
+                                            height: maxMinusButton.frame.size.height)
                 maxUnitLabel.backgroundColor = UIColor.clear
                 maxUnitLabel.font = UIFont(name: "Migu 2M", size: 14.0)
                 maxUnitLabel.textColor = UIColor.white
@@ -1924,7 +2005,10 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                 mainScrollView.addSubview(maxUnitLabel)
 
                 let maxValueLabel: UILabel = UILabel()
-                maxValueLabel.frame = CGRect(x: maxLabel.frame.origin.x + maxLabel.frame.size.width, y: maxMinusButton.frame.origin.y, width: labelW, height: maxMinusButton.frame.size.height)
+                maxValueLabel.frame = CGRect(x: maxLabel.frame.origin.x + maxLabel.frame.size.width,
+                                             y: maxMinusButton.frame.origin.y,
+                                             width: labelW,
+                                             height: maxMinusButton.frame.size.height)
                 maxValueLabel.backgroundColor = UIColor.clear
                 maxValueLabel.font = UIFont(name: "Migu 2M", size: 14.0)
                 maxValueLabel.textColor = UIColor.fluorescentPink
@@ -1934,7 +2018,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                 if let value = self.graphMaxRanges[element.key] {
                     maxValueLabel.text = String(format:"%.1f", value)
                     if element.key == self.synapseCrystalInfo.temp.key, self.appDelegate.temperatureScale == "F" {
-                        maxValueLabel.text = String(format:"%.1f", CommonFunction.makeFahrenheitTemperatureValue(Float(value)))
+                        maxValueLabel.text = String(format:"%.1f", self.makeFahrenheitTemperatureValue(Float(value)))
                     }
                 }
                 mainScrollView.addSubview(maxValueLabel)
@@ -1943,7 +2027,10 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                 y += blockW + 10.0
 
                 let lineView: UIView = UIView()
-                lineView.frame = CGRect(x: 10.0, y: y, width: mainScrollView.frame.size.width - 10.0 * 2, height: 1.0)
+                lineView.frame = CGRect(x: 10.0,
+                                        y: y,
+                                        width: mainScrollView.frame.size.width - 10.0 * 2,
+                                        height: 1.0)
                 lineView.backgroundColor = UIColor.white.withAlphaComponent(0.1)
                 mainScrollView.addSubview(lineView)
 
@@ -1987,7 +2074,11 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
             if let view = sender.view {
                 self.graphRangeLongPressPt = view.tag
                 self.graphRangeLongPressCnt = 0
-                self.graphRangeLongPressTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.changeGraphRangeTimerAction), userInfo: nil, repeats: true)
+                self.graphRangeLongPressTimer = Timer.scheduledTimer(timeInterval: 0.1,
+                                                                     target: self,
+                                                                     selector: #selector(self.changeGraphRangeTimerAction),
+                                                                     userInfo: nil,
+                                                                     repeats: true)
                 self.graphRangeLongPressTimer?.fire()
             }
         case UIGestureRecognizerState.ended:
@@ -2048,7 +2139,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                     if let viewParts = self.graphRangeViewParts, let labels = viewParts[self.graphCategories[index].key], let label = labels["min"] {
                         label.text = String(format:"%.1f", value)
                         if self.graphCategories[index].key == self.synapseCrystalInfo.temp.key, self.appDelegate.temperatureScale == "F" {
-                            label.text = String(format:"%.1f", CommonFunction.makeFahrenheitTemperatureValue(Float(value)))
+                            label.text = String(format:"%.1f", self.makeFahrenheitTemperatureValue(Float(value)))
                         }
                     }
                 }
@@ -2083,7 +2174,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                     if let viewParts = self.graphRangeViewParts, let labels = viewParts[self.graphCategories[index].key], let label = labels["max"] {
                         label.text = String(format:"%.1f", value)
                         if self.graphCategories[index].key == self.synapseCrystalInfo.temp.key, self.appDelegate.temperatureScale == "F" {
-                            label.text = String(format:"%.1f", CommonFunction.makeFahrenheitTemperatureValue(Float(value)))
+                            label.text = String(format:"%.1f", self.makeFahrenheitTemperatureValue(Float(value)))
                         }
                     }
                 }
@@ -2142,14 +2233,14 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         h = 200.0
         self.graphDatePicker = UIDatePicker()
         self.graphDatePicker?.frame = CGRect(x: x, y: y, width: w, height: h)
-        self.graphDatePicker?.backgroundColor = .white
+        self.graphDatePicker?.backgroundColor = UIColor.white
         self.graphDatePicker?.datePickerMode = .dateAndTime
         self.graphDatePicker?.minuteInterval = self.timeRangeInterval
         self.graphDatePickerView?.addSubview(self.graphDatePicker!)
 
         self.graphRealtimePicker = UIPickerView()
         self.graphRealtimePicker?.frame = CGRect(x: x, y: y, width: w, height: h)
-        self.graphRealtimePicker?.backgroundColor = .white
+        self.graphRealtimePicker?.backgroundColor = UIColor.white
         self.graphRealtimePicker?.dataSource = self
         self.graphRealtimePicker?.delegate = self
         self.graphDatePickerView?.addSubview(self.graphRealtimePicker!)
@@ -2166,9 +2257,9 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         self.graphDatePickerSetBtn?.tag = 1
         self.graphDatePickerSetBtn?.frame = CGRect(x: x, y: y, width: w, height: h)
         self.graphDatePickerSetBtn?.setTitle("Select", for: .normal)
-        self.graphDatePickerSetBtn?.setTitleColor(.white, for: .normal)
+        self.graphDatePickerSetBtn?.setTitleColor(UIColor.white, for: .normal)
         self.graphDatePickerSetBtn?.titleLabel?.font = UIFont(name: "HelveticaNeue", size: 18.0)
-        self.graphDatePickerSetBtn?.backgroundColor = .clear
+        self.graphDatePickerSetBtn?.backgroundColor = UIColor.clear
         self.graphDatePickerSetBtn?.clipsToBounds = true
         self.graphDatePickerSetBtn?.layer.cornerRadius = h / 2
         self.graphDatePickerSetBtn?.layer.borderColor = UIColor.white.cgColor
@@ -2178,14 +2269,14 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         let bgView1: UIView = UIView()
         bgView1.frame = CGRect(x: 0, y: 0, width: w, height: h)
         bgView1.backgroundColor = UIColor.white.withAlphaComponent(0.5)
-        self.graphDatePickerSetBtn?.setBackgroundImage(CommonFunction.getImageFromView(bgView1), for: .highlighted)
+        self.graphDatePickerSetBtn?.setBackgroundImage(self.getImageFromView(bgView1), for: .highlighted)
 
         x += w + x
         self.graphDatePickerRealtimeBtn = UIButton()
         self.graphDatePickerRealtimeBtn?.tag = 2
         self.graphDatePickerRealtimeBtn?.frame = CGRect(x: x, y: y, width: w, height: h)
         self.graphDatePickerRealtimeBtn?.setTitle("Realtime", for: .normal)
-        self.graphDatePickerRealtimeBtn?.setTitleColor(.white, for: .normal)
+        self.graphDatePickerRealtimeBtn?.setTitleColor(UIColor.white, for: .normal)
         self.graphDatePickerRealtimeBtn?.titleLabel?.font = UIFont(name: "HelveticaNeue", size: 18.0)
         self.graphDatePickerRealtimeBtn?.clipsToBounds = true
         self.graphDatePickerRealtimeBtn?.layer.cornerRadius = h / 2
@@ -2196,14 +2287,14 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         let bgView2: UIView = UIView()
         bgView2.frame = CGRect(x: 0, y: 0, width: w, height: h)
         bgView2.backgroundColor = UIColor.white.withAlphaComponent(0.5)
-        self.graphDatePickerRealtimeBtn?.setBackgroundImage(CommonFunction.getImageFromView(bgView2), for: .highlighted)
+        self.graphDatePickerRealtimeBtn?.setBackgroundImage(self.getImageFromView(bgView2), for: .highlighted)
 
         w = 40.0
         x = self.view.frame.size.width - (w + 10.0)
         self.graphDatePickerCancelBtn = UIButton()
         self.graphDatePickerCancelBtn?.tag = 0
         self.graphDatePickerCancelBtn?.frame = CGRect(x: x, y: y, width: w, height: h)
-        self.graphDatePickerCancelBtn?.backgroundColor = .clear
+        self.graphDatePickerCancelBtn?.backgroundColor = UIColor.clear
         self.graphDatePickerCancelBtn?.addTarget(self, action: #selector(self.setGraphDateAction(_:)), for: .touchUpInside)
         self.graphDatePickerView?.addSubview(self.graphDatePickerCancelBtn!)
 
@@ -2213,7 +2304,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         y = (self.graphDatePickerCancelBtn!.frame.size.height - h) / 2
         let closeIcon: CrossView = CrossView()
         closeIcon.frame = CGRect(x: x, y: y, width: w, height: h)
-        closeIcon.backgroundColor = .clear
+        closeIcon.backgroundColor = UIColor.clear
         closeIcon.isUserInteractionEnabled = false
         closeIcon.lineColor = UIColor.white
         self.graphDatePickerCancelBtn!.addSubview(closeIcon)
@@ -2274,14 +2365,14 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
     func checkGraphDatePickerIsRealtime(_ flag: Bool) {
 
         if flag {
-            self.graphDatePickerSetBtn?.backgroundColor = .clear
+            self.graphDatePickerSetBtn?.backgroundColor = UIColor.clear
             self.graphDatePickerRealtimeBtn?.backgroundColor = UIColor.fluorescentPink
             self.graphDatePicker?.isHidden = true
             self.graphRealtimePicker?.isHidden = false
         }
         else {
             self.graphDatePickerSetBtn?.backgroundColor = UIColor.fluorescentPink
-            self.graphDatePickerRealtimeBtn?.backgroundColor = .clear
+            self.graphDatePickerRealtimeBtn?.backgroundColor = UIColor.clear
             self.graphDatePicker?.isHidden = false
             self.graphRealtimePicker?.isHidden = true
         }
@@ -2445,7 +2536,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         y = (self.graphDataSmallCloseButton.frame.size.height - h) / 2
         let closeIcon: CrossView = CrossView()
         closeIcon.frame = CGRect(x: x, y: y, width: w, height: h)
-        closeIcon.backgroundColor = .clear
+        closeIcon.backgroundColor = UIColor.clear
         closeIcon.isUserInteractionEnabled = false
         closeIcon.lineColor = UIColor.white
         self.graphDataSmallCloseButton.addSubview(closeIcon)
@@ -2466,7 +2557,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         y = (self.graphDataSmallOpenButton.frame.size.height - h) / 2
         let openIcon: ArrowView = ArrowView()
         openIcon.frame = CGRect(x: x, y: y, width: w, height: h)
-        openIcon.backgroundColor = .clear
+        openIcon.backgroundColor = UIColor.clear
         openIcon.isUserInteractionEnabled = false
         openIcon.type = ArrowView.left
         openIcon.triangleColor = UIColor.white
@@ -2482,7 +2573,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         openLabel.font = UIFont(name: "HelveticaNeue", size: 18.0)
         openLabel.textColor = UIColor.white
         openLabel.backgroundColor = UIColor.clear
-        openLabel.textAlignment = NSTextAlignment.left
+        openLabel.textAlignment = .left
         openLabel.numberOfLines = 1
         self.graphDataSmallOpenButton.addSubview(openLabel)
 
@@ -2496,7 +2587,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         self.graphDataSmallDateLabel.font = UIFont(name: "HelveticaNeue", size: 16.0)
         self.graphDataSmallDateLabel.textColor = UIColor.white
         self.graphDataSmallDateLabel.backgroundColor = UIColor.clear
-        self.graphDataSmallDateLabel.textAlignment = NSTextAlignment.left
+        self.graphDataSmallDateLabel.textAlignment = .left
         self.graphDataSmallDateLabel.numberOfLines = 1
         self.graphDataSmallDateLabel.isUserInteractionEnabled = false
         self.graphDataSmallView.addSubview(self.graphDataSmallDateLabel)
@@ -2519,7 +2610,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
             label.font = UIFont(name: "Migu 2M", size: 16.0)
             label.textColor = UIColor.fluorescentPink
             label.backgroundColor = UIColor.clear
-            label.textAlignment = NSTextAlignment.left
+            label.textAlignment = .left
             label.numberOfLines = 1
             label.isUserInteractionEnabled = false
             label.isHidden = true
@@ -2531,7 +2622,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
             labelUnit.font = UIFont(name: "HelveticaNeue", size: 16.0)
             labelUnit.textColor = UIColor.white
             labelUnit.backgroundColor = UIColor.clear
-            labelUnit.textAlignment = NSTextAlignment.left
+            labelUnit.textAlignment = .left
             labelUnit.numberOfLines = 1
             labelUnit.isUserInteractionEnabled = false
             labelUnit.isHidden = true
@@ -2593,8 +2684,9 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                     if let data = self.graphDataList[element.key], data.count > self.graphSelectpt, let value = data[self.graphSelectpt] {
                         label.text = String(format:"%.1f", value)
                         if element.key == self.synapseCrystalInfo.temp.key, self.appDelegate.temperatureScale == "F" {
-                            label.text = String(format:"%.1f", CommonFunction.makeFahrenheitTemperatureValue(Float(value)))
-                        }                    }
+                            label.text = String(format:"%.1f", self.makeFahrenheitTemperatureValue(Float(value)))
+                        }
+                    }
                     label.sizeToFit()
                     x += w + 10.0
                     w = label.frame.size.width
@@ -2700,7 +2792,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                 y = (closeButton.frame.size.height - h) / 2
                 let closeIcon: CrossView = CrossView()
                 closeIcon.frame = CGRect(x: x, y: y, width: w, height: h)
-                closeIcon.backgroundColor = .clear
+                closeIcon.backgroundColor = UIColor.clear
                 closeIcon.isUserInteractionEnabled = false
                 closeIcon.lineColor = UIColor.white
                 closeButton.addSubview(closeIcon)
@@ -2814,7 +2906,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                 if let data = self.graphDataList[crystal.key], data.count > self.graphSelectpt, let value = data[self.graphSelectpt] {
                     cell.text1Label.text = String(format:"%.1f", value)
                     if crystal.key == self.synapseCrystalInfo.temp.key, self.appDelegate.temperatureScale == "F" {
-                        cell.text1Label.text = String(format:"%.1f", CommonFunction.makeFahrenheitTemperatureValue(Float(value)))
+                        cell.text1Label.text = String(format:"%.1f", self.makeFahrenheitTemperatureValue(Float(value)))
                     }
                 }
                 cell.text2Label.text = ""
@@ -2848,7 +2940,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                     cell.text3Label.text = "("
                     cell.text4Label.text = String(format:"%.1f - %.1f", min, max)
                     if crystal.key == self.synapseCrystalInfo.temp.key, self.appDelegate.temperatureScale == "F" {
-                        cell.text4Label.text = String(format:"%.1f - %.1f", CommonFunction.makeFahrenheitTemperatureValue(Float(min)), CommonFunction.makeFahrenheitTemperatureValue(Float(max)))
+                        cell.text4Label.text = String(format:"%.1f - %.1f", self.makeFahrenheitTemperatureValue(Float(min)), self.makeFahrenheitTemperatureValue(Float(max)))
                     }
                     cell.text5Label.text = cell.text2Label.text
                     cell.text6Label.text = ")"
@@ -2954,7 +3046,11 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         self.synapseSound = SynapseSound()
         self.synapseSound?.play(isRoop: true)
 
-        self.synapseSoundTimer = Timer.scheduledTimer(timeInterval: self.synapseSound!.getRoopTime(), target: self, selector: #selector(self.checkAudio), userInfo: nil, repeats: true)
+        self.synapseSoundTimer = Timer.scheduledTimer(timeInterval: self.synapseSound!.getRoopTime(),
+                                                      target: self,
+                                                      selector: #selector(self.checkAudio),
+                                                      userInfo: nil,
+                                                      repeats: true)
         self.synapseSoundTimer?.fire()
     }
 
@@ -2995,7 +3091,10 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                     lineX = CGFloat(time) * self.realtimeGraphBlock + self.graphX
                 }
 
-                self.selectLineView.frame = CGRect(x: lineX, y: self.selectLineView.frame.origin.y, width: self.selectLineView.frame.size.width, height: self.selectLineView.frame.size.height)
+                self.selectLineView.frame = CGRect(x: lineX,
+                                                   y: self.selectLineView.frame.origin.y,
+                                                   width: self.selectLineView.frame.size.width,
+                                                   height: self.selectLineView.frame.size.height)
                 self.selectLineView.isHidden = false
 
                 if self.synapseSoundPt != pt {

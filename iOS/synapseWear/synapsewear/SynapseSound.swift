@@ -285,7 +285,7 @@ class SynapseSound: NSObject {
                 self.lastDate = date
             }
             else {
-                CommonFunction.log("checkSound late: \(date)")
+                //CommonFunction.log("checkSound late: \(date)")
                 return
             }
 

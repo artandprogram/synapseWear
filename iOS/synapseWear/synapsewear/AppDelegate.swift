@@ -12,7 +12,6 @@ import UserNotifications
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-    var appinfo: [String: Any]?
     var oscClient: F53OSCClient?
     var oscSendMode: String = ""
     var scanDevices: [RFduino] = []
@@ -65,11 +64,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func appSetting() {
 
-        //print("ip address: \(String(describing: CommonFunction.getWiFiAddress()))")
-        if let path = Bundle.main.path(forResource: "appinfo", ofType: "plist"), let dict = NSDictionary(contentsOfFile: path) as? [String: Any] {
-            self.appinfo = dict
-            //print("appinfo : \(self.appinfo)")
-        }
         self.setOSCClient()
 
         // set AVAudioSession

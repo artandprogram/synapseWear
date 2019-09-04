@@ -64,30 +64,6 @@
 		873F51E82074CFF20036BC41 /* setting_b@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 873F51E52074CFF20036BC41 /* setting_b@3x.png */; };
 		873F51EA2074D7B60036BC41 /* graph@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 873F51E92074D7B60036BC41 /* graph@3x.png */; };
 		873F51EC2074D7C50036BC41 /* graph.png in Resources */ = {isa = PBXBuildFile; fileRef = 873F51EB2074D7C50036BC41 /* graph.png */; };
-		87417FA21F38075F009730B5 /* F53OSCBundle.m in Sources */ = {isa = PBXBuildFile; fileRef = 87417F6F1F38075F009730B5 /* F53OSCBundle.m */; };
-		87417FA31F38075F009730B5 /* F53OSCClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 87417F711F38075F009730B5 /* F53OSCClient.m */; };
-		87417FA41F38075F009730B5 /* F53OSCMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 87417F741F38075F009730B5 /* F53OSCMessage.m */; };
-		87417FA51F38075F009730B5 /* F53OSCPacket.m in Sources */ = {isa = PBXBuildFile; fileRef = 87417F761F38075F009730B5 /* F53OSCPacket.m */; };
-		87417FA61F38075F009730B5 /* F53OSCParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 87417F781F38075F009730B5 /* F53OSCParser.m */; };
-		87417FA71F38075F009730B5 /* F53OSCServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 87417F7B1F38075F009730B5 /* F53OSCServer.m */; };
-		87417FA81F38075F009730B5 /* F53OSCSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 87417F7D1F38075F009730B5 /* F53OSCSocket.m */; };
-		87417FA91F38075F009730B5 /* F53OSCTimeTag.m in Sources */ = {isa = PBXBuildFile; fileRef = 87417F7F1F38075F009730B5 /* F53OSCTimeTag.m */; };
-		87417FAA1F38075F009730B5 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 87417F811F38075F009730B5 /* GCDAsyncSocket.m */; };
-		87417FAB1F38075F009730B5 /* GCDAsyncUdpSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 87417F831F38075F009730B5 /* GCDAsyncUdpSocket.m */; };
-		87417FAC1F38075F009730B5 /* LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 87417F841F38075F009730B5 /* LICENSE.txt */; };
-		87417FAD1F38075F009730B5 /* NSData+F53OSCBlob.m in Sources */ = {isa = PBXBuildFile; fileRef = 87417F861F38075F009730B5 /* NSData+F53OSCBlob.m */; };
-		87417FAE1F38075F009730B5 /* NSDate+F53OSCTimeTag.m in Sources */ = {isa = PBXBuildFile; fileRef = 87417F881F38075F009730B5 /* NSDate+F53OSCTimeTag.m */; };
-		87417FAF1F38075F009730B5 /* NSNumber+F53OSCNumber.m in Sources */ = {isa = PBXBuildFile; fileRef = 87417F8A1F38075F009730B5 /* NSNumber+F53OSCNumber.m */; };
-		87417FB01F38075F009730B5 /* NSString+F53OSCString.m in Sources */ = {isa = PBXBuildFile; fileRef = 87417F8C1F38075F009730B5 /* NSString+F53OSCString.m */; };
-		87417FB11F38075F009730B5 /* DDAbstractDatabaseLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 87417F901F38075F009730B5 /* DDAbstractDatabaseLogger.m */; };
-		87417FB21F38075F009730B5 /* DDASLLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 87417F921F38075F009730B5 /* DDASLLogger.m */; };
-		87417FB31F38075F009730B5 /* DDFileLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 87417F941F38075F009730B5 /* DDFileLogger.m */; };
-		87417FB41F38075F009730B5 /* DDLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 87417F971F38075F009730B5 /* DDLog.m */; };
-		87417FB51F38075F009730B5 /* DDTTYLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 87417F991F38075F009730B5 /* DDTTYLogger.m */; };
-		87417FB61F38075F009730B5 /* DDContextFilterLogFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 87417F9C1F38075F009730B5 /* DDContextFilterLogFormatter.m */; };
-		87417FB71F38075F009730B5 /* DDDispatchQueueLogFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 87417F9E1F38075F009730B5 /* DDDispatchQueueLogFormatter.m */; };
-		87417FB81F38075F009730B5 /* DDMultiFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 87417FA01F38075F009730B5 /* DDMultiFormatter.m */; };
-		87417FB91F38075F009730B5 /* README.txt in Resources */ = {isa = PBXBuildFile; fileRef = 87417FA11F38075F009730B5 /* README.txt */; };
 		87417FBB1F382B11009730B5 /* SynapseOSCViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87417FBA1F382B11009730B5 /* SynapseOSCViewController.swift */; };
 		87426C8120F72DDA0033504C /* ApiPostdata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87426C8020F72DDA0033504C /* ApiPostdata.swift */; };
 		874C899020FDBE2100F9A7E2 /* SynapseUploadSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874C898F20FDBE2100F9A7E2 /* SynapseUploadSettingsViewController.swift */; };
@@ -297,56 +273,6 @@
 		873F51E52074CFF20036BC41 /* setting_b@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "setting_b@3x.png"; path = "images/_dummy/parts_3x/setting_b@3x.png"; sourceTree = "<group>"; };
 		873F51E92074D7B60036BC41 /* graph@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "graph@3x.png"; path = "images/_dummy/parts_3x/graph@3x.png"; sourceTree = "<group>"; };
 		873F51EB2074D7C50036BC41 /* graph.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = graph.png; path = images/_dummy/parts/graph.png; sourceTree = "<group>"; };
-		87417F6D1F38075F009730B5 /* F53OSC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = F53OSC.h; sourceTree = "<group>"; };
-		87417F6E1F38075F009730B5 /* F53OSCBundle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = F53OSCBundle.h; sourceTree = "<group>"; };
-		87417F6F1F38075F009730B5 /* F53OSCBundle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = F53OSCBundle.m; sourceTree = "<group>"; };
-		87417F701F38075F009730B5 /* F53OSCClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = F53OSCClient.h; sourceTree = "<group>"; };
-		87417F711F38075F009730B5 /* F53OSCClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = F53OSCClient.m; sourceTree = "<group>"; };
-		87417F721F38075F009730B5 /* F53OSCFoundationAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = F53OSCFoundationAdditions.h; sourceTree = "<group>"; };
-		87417F731F38075F009730B5 /* F53OSCMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = F53OSCMessage.h; sourceTree = "<group>"; };
-		87417F741F38075F009730B5 /* F53OSCMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = F53OSCMessage.m; sourceTree = "<group>"; };
-		87417F751F38075F009730B5 /* F53OSCPacket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = F53OSCPacket.h; sourceTree = "<group>"; };
-		87417F761F38075F009730B5 /* F53OSCPacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = F53OSCPacket.m; sourceTree = "<group>"; };
-		87417F771F38075F009730B5 /* F53OSCParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = F53OSCParser.h; sourceTree = "<group>"; };
-		87417F781F38075F009730B5 /* F53OSCParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = F53OSCParser.m; sourceTree = "<group>"; };
-		87417F791F38075F009730B5 /* F53OSCProtocols.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = F53OSCProtocols.h; sourceTree = "<group>"; };
-		87417F7A1F38075F009730B5 /* F53OSCServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = F53OSCServer.h; sourceTree = "<group>"; };
-		87417F7B1F38075F009730B5 /* F53OSCServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = F53OSCServer.m; sourceTree = "<group>"; };
-		87417F7C1F38075F009730B5 /* F53OSCSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = F53OSCSocket.h; sourceTree = "<group>"; };
-		87417F7D1F38075F009730B5 /* F53OSCSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = F53OSCSocket.m; sourceTree = "<group>"; };
-		87417F7E1F38075F009730B5 /* F53OSCTimeTag.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = F53OSCTimeTag.h; sourceTree = "<group>"; };
-		87417F7F1F38075F009730B5 /* F53OSCTimeTag.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = F53OSCTimeTag.m; sourceTree = "<group>"; };
-		87417F801F38075F009730B5 /* GCDAsyncSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDAsyncSocket.h; sourceTree = "<group>"; };
-		87417F811F38075F009730B5 /* GCDAsyncSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDAsyncSocket.m; sourceTree = "<group>"; };
-		87417F821F38075F009730B5 /* GCDAsyncUdpSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDAsyncUdpSocket.h; sourceTree = "<group>"; };
-		87417F831F38075F009730B5 /* GCDAsyncUdpSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDAsyncUdpSocket.m; sourceTree = "<group>"; };
-		87417F841F38075F009730B5 /* LICENSE.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
-		87417F851F38075F009730B5 /* NSData+F53OSCBlob.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+F53OSCBlob.h"; sourceTree = "<group>"; };
-		87417F861F38075F009730B5 /* NSData+F53OSCBlob.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+F53OSCBlob.m"; sourceTree = "<group>"; };
-		87417F871F38075F009730B5 /* NSDate+F53OSCTimeTag.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDate+F53OSCTimeTag.h"; sourceTree = "<group>"; };
-		87417F881F38075F009730B5 /* NSDate+F53OSCTimeTag.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDate+F53OSCTimeTag.m"; sourceTree = "<group>"; };
-		87417F891F38075F009730B5 /* NSNumber+F53OSCNumber.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSNumber+F53OSCNumber.h"; sourceTree = "<group>"; };
-		87417F8A1F38075F009730B5 /* NSNumber+F53OSCNumber.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSNumber+F53OSCNumber.m"; sourceTree = "<group>"; };
-		87417F8B1F38075F009730B5 /* NSString+F53OSCString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+F53OSCString.h"; sourceTree = "<group>"; };
-		87417F8C1F38075F009730B5 /* NSString+F53OSCString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+F53OSCString.m"; sourceTree = "<group>"; };
-		87417F8F1F38075F009730B5 /* DDAbstractDatabaseLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDAbstractDatabaseLogger.h; sourceTree = "<group>"; };
-		87417F901F38075F009730B5 /* DDAbstractDatabaseLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDAbstractDatabaseLogger.m; sourceTree = "<group>"; };
-		87417F911F38075F009730B5 /* DDASLLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDASLLogger.h; sourceTree = "<group>"; };
-		87417F921F38075F009730B5 /* DDASLLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDASLLogger.m; sourceTree = "<group>"; };
-		87417F931F38075F009730B5 /* DDFileLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDFileLogger.h; sourceTree = "<group>"; };
-		87417F941F38075F009730B5 /* DDFileLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDFileLogger.m; sourceTree = "<group>"; };
-		87417F951F38075F009730B5 /* DDLog+LOGV.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DDLog+LOGV.h"; sourceTree = "<group>"; };
-		87417F961F38075F009730B5 /* DDLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDLog.h; sourceTree = "<group>"; };
-		87417F971F38075F009730B5 /* DDLog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDLog.m; sourceTree = "<group>"; };
-		87417F981F38075F009730B5 /* DDTTYLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDTTYLogger.h; sourceTree = "<group>"; };
-		87417F991F38075F009730B5 /* DDTTYLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDTTYLogger.m; sourceTree = "<group>"; };
-		87417F9B1F38075F009730B5 /* DDContextFilterLogFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDContextFilterLogFormatter.h; sourceTree = "<group>"; };
-		87417F9C1F38075F009730B5 /* DDContextFilterLogFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDContextFilterLogFormatter.m; sourceTree = "<group>"; };
-		87417F9D1F38075F009730B5 /* DDDispatchQueueLogFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDDispatchQueueLogFormatter.h; sourceTree = "<group>"; };
-		87417F9E1F38075F009730B5 /* DDDispatchQueueLogFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDDispatchQueueLogFormatter.m; sourceTree = "<group>"; };
-		87417F9F1F38075F009730B5 /* DDMultiFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDMultiFormatter.h; sourceTree = "<group>"; };
-		87417FA01F38075F009730B5 /* DDMultiFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDMultiFormatter.m; sourceTree = "<group>"; };
-		87417FA11F38075F009730B5 /* README.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.txt; sourceTree = "<group>"; };
 		87417FBA1F382B11009730B5 /* SynapseOSCViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SynapseOSCViewController.swift; sourceTree = "<group>"; };
 		87426C8020F72DDA0033504C /* ApiPostdata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiPostdata.swift; sourceTree = "<group>"; };
 		874C898F20FDBE2100F9A7E2 /* SynapseUploadSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SynapseUploadSettingsViewController.swift; sourceTree = "<group>"; };
@@ -553,7 +479,6 @@
 				870D3E5120A3FEA70042FB82 /* debug */,
 				87B5F08D1EAF3DF30030BCD6 /* synapsewear-Bridging-Header.h */,
 				87B5F0831EAF3B810030BCD6 /* RFduino */,
-				87417F6C1F38075F009730B5 /* F53OSC */,
 				871341312069E2470037CCB2 /* OTA Bootloader */,
 				87B5F06A1EAF2FC30030BCD6 /* images */,
 				EB6CDCEE1F1C71F4003294AA /* audio */,
@@ -713,87 +638,6 @@
 				871341612069E2470037CCB2 /* zip.h */,
 			);
 			path = minizip;
-			sourceTree = "<group>";
-		};
-		87417F6C1F38075F009730B5 /* F53OSC */ = {
-			isa = PBXGroup;
-			children = (
-				87417F6D1F38075F009730B5 /* F53OSC.h */,
-				87417F6E1F38075F009730B5 /* F53OSCBundle.h */,
-				87417F6F1F38075F009730B5 /* F53OSCBundle.m */,
-				87417F701F38075F009730B5 /* F53OSCClient.h */,
-				87417F711F38075F009730B5 /* F53OSCClient.m */,
-				87417F721F38075F009730B5 /* F53OSCFoundationAdditions.h */,
-				87417F731F38075F009730B5 /* F53OSCMessage.h */,
-				87417F741F38075F009730B5 /* F53OSCMessage.m */,
-				87417F751F38075F009730B5 /* F53OSCPacket.h */,
-				87417F761F38075F009730B5 /* F53OSCPacket.m */,
-				87417F771F38075F009730B5 /* F53OSCParser.h */,
-				87417F781F38075F009730B5 /* F53OSCParser.m */,
-				87417F791F38075F009730B5 /* F53OSCProtocols.h */,
-				87417F7A1F38075F009730B5 /* F53OSCServer.h */,
-				87417F7B1F38075F009730B5 /* F53OSCServer.m */,
-				87417F7C1F38075F009730B5 /* F53OSCSocket.h */,
-				87417F7D1F38075F009730B5 /* F53OSCSocket.m */,
-				87417F7E1F38075F009730B5 /* F53OSCTimeTag.h */,
-				87417F7F1F38075F009730B5 /* F53OSCTimeTag.m */,
-				87417F801F38075F009730B5 /* GCDAsyncSocket.h */,
-				87417F811F38075F009730B5 /* GCDAsyncSocket.m */,
-				87417F821F38075F009730B5 /* GCDAsyncUdpSocket.h */,
-				87417F831F38075F009730B5 /* GCDAsyncUdpSocket.m */,
-				87417F841F38075F009730B5 /* LICENSE.txt */,
-				87417F851F38075F009730B5 /* NSData+F53OSCBlob.h */,
-				87417F861F38075F009730B5 /* NSData+F53OSCBlob.m */,
-				87417F871F38075F009730B5 /* NSDate+F53OSCTimeTag.h */,
-				87417F881F38075F009730B5 /* NSDate+F53OSCTimeTag.m */,
-				87417F891F38075F009730B5 /* NSNumber+F53OSCNumber.h */,
-				87417F8A1F38075F009730B5 /* NSNumber+F53OSCNumber.m */,
-				87417F8B1F38075F009730B5 /* NSString+F53OSCString.h */,
-				87417F8C1F38075F009730B5 /* NSString+F53OSCString.m */,
-				87417F8D1F38075F009730B5 /* Vendor */,
-			);
-			path = F53OSC;
-			sourceTree = "<group>";
-		};
-		87417F8D1F38075F009730B5 /* Vendor */ = {
-			isa = PBXGroup;
-			children = (
-				87417F8E1F38075F009730B5 /* CocoaLumberjack */,
-			);
-			path = Vendor;
-			sourceTree = "<group>";
-		};
-		87417F8E1F38075F009730B5 /* CocoaLumberjack */ = {
-			isa = PBXGroup;
-			children = (
-				87417F8F1F38075F009730B5 /* DDAbstractDatabaseLogger.h */,
-				87417F901F38075F009730B5 /* DDAbstractDatabaseLogger.m */,
-				87417F911F38075F009730B5 /* DDASLLogger.h */,
-				87417F921F38075F009730B5 /* DDASLLogger.m */,
-				87417F931F38075F009730B5 /* DDFileLogger.h */,
-				87417F941F38075F009730B5 /* DDFileLogger.m */,
-				87417F951F38075F009730B5 /* DDLog+LOGV.h */,
-				87417F961F38075F009730B5 /* DDLog.h */,
-				87417F971F38075F009730B5 /* DDLog.m */,
-				87417F981F38075F009730B5 /* DDTTYLogger.h */,
-				87417F991F38075F009730B5 /* DDTTYLogger.m */,
-				87417F9A1F38075F009730B5 /* Extensions */,
-			);
-			path = CocoaLumberjack;
-			sourceTree = "<group>";
-		};
-		87417F9A1F38075F009730B5 /* Extensions */ = {
-			isa = PBXGroup;
-			children = (
-				87417F9B1F38075F009730B5 /* DDContextFilterLogFormatter.h */,
-				87417F9C1F38075F009730B5 /* DDContextFilterLogFormatter.m */,
-				87417F9D1F38075F009730B5 /* DDDispatchQueueLogFormatter.h */,
-				87417F9E1F38075F009730B5 /* DDDispatchQueueLogFormatter.m */,
-				87417F9F1F38075F009730B5 /* DDMultiFormatter.h */,
-				87417FA01F38075F009730B5 /* DDMultiFormatter.m */,
-				87417FA11F38075F009730B5 /* README.txt */,
-			);
-			path = Extensions;
 			sourceTree = "<group>";
 		};
 		87B5F06A1EAF2FC30030BCD6 /* images */ = {
@@ -1143,7 +987,6 @@
 				87F9DB47208597DB00D3CCA4 /* s3.wav in Resources */,
 				87F9DB5A208597DB00D3CCA4 /* p3.wav in Resources */,
 				87F9DB42208597DB00D3CCA4 /* s5.wav in Resources */,
-				87417FAC1F38075F009730B5 /* LICENSE.txt in Resources */,
 				87F9DB46208597DB00D3CCA4 /* s2.wav in Resources */,
 				8792D61620EB3B96000EDFCA /* hum_b.png in Resources */,
 				873F51E62074CFF20036BC41 /* setting@3x.png in Resources */,
@@ -1173,7 +1016,6 @@
 				87F9DB44208597DB00D3CCA4 /* k1.wav in Resources */,
 				873F51E22074CFD70036BC41 /* setting_b.png in Resources */,
 				8792D61520EB3B96000EDFCA /* co2_b.png in Resources */,
-				87417FB91F38075F009730B5 /* README.txt in Resources */,
 				87F9DB52208597DB00D3CCA4 /* n2.wav in Resources */,
 				87F9DB4E208597DB00D3CCA4 /* c2.wav in Resources */,
 				87F9DB43208597DB00D3CCA4 /* g2.wav in Resources */,
@@ -1312,17 +1154,12 @@
 				87B5F0631EAF26040030BCD6 /* MainViewController.swift in Sources */,
 				8713417A2069E2470037CCB2 /* SSZipArchive.m in Sources */,
 				87B5F08B1EAF3B810030BCD6 /* RfduinoManager.m in Sources */,
-				87417FB71F38075F009730B5 /* DDDispatchQueueLogFormatter.m in Sources */,
-				87417FA31F38075F009730B5 /* F53OSCClient.m in Sources */,
 				876DCC2E20D7B7730095ADC7 /* HamburgerMenuView.swift in Sources */,
 				87B5F0671EAF27F40030BCD6 /* MenuViewController.swift in Sources */,
 				873BC56D20B276BA000FEA69 /* SynapseSound.swift in Sources */,
 				87E66D831EB0747200434949 /* ApiManager.swift in Sources */,
-				87417FAA1F38075F009730B5 /* GCDAsyncSocket.m in Sources */,
 				8713416D2069E2470037CCB2 /* IntelHex2BinConverter.m in Sources */,
 				871341792069E2470037CCB2 /* zip.c in Sources */,
-				87417FA61F38075F009730B5 /* F53OSCParser.m in Sources */,
-				87417FB81F38075F009730B5 /* DDMultiFormatter.m in Sources */,
 				870EDC92205283120043F9EC /* SettingTableViewCell.swift in Sources */,
 				87052BF61ECB091500C8BA9A /* BaseFileManager.swift in Sources */,
 				8701E6BA20A94C44002F9023 /* AccessKeysFileManager.swift in Sources */,
@@ -1341,50 +1178,33 @@
 				870EDC902052637A0043F9EC /* SettingNavigationViewController.swift in Sources */,
 				873DBBCB207204450072BA05 /* ApiFirmware.swift in Sources */,
 				871341762069E2470037CCB2 /* ioapi.c in Sources */,
-				87417FAF1F38075F009730B5 /* NSNumber+F53OSCNumber.m in Sources */,
 				876DCC3020D7BE1B0095ADC7 /* BackView.swift in Sources */,
 				8759BFD320E4BA1E001D4F98 /* LabelNode.swift in Sources */,
 				874C899020FDBE2100F9A7E2 /* SynapseUploadSettingsViewController.swift in Sources */,
 				8713416F2069E2470037CCB2 /* JsonParser.m in Sources */,
-				87417FA41F38075F009730B5 /* F53OSCMessage.m in Sources */,
 				8714B709205902F200DB101D /* SynapseIntervalViewController.swift in Sources */,
 				871341732069E2470037CCB2 /* Simblee.m in Sources */,
 				87E6EF3C21413236008AD17D /* CommonFunction.swift in Sources */,
-				87417FA71F38075F009730B5 /* F53OSCServer.m in Sources */,
-				87417FA51F38075F009730B5 /* F53OSCPacket.m in Sources */,
 				87064E431EAEDF8D00E34C31 /* AppDelegate.swift in Sources */,
 				8713416B2069E2470037CCB2 /* FileOperations.m in Sources */,
-				87417FB51F38075F009730B5 /* DDTTYLogger.m in Sources */,
-				87417FA91F38075F009730B5 /* F53OSCTimeTag.m in Sources */,
 				871341672069E2470037CCB2 /* BLEOperations.m in Sources */,
 				871C8B3C1FC7BBC800D1621C /* AnalyzeViewController.swift in Sources */,
 				871341752069E2470037CCB2 /* UIAlertViewBlock.m in Sources */,
 				87B5F0691EAF280C0030BCD6 /* BaseViewController.swift in Sources */,
-				87417FAD1F38075F009730B5 /* NSData+F53OSCBlob.m in Sources */,
 				871341782069E2470037CCB2 /* unzip.c in Sources */,
 				875BB0A91EDC1EE800FB4D98 /* FilesViewController.swift in Sources */,
 				8729BA7520C77E9400CE3DBF /* SynapseDevicesViewController.swift in Sources */,
 				87B5F06C1EAF31B40030BCD6 /* TopViewController.swift in Sources */,
-				87417FB01F38075F009730B5 /* NSString+F53OSCString.m in Sources */,
 				DD4F114D230FD2E500FCAA8B /* TodayExtensionData.swift in Sources */,
-				87417FB61F38075F009730B5 /* DDContextFilterLogFormatter.m in Sources */,
-				87417FA21F38075F009730B5 /* F53OSCBundle.m in Sources */,
 				8713417B2069E2470037CCB2 /* UnzipFirmware.m in Sources */,
-				87417FAB1F38075F009730B5 /* GCDAsyncUdpSocket.m in Sources */,
-				87417FB31F38075F009730B5 /* DDFileLogger.m in Sources */,
 				87B5F08A1EAF3B810030BCD6 /* RFduino.m in Sources */,
-				87417FAE1F38075F009730B5 /* NSDate+F53OSCTimeTag.m in Sources */,
 				871341772069E2470037CCB2 /* mztools.c in Sources */,
 				87426C8120F72DDA0033504C /* ApiPostdata.swift in Sources */,
-				87417FB21F38075F009730B5 /* DDASLLogger.m in Sources */,
-				87417FB41F38075F009730B5 /* DDLog.m in Sources */,
 				871341662069E2470037CCB2 /* Utility.m in Sources */,
 				871341692069E2470037CCB2 /* DFUOperations.m in Sources */,
 				87FA0F1E1F9087D000AC2617 /* defaultColors.swift in Sources */,
 				8713416A2069E2470037CCB2 /* DFUOperationsDetails.m in Sources */,
-				87417FA81F38075F009730B5 /* F53OSCSocket.m in Sources */,
 				871C027C1ED409E2009D98F0 /* SynapseRecordFileManager.swift in Sources */,
-				87417FB11F38075F009730B5 /* DDAbstractDatabaseLogger.m in Sources */,
 				871341702069E2470037CCB2 /* OTABootloaderViewController.m in Sources */,
 				8713416E2069E2470037CCB2 /* InitData.m in Sources */,
 			);
@@ -1584,6 +1404,7 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "$(PRODUCT_MODULE_NAME)-Bridging-Header.h";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = 1;
+				USER_HEADER_SEARCH_PATHS = "Pods/**";
 			};
 			name = Debug;
 		};
@@ -1607,6 +1428,7 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "$(PRODUCT_MODULE_NAME)-Bridging-Header.h";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = 1;
+				USER_HEADER_SEARCH_PATHS = "Pods/**";
 			};
 			name = Release;
 		};

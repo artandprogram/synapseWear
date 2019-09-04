@@ -16,15 +16,20 @@ class NotificationViewController: BaseViewController, UITextFieldDelegate {
     var co2FlagSwitch: UISwitch!
     var closeKeyboardButton: UIButton!
 
-
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
         self.setNotificationValues()
 
-        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillShow(_:)), name: .UIKeyboardWillShow, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.KeyboardWillHide(_:)), name: .UIKeyboardWillHide, object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(self.keyboardWillShow(_:)),
+                                               name: .UIKeyboardWillShow,
+                                               object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(self.KeyboardWillHide(_:)),
+                                               name: .UIKeyboardWillHide,
+                                               object: nil)
     }
 
     override func didReceiveMemoryWarning() {
@@ -57,8 +62,8 @@ class NotificationViewController: BaseViewController, UITextFieldDelegate {
         label1.text = "CO2"
         label1.backgroundColor = UIColor.clear
         label1.textColor = UIColor.black
-        label1.font = UIFont(name: "HelveticaNeue", size: 16)
-        label1.textAlignment = NSTextAlignment.left
+        label1.font = UIFont(name: "HelveticaNeue", size: 16.0)
+        label1.textAlignment = .left
         label1.numberOfLines = 1
         label1.sizeToFit()
         label1.frame = CGRect(x: x, y: y, width: label1.frame.size.width, height: h)
@@ -94,10 +99,10 @@ class NotificationViewController: BaseViewController, UITextFieldDelegate {
         self.co2ValueField.backgroundColor = UIColor.clear
         self.co2ValueField.textColor = UIColor.darkGray
         self.co2ValueField.font = UIFont(name: "HelveticaNeue", size: 14)
-        self.co2ValueField.borderStyle = UITextBorderStyle.none
-        self.co2ValueField.textAlignment = NSTextAlignment.left
-        self.co2ValueField.clearButtonMode = UITextFieldViewMode.whileEditing
-        self.co2ValueField.keyboardType = UIKeyboardType.decimalPad
+        self.co2ValueField.borderStyle = .none
+        self.co2ValueField.textAlignment = .left
+        self.co2ValueField.clearButtonMode = .whileEditing
+        self.co2ValueField.keyboardType = .decimalPad
         textfieldView1.addSubview(self.co2ValueField)
 
         x = textfieldView1.frame.origin.x
@@ -108,7 +113,7 @@ class NotificationViewController: BaseViewController, UITextFieldDelegate {
         okButton.frame = CGRect(x: x, y: y, width: w, height: h)
         okButton.setTitle("OK", for: .normal)
         okButton.setTitleColor(UIColor.darkGray, for: .normal)
-        okButton.titleLabel?.font = UIFont(name: "HelveticaNeue", size: 14)
+        okButton.titleLabel?.font = UIFont(name: "HelveticaNeue", size: 14.0)
         okButton.backgroundColor = UIColor.white
         okButton.layer.borderWidth = 1
         okButton.layer.borderColor = UIColor.darkGray.cgColor
@@ -120,7 +125,7 @@ class NotificationViewController: BaseViewController, UITextFieldDelegate {
         cancelButton.frame = CGRect(x: x, y: y, width: w, height: h)
         cancelButton.setTitle("Cancel", for: .normal)
         cancelButton.setTitleColor(UIColor.darkGray, for: .normal)
-        cancelButton.titleLabel?.font = UIFont(name: "HelveticaNeue", size: 14)
+        cancelButton.titleLabel?.font = UIFont(name: "HelveticaNeue", size: 14.0)
         cancelButton.backgroundColor = UIColor.white
         cancelButton.layer.borderWidth = 1
         cancelButton.layer.borderColor = UIColor.darkGray.cgColor

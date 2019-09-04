@@ -17,8 +17,6 @@ class MainViewController: UIViewController {
     // views
     var mainContainerView: UIView!
     var menuContainerView: UIView!
-    //var backgroundImageView: UIImageView!
-    //var menuButton: UIButton!
     var menuCloseButton: UIButton!
     var loadingView: UIView!
     var indicator: UIActivityIndicatorView!
@@ -64,47 +62,35 @@ class MainViewController: UIViewController {
     func setView() {
 
         self.view.backgroundColor = UIColor.grayBGColor
-        //self.setBackgroundImageView()
         self.setLoadingView()
     }
-    /*
-    func setBackgroundImageView() {
-
-        let baseW: CGFloat = 320.0
-        let baseH: CGFloat = 463.0
-        var imageW: CGFloat = self.view.frame.size.width
-        var imageH: CGFloat = imageW / baseW * baseH
-        if imageH < self.view.frame.size.height {
-            imageH = self.view.frame.size.height;
-            imageW = imageH / baseH * baseW;
-        }
-
-        backgroundImageView = UIImageView()
-        backgroundImageView.frame = CGRect(x: 0, y: 0, width: imageW, height: imageH)
-        backgroundImageView.image = UIImage(named: "bg_image.png")
-        backgroundImageView.backgroundColor = UIColor.clear
-        self.view.addSubview(backgroundImageView)
-    } */
 
     func setLoadingView() {
 
-        let x: CGFloat = 0
-        let y: CGFloat = 0
-        let w: CGFloat = self.view.frame.width
-        let h: CGFloat = self.view.frame.height
-
+        var x: CGFloat = 0
+        var y: CGFloat = 0
+        var w: CGFloat = self.view.frame.width
+        var h: CGFloat = self.view.frame.height
         self.loadingView = UIView()
         self.loadingView.frame = CGRect(x: x, y: y, width: w, height: h)
         self.loadingView.backgroundColor = UIColor.clear
         self.view.addSubview(self.loadingView)
 
+        x = 0
+        y = 0
+        w = self.loadingView.frame.size.width
+        h = self.loadingView.frame.size.height
         let loadingBackView: UIView = UIView()
-        loadingBackView.frame = CGRect(x: 0, y: 0, width: self.loadingView.frame.size.width, height: self.loadingView.frame.size.height)
+        loadingBackView.frame = CGRect(x: x, y: y, width: w, height: h)
         loadingBackView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
         self.loadingView.addSubview(loadingBackView)
 
+        w = 50.0
+        h = 50.0
+        x = (self.loadingView.frame.size.width - w) / 2
+        y = (self.loadingView.frame.size.height - h) / 2
         self.indicator = UIActivityIndicatorView(activityIndicatorStyle: .white)
-        self.indicator.frame = CGRect(x: (self.loadingView.frame.size.width - 50.0) / 2, y: (self.loadingView.frame.size.height - 50.0) / 2, width: 50.0, height: 50.0)
+        self.indicator.frame = CGRect(x: x, y: y, width: w, height: h)
         self.loadingView.addSubview(self.indicator)
 
         self.setHiddenLoadingView(true)
@@ -112,37 +98,50 @@ class MainViewController: UIViewController {
 
     func setViewControllers() {
 
-        let x: CGFloat = 0
-        let y: CGFloat = 0
-        let w: CGFloat = self.view.frame.width
-        let h: CGFloat = self.view.frame.height - y
-
+        var x: CGFloat = 0
+        var y: CGFloat = 0
+        var w: CGFloat = self.view.frame.width
+        var h: CGFloat = self.view.frame.height - y
         self.menuContainerView = UIView()
         self.menuContainerView.frame = CGRect(x: x, y: y, width: w, height: h)
         self.menuContainerView.backgroundColor = UIColor.clear
         self.view.addSubview(self.menuContainerView)
 
-        self.menuViewController = MenuViewController();
-        self.menuViewController.view.frame = CGRect(x: 0, y: 0, width: self.menuContainerView.frame.size.width, height: self.menuContainerView.frame.size.height)
+        x = 0
+        y = 0
+        w = self.menuContainerView.frame.size.width
+        h = self.menuContainerView.frame.size.height
+        self.menuViewController = MenuViewController()
+        self.menuViewController.view.frame = CGRect(x: x, y: y, width: w, height: h)
         self.menuContainerView.addSubview(self.menuViewController.view)
-
         self.addChildViewController(self.menuViewController)
         self.menuViewController.didMove(toParentViewController: self)
 
+        x = self.menuContainerView.frame.origin.x
+        y = self.menuContainerView.frame.origin.y
+        w = self.menuContainerView.frame.size.width
+        h = self.menuContainerView.frame.size.height
         self.mainContainerView = UIView()
         self.mainContainerView.frame = CGRect(x: x, y: y, width: w, height: h)
         self.mainContainerView.backgroundColor = UIColor.clear
         self.view.addSubview(self.mainContainerView)
 
-        self.mainViewController = NavigationController();
-        self.mainViewController.view.frame = CGRect(x: 0, y: 0, width: self.mainContainerView.frame.size.width, height: self.mainContainerView.frame.size.height)
+        x = 0
+        y = 0
+        w = self.mainContainerView.frame.size.width
+        h = self.mainContainerView.frame.size.height
+        self.mainViewController = NavigationController()
+        self.mainViewController.view.frame = CGRect(x: x, y: y, width: w, height: h)
         self.mainContainerView.addSubview(self.mainViewController.view)
-
         self.addChildViewController(self.mainViewController)
         self.mainViewController.didMove(toParentViewController: self)
 
+        x = 0
+        y = 0
+        w = self.mainContainerView.frame.size.width
+        h = self.mainContainerView.frame.size.height
         self.menuCloseButton = UIButton()
-        self.menuCloseButton.frame = CGRect(x: 0, y: 0, width: self.mainContainerView.frame.size.width, height: self.mainContainerView.frame.size.height)
+        self.menuCloseButton.frame = CGRect(x: x, y: y, width: w, height: h)
         self.menuCloseButton.backgroundColor = UIColor.clear
         self.menuCloseButton.addTarget(self, action: #selector(MainViewController.menuAction), for: .touchDown)
         self.menuCloseButton.isHidden = true
@@ -150,31 +149,8 @@ class MainViewController: UIViewController {
 
         self.view.bringSubview(toFront: self.loadingView)
     }
-    /*
-    func setMenuButton() {
 
-        let x:CGFloat = 0
-        let y:CGFloat = 20.0
-        let w:CGFloat = 80.0
-        let h:CGFloat = 44.0
-
-        menuButton = UIButton()
-        menuButton.frame = CGRect(x: x, y: y, width: w, height: h)
-        menuButton.setTitle("Menu", for: .normal)
-        menuButton.setTitleColor(UIColor.white, for: .normal)
-        //menuButton.setTitle("Menu", for: .highlighted)
-        //menuButton.setTitleColor(UIColor.yellow, for: .highlighted)
-        menuButton.titleLabel?.font = UIFont(name: "HiraKakuProN-W6", size: 16)
-        //menuButton.tag = 1
-        menuButton.backgroundColor = UIColor.blue
-        menuButton.layer.cornerRadius = 10
-        menuButton.layer.borderWidth = 1
-        menuButton.layer.borderColor = UIColor.white.cgColor
-        menuButton.addTarget(self, action: #selector(MainViewController.menuAction), for: .touchUpInside)
-        self.view.addSubview(menuButton)
-    } */
-
-    public func setHiddenLoadingView(_ flag: Bool) {
+    func setHiddenLoadingView(_ flag: Bool) {
 
         self.loadingView.isHidden = flag
         if flag {
@@ -187,7 +163,7 @@ class MainViewController: UIViewController {
 
     // MARK: mark - Change Menu methods
 
-    public func changeMenu(_ indexPath: IndexPath) {
+    func changeMenu(_ indexPath: IndexPath) {
 
         self.mainViewController.changePage(indexPath)
         self.menuAction()
@@ -195,18 +171,29 @@ class MainViewController: UIViewController {
 
     @objc func menuAction() {
 
-        //NSLog("menuAction")
         if mainContainerView.frame.origin.x == 0 {
-            UIView.animate(withDuration: 0.1, delay: 0, options: UIViewAnimationOptions.curveEaseIn, animations: { () -> Void in
-                self.mainContainerView.frame = CGRect(x: self.menuW, y: self.mainContainerView.frame.origin.y, width: self.mainContainerView.frame.size.width, height: self.mainContainerView.frame.size.height)
+            UIView.animate(withDuration: 0.1,
+                           delay: 0,
+                           options: UIViewAnimationOptions.curveEaseIn,
+                           animations: { () -> Void in
+                self.mainContainerView.frame = CGRect(x: self.menuW,
+                                                      y: self.mainContainerView.frame.origin.y,
+                                                      width: self.mainContainerView.frame.size.width,
+                                                      height: self.mainContainerView.frame.size.height)
             }, completion: { _ in
                 self.menuCloseButton.isHidden = false
             })
         }
         else {
             self.menuCloseButton.isHidden = true
-            UIView.animate(withDuration: 0.1, delay: 0, options: UIViewAnimationOptions.curveEaseIn, animations: { () -> Void in
-                self.mainContainerView.frame = CGRect(x: 0, y: self.mainContainerView.frame.origin.y, width: self.mainContainerView.frame.size.width, height: self.mainContainerView.frame.size.height)
+            UIView.animate(withDuration: 0.1,
+                           delay: 0,
+                           options: UIViewAnimationOptions.curveEaseIn,
+                           animations: { () -> Void in
+                self.mainContainerView.frame = CGRect(x: 0,
+                                                      y: self.mainContainerView.frame.origin.y,
+                                                      width: self.mainContainerView.frame.size.width,
+                                                      height: self.mainContainerView.frame.size.height)
             }, completion: { _ in
             })
         }

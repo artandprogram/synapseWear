@@ -58,7 +58,7 @@ enum SendMode {
     case I5_3_4
 }
 
-class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDelegate, F53OSCClientDelegate, F53OSCPacketDestination, SynapseSoundDelegate {
+class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDelegate, F53OSCClientDelegate, F53OSCPacketDestination, SynapseSoundDelegate, CommonFunctionProtocol {
 
     // const variables
     let aScale: Float = 2.0 / 32768.0
@@ -147,6 +147,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
     // Notifications variables
     //var synapseNotifications: AllSynapseNotifications = AllSynapseNotifications()
     // TodayExtension variables
+    var todayExtensionUpdating: Bool = false
     var todayExtensionGraphData: [Int] = []
     var todayExtensionLastTime: TimeInterval?
 
@@ -242,7 +243,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             self.appDelegate.temperatureScale = temperatureScale
         }
 
-        if let path = Bundle.main.path(forResource: "appinfo", ofType: "plist"), let dict = NSDictionary(contentsOfFile: path) as? [String: Any], let flag = dict["use_osc_recv"] as? Bool, flag {
+        if let flag = self.getAppinfoValue("use_osc_recv") as? Bool, flag {
             self.oscServer = F53OSCServer.init()
         }
 
@@ -253,7 +254,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
     func setSynapseObject() {
 
         self.synapseDeviceName = ""
-        if let name = self.appDelegate.appinfo?["device_name"] as? String {
+        if let name = self.getAppinfoValue("device_name") as? String {
             self.synapseDeviceName = name
         }
 
@@ -323,7 +324,10 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
 
         if let nav = self.navigationController as? NavigationController {
             self.cameraResetButton = UIButton()
-            self.cameraResetButton?.frame = CGRect(x: nav.headerTitle.frame.origin.x, y: nav.headerTitle.frame.origin.y, width: nav.headerTitle.frame.size.width, height: nav.headerTitle.frame.size.height)
+            self.cameraResetButton?.frame = CGRect(x: nav.headerTitle.frame.origin.x,
+                                                   y: nav.headerTitle.frame.origin.y,
+                                                   width: nav.headerTitle.frame.size.width,
+                                                   height: nav.headerTitle.frame.size.height)
             self.cameraResetButton?.backgroundColor = UIColor.clear
             self.cameraResetButton?.addTarget(self, action: #selector(self.resetCameraNodePosition), for: .touchUpInside)
             nav.headerView.addSubview(self.cameraResetButton!)
@@ -365,10 +369,8 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
     func setNavigatioHeaderMenuBtn() {
 
         if let nav = self.navigationController as? NavigationController {
-            if let isDebug = self.appDelegate.appinfo?["is_debug"] as? Bool {
-                if isDebug {
-                    nav.headerMenuBtn.isHidden = false
-                }
+            if let isDebug = self.getAppinfoValue("is_debug") as? Bool, isDebug {
+                nav.headerMenuBtn.isHidden = false
             }
             nav.headerBackForTopBtn.isHidden = true
         }
@@ -378,10 +380,18 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
 
     func setNotificationCenter() {
 
-        let notificationCenter: NotificationCenter = NotificationCenter.default
-        notificationCenter.addObserver(self, selector: #selector(type(of: self).applicationDidBecomeActiveNotified(notification:)), name: .UIApplicationDidBecomeActive, object: nil)
-        notificationCenter.addObserver(self, selector: #selector(type(of: self).applicationWillResignActiveNotified(notification:)), name: .UIApplicationWillResignActive, object: nil)
-        notificationCenter.addObserver(self, selector: #selector(type(of: self).applicationWillTerminateNotified(notification:)), name: .UIApplicationWillTerminate, object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(type(of: self).applicationDidBecomeActiveNotified(notification:)),
+                                               name: .UIApplicationDidBecomeActive,
+                                               object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(type(of: self).applicationWillResignActiveNotified(notification:)),
+                                               name: .UIApplicationWillResignActive,
+                                               object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(type(of: self).applicationWillTerminateNotified(notification:)),
+                                               name: .UIApplicationWillTerminate,
+                                               object: nil)
     }
 
     @objc func applicationDidBecomeActiveNotified(notification: Notification) {
@@ -427,7 +437,6 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         var y: CGFloat = 0
         var w: CGFloat = self.view.frame.size.width
         var h: CGFloat = self.view.frame.size.height - y
-
         self.scnView = SCNView()
         self.scnView.frame = CGRect(x: x, y: y, width: w, height: h)
         self.scnView.backgroundColor = UIColor.clear
@@ -452,7 +461,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         self.swipeModeButton?.frame = CGRect(x: x, y: y, width: w, height: h)
         self.swipeModeButton?.setTitle("Mode1", for: .normal)
         self.swipeModeButton?.setTitleColor(UIColor.black, for: .normal)
-        self.swipeModeButton?.titleLabel?.font = UIFont(name: "HelveticaNeue", size: 16)
+        self.swipeModeButton?.titleLabel?.font = UIFont(name: "HelveticaNeue", size: 16.0)
         self.swipeModeButton?.backgroundColor = UIColor.clear
         self.swipeModeButton?.addTarget(self, action: #selector(self.changeSwipeMode), for: .touchUpInside)
         self.view.addSubview(self.swipeModeButton!)
@@ -544,7 +553,8 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         }
         /*
         let touchEvent = touches.first!
-        print("touchesBegan x:\(touchEvent.location(in: self.scnView).x) y:\(touchEvent.location(in: self.scnView).y)")*/
+        print("touchesBegan x:\(touchEvent.location(in: self.scnView).x) y:\(touchEvent.location(in: self.scnView).y)")
+         */
     }
 
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -569,7 +579,8 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         else if (self.swipeMode == 0 && self.touchesCount > 1) || self.swipeMode == 2 {
             self.touchesMultiAction(touchEvent)
             self.checkDisplaySynapseNodes()
-        }*/
+        }
+         */
     }
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -578,7 +589,8 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         self.canUpdateCrystalView = true
         /*
         let touchEvent = touches.first!
-        print("touchesEnded x:\(touchEvent.location(in: self.scnView).x) y:\(touchEvent.location(in: self.scnView).y)")*/
+        print("touchesEnded x:\(touchEvent.location(in: self.scnView).x) y:\(touchEvent.location(in: self.scnView).y)")
+         */
         if let firstTouch = self.firstTouch, let endTouch = touches.first {
             let locationF: CGPoint = firstTouch.location(in: self.scnView)
             let locationE: CGPoint = endTouch.location(in: self.scnView)
@@ -592,7 +604,8 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                     let key: String = names[0]
                     if key == self.mainSynapseObject.synapseCrystalNode.name {
                         self.sendLEDFlashToDevice(self.mainSynapseObject)
-                    }*/
+                    }
+                     */
                 }
             }
         }
@@ -605,7 +618,6 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         let preDy: CGFloat = touchEvent.previousLocation(in: self.view).y
         let newDx: CGFloat = touchEvent.location(in: self.view).x
         let newDy: CGFloat = touchEvent.location(in: self.view).y
-
         let dx: CGFloat = (newDx - preDx) * 0.5
         let dy: CGFloat = (newDy - preDy) * 0.5
         //print("touchesMoved x:\(dx) y:\(dy)")
@@ -618,11 +630,13 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         let preDy: CGFloat = touchEvent.previousLocation(in: self.view).y
         let newDx: CGFloat = touchEvent.location(in: self.view).x
         let newDy: CGFloat = touchEvent.location(in: self.view).y
-
         let dx: CGFloat = (newDx - preDx) / self.view.frame.size.width * CGFloat(self.cameraNode.position.z)
         let dy: CGFloat = (newDy - preDy) / self.view.frame.size.height * CGFloat(self.cameraNode.position.z)
         //print("touchesMultiAction x:\(dx) y:\(dy) preDx:\(preDx) preDy:\(preDy)")
-        self.cameraNode.position = SCNVector3(x: self.cameraNode.position.x - Float(dx), y: self.cameraNode.position.y + Float(dy), z: self.cameraNode.position.z)
+        let x: Float = self.cameraNode.position.x - Float(dx)
+        let y: Float = self.cameraNode.position.y + Float(dy)
+        let z: Float = self.cameraNode.position.z
+        self.cameraNode.position = SCNVector3(x: x, y: y, z: z)
         //print("cameraNode.position x:\(self.cameraNode.position.x) y:\(self.cameraNode.position.y) z:\(self.cameraNode.position.z)")
     }
 
@@ -630,15 +644,17 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
 
     @objc func sceneViewPinchAction(_ sender: UIPinchGestureRecognizer) {
 
-        if sender.state == UIGestureRecognizerState.began {
+        if sender.state == .began {
             //print("pinch: \(sender.scale) -> began")
             self.pinchZoomZ = self.cameraNode.position.z
         }
-        else if sender.state == UIGestureRecognizerState.changed {
+        else if sender.state == .changed {
             //print("pinch: \(sender.scale) -> changed")
             if self.synapseValuesView.isHidden {
+                let x: Float = self.cameraNode.position.x
+                let y: Float = self.cameraNode.position.y
                 let z: Float = self.pinchZoomZ / Float(sender.scale)
-                self.cameraNode.position = SCNVector3(x: self.cameraNode.position.x, y: self.cameraNode.position.y, z: z)
+                self.cameraNode.position = SCNVector3(x: x, y: y, z: z)
                 self.checkDisplaySynapseNodes()
 
                 if self.swipeMode != 0 {
@@ -686,8 +702,10 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
 
                         self.debugAreaBtn.isHidden = true
 
-                        UIView.animate(withDuration: 0.1, delay: 0, options: UIViewAnimationOptions.curveEaseIn, animations: { () -> Void in
-
+                        UIView.animate(withDuration: 0.1,
+                                       delay: 0,
+                                       options: .curveEaseIn,
+                                       animations: { () -> Void in
                             self.synapseValuesView.alpha = 1
                         }, completion: { _ in
                             self.setNavigatioHeaderColor(isWhite: true)
@@ -696,7 +714,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 }
             }
         }
-        else if sender.state == UIGestureRecognizerState.ended {
+        else if sender.state == .ended {
             //print("pinch: \(sender.scale) -> ended")
             if self.synapseValuesView.isHidden {
                 self.canUpdateCrystalView = true
@@ -707,8 +725,12 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
     func checkSynapseCrystalFocus() -> [String]? {
 
         let zPos: Float = -1.5
-        let hitFrom: SCNVector3 = SCNVector3(x: self.cameraNode.position.x, y: self.cameraNode.position.y, z: self.cameraNode.position.z)
-        let hitTo: SCNVector3 = SCNVector3(x: self.cameraNode.position.x, y: self.cameraNode.position.y, z: self.cameraNode.position.z + zPos)
+        let hitFrom: SCNVector3 = SCNVector3(x: self.cameraNode.position.x,
+                                             y: self.cameraNode.position.y,
+                                             z: self.cameraNode.position.z)
+        let hitTo: SCNVector3 = SCNVector3(x: self.cameraNode.position.x,
+                                           y: self.cameraNode.position.y,
+                                           z: self.cameraNode.position.z + zPos)
         let hitResults: [SCNHitTestResult]? = self.scnView.scene?.rootNode.hitTestWithSegment(from: hitFrom, to: hitTo, options: nil)
 
         var crystalNames: [String]? = nil
@@ -737,7 +759,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         }
         if var position = vector3 {
             position.z = self.pinchZoomDef
-            let action = SCNAction.move(to: position, duration: 0.1)
+            let action: SCNAction = SCNAction.move(to: position, duration: 0.1)
             self.cameraNode.runAction(action, completionHandler: {
                 self.canUpdateCrystalView = true
                 DispatchQueue.main.async {
@@ -795,7 +817,6 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         var y: CGFloat = 0
         var w: CGFloat = self.view.frame.width
         var h: CGFloat = self.view.frame.height
-
         self.synapseValuesView = UIView()
         self.synapseValuesView.frame = CGRect(x: x, y: y, width: w, height: h)
         self.synapseValuesView.backgroundColor = UIColor.clear
@@ -842,14 +863,20 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         for (index, element) in self.synapseValues.enumerated() {
             let tabView: UIView = UIView()
             tabView.tag = index
-            tabView.frame = CGRect(x: 0, y: 0, width: tabW, height: self.synapseTabView.frame.size.height)
+            tabView.frame = CGRect(x: 0,
+                                   y: 0,
+                                   width: tabW,
+                                   height: self.synapseTabView.frame.size.height)
             tabView.backgroundColor = UIColor.clear
             tabView.alpha = 0.3
             self.synapseTabView.addSubview(tabView)
             self.synapseTabLabels[element] = tabView
 
             let imageView: UIImageView = UIImageView()
-            imageView.frame = CGRect(x: (tabView.frame.size.width - 60.0) / 2, y: 0, width: 60.0, height: 60.0)
+            imageView.frame = CGRect(x: (tabView.frame.size.width - 60.0) / 2,
+                                     y: 0,
+                                     width: 60.0,
+                                     height: 60.0)
             tabView.addSubview(imageView)
             if element == self.synapseCrystalInfo.co2.key {
                 imageView.image = UIImage(named: "co2.png")
@@ -880,11 +907,14 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             }
 
             let tabLabel: UILabel = UILabel()
-            tabLabel.frame = CGRect(x: 0, y: tabView.frame.size.height - 20.0, width: tabView.frame.size.width, height: 20.0)
+            tabLabel.frame = CGRect(x: 0,
+                                    y: tabView.frame.size.height - 20.0,
+                                    width: tabView.frame.size.width,
+                                    height: 20.0)
             tabLabel.textColor = UIColor.white
             tabLabel.backgroundColor = UIColor.clear
             tabLabel.font = UIFont(name: "HelveticaNeue", size: 16.0)
-            tabLabel.textAlignment = NSTextAlignment.center
+            tabLabel.textAlignment = .center
             tabLabel.numberOfLines = 1
             tabView.addSubview(tabLabel)
             tabLabel.text = ""
@@ -918,7 +948,10 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
 
             let valueView: UIView = UIView()
             valueView.tag = index
-            valueView.frame = CGRect(x: 0, y: 0, width: dataW, height: self.synapseDataView.frame.size.height)
+            valueView.frame = CGRect(x: 0,
+                                     y: 0,
+                                     width: dataW,
+                                     height: self.synapseDataView.frame.size.height)
             valueView.backgroundColor = UIColor.clear
             self.synapseDataView.addSubview(valueView)
             self.synapseDataLabels[element] = valueView
@@ -930,7 +963,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.synapseValueLabels.co2Labels.valueLabel?.textColor = UIColor.white
                 self.synapseValueLabels.co2Labels.valueLabel?.backgroundColor = UIColor.clear
                 self.synapseValueLabels.co2Labels.valueLabel?.font = UIFont(name: "HelveticaNeue", size: fontS)
-                self.synapseValueLabels.co2Labels.valueLabel?.textAlignment = NSTextAlignment.center
+                self.synapseValueLabels.co2Labels.valueLabel?.textAlignment = .center
                 self.synapseValueLabels.co2Labels.valueLabel?.numberOfLines = 1
                 valueView.addSubview(self.synapseValueLabels.co2Labels.valueLabel!)
 
@@ -940,7 +973,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.synapseValueLabels.co2Labels.diffLabel?.textColor = UIColor.white
                 self.synapseValueLabels.co2Labels.diffLabel?.backgroundColor = UIColor.clear
                 self.synapseValueLabels.co2Labels.diffLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.co2Labels.diffLabel?.textAlignment = NSTextAlignment.center
+                self.synapseValueLabels.co2Labels.diffLabel?.textAlignment = .center
                 self.synapseValueLabels.co2Labels.diffLabel?.numberOfLines = 1
                 valueView.addSubview(self.synapseValueLabels.co2Labels.diffLabel!)
 
@@ -949,7 +982,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.synapseValueLabels.co2Labels.unitLabel?.textColor = UIColor.white
                 self.synapseValueLabels.co2Labels.unitLabel?.backgroundColor = UIColor.clear
                 self.synapseValueLabels.co2Labels.unitLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.co2Labels.unitLabel?.textAlignment = NSTextAlignment.center
+                self.synapseValueLabels.co2Labels.unitLabel?.textAlignment = .center
                 self.synapseValueLabels.co2Labels.unitLabel?.numberOfLines = 1
                 valueView.addSubview(self.synapseValueLabels.co2Labels.unitLabel!)
             }
@@ -960,7 +993,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.synapseValueLabels.tempLabels.valueLabel?.textColor = UIColor.white
                 self.synapseValueLabels.tempLabels.valueLabel?.backgroundColor = UIColor.clear
                 self.synapseValueLabels.tempLabels.valueLabel?.font = UIFont(name: "HelveticaNeue", size: fontS)
-                self.synapseValueLabels.tempLabels.valueLabel?.textAlignment = NSTextAlignment.center
+                self.synapseValueLabels.tempLabels.valueLabel?.textAlignment = .center
                 self.synapseValueLabels.tempLabels.valueLabel?.numberOfLines = 1
                 valueView.addSubview(self.synapseValueLabels.tempLabels.valueLabel!)
 
@@ -970,7 +1003,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.synapseValueLabels.tempLabels.diffLabel?.textColor = UIColor.white
                 self.synapseValueLabels.tempLabels.diffLabel?.backgroundColor = UIColor.clear
                 self.synapseValueLabels.tempLabels.diffLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.tempLabels.diffLabel?.textAlignment = NSTextAlignment.center
+                self.synapseValueLabels.tempLabels.diffLabel?.textAlignment = .center
                 self.synapseValueLabels.tempLabels.diffLabel?.numberOfLines = 1
                 valueView.addSubview(self.synapseValueLabels.tempLabels.diffLabel!)
 
@@ -979,7 +1012,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.synapseValueLabels.tempLabels.unitLabel?.textColor = UIColor.white
                 self.synapseValueLabels.tempLabels.unitLabel?.backgroundColor = UIColor.clear
                 self.synapseValueLabels.tempLabels.unitLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.tempLabels.unitLabel?.textAlignment = NSTextAlignment.center
+                self.synapseValueLabels.tempLabels.unitLabel?.textAlignment = .center
                 self.synapseValueLabels.tempLabels.unitLabel?.numberOfLines = 1
                 valueView.addSubview(self.synapseValueLabels.tempLabels.unitLabel!)
             }
@@ -990,7 +1023,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.synapseValueLabels.pressLabels.valueLabel?.textColor = UIColor.white
                 self.synapseValueLabels.pressLabels.valueLabel?.backgroundColor = UIColor.clear
                 self.synapseValueLabels.pressLabels.valueLabel?.font = UIFont(name: "HelveticaNeue", size: fontS)
-                self.synapseValueLabels.pressLabels.valueLabel?.textAlignment = NSTextAlignment.center
+                self.synapseValueLabels.pressLabels.valueLabel?.textAlignment = .center
                 self.synapseValueLabels.pressLabels.valueLabel?.numberOfLines = 1
                 valueView.addSubview(self.synapseValueLabels.pressLabels.valueLabel!)
 
@@ -1000,7 +1033,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.synapseValueLabels.pressLabels.diffLabel?.textColor = UIColor.white
                 self.synapseValueLabels.pressLabels.diffLabel?.backgroundColor = UIColor.clear
                 self.synapseValueLabels.pressLabels.diffLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.pressLabels.diffLabel?.textAlignment = NSTextAlignment.center
+                self.synapseValueLabels.pressLabels.diffLabel?.textAlignment = .center
                 self.synapseValueLabels.pressLabels.diffLabel?.numberOfLines = 1
                 valueView.addSubview(self.synapseValueLabels.pressLabels.diffLabel!)
 
@@ -1009,7 +1042,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.synapseValueLabels.pressLabels.unitLabel?.textColor = UIColor.white
                 self.synapseValueLabels.pressLabels.unitLabel?.backgroundColor = UIColor.clear
                 self.synapseValueLabels.pressLabels.unitLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.pressLabels.unitLabel?.textAlignment = NSTextAlignment.center
+                self.synapseValueLabels.pressLabels.unitLabel?.textAlignment = .center
                 self.synapseValueLabels.pressLabels.unitLabel?.numberOfLines = 1
                 valueView.addSubview(self.synapseValueLabels.pressLabels.unitLabel!)
             }
@@ -1020,7 +1053,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.synapseValueLabels.soundLabels.valueLabel?.textColor = UIColor.white
                 self.synapseValueLabels.soundLabels.valueLabel?.backgroundColor = UIColor.clear
                 self.synapseValueLabels.soundLabels.valueLabel?.font = UIFont(name: "HelveticaNeue", size: fontS)
-                self.synapseValueLabels.soundLabels.valueLabel?.textAlignment = NSTextAlignment.center
+                self.synapseValueLabels.soundLabels.valueLabel?.textAlignment = .center
                 self.synapseValueLabels.soundLabels.valueLabel?.numberOfLines = 1
                 valueView.addSubview(self.synapseValueLabels.soundLabels.valueLabel!)
 
@@ -1030,7 +1063,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.synapseValueLabels.soundLabels.diffLabel?.textColor = UIColor.white
                 self.synapseValueLabels.soundLabels.diffLabel?.backgroundColor = UIColor.clear
                 self.synapseValueLabels.soundLabels.diffLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.soundLabels.diffLabel?.textAlignment = NSTextAlignment.center
+                self.synapseValueLabels.soundLabels.diffLabel?.textAlignment = .center
                 self.synapseValueLabels.soundLabels.diffLabel?.numberOfLines = 1
                 valueView.addSubview(self.synapseValueLabels.soundLabels.diffLabel!)
 
@@ -1040,7 +1073,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.synapseValueLabels.soundLabels.unitLabel?.textColor = UIColor.white
                 self.synapseValueLabels.soundLabels.unitLabel?.backgroundColor = UIColor.clear
                 self.synapseValueLabels.soundLabels.unitLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.soundLabels.unitLabel?.textAlignment = NSTextAlignment.center
+                self.synapseValueLabels.soundLabels.unitLabel?.textAlignment = .center
                 self.synapseValueLabels.soundLabels.unitLabel?.numberOfLines = 1
                 valueView.addSubview(self.synapseValueLabels.soundLabels.unitLabel!)
             }
@@ -1139,7 +1172,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.synapseValueLabels.movexLabels.valueLabel?.textColor = UIColor.white
                 self.synapseValueLabels.movexLabels.valueLabel?.backgroundColor = UIColor.clear
                 self.synapseValueLabels.movexLabels.valueLabel?.font = UIFont(name: "HelveticaNeue", size: fontS2)
-                self.synapseValueLabels.movexLabels.valueLabel?.textAlignment = NSTextAlignment.center
+                self.synapseValueLabels.movexLabels.valueLabel?.textAlignment = .center
                 self.synapseValueLabels.movexLabels.valueLabel?.numberOfLines = 1
                 valueView.addSubview(self.synapseValueLabels.movexLabels.valueLabel!)
 
@@ -1149,7 +1182,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.synapseValueLabels.moveyLabels.valueLabel?.textColor = UIColor.white
                 self.synapseValueLabels.moveyLabels.valueLabel?.backgroundColor = UIColor.clear
                 self.synapseValueLabels.moveyLabels.valueLabel?.font = UIFont(name: "HelveticaNeue", size: fontS2)
-                self.synapseValueLabels.moveyLabels.valueLabel?.textAlignment = NSTextAlignment.center
+                self.synapseValueLabels.moveyLabels.valueLabel?.textAlignment = .center
                 self.synapseValueLabels.moveyLabels.valueLabel?.numberOfLines = 1
                 valueView.addSubview(self.synapseValueLabels.moveyLabels.valueLabel!)
 
@@ -1159,7 +1192,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.synapseValueLabels.movezLabels.valueLabel?.textColor = UIColor.white
                 self.synapseValueLabels.movezLabels.valueLabel?.backgroundColor = UIColor.clear
                 self.synapseValueLabels.movezLabels.valueLabel?.font = UIFont(name: "HelveticaNeue", size: fontS2)
-                self.synapseValueLabels.movezLabels.valueLabel?.textAlignment = NSTextAlignment.center
+                self.synapseValueLabels.movezLabels.valueLabel?.textAlignment = .center
                 self.synapseValueLabels.movezLabels.valueLabel?.numberOfLines = 1
                 valueView.addSubview(self.synapseValueLabels.movezLabels.valueLabel!)
 
@@ -1169,7 +1202,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.synapseValueLabels.movexLabels.diffLabel?.textColor = UIColor.white
                 self.synapseValueLabels.movexLabels.diffLabel?.backgroundColor = UIColor.clear
                 self.synapseValueLabels.movexLabels.diffLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.movexLabels.diffLabel?.textAlignment = NSTextAlignment.center
+                self.synapseValueLabels.movexLabels.diffLabel?.textAlignment = .center
                 self.synapseValueLabels.movexLabels.diffLabel?.numberOfLines = 1
                 valueView.addSubview(self.synapseValueLabels.movexLabels.diffLabel!)
 
@@ -1179,7 +1212,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.synapseValueLabels.moveyLabels.diffLabel?.textColor = UIColor.white
                 self.synapseValueLabels.moveyLabels.diffLabel?.backgroundColor = UIColor.clear
                 self.synapseValueLabels.moveyLabels.diffLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.moveyLabels.diffLabel?.textAlignment = NSTextAlignment.center
+                self.synapseValueLabels.moveyLabels.diffLabel?.textAlignment = .center
                 self.synapseValueLabels.moveyLabels.diffLabel?.numberOfLines = 1
                 valueView.addSubview(self.synapseValueLabels.moveyLabels.diffLabel!)
 
@@ -1189,7 +1222,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.synapseValueLabels.movezLabels.diffLabel?.textColor = UIColor.white
                 self.synapseValueLabels.movezLabels.diffLabel?.backgroundColor = UIColor.clear
                 self.synapseValueLabels.movezLabels.diffLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.movezLabels.diffLabel?.textAlignment = NSTextAlignment.center
+                self.synapseValueLabels.movezLabels.diffLabel?.textAlignment = .center
                 self.synapseValueLabels.movezLabels.diffLabel?.numberOfLines = 1
                 valueView.addSubview(self.synapseValueLabels.movezLabels.diffLabel!)
 
@@ -1198,7 +1231,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.synapseValueLabels.movexLabels.unitLabel?.textColor = UIColor.white
                 self.synapseValueLabels.movexLabels.unitLabel?.backgroundColor = UIColor.clear
                 self.synapseValueLabels.movexLabels.unitLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.movexLabels.unitLabel?.textAlignment = NSTextAlignment.center
+                self.synapseValueLabels.movexLabels.unitLabel?.textAlignment = .center
                 self.synapseValueLabels.movexLabels.unitLabel?.numberOfLines = 1
                 valueView.addSubview(self.synapseValueLabels.movexLabels.unitLabel!)
 
@@ -1207,7 +1240,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.synapseValueLabels.moveyLabels.unitLabel?.textColor = UIColor.white
                 self.synapseValueLabels.moveyLabels.unitLabel?.backgroundColor = UIColor.clear
                 self.synapseValueLabels.moveyLabels.unitLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.moveyLabels.unitLabel?.textAlignment = NSTextAlignment.center
+                self.synapseValueLabels.moveyLabels.unitLabel?.textAlignment = .center
                 self.synapseValueLabels.moveyLabels.unitLabel?.numberOfLines = 1
                 valueView.addSubview(self.synapseValueLabels.moveyLabels.unitLabel!)
 
@@ -1216,7 +1249,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.synapseValueLabels.movezLabels.unitLabel?.textColor = UIColor.white
                 self.synapseValueLabels.movezLabels.unitLabel?.backgroundColor = UIColor.clear
                 self.synapseValueLabels.movezLabels.unitLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.movezLabels.unitLabel?.textAlignment = NSTextAlignment.center
+                self.synapseValueLabels.movezLabels.unitLabel?.textAlignment = .center
                 self.synapseValueLabels.movezLabels.unitLabel?.numberOfLines = 1
                 valueView.addSubview(self.synapseValueLabels.movezLabels.unitLabel!)
             }
@@ -1227,7 +1260,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.synapseValueLabels.anglexLabels.valueLabel?.textColor = UIColor.white
                 self.synapseValueLabels.anglexLabels.valueLabel?.backgroundColor = UIColor.clear
                 self.synapseValueLabels.anglexLabels.valueLabel?.font = UIFont(name: "HelveticaNeue", size: fontS2)
-                self.synapseValueLabels.anglexLabels.valueLabel?.textAlignment = NSTextAlignment.center
+                self.synapseValueLabels.anglexLabels.valueLabel?.textAlignment = .center
                 self.synapseValueLabels.anglexLabels.valueLabel?.numberOfLines = 1
                 valueView.addSubview(self.synapseValueLabels.anglexLabels.valueLabel!)
 
@@ -1237,7 +1270,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.synapseValueLabels.angleyLabels.valueLabel?.textColor = UIColor.white
                 self.synapseValueLabels.angleyLabels.valueLabel?.backgroundColor = UIColor.clear
                 self.synapseValueLabels.angleyLabels.valueLabel?.font = UIFont(name: "HelveticaNeue", size: fontS2)
-                self.synapseValueLabels.angleyLabels.valueLabel?.textAlignment = NSTextAlignment.center
+                self.synapseValueLabels.angleyLabels.valueLabel?.textAlignment = .center
                 self.synapseValueLabels.angleyLabels.valueLabel?.numberOfLines = 1
                 valueView.addSubview(self.synapseValueLabels.angleyLabels.valueLabel!)
 
@@ -1247,7 +1280,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.synapseValueLabels.anglezLabels.valueLabel?.textColor = UIColor.white
                 self.synapseValueLabels.anglezLabels.valueLabel?.backgroundColor = UIColor.clear
                 self.synapseValueLabels.anglezLabels.valueLabel?.font = UIFont(name: "HelveticaNeue", size: fontS2)
-                self.synapseValueLabels.anglezLabels.valueLabel?.textAlignment = NSTextAlignment.center
+                self.synapseValueLabels.anglezLabels.valueLabel?.textAlignment = .center
                 self.synapseValueLabels.anglezLabels.valueLabel?.numberOfLines = 1
                 valueView.addSubview(self.synapseValueLabels.anglezLabels.valueLabel!)
 
@@ -1257,7 +1290,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.synapseValueLabels.anglexLabels.diffLabel?.textColor = UIColor.white
                 self.synapseValueLabels.anglexLabels.diffLabel?.backgroundColor = UIColor.clear
                 self.synapseValueLabels.anglexLabels.diffLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.anglexLabels.diffLabel?.textAlignment = NSTextAlignment.center
+                self.synapseValueLabels.anglexLabels.diffLabel?.textAlignment = .center
                 self.synapseValueLabels.anglexLabels.diffLabel?.numberOfLines = 1
                 valueView.addSubview(self.synapseValueLabels.anglexLabels.diffLabel!)
 
@@ -1267,7 +1300,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.synapseValueLabels.angleyLabels.diffLabel?.textColor = UIColor.white
                 self.synapseValueLabels.angleyLabels.diffLabel?.backgroundColor = UIColor.clear
                 self.synapseValueLabels.angleyLabels.diffLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.angleyLabels.diffLabel?.textAlignment = NSTextAlignment.center
+                self.synapseValueLabels.angleyLabels.diffLabel?.textAlignment = .center
                 self.synapseValueLabels.angleyLabels.diffLabel?.numberOfLines = 1
                 valueView.addSubview(self.synapseValueLabels.angleyLabels.diffLabel!)
 
@@ -1277,7 +1310,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.synapseValueLabels.anglezLabels.diffLabel?.textColor = UIColor.white
                 self.synapseValueLabels.anglezLabels.diffLabel?.backgroundColor = UIColor.clear
                 self.synapseValueLabels.anglezLabels.diffLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.anglezLabels.diffLabel?.textAlignment = NSTextAlignment.center
+                self.synapseValueLabels.anglezLabels.diffLabel?.textAlignment = .center
                 self.synapseValueLabels.anglezLabels.diffLabel?.numberOfLines = 1
                 valueView.addSubview(self.synapseValueLabels.anglezLabels.diffLabel!)
 
@@ -1286,7 +1319,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.synapseValueLabels.anglexLabels.unitLabel?.textColor = UIColor.white
                 self.synapseValueLabels.anglexLabels.unitLabel?.backgroundColor = UIColor.clear
                 self.synapseValueLabels.anglexLabels.unitLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.anglexLabels.unitLabel?.textAlignment = NSTextAlignment.center
+                self.synapseValueLabels.anglexLabels.unitLabel?.textAlignment = .center
                 self.synapseValueLabels.anglexLabels.unitLabel?.numberOfLines = 1
                 valueView.addSubview(self.synapseValueLabels.anglexLabels.unitLabel!)
 
@@ -1295,7 +1328,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.synapseValueLabels.angleyLabels.unitLabel?.textColor = UIColor.white
                 self.synapseValueLabels.angleyLabels.unitLabel?.backgroundColor = UIColor.clear
                 self.synapseValueLabels.angleyLabels.unitLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.angleyLabels.unitLabel?.textAlignment = NSTextAlignment.center
+                self.synapseValueLabels.angleyLabels.unitLabel?.textAlignment = .center
                 self.synapseValueLabels.angleyLabels.unitLabel?.numberOfLines = 1
                 valueView.addSubview(self.synapseValueLabels.angleyLabels.unitLabel!)
 
@@ -1304,7 +1337,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.synapseValueLabels.anglezLabels.unitLabel?.textColor = UIColor.white
                 self.synapseValueLabels.anglezLabels.unitLabel?.backgroundColor = UIColor.clear
                 self.synapseValueLabels.anglezLabels.unitLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.anglezLabels.unitLabel?.textAlignment = NSTextAlignment.center
+                self.synapseValueLabels.anglezLabels.unitLabel?.textAlignment = .center
                 self.synapseValueLabels.anglezLabels.unitLabel?.numberOfLines = 1
                 valueView.addSubview(self.synapseValueLabels.anglezLabels.unitLabel!)
             }
@@ -1315,7 +1348,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.synapseValueLabels.illLabels.valueLabel?.textColor = UIColor.white
                 self.synapseValueLabels.illLabels.valueLabel?.backgroundColor = UIColor.clear
                 self.synapseValueLabels.illLabels.valueLabel?.font = UIFont(name: "HelveticaNeue", size: fontS)
-                self.synapseValueLabels.illLabels.valueLabel?.textAlignment = NSTextAlignment.center
+                self.synapseValueLabels.illLabels.valueLabel?.textAlignment = .center
                 self.synapseValueLabels.illLabels.valueLabel?.numberOfLines = 1
                 valueView.addSubview(self.synapseValueLabels.illLabels.valueLabel!)
 
@@ -1325,7 +1358,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.synapseValueLabels.illLabels.diffLabel?.textColor = UIColor.white
                 self.synapseValueLabels.illLabels.diffLabel?.backgroundColor = UIColor.clear
                 self.synapseValueLabels.illLabels.diffLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.illLabels.diffLabel?.textAlignment = NSTextAlignment.center
+                self.synapseValueLabels.illLabels.diffLabel?.textAlignment = .center
                 self.synapseValueLabels.illLabels.diffLabel?.numberOfLines = 1
                 valueView.addSubview(self.synapseValueLabels.illLabels.diffLabel!)
 
@@ -1334,7 +1367,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.synapseValueLabels.illLabels.unitLabel?.textColor = UIColor.white
                 self.synapseValueLabels.illLabels.unitLabel?.backgroundColor = UIColor.clear
                 self.synapseValueLabels.illLabels.unitLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.illLabels.unitLabel?.textAlignment = NSTextAlignment.center
+                self.synapseValueLabels.illLabels.unitLabel?.textAlignment = .center
                 self.synapseValueLabels.illLabels.unitLabel?.numberOfLines = 1
                 valueView.addSubview(self.synapseValueLabels.illLabels.unitLabel!)
             }
@@ -1345,7 +1378,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.synapseValueLabels.humLabels.valueLabel?.textColor = UIColor.white
                 self.synapseValueLabels.humLabels.valueLabel?.backgroundColor = UIColor.clear
                 self.synapseValueLabels.humLabels.valueLabel?.font = UIFont(name: "HelveticaNeue", size: fontS)
-                self.synapseValueLabels.humLabels.valueLabel?.textAlignment = NSTextAlignment.center
+                self.synapseValueLabels.humLabels.valueLabel?.textAlignment = .center
                 self.synapseValueLabels.humLabels.valueLabel?.numberOfLines = 1
                 valueView.addSubview(self.synapseValueLabels.humLabels.valueLabel!)
 
@@ -1355,7 +1388,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.synapseValueLabels.humLabels.diffLabel?.textColor = UIColor.white
                 self.synapseValueLabels.humLabels.diffLabel?.backgroundColor = UIColor.clear
                 self.synapseValueLabels.humLabels.diffLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.humLabels.diffLabel?.textAlignment = NSTextAlignment.center
+                self.synapseValueLabels.humLabels.diffLabel?.textAlignment = .center
                 self.synapseValueLabels.humLabels.diffLabel?.numberOfLines = 1
                 valueView.addSubview(self.synapseValueLabels.humLabels.diffLabel!)
 
@@ -1364,7 +1397,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.synapseValueLabels.humLabels.unitLabel?.textColor = UIColor.white
                 self.synapseValueLabels.humLabels.unitLabel?.backgroundColor = UIColor.clear
                 self.synapseValueLabels.humLabels.unitLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.humLabels.unitLabel?.textAlignment = NSTextAlignment.center
+                self.synapseValueLabels.humLabels.unitLabel?.textAlignment = .center
                 self.synapseValueLabels.humLabels.unitLabel?.numberOfLines = 1
                 valueView.addSubview(self.synapseValueLabels.humLabels.unitLabel!)
             }
@@ -1410,8 +1443,8 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         self.maxValueLabel.text = ""
         self.maxValueLabel.textColor = UIColor.black
         self.maxValueLabel.backgroundColor = UIColor.clear
-        self.maxValueLabel.font = UIFont(name: "Migu 2M", size: 12)
-        self.maxValueLabel.textAlignment = NSTextAlignment.left
+        self.maxValueLabel.font = UIFont(name: "Migu 2M", size: 12.0)
+        self.maxValueLabel.textAlignment = .left
         self.maxValueLabel.numberOfLines = 1
         self.maxValueLabel.isHidden = true
         self.synapseValuesView.addSubview(self.maxValueLabel)
@@ -1422,8 +1455,8 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         self.minValueLabel.text = ""
         self.minValueLabel.textColor = UIColor.black
         self.minValueLabel.backgroundColor = UIColor.clear
-        self.minValueLabel.font = UIFont(name: "Migu 2M", size: 12)
-        self.minValueLabel.textAlignment = NSTextAlignment.left
+        self.minValueLabel.font = UIFont(name: "Migu 2M", size: 12.0)
+        self.minValueLabel.textAlignment = .left
         self.minValueLabel.numberOfLines = 1
         self.minValueLabel.isHidden = true
         self.synapseValuesView.addSubview(self.minValueLabel)
@@ -1437,8 +1470,8 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         self.nowValueLabel.text = ""
         self.nowValueLabel.textColor = UIColor.white
         self.nowValueLabel.backgroundColor = UIColor.clear
-        self.nowValueLabel.font = UIFont(name: "Migu 2M", size: 12)
-        self.nowValueLabel.textAlignment = NSTextAlignment.left
+        self.nowValueLabel.font = UIFont(name: "Migu 2M", size: 12.0)
+        self.nowValueLabel.textAlignment = .left
         self.nowValueLabel.numberOfLines = 1
         self.nowValueLabel.isHidden = true
         self.synapseValuesView.addSubview(self.nowValueLabel)
@@ -1453,16 +1486,20 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         self.graphScaleAreaView.isHidden = true
         self.synapseValuesView.addSubview(self.graphScaleAreaView)
 
+        x = 0
+        y = 0
+        h = self.graphScaleAreaView.frame.size.height
         self.min0Label = UILabel()
         self.min0Label.text = "0 min"
         self.min0Label.textColor = UIColor.black
         self.min0Label.backgroundColor = UIColor.clear
-        self.min0Label.font = UIFont(name: "Migu 2M", size: 12)
-        self.min0Label.textAlignment = NSTextAlignment.center
+        self.min0Label.font = UIFont(name: "Migu 2M", size: 12.0)
+        self.min0Label.textAlignment = .center
         self.min0Label.numberOfLines = 1
         self.graphScaleAreaView.addSubview(self.min0Label)
         self.min0Label.sizeToFit()
-        self.min0Label.frame = CGRect(x: 0, y: 0, width: self.min0Label.frame.size.width, height: self.graphScaleAreaView.frame.size.height)
+        w = self.min0Label.frame.size.width
+        self.min0Label.frame = CGRect(x: x, y: y, width: w, height: h)
 
         self.min1Label = UILabel()
         self.min1Label.text = "1 min"
@@ -1473,7 +1510,8 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         self.min1Label.numberOfLines = 1
         self.graphScaleAreaView.addSubview(self.min1Label)
         self.min1Label.sizeToFit()
-        self.min1Label.frame = CGRect(x: 0, y: 0, width: self.min1Label.frame.size.width, height: self.graphScaleAreaView.frame.size.height)
+        w = self.min1Label.frame.size.width
+        self.min1Label.frame = CGRect(x: x, y: y, width: w, height: h)
 
         self.min2Label = UILabel()
         self.min2Label.text = "2 min"
@@ -1484,7 +1522,8 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         self.min2Label.numberOfLines = 1
         self.graphScaleAreaView.addSubview(self.min2Label)
         self.min2Label.sizeToFit()
-        self.min2Label.frame = CGRect(x: 0, y: 0, width: self.min2Label.frame.size.width, height: self.graphScaleAreaView.frame.size.height)
+        w = self.min2Label.frame.size.width
+        self.min2Label.frame = CGRect(x: x, y: y, width: w, height: h)
 
         self.min3Label = UILabel()
         self.min3Label.text = "3 min"
@@ -1495,7 +1534,8 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         self.min3Label.numberOfLines = 1
         self.graphScaleAreaView.addSubview(self.min3Label)
         self.min3Label.sizeToFit()
-        self.min3Label.frame = CGRect(x: 0, y: 0, width: self.min3Label.frame.size.width, height: self.graphScaleAreaView.frame.size.height)
+        w = self.min3Label.frame.size.width
+        self.min3Label.frame = CGRect(x: x, y: y, width: w, height: h)
 
         self.min4Label = UILabel()
         self.min4Label.text = "4 min"
@@ -1506,7 +1546,8 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         self.min4Label.numberOfLines = 1
         self.graphScaleAreaView.addSubview(self.min4Label)
         self.min4Label.sizeToFit()
-        self.min4Label.frame = CGRect(x: 0, y: 0, width: self.min4Label.frame.size.width, height: self.graphScaleAreaView.frame.size.height)
+        w = self.min4Label.frame.size.width
+        self.min4Label.frame = CGRect(x: x, y: y, width: w, height: h)
 
         let swipeGesture: UISwipeGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(self.swipeSynapseValuesViewGestureAction(_:)))
         self.synapseValuesView.addGestureRecognizer(swipeGesture)
@@ -1523,7 +1564,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         self.synapseValuesAnalyzeButton.frame = CGRect(x: x, y: y, width: w, height: h)
         self.synapseValuesAnalyzeButton.setTitle("Analyze", for: .normal)
         self.synapseValuesAnalyzeButton.setTitleColor(UIColor.white, for: .normal)
-        self.synapseValuesAnalyzeButton.titleLabel?.font = UIFont(name: "HelveticaNeue", size: 16)
+        self.synapseValuesAnalyzeButton.titleLabel?.font = UIFont(name: "HelveticaNeue", size: 16.0)
         self.synapseValuesAnalyzeButton.backgroundColor = UIColor.clear
         self.synapseValuesAnalyzeButton.layer.cornerRadius = h / 2
         self.synapseValuesAnalyzeButton.clipsToBounds = true
@@ -1556,7 +1597,8 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         self.synapseValuesBackButton.titleLabel?.font = UIFont(name: "HelveticaNeue", size: 16)
         self.synapseValuesBackButton.backgroundColor = UIColor.clear
         self.synapseValuesBackButton.addTarget(self, action: #selector(self.closeSynapseValuesViewAction), for: .touchUpInside)
-        self.synapseValuesView.addSubview(self.synapseValuesBackButton)*/
+        self.synapseValuesView.addSubview(self.synapseValuesBackButton)
+         */
     }
 
     @objc func pushAnalyzeViewAction() {
@@ -1578,7 +1620,10 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         self.setNavigatioHeaderMenuBtn()
         self.debugAreaBtn.isHidden = false
 
-        let action = SCNAction.move(to: SCNVector3(x: self.cameraNode.position.x, y: self.cameraNode.position.y, z: self.pinchZoomDef), duration: 0.1)
+        let vector: SCNVector3 = SCNVector3(x: self.cameraNode.position.x,
+                                            y: self.cameraNode.position.y,
+                                            z: self.pinchZoomDef)
+        let action: SCNAction = SCNAction.move(to: vector, duration: 0.1)
         self.cameraNode.runAction(action, completionHandler: {
             /*self.canUpdateCrystalView = true
             self.updateSynapseViews()*/
@@ -1608,17 +1653,29 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
 
             let key: String = self.synapseValues[index]
             if let view = self.synapseTabLabels[key] {
-                view.frame = CGRect(x: tabX, y: view.frame.origin.y, width: view.frame.size.width, height: view.frame.size.height)
+                view.frame = CGRect(x: tabX,
+                                    y: view.frame.origin.y,
+                                    width: view.frame.size.width,
+                                    height: view.frame.size.height)
                 tabX += view.frame.size.width
             }
             if let view = self.synapseDataLabels[key] {
-                view.frame = CGRect(x: dataX, y: view.frame.origin.y, width: view.frame.size.width, height: view.frame.size.height)
+                view.frame = CGRect(x: dataX,
+                                    y: view.frame.origin.y,
+                                    width: view.frame.size.width,
+                                    height: view.frame.size.height)
                 dataX += view.frame.size.width
             }
         }
 
-        self.synapseTabView.frame = CGRect(x: (self.synapseValuesView.frame.width - self.synapseTabView.frame.size.width) / 2, y: self.synapseTabView.frame.origin.y, width: self.synapseTabView.frame.size.width, height: self.synapseTabView.frame.size.height)
-        self.synapseDataView.frame = CGRect(x: (self.synapseValuesView.frame.width - self.synapseDataView.frame.size.width) / 2, y: self.synapseDataView.frame.origin.y, width: self.synapseDataView.frame.size.width, height: self.synapseDataView.frame.size.height)
+        self.synapseTabView.frame = CGRect(x: (self.synapseValuesView.frame.width - self.synapseTabView.frame.size.width) / 2,
+                                           y: self.synapseTabView.frame.origin.y,
+                                           width: self.synapseTabView.frame.size.width,
+                                           height: self.synapseTabView.frame.size.height)
+        self.synapseDataView.frame = CGRect(x: (self.synapseValuesView.frame.width - self.synapseDataView.frame.size.width) / 2,
+                                            y: self.synapseDataView.frame.origin.y,
+                                            width: self.synapseDataView.frame.size.width,
+                                            height: self.synapseDataView.frame.size.height)
     }
 
     func displaySynapseValuesView(synapseObject: SynapseObject?) {
@@ -1670,12 +1727,19 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
 
             let tabW: CGFloat = 150.0
             let dataW: CGFloat = self.synapseValuesView.frame.width
-            UIView.animate(withDuration: 0.2, delay: 0, options: UIViewAnimationOptions.curveEaseIn, animations: { () -> Void in
-
-                self.synapseTabView.frame = CGRect(x: self.synapseTabView.frame.origin.x + tabW * x, y: self.synapseTabView.frame.origin.y, width: self.synapseTabView.frame.size.width, height: self.synapseTabView.frame.size.height)
-                self.synapseDataView.frame = CGRect(x: self.synapseDataView.frame.origin.x + dataW * x, y: self.synapseDataView.frame.origin.y, width: self.synapseDataView.frame.size.width, height: self.synapseDataView.frame.size.height)
+            UIView.animate(withDuration: 0.2,
+                           delay: 0,
+                           options: UIViewAnimationOptions.curveEaseIn,
+                           animations: { () -> Void in
+                self.synapseTabView.frame = CGRect(x: self.synapseTabView.frame.origin.x + tabW * x,
+                                                   y: self.synapseTabView.frame.origin.y,
+                                                   width: self.synapseTabView.frame.size.width,
+                                                   height: self.synapseTabView.frame.size.height)
+                self.synapseDataView.frame = CGRect(x: self.synapseDataView.frame.origin.x + dataW * x,
+                                                    y: self.synapseDataView.frame.origin.y,
+                                                    width: self.synapseDataView.frame.size.width,
+                                                    height: self.synapseDataView.frame.size.height)
             }, completion: { _ in
-
                 self.setSynapseTabAndValueView()
                 if self.synapseValueLabels.name == self.mainSynapseObject.synapseValues.name && self.mainSynapseObject.synapseValues.isConnected {
                     self.setSynapseGraphImage(synapseObject: self.mainSynapseObject)
@@ -1990,18 +2054,36 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
 
         if self.min0Label.frame.origin.x == 0 {
             var baseX: CGFloat = imageW
-            self.min0Label.frame = CGRect(x: baseX - self.min0Label.frame.size.width / 2, y: self.min0Label.frame.origin.y, width: self.min0Label.frame.size.width, height: self.min0Label.frame.size.height)
+            self.min0Label.frame = CGRect(x: baseX - self.min0Label.frame.size.width / 2,
+                                          y: self.min0Label.frame.origin.y,
+                                          width: self.min0Label.frame.size.width,
+                                          height: self.min0Label.frame.size.height)
             baseX -= blockW * 2
-            self.min1Label.frame = CGRect(x: baseX - self.min1Label.frame.size.width / 2, y: self.min1Label.frame.origin.y, width: self.min1Label.frame.size.width, height: self.min1Label.frame.size.height)
+            self.min1Label.frame = CGRect(x: baseX - self.min1Label.frame.size.width / 2,
+                                          y: self.min1Label.frame.origin.y,
+                                          width: self.min1Label.frame.size.width,
+                                          height: self.min1Label.frame.size.height)
             baseX -= blockW * 2
-            self.min2Label.frame = CGRect(x: baseX - self.min2Label.frame.size.width / 2, y: self.min2Label.frame.origin.y, width: self.min2Label.frame.size.width, height: self.min2Label.frame.size.height)
+            self.min2Label.frame = CGRect(x: baseX - self.min2Label.frame.size.width / 2,
+                                          y: self.min2Label.frame.origin.y,
+                                          width: self.min2Label.frame.size.width,
+                                          height: self.min2Label.frame.size.height)
             baseX -= blockW * 2
-            self.min3Label.frame = CGRect(x: baseX - self.min3Label.frame.size.width / 2, y: self.min3Label.frame.origin.y, width: self.min3Label.frame.size.width, height: self.min3Label.frame.size.height)
+            self.min3Label.frame = CGRect(x: baseX - self.min3Label.frame.size.width / 2,
+                                          y: self.min3Label.frame.origin.y,
+                                          width: self.min3Label.frame.size.width,
+                                          height: self.min3Label.frame.size.height)
             baseX -= blockW * 2
-            self.min4Label.frame = CGRect(x: baseX - self.min4Label.frame.size.width / 2, y: self.min4Label.frame.origin.y, width: self.min4Label.frame.size.width, height: self.min4Label.frame.size.height)
+            self.min4Label.frame = CGRect(x: baseX - self.min4Label.frame.size.width / 2,
+                                          y: self.min4Label.frame.origin.y,
+                                          width: self.min4Label.frame.size.width,
+                                          height: self.min4Label.frame.size.height)
         }
         if self.graphImageUnderView.frame.size.width == 0 {
-            self.graphImageUnderView.frame = CGRect(x: self.graphImageUnderView.frame.origin.x, y: self.graphImageUnderView.frame.origin.y, width: imageW - self.graphAreaView.frame.origin.x, height: self.graphImageUnderView.frame.size.height)
+            self.graphImageUnderView.frame = CGRect(x: self.graphImageUnderView.frame.origin.x,
+                                                    y: self.graphImageUnderView.frame.origin.y,
+                                                    width: imageW - self.graphAreaView.frame.origin.x,
+                                                    height: self.graphImageUnderView.frame.size.height)
 
             let layer: CAGradientLayer = CAGradientLayer()
             layer.frame = self.graphImageUnderView.bounds
@@ -2150,7 +2232,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         image = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
 
-        return image;
+        return image
     }
 
     // MARK: mark - Update SynapseViews methods
@@ -2271,7 +2353,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             var tempVal: Float = temp
             self.synapseValueLabels.tempLabels.unitLabel?.text = "℃"
             if self.appDelegate.temperatureScale == "F" {
-                tempVal = CommonFunction.makeFahrenheitTemperatureValue(tempVal)
+                tempVal = self.makeFahrenheitTemperatureValue(tempVal)
                 self.synapseValueLabels.tempLabels.unitLabel?.text = "℉"
             }
             let tempStr: String = String(format:"%.1f", tempVal)
@@ -3116,37 +3198,44 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             }
         }
 
-        if flag {
-            self.todayExtensionGraphData = []
-            var graphTime: TimeInterval = time
-            for _ in 0..<TodayExtensionData.graphDataCount {
-                var totalData: [Double] = []
-                if let synapseRecordFileManager = synapseObject.synapseRecordFileManager {
-                    let date: Date = Date(timeIntervalSince1970: graphTime)
-                    let formatter: DateFormatter = DateFormatter()
-                    formatter.locale = Locale(identifier: "en_US_POSIX")
-                    formatter.dateFormat = "yyyyMMddHHmmss"
-                    let graphDateStr: String = formatter.string(from: date)
-                    let day: String = String(graphDateStr[graphDateStr.startIndex..<graphDateStr.index(graphDateStr.startIndex, offsetBy: 8)])
-                    let hour: String = String(graphDateStr[graphDateStr.index(graphDateStr.startIndex, offsetBy: 8)..<graphDateStr.index(graphDateStr.startIndex, offsetBy: 10)])
-                    let min: String = String(graphDateStr[graphDateStr.index(graphDateStr.startIndex, offsetBy: 10)..<graphDateStr.index(graphDateStr.startIndex, offsetBy: 12)])
-                    totalData = synapseRecordFileManager.getSynapseRecordTotal(day: day, hour: hour, min: min, sec: nil, type: self.synapseCrystalInfo.co2.key)
+        if !self.todayExtensionUpdating {
+            self.todayExtensionUpdating = true
+
+            if flag {
+                self.todayExtensionGraphData = []
+                var graphTime: TimeInterval = time
+                for _ in 0..<TodayExtensionData.graphDataCount {
+                    var totalData: [Double] = []
+                    if let synapseRecordFileManager = synapseObject.synapseRecordFileManager {
+                        let date: Date = Date(timeIntervalSince1970: graphTime)
+                        let formatter: DateFormatter = DateFormatter()
+                        formatter.locale = Locale(identifier: "en_US_POSIX")
+                        formatter.dateFormat = "yyyyMMddHHmmss"
+                        let graphDateStr: String = formatter.string(from: date)
+                        let day: String = String(graphDateStr[graphDateStr.startIndex..<graphDateStr.index(graphDateStr.startIndex, offsetBy: 8)])
+                        let hour: String = String(graphDateStr[graphDateStr.index(graphDateStr.startIndex, offsetBy: 8)..<graphDateStr.index(graphDateStr.startIndex, offsetBy: 10)])
+                        let min: String = String(graphDateStr[graphDateStr.index(graphDateStr.startIndex, offsetBy: 10)..<graphDateStr.index(graphDateStr.startIndex, offsetBy: 12)])
+                        totalData = synapseRecordFileManager.getSynapseRecordTotal(day: day, hour: hour, min: min, sec: nil, type: self.synapseCrystalInfo.co2.key)
+                    }
+                    if totalData.count > 1 {
+                        self.todayExtensionGraphData.append(Int(totalData[1] / totalData[0]))
+                    }
+                    else {
+                        self.todayExtensionGraphData.append(-1)
+                    }
+                    graphTime -= 60
                 }
-                if totalData.count > 1 {
-                    self.todayExtensionGraphData.append(Int(totalData[1] / totalData[0]))
-                }
-                else {
-                    self.todayExtensionGraphData.append(-1)
-                }
-                graphTime -= 60
+                self.todayExtensionLastTime = time
             }
-            self.todayExtensionLastTime = time
-        }
-        if let co2 = co2 {
-            self.todayExtensionGraphData[0] = co2
-        }
-        else {
-            self.todayExtensionGraphData[0] = -1
+            if let co2 = co2 {
+                self.todayExtensionGraphData[0] = co2
+            }
+            else {
+                self.todayExtensionGraphData[0] = -1
+            }
+            //print("todayExtensionGraphData: \(self.todayExtensionGraphData)")
+
+            self.todayExtensionUpdating = false
         }
 
         TodayExtensionData.save(co2: co2, battery: battery, temp: temp, humidity: humidity, pressure: pressure, graphData: self.todayExtensionGraphData)
@@ -3200,19 +3289,19 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             if let value = synapseValuesMain.temp {
                 self.nowValueLabel.text = "\(String(format:"%.1f", value)) ℃"
                 if self.appDelegate.temperatureScale == "F" {
-                    self.nowValueLabel.text = "\(String(format:"%.1f", CommonFunction.makeFahrenheitTemperatureValue(value))) ℉"
+                    self.nowValueLabel.text = "\(String(format:"%.1f", self.makeFahrenheitTemperatureValue(value))) ℉"
                 }
             }
             if let maxNow = synapseDataMaxAndMins.temp.maxNow {
                 self.maxValueLabel.text = "max:\(String(format:"%.1f", maxNow)) ℃"
                 if self.appDelegate.temperatureScale == "F" {
-                    self.maxValueLabel.text = "max:\(String(format:"%.1f", CommonFunction.makeFahrenheitTemperatureValue(Float(maxNow)))) ℉"
+                    self.maxValueLabel.text = "max:\(String(format:"%.1f", self.makeFahrenheitTemperatureValue(Float(maxNow)))) ℉"
                 }
             }
             if let minNow = synapseDataMaxAndMins.temp.minNow {
                 self.minValueLabel.text = "min:\(String(format:"%.1f", minNow)) ℃"
                 if self.appDelegate.temperatureScale == "F" {
-                    self.minValueLabel.text = "min:\(String(format:"%.1f", CommonFunction.makeFahrenheitTemperatureValue(Float(minNow)))) ℉"
+                    self.minValueLabel.text = "min:\(String(format:"%.1f", self.makeFahrenheitTemperatureValue(Float(minNow)))) ℉"
                 }
             }
         }
@@ -3317,7 +3406,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         }
         else {
             let alert: UIAlertController = UIAlertController(title: title, message: messageBody, preferredStyle: UIAlertControllerStyle.alert)
-            let defaultAction: UIAlertAction = UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: {
+            let defaultAction: UIAlertAction = UIAlertAction(title: "OK", style: .default, handler: {
                 (action:UIAlertAction!) -> Void in
             })
             alert.addAction(defaultAction)
@@ -4026,7 +4115,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
 
     func sendMessage(client: F53OSCClient, addressPattern: String, arguments: [Any]) {
 
-        let message: F53OSCMessage = F53OSCMessage(addressPattern: addressPattern, arguments: arguments)
+        let message: F53OSCMessage? = F53OSCMessage(addressPattern: addressPattern, arguments: arguments)
         client.send(message)
         //print("Send OSC: '\(String(describing: message))' To: \(client.host):\(client.port)")
     }
@@ -4279,21 +4368,22 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
 
     func setDebugButton() {
 
-        let w: CGFloat = 44.0
-        let h: CGFloat = 44.0
-        let x: CGFloat = self.view.frame.size.width - (w + 10.0)
-        let y: CGFloat = self.view.frame.size.height - (h + 10.0)
+        var w: CGFloat = 44.0
+        var h: CGFloat = 44.0
+        var x: CGFloat = self.view.frame.size.width - (w + 10.0)
+        var y: CGFloat = self.view.frame.size.height - (h + 10.0)
         self.debugAreaBtn = UIButton()
         self.debugAreaBtn.frame = CGRect(x: x, y: y, width: w, height: h)
-        //self.debugAreaBtn.setTitle("Status", for: .normal)
-        //self.debugAreaBtn.setTitleColor(UIColor.black, for: .normal)
-        //self.debugAreaBtn.titleLabel?.font = UIFont(name: "HelveticaNeue", size: 16)
         self.debugAreaBtn.backgroundColor = UIColor.clear
         self.debugAreaBtn.addTarget(self, action: #selector(self.setDebugAreaViewHiddenAction), for: .touchUpInside)
         self.view.addSubview(self.debugAreaBtn)
 
+        w = 24.0
+        h = 24.0
+        x = (self.debugAreaBtn.frame.size.width - w) / 2
+        y = (self.debugAreaBtn.frame.size.height - h) / 2
         let icon: UIImageView = UIImageView()
-        icon.frame = CGRect(x: (self.debugAreaBtn.frame.size.width - 24.0) / 2, y: (self.debugAreaBtn.frame.size.height - 24.0) / 2, width: 24.0, height: 24.0)
+        icon.frame = CGRect(x: x, y: y, width: w, height: h)
         icon.image = UIImage(named: "status.png")
         icon.backgroundColor = UIColor.clear
         self.debugAreaBtn.addSubview(icon)
@@ -4308,7 +4398,6 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             var y: CGFloat = 0
             var w: CGFloat = nav.view.frame.width
             var h: CGFloat = nav.view.frame.height
-
             self.debugView.debugAreaView = UIView()
             self.debugView.debugAreaView?.frame = CGRect(x: x, y: y, width: w, height: h)
             self.debugView.debugAreaView?.backgroundColor = UIColor.black.withAlphaComponent(0.8)
@@ -4334,7 +4423,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             y = (closeButton.frame.size.height - h) / 2
             let closeIcon: CrossView = CrossView()
             closeIcon.frame = CGRect(x: x, y: y, width: w, height: h)
-            closeIcon.backgroundColor = .clear
+            closeIcon.backgroundColor = UIColor.clear
             closeIcon.isUserInteractionEnabled = false
             closeIcon.lineColor = UIColor.white
             closeButton.addSubview(closeIcon)
@@ -4349,7 +4438,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             titleLabel.textColor = UIColor.white
             titleLabel.backgroundColor = UIColor.clear
             titleLabel.font = UIFont(name: "HelveticaNeue", size: 24.0)
-            titleLabel.textAlignment = NSTextAlignment.left
+            titleLabel.textAlignment = .left
             titleLabel.numberOfLines = 1
             self.debugView.debugAreaView?.addSubview(titleLabel)
 
@@ -4369,11 +4458,12 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             label0.text = "UUID:"
             label0.textColor = UIColor.white
             label0.backgroundColor = UIColor.clear
-            label0.font = UIFont(name: "Migu 2M", size: 14)
-            label0.textAlignment = NSTextAlignment.left
+            label0.font = UIFont(name: "Migu 2M", size: 14.0)
+            label0.textAlignment = .left
             label0.numberOfLines = 1
             label0.sizeToFit()
-            label0.frame = CGRect(x: x, y: y, width: label0.frame.size.width, height: h)
+            w = label0.frame.size.width
+            label0.frame = CGRect(x: x, y: y, width: w, height: h)
             mainScrollView.addSubview(label0)
 
             x = label0.frame.origin.x + label0.frame.size.width + 10.0
@@ -4383,8 +4473,8 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             self.debugView.data0Label?.frame = CGRect(x: x, y: y, width: w, height: h)
             self.debugView.data0Label?.textColor = UIColor.fluorescentPink
             self.debugView.data0Label?.backgroundColor = UIColor.clear
-            self.debugView.data0Label?.font = UIFont(name: "Migu 2M", size: 14)
-            self.debugView.data0Label?.textAlignment = NSTextAlignment.left
+            self.debugView.data0Label?.font = UIFont(name: "Migu 2M", size: 14.0)
+            self.debugView.data0Label?.textAlignment = .left
             self.debugView.data0Label?.numberOfLines = 1
             mainScrollView.addSubview(self.debugView.data0Label!)
 
@@ -4394,11 +4484,12 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             label1.text = "Status:"
             label1.textColor = UIColor.white
             label1.backgroundColor = UIColor.clear
-            label1.font = UIFont(name: "Migu 2M", size: 14)
-            label1.textAlignment = NSTextAlignment.left
+            label1.font = UIFont(name: "Migu 2M", size: 14.0)
+            label1.textAlignment = .left
             label1.numberOfLines = 1
             label1.sizeToFit()
-            label1.frame = CGRect(x: x, y: y, width: label1.frame.size.width, height: h)
+            w = label1.frame.size.width
+            label1.frame = CGRect(x: x, y: y, width: w, height: h)
             mainScrollView.addSubview(label1)
 
             x = label1.frame.origin.x + label1.frame.size.width + 10.0
@@ -4408,8 +4499,8 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             self.debugView.data1Label?.frame = CGRect(x: x, y: y, width: w, height: h)
             self.debugView.data1Label?.textColor = UIColor.fluorescentPink
             self.debugView.data1Label?.backgroundColor = UIColor.clear
-            self.debugView.data1Label?.font = UIFont(name: "Migu 2M", size: 14)
-            self.debugView.data1Label?.textAlignment = NSTextAlignment.left
+            self.debugView.data1Label?.font = UIFont(name: "Migu 2M", size: 14.0)
+            self.debugView.data1Label?.textAlignment = .left
             self.debugView.data1Label?.numberOfLines = 1
             mainScrollView.addSubview(self.debugView.data1Label!)
 
@@ -4419,11 +4510,12 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             label2.text = "Time:"
             label2.textColor = UIColor.white
             label2.backgroundColor = UIColor.clear
-            label2.font = UIFont(name: "Migu 2M", size: 14)
-            label2.textAlignment = NSTextAlignment.left
+            label2.font = UIFont(name: "Migu 2M", size: 14.0)
+            label2.textAlignment = .left
             label2.numberOfLines = 1
             label2.sizeToFit()
-            label2.frame = CGRect(x: x, y: y, width: label2.frame.size.width, height: h)
+            w = label2.frame.size.width
+            label2.frame = CGRect(x: x, y: y, width: w, height: h)
             mainScrollView.addSubview(label2)
 
             x = label2.frame.origin.x + label2.frame.size.width + 10.0
@@ -4433,8 +4525,8 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             self.debugView.data2Label?.frame = CGRect(x: x, y: y, width: w, height: h)
             self.debugView.data2Label?.textColor = UIColor.fluorescentPink
             self.debugView.data2Label?.backgroundColor = UIColor.clear
-            self.debugView.data2Label?.font = UIFont(name: "Migu 2M", size: 14)
-            self.debugView.data2Label?.textAlignment = NSTextAlignment.left
+            self.debugView.data2Label?.font = UIFont(name: "Migu 2M", size: 14.0)
+            self.debugView.data2Label?.textAlignment = .left
             self.debugView.data2Label?.numberOfLines = 1
             mainScrollView.addSubview(self.debugView.data2Label!)
 
@@ -4444,11 +4536,12 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             label3.text = "CO2:"
             label3.textColor = UIColor.white
             label3.backgroundColor = UIColor.clear
-            label3.font = UIFont(name: "Migu 2M", size: 14)
-            label3.textAlignment = NSTextAlignment.left
+            label3.font = UIFont(name: "Migu 2M", size: 14.0)
+            label3.textAlignment = .left
             label3.numberOfLines = 1
             label3.sizeToFit()
-            label3.frame = CGRect(x: x, y: y, width: label3.frame.size.width, height: h)
+            w = label3.frame.size.width
+            label3.frame = CGRect(x: x, y: y, width: w, height: h)
             mainScrollView.addSubview(label3)
 
             x = label3.frame.origin.x + label3.frame.size.width + 10.0
@@ -4458,8 +4551,8 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             self.debugView.data3Label?.frame = CGRect(x: x, y: y, width: w, height: h)
             self.debugView.data3Label?.textColor = UIColor.fluorescentPink
             self.debugView.data3Label?.backgroundColor = UIColor.clear
-            self.debugView.data3Label?.font = UIFont(name: "Migu 2M", size: 14)
-            self.debugView.data3Label?.textAlignment = NSTextAlignment.left
+            self.debugView.data3Label?.font = UIFont(name: "Migu 2M", size: 14.0)
+            self.debugView.data3Label?.textAlignment = .left
             self.debugView.data3Label?.numberOfLines = 1
             mainScrollView.addSubview(self.debugView.data3Label!)
 
@@ -4469,11 +4562,12 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             label4.text = "Accelerometer:"
             label4.textColor = UIColor.white
             label4.backgroundColor = UIColor.clear
-            label4.font = UIFont(name: "Migu 2M", size: 14)
-            label4.textAlignment = NSTextAlignment.left
+            label4.font = UIFont(name: "Migu 2M", size: 14.0)
+            label4.textAlignment = .left
             label4.numberOfLines = 1
             label4.sizeToFit()
-            label4.frame = CGRect(x: x, y: y, width: label4.frame.size.width, height: h)
+            w = label4.frame.size.width
+            label4.frame = CGRect(x: x, y: y, width: w, height: h)
             mainScrollView.addSubview(label4)
 
             x = label4.frame.origin.x + label4.frame.size.width + 10.0
@@ -4483,8 +4577,8 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             self.debugView.data4Label?.frame = CGRect(x: x, y: y, width: w, height: h)
             self.debugView.data4Label?.textColor = UIColor.fluorescentPink
             self.debugView.data4Label?.backgroundColor = UIColor.clear
-            self.debugView.data4Label?.font = UIFont(name: "Migu 2M", size: 14)
-            self.debugView.data4Label?.textAlignment = NSTextAlignment.left
+            self.debugView.data4Label?.font = UIFont(name: "Migu 2M", size: 14.0)
+            self.debugView.data4Label?.textAlignment = .left
             self.debugView.data4Label?.numberOfLines = 1
             mainScrollView.addSubview(self.debugView.data4Label!)
 
@@ -4494,11 +4588,12 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             label5.text = "Light:"
             label5.textColor = UIColor.white
             label5.backgroundColor = UIColor.clear
-            label5.font = UIFont(name: "Migu 2M", size: 14)
-            label5.textAlignment = NSTextAlignment.left
+            label5.font = UIFont(name: "Migu 2M", size: 14.0)
+            label5.textAlignment = .left
             label5.numberOfLines = 1
             label5.sizeToFit()
-            label5.frame = CGRect(x: x, y: y, width: label5.frame.size.width, height: h)
+            w = label5.frame.size.width
+            label5.frame = CGRect(x: x, y: y, width: w, height: h)
             mainScrollView.addSubview(label5)
 
             x = label5.frame.origin.x + label5.frame.size.width + 10.0
@@ -4508,8 +4603,8 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             self.debugView.data5Label?.frame = CGRect(x: x, y: y, width: w, height: h)
             self.debugView.data5Label?.textColor = UIColor.fluorescentPink
             self.debugView.data5Label?.backgroundColor = UIColor.clear
-            self.debugView.data5Label?.font = UIFont(name: "Migu 2M", size: 14)
-            self.debugView.data5Label?.textAlignment = NSTextAlignment.left
+            self.debugView.data5Label?.font = UIFont(name: "Migu 2M", size: 14.0)
+            self.debugView.data5Label?.textAlignment = .left
             self.debugView.data5Label?.numberOfLines = 1
             mainScrollView.addSubview(self.debugView.data5Label!)
 
@@ -4519,11 +4614,12 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             label6.text = "Gyro:"
             label6.textColor = UIColor.white
             label6.backgroundColor = UIColor.clear
-            label6.font = UIFont(name: "Migu 2M", size: 14)
-            label6.textAlignment = NSTextAlignment.left
+            label6.font = UIFont(name: "Migu 2M", size: 14.0)
+            label6.textAlignment = .left
             label6.numberOfLines = 1
             label6.sizeToFit()
-            label6.frame = CGRect(x: x, y: y, width: label6.frame.size.width, height: h)
+            w = label6.frame.size.width
+            label6.frame = CGRect(x: x, y: y, width: w, height: h)
             mainScrollView.addSubview(label6)
 
             x = label6.frame.origin.x + label6.frame.size.width + 10.0
@@ -4533,8 +4629,8 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             self.debugView.data6Label?.frame = CGRect(x: x, y: y, width: w, height: h)
             self.debugView.data6Label?.textColor = UIColor.fluorescentPink
             self.debugView.data6Label?.backgroundColor = UIColor.clear
-            self.debugView.data6Label?.font = UIFont(name: "Migu 2M", size: 14)
-            self.debugView.data6Label?.textAlignment = NSTextAlignment.left
+            self.debugView.data6Label?.font = UIFont(name: "Migu 2M", size: 14.0)
+            self.debugView.data6Label?.textAlignment = .left
             self.debugView.data6Label?.numberOfLines = 1
             mainScrollView.addSubview(self.debugView.data6Label!)
 
@@ -4544,11 +4640,12 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             label7.text = "Pressure:"
             label7.textColor = UIColor.white
             label7.backgroundColor = UIColor.clear
-            label7.font = UIFont(name: "Migu 2M", size: 14)
-            label7.textAlignment = NSTextAlignment.left
+            label7.font = UIFont(name: "Migu 2M", size: 14.0)
+            label7.textAlignment = .left
             label7.numberOfLines = 1
             label7.sizeToFit()
-            label7.frame = CGRect(x: x, y: y, width: label7.frame.size.width, height: h)
+            w = label7.frame.size.width
+            label7.frame = CGRect(x: x, y: y, width: w, height: h)
             mainScrollView.addSubview(label7)
 
             x = label7.frame.origin.x + label7.frame.size.width + 10.0
@@ -4558,8 +4655,8 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             self.debugView.data7Label?.frame = CGRect(x: x, y: y, width: w, height: h)
             self.debugView.data7Label?.textColor = UIColor.fluorescentPink
             self.debugView.data7Label?.backgroundColor = UIColor.clear
-            self.debugView.data7Label?.font = UIFont(name: "Migu 2M", size: 14)
-            self.debugView.data7Label?.textAlignment = NSTextAlignment.left
+            self.debugView.data7Label?.font = UIFont(name: "Migu 2M", size: 14.0)
+            self.debugView.data7Label?.textAlignment = .left
             self.debugView.data7Label?.numberOfLines = 1
             mainScrollView.addSubview(self.debugView.data7Label!)
 
@@ -4569,11 +4666,12 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             label8.text = "Temperature:"
             label8.textColor = UIColor.white
             label8.backgroundColor = UIColor.clear
-            label8.font = UIFont(name: "Migu 2M", size: 14)
-            label8.textAlignment = NSTextAlignment.left
+            label8.font = UIFont(name: "Migu 2M", size: 14.0)
+            label8.textAlignment = .left
             label8.numberOfLines = 1
             label8.sizeToFit()
-            label8.frame = CGRect(x: x, y: y, width: label8.frame.size.width, height: h)
+            w = label8.frame.size.width
+            label8.frame = CGRect(x: x, y: y, width: w, height: h)
             mainScrollView.addSubview(label8)
 
             x = label8.frame.origin.x + label8.frame.size.width + 10.0
@@ -4583,8 +4681,8 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             self.debugView.data8Label?.frame = CGRect(x: x, y: y, width: w, height: h)
             self.debugView.data8Label?.textColor = UIColor.fluorescentPink
             self.debugView.data8Label?.backgroundColor = UIColor.clear
-            self.debugView.data8Label?.font = UIFont(name: "Migu 2M", size: 14)
-            self.debugView.data8Label?.textAlignment = NSTextAlignment.left
+            self.debugView.data8Label?.font = UIFont(name: "Migu 2M", size: 14.0)
+            self.debugView.data8Label?.textAlignment = .left
             self.debugView.data8Label?.numberOfLines = 1
             mainScrollView.addSubview(self.debugView.data8Label!)
 
@@ -4594,11 +4692,12 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             label9.text = "Humidity:"
             label9.textColor = UIColor.white
             label9.backgroundColor = UIColor.clear
-            label9.font = UIFont(name: "Migu 2M", size: 14)
-            label9.textAlignment = NSTextAlignment.left
+            label9.font = UIFont(name: "Migu 2M", size: 14.0)
+            label9.textAlignment = .left
             label9.numberOfLines = 1
             label9.sizeToFit()
-            label9.frame = CGRect(x: x, y: y, width: label9.frame.size.width, height: h)
+            w = label9.frame.size.width
+            label9.frame = CGRect(x: x, y: y, width: w, height: h)
             mainScrollView.addSubview(label9)
 
             x = label9.frame.origin.x + label9.frame.size.width + 10.0
@@ -4608,8 +4707,8 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             self.debugView.data9Label?.frame = CGRect(x: x, y: y, width: w, height: h)
             self.debugView.data9Label?.textColor = UIColor.fluorescentPink
             self.debugView.data9Label?.backgroundColor = UIColor.clear
-            self.debugView.data9Label?.font = UIFont(name: "Migu 2M", size: 14)
-            self.debugView.data9Label?.textAlignment = NSTextAlignment.left
+            self.debugView.data9Label?.font = UIFont(name: "Migu 2M", size: 14.0)
+            self.debugView.data9Label?.textAlignment = .left
             self.debugView.data9Label?.numberOfLines = 1
             mainScrollView.addSubview(self.debugView.data9Label!)
 
@@ -4619,11 +4718,12 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             label10.text = "Environmental sound:"
             label10.textColor = UIColor.white
             label10.backgroundColor = UIColor.clear
-            label10.font = UIFont(name: "Migu 2M", size: 14)
-            label10.textAlignment = NSTextAlignment.left
+            label10.font = UIFont(name: "Migu 2M", size: 14.0)
+            label10.textAlignment = .left
             label10.numberOfLines = 1
             label10.sizeToFit()
-            label10.frame = CGRect(x: x, y: y, width: label10.frame.size.width, height: h)
+            w = label10.frame.size.width
+            label10.frame = CGRect(x: x, y: y, width: w, height: h)
             mainScrollView.addSubview(label10)
 
             x = label10.frame.origin.x + label10.frame.size.width + 10.0
@@ -4633,8 +4733,8 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             self.debugView.data10Label?.frame = CGRect(x: x, y: y, width: w, height: h)
             self.debugView.data10Label?.textColor = UIColor.fluorescentPink
             self.debugView.data10Label?.backgroundColor = UIColor.clear
-            self.debugView.data10Label?.font = UIFont(name: "Migu 2M", size: 14)
-            self.debugView.data10Label?.textAlignment = NSTextAlignment.left
+            self.debugView.data10Label?.font = UIFont(name: "Migu 2M", size: 14.0)
+            self.debugView.data10Label?.textAlignment = .left
             self.debugView.data10Label?.numberOfLines = 1
             mainScrollView.addSubview(self.debugView.data10Label!)
 
@@ -4644,11 +4744,12 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             label11.text = "tVOC:"
             label11.textColor = UIColor.white
             label11.backgroundColor = UIColor.clear
-            label11.font = UIFont(name: "Migu 2M", size: 14)
-            label11.textAlignment = NSTextAlignment.left
+            label11.font = UIFont(name: "Migu 2M", size: 14.0)
+            label11.textAlignment = .left
             label11.numberOfLines = 1
             label11.sizeToFit()
-            label11.frame = CGRect(x: x, y: y, width: label11.frame.size.width, height: h)
+            w = label11.frame.size.width
+            label11.frame = CGRect(x: x, y: y, width: w, height: h)
             mainScrollView.addSubview(label11)
 
             x = label11.frame.origin.x + label11.frame.size.width + 10.0
@@ -4658,8 +4759,8 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             self.debugView.data11Label?.frame = CGRect(x: x, y: y, width: w, height: h)
             self.debugView.data11Label?.textColor = UIColor.fluorescentPink
             self.debugView.data11Label?.backgroundColor = UIColor.clear
-            self.debugView.data11Label?.font = UIFont(name: "Migu 2M", size: 14)
-            self.debugView.data11Label?.textAlignment = NSTextAlignment.left
+            self.debugView.data11Label?.font = UIFont(name: "Migu 2M", size: 14.0)
+            self.debugView.data11Label?.textAlignment = .left
             self.debugView.data11Label?.numberOfLines = 1
             mainScrollView.addSubview(self.debugView.data11Label!)
 
@@ -4669,11 +4770,12 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             label12.text = "Volt:"
             label12.textColor = UIColor.white
             label12.backgroundColor = UIColor.clear
-            label12.font = UIFont(name: "Migu 2M", size: 14)
-            label12.textAlignment = NSTextAlignment.left
+            label12.font = UIFont(name: "Migu 2M", size: 14.0)
+            label12.textAlignment = .left
             label12.numberOfLines = 1
             label12.sizeToFit()
-            label12.frame = CGRect(x: x, y: y, width: label12.frame.size.width, height: h)
+            w = label12.frame.size.width
+            label12.frame = CGRect(x: x, y: y, width: w, height: h)
             mainScrollView.addSubview(label12)
 
             x = label12.frame.origin.x + label12.frame.size.width + 10.0
@@ -4683,8 +4785,8 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             self.debugView.data12Label?.frame = CGRect(x: x, y: y, width: w, height: h)
             self.debugView.data12Label?.textColor = UIColor.fluorescentPink
             self.debugView.data12Label?.backgroundColor = UIColor.clear
-            self.debugView.data12Label?.font = UIFont(name: "Migu 2M", size: 14)
-            self.debugView.data12Label?.textAlignment = NSTextAlignment.left
+            self.debugView.data12Label?.font = UIFont(name: "Migu 2M", size: 14.0)
+            self.debugView.data12Label?.textAlignment = .left
             self.debugView.data12Label?.numberOfLines = 1
             mainScrollView.addSubview(self.debugView.data12Label!)
 
@@ -4694,11 +4796,12 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             label13.text = "Pow:"
             label13.textColor = UIColor.white
             label13.backgroundColor = UIColor.clear
-            label13.font = UIFont(name: "Migu 2M", size: 14)
-            label13.textAlignment = NSTextAlignment.left
+            label13.font = UIFont(name: "Migu 2M", size: 14.0)
+            label13.textAlignment = .left
             label13.numberOfLines = 1
             label13.sizeToFit()
-            label13.frame = CGRect(x: x, y: y, width: label13.frame.size.width, height: h)
+            w = label13.frame.size.width
+            label13.frame = CGRect(x: x, y: y, width: w, height: h)
             mainScrollView.addSubview(label13)
 
             x = label13.frame.origin.x + label13.frame.size.width + 10.0
@@ -4708,8 +4811,8 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             self.debugView.data13Label?.frame = CGRect(x: x, y: y, width: w, height: h)
             self.debugView.data13Label?.textColor = UIColor.fluorescentPink
             self.debugView.data13Label?.backgroundColor = UIColor.clear
-            self.debugView.data13Label?.font = UIFont(name: "Migu 2M", size: 14)
-            self.debugView.data13Label?.textAlignment = NSTextAlignment.left
+            self.debugView.data13Label?.font = UIFont(name: "Migu 2M", size: 14.0)
+            self.debugView.data13Label?.textAlignment = .left
             self.debugView.data13Label?.numberOfLines = 1
             mainScrollView.addSubview(self.debugView.data13Label!)
 
@@ -4719,11 +4822,12 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             label14.text = "OSC Send Mode:"
             label14.textColor = UIColor.white
             label14.backgroundColor = UIColor.clear
-            label14.font = UIFont(name: "Migu 2M", size: 14)
-            label14.textAlignment = NSTextAlignment.left
+            label14.font = UIFont(name: "Migu 2M", size: 14.0)
+            label14.textAlignment = .left
             label14.numberOfLines = 1
             label14.sizeToFit()
-            label14.frame = CGRect(x: x, y: y, width: label14.frame.size.width, height: h)
+            w = label14.frame.size.width
+            label14.frame = CGRect(x: x, y: y, width: w, height: h)
             mainScrollView.addSubview(label14)
 
             x = label14.frame.origin.x + label14.frame.size.width + 10.0
@@ -4733,8 +4837,8 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             self.debugView.data14Label?.frame = CGRect(x: x, y: y, width: w, height: h)
             self.debugView.data14Label?.textColor = UIColor.fluorescentPink
             self.debugView.data14Label?.backgroundColor = UIColor.clear
-            self.debugView.data14Label?.font = UIFont(name: "Migu 2M", size: 14)
-            self.debugView.data14Label?.textAlignment = NSTextAlignment.left
+            self.debugView.data14Label?.font = UIFont(name: "Migu 2M", size: 14.0)
+            self.debugView.data14Label?.textAlignment = .left
             self.debugView.data14Label?.numberOfLines = 1
             mainScrollView.addSubview(self.debugView.data14Label!)
 
@@ -4744,11 +4848,12 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             label15.text = "Address/Port:"
             label15.textColor = UIColor.white
             label15.backgroundColor = UIColor.clear
-            label15.font = UIFont(name: "Migu 2M", size: 14)
-            label15.textAlignment = NSTextAlignment.left
+            label15.font = UIFont(name: "Migu 2M", size: 14.0)
+            label15.textAlignment = .left
             label15.numberOfLines = 1
             label15.sizeToFit()
-            label15.frame = CGRect(x: x, y: y, width: label15.frame.size.width, height: h)
+            w = label15.frame.size.width
+            label15.frame = CGRect(x: x, y: y, width: w, height: h)
             mainScrollView.addSubview(label15)
 
             x = label15.frame.origin.x + label15.frame.size.width + 10.0
@@ -4758,8 +4863,8 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             self.debugView.data15Label?.frame = CGRect(x: x, y: y, width: w, height: h)
             self.debugView.data15Label?.textColor = UIColor.fluorescentPink
             self.debugView.data15Label?.backgroundColor = UIColor.clear
-            self.debugView.data15Label?.font = UIFont(name: "Migu 2M", size: 14)
-            self.debugView.data15Label?.textAlignment = NSTextAlignment.left
+            self.debugView.data15Label?.font = UIFont(name: "Migu 2M", size: 14.0)
+            self.debugView.data15Label?.textAlignment = .left
             self.debugView.data15Label?.numberOfLines = 1
             mainScrollView.addSubview(self.debugView.data15Label!)
 
@@ -4770,11 +4875,12 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 label16.text = "OSC Recv Mode:"
                 label16.textColor = UIColor.white
                 label16.backgroundColor = UIColor.clear
-                label16.font = UIFont(name: "Migu 2M", size: 14)
-                label16.textAlignment = NSTextAlignment.left
+                label16.font = UIFont(name: "Migu 2M", size: 14.0)
+                label16.textAlignment = .left
                 label16.numberOfLines = 1
                 label16.sizeToFit()
-                label16.frame = CGRect(x: x, y: y, width: label16.frame.size.width, height: h)
+                w = label16.frame.size.width
+                label16.frame = CGRect(x: x, y: y, width: w, height: h)
                 mainScrollView.addSubview(label16)
 
                 x = label16.frame.origin.x + label16.frame.size.width + 10.0
@@ -4784,8 +4890,8 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.debugView.data16Label?.frame = CGRect(x: x, y: y, width: w, height: h)
                 self.debugView.data16Label?.textColor = UIColor.fluorescentPink
                 self.debugView.data16Label?.backgroundColor = UIColor.clear
-                self.debugView.data16Label?.font = UIFont(name: "Migu 2M", size: 14)
-                self.debugView.data16Label?.textAlignment = NSTextAlignment.left
+                self.debugView.data16Label?.font = UIFont(name: "Migu 2M", size: 14.0)
+                self.debugView.data16Label?.textAlignment = .left
                 self.debugView.data16Label?.numberOfLines = 1
                 mainScrollView.addSubview(self.debugView.data16Label!)
 
@@ -4795,11 +4901,12 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 label17.text = "Port:"
                 label17.textColor = UIColor.white
                 label17.backgroundColor = UIColor.clear
-                label17.font = UIFont(name: "Migu 2M", size: 14)
-                label17.textAlignment = NSTextAlignment.left
+                label17.font = UIFont(name: "Migu 2M", size: 14.0)
+                label17.textAlignment = .left
                 label17.numberOfLines = 1
                 label17.sizeToFit()
-                label17.frame = CGRect(x: x, y: y, width: label17.frame.size.width, height: h)
+                w = label17.frame.size.width
+                label17.frame = CGRect(x: x, y: y, width: w, height: h)
                 mainScrollView.addSubview(label17)
 
                 x = label17.frame.origin.x + label17.frame.size.width + 10.0
@@ -4809,8 +4916,8 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.debugView.data17Label?.frame = CGRect(x: x, y: y, width: w, height: h)
                 self.debugView.data17Label?.textColor = UIColor.fluorescentPink
                 self.debugView.data17Label?.backgroundColor = UIColor.clear
-                self.debugView.data17Label?.font = UIFont(name: "Migu 2M", size: 14)
-                self.debugView.data17Label?.textAlignment = NSTextAlignment.left
+                self.debugView.data17Label?.font = UIFont(name: "Migu 2M", size: 14.0)
+                self.debugView.data17Label?.textAlignment = .left
                 self.debugView.data17Label?.numberOfLines = 1
                 mainScrollView.addSubview(self.debugView.data17Label!)
             }
@@ -4840,8 +4947,8 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 var synapseValues: SynapseValues = self.synapseValuesMain
                 if self.synapseValuesOSC.isConnected {
                     synapseValues = self.synapseValuesOSC
-                }*/
-
+                }
+                 */
                 var data0str: String = ""
                 var data1str: String = ""
                 var data2str: String = ""
@@ -4862,7 +4969,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 }
                 data1str = synapseObject.getDeviceStatus()
                 if let time = synapseObject.synapseValues.time {
-                    let formatter = DateFormatter()
+                    let formatter: DateFormatter = DateFormatter()
                     formatter.locale = Locale(identifier: "en_US_POSIX")
                     formatter.dateFormat = "yyyy/MM/dd HH:mm:ss.SSS"
                     data2str = formatter.string(from: Date(timeIntervalSince1970: time))
@@ -4892,7 +4999,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 if let temp = synapseObject.synapseValues.temp {
                     var tempVal: Float = temp
                     if self.appDelegate.temperatureScale == "F" {
-                        tempVal = CommonFunction.makeFahrenheitTemperatureValue(tempVal)
+                        tempVal = self.makeFahrenheitTemperatureValue(tempVal)
                     }
                     data8str = "\(String(tempVal))"
                 }
@@ -4984,7 +5091,6 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                         flag = self.settingFileManager.checkPlayableSound(timeInterval)
                     }
                 }
-
                 if flag {
                     self.playAudio()
                 }*/
@@ -5021,7 +5127,11 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         if let synapseSound = self.synapseSound {
             synapseSound.play()
 
-            self.synapseSoundTimer = Timer.scheduledTimer(timeInterval: synapseSound.getRoopTime(), target: self, selector: #selector(self.checkAudio), userInfo: nil, repeats: true)
+            self.synapseSoundTimer = Timer.scheduledTimer(timeInterval: synapseSound.getRoopTime(),
+                                                          target: self,
+                                                          selector: #selector(self.checkAudio),
+                                                          userInfo: nil,
+                                                          repeats: true)
             self.synapseSoundTimer?.fire()
         }
     }
@@ -5418,7 +5528,9 @@ class SynapseObject {
 
         if let mainNodeRoll = self.synapseCrystalNode.mainNodeRoll {
             let aroundSide: SCNVector3 = SCNVector3(x: 0, y: 1, z: 0)
-            let actionSide: SCNAction = SCNAction.rotate(by: CGFloat(Double.pi / 180.0) * dx, around: aroundSide, duration: 0)
+            let actionSide: SCNAction = SCNAction.rotate(by: CGFloat(Double.pi / 180.0) * dx,
+                                                         around: aroundSide,
+                                                         duration: 0)
             actionSide.timingMode = .easeOut
             mainNodeRoll.runAction(actionSide, completionHandler: {
                 //print("mainNodeRoll: \(self.mainNodeRoll.rotation) mainNode: \(self.mainNode.rotation)")
@@ -5426,8 +5538,12 @@ class SynapseObject {
             })
 
             if let mainNode = self.synapseCrystalNode.mainNode {
-                let aroundLong: SCNVector3 = SCNVector3(x: Float(cos(mainNodeRoll.rotation.y * mainNodeRoll.rotation.w)), y: 0, z: Float(sin(mainNodeRoll.rotation.y * mainNodeRoll.rotation.w)))
-                let actionLong: SCNAction = SCNAction.rotate(by: CGFloat(Double.pi / 180.0) * dy, around: aroundLong, duration: 0)
+                let aroundLong: SCNVector3 = SCNVector3(x: Float(cos(mainNodeRoll.rotation.y * mainNodeRoll.rotation.w)),
+                                                        y: 0,
+                                                        z: Float(sin(mainNodeRoll.rotation.y * mainNodeRoll.rotation.w)))
+                let actionLong: SCNAction = SCNAction.rotate(by: CGFloat(Double.pi / 180.0) * dy,
+                                                             around: aroundLong,
+                                                             duration: 0)
                 actionLong.timingMode = .easeOut
                 mainNode.runAction(actionLong, completionHandler: {
                     //self.mainNode.removeAllActions()
@@ -5456,7 +5572,10 @@ class SynapseObject {
             self.synapseCrystalNode.radxBak = radx
             self.synapseCrystalNode.radyBak = rady
 
-            let action: SCNAction = SCNAction.rotateTo(x: CGFloat(-self.synapseCrystalNode.rotateY), y: 0, z: CGFloat(-self.synapseCrystalNode.rotateX), duration: self.rotateSynapseNodeDuration)
+            let action: SCNAction = SCNAction.rotateTo(x: CGFloat(-self.synapseCrystalNode.rotateY),
+                                                       y: 0,
+                                                       z: CGFloat(-self.synapseCrystalNode.rotateX),
+                                                       duration: self.rotateSynapseNodeDuration)
             action.timingMode = .easeOut
             mainZNode.runAction(action, completionHandler: {
                 //self.mainZNode.removeAllActions()
@@ -5476,7 +5595,10 @@ class SynapseObject {
     func rotateCrystalNode() {
 
         let rotationValue: CGFloat = 1.0
-        let action: SCNAction = SCNAction.rotateBy(x: 0, y: CGFloat(Double.pi / 180.0) * rotationValue, z: 0, duration: self.rotateCrystalNodeDuration)
+        let action: SCNAction = SCNAction.rotateBy(x: 0,
+                                                   y: CGFloat(Double.pi / 180.0) * rotationValue,
+                                                   z: 0,
+                                                   duration: self.rotateCrystalNodeDuration)
         self.synapseCrystalNode.co2Node?.runAction(action, completionHandler: {
             //synapseCrystalNode.co2Node?.removeAllActions()
         })
@@ -5488,7 +5610,10 @@ class SynapseObject {
         })
 
         let rotationValue2: CGFloat = 0.5
-        let action2: SCNAction = SCNAction.rotateBy(x: 0, y: 0, z: CGFloat(Double.pi / 180.0) * rotationValue2, duration: self.rotateCrystalNodeDuration)
+        let action2: SCNAction = SCNAction.rotateBy(x: 0,
+                                                    y: 0,
+                                                    z: CGFloat(Double.pi / 180.0) * rotationValue2,
+                                                    duration: self.rotateCrystalNodeDuration)
         self.synapseCrystalNode.light1Node?.runAction(action2, completionHandler: {
             //synapseCrystalNode.light1Node?.removeAllActions()
         })
@@ -5500,7 +5625,10 @@ class SynapseObject {
         })
 
         let rotationValue3: CGFloat = 0.5
-        let action3: SCNAction = SCNAction.rotateBy(x: 0, y: 0, z: CGFloat(Double.pi / 180.0) * -rotationValue3, duration: self.rotateCrystalNodeDuration)
+        let action3: SCNAction = SCNAction.rotateBy(x: 0,
+                                                    y: 0,
+                                                    z: CGFloat(Double.pi / 180.0) * -rotationValue3,
+                                                    duration: self.rotateCrystalNodeDuration)
         self.synapseCrystalNode.pressureNode?.runAction(action3, completionHandler: {
             //synapseCrystalNode.pressureNode?.removeAllActions()
         })
@@ -5791,7 +5919,7 @@ class SynapseObject {
             let synapse: [String: Any] = self.synapseData[0]
             //print("setSynapseValues: \(synapse)")
             if let time = synapse["time"] as? TimeInterval, let data = synapse["data"] as? [UInt8] {
-                let formatter = DateFormatter()
+                let formatter: DateFormatter = DateFormatter()
                 formatter.locale = Locale(identifier: "en_US_POSIX")
                 formatter.dateFormat = "yyyyMMddHHmmss"
                 self.synapseNowDate = formatter.string(from: Date(timeIntervalSince1970: time))
@@ -6020,8 +6148,8 @@ class SynapseObject {
             return Int(10.0 * log10(pow(p, 2) / pow(20, 2)))
         }
         return 0
-    }*/
-
+    }
+     */
     func makeSynapseVoltageValue(byte1: UInt8, byte2: UInt8) -> Float {
 
         let hex1: Int = Int(byte1)
@@ -6082,7 +6210,8 @@ class SynapseObject {
         let hex2: Int = Int(str.substring(from: str.index(str.startIndex, offsetBy: 2)), radix: 16) ?? 0
         let decimal: Float = Float(hex2) / 256.0
         return Float(hex1) + decimal
-    }*/
+    }
+     */
 
     // MARK: mark - Save SynapseData methods
 
@@ -6190,14 +6319,14 @@ class SynapseObject {
             return synapseRecordFileManager.setSynapseRecord(day: day, time: time, fileName: recordName)
         }
         return false
-    }*/
-
+    }
+     */
     func saveSynapseTotal(_ synapseValues: SynapseValues) -> Bool {
 
         var res: Bool = false
         var dateStr: String = ""
         if let time = synapseValues.time {
-            let formatter = DateFormatter()
+            let formatter: DateFormatter = DateFormatter()
             formatter.locale = Locale(identifier: "en_US_POSIX")
             formatter.dateFormat = "yyyyMMddHHmmss"
             dateStr = formatter.string(from: Date(timeIntervalSince1970: time))

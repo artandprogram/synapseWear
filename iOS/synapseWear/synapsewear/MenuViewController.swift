@@ -7,7 +7,7 @@
 
 import UIKit
 
-class MenuViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class MenuViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, CommonFunctionProtocol {
 
     // variables
     var appDelegate: AppDelegate = UIApplication.shared.delegate as! AppDelegate
@@ -42,9 +42,9 @@ class MenuViewController: UIViewController, UITableViewDataSource, UITableViewDe
             }
         }
          */
-        if let isDebug = self.appDelegate.appinfo?["is_debug"] as? Bool {
+        if let isDebug = self.getAppinfoValue("is_debug") as? Bool {
             self.isDebug = isDebug
-            if let debugs = self.appDelegate.appinfo?["debugs"] as? [Any] {
+            if let debugs = self.getAppinfoValue("debugs") as? [Any] {
                 self.debugList = debugs
             }
         }
@@ -56,18 +56,17 @@ class MenuViewController: UIViewController, UITableViewDataSource, UITableViewDe
 
         self.view.backgroundColor = UIColor.clear
 
-        let x:CGFloat = 0
-        let y:CGFloat = 20.0
-        var w:CGFloat = self.view.frame.width
-        let h:CGFloat = self.view.frame.height - y
+        let x: CGFloat = 0
+        let y: CGFloat = 20.0
+        var w: CGFloat = self.view.frame.width
         if let parentViewController = parent as? MainViewController {
             w = parentViewController.menuW
         }
-
+        let h: CGFloat = self.view.frame.height - y
         self.menusTableView = UITableView()
         self.menusTableView.frame = CGRect(x: x, y: y, width: w, height: h)
         self.menusTableView.backgroundColor = UIColor.clear
-        self.menusTableView.separatorStyle = UITableViewCellSeparatorStyle.none
+        self.menusTableView.separatorStyle = .none
         self.menusTableView.delegate = self
         self.menusTableView.dataSource = self
         self.view.addSubview(self.menusTableView)
@@ -96,12 +95,12 @@ class MenuViewController: UIViewController, UITableViewDataSource, UITableViewDe
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
-        let cell: UITableViewCell = UITableViewCell(style: UITableViewCellStyle.value1, reuseIdentifier: "Cell")
+        let cell: UITableViewCell = UITableViewCell(style: .value1, reuseIdentifier: "Cell")
         cell.backgroundColor = UIColor.clear
-        //cell.selectionStyle = UITableViewCellSelectionStyle.none
+        //cell.selectionStyle = .none
 
         cell.textLabel?.textColor = UIColor.black
-        cell.textLabel?.font = UIFont(name: "HelveticaNeue", size: 16)
+        cell.textLabel?.font = UIFont(name: "HelveticaNeue", size: 16.0)
         cell.textLabel?.text = ""
         if indexPath.section == 0 && indexPath.row < self.menuList.count {
             if let dic = self.menuList[indexPath.row] as? [String: Any] {
@@ -134,16 +133,22 @@ class MenuViewController: UIViewController, UITableViewDataSource, UITableViewDe
 
         if section == 1 {
             if self.isDebug && self.debugList.count > 0 {
+                var x: CGFloat = 0
+                let y: CGFloat = 0
+                var w: CGFloat = tableView.frame.size.width
+                let h: CGFloat = self.tableView(tableView, heightForHeaderInSection: section)
                 let view: UIView = UIView()
-                view.frame = CGRect(x: 0, y: 0, width: tableView.frame.size.width, height: self.tableView(tableView, heightForHeaderInSection: section))
+                view.frame = CGRect(x: x, y: y, width: w, height: h)
                 view.backgroundColor = UIColor.clear
 
+                x = 15.0
+                w = view.frame.size.width - x
                 let label: UILabel = UILabel()
                 label.text = "Debug"
-                label.frame = CGRect(x: 15.0, y: 0, width: view.frame.size.width - 15.0, height: view.frame.size.height)
+                label.frame = CGRect(x: x, y: y, width: w, height: h)
                 label.textColor = UIColor.black
                 label.backgroundColor = UIColor.clear
-                label.font = UIFont(name: "HelveticaNeue-Bold", size: 16)
+                label.font = UIFont(name: "HelveticaNeue-Bold", size: 16.0)
                 view.addSubview(label)
 
                 return view

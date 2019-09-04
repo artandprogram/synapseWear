@@ -59,7 +59,8 @@ class SynapseUploadSettingsViewController: BaseViewController, UITableViewDataSo
         }
         /*
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillShow(_:)), name: .UIKeyboardWillShow, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.KeyboardWillHide(_:)), name: .UIKeyboardWillHide, object: nil)*/
+        NotificationCenter.default.addObserver(self, selector: #selector(self.KeyboardWillHide(_:)), name: .UIKeyboardWillHide, object: nil)
+         */
     }
 
     override func setView() {
@@ -78,7 +79,7 @@ class SynapseUploadSettingsViewController: BaseViewController, UITableViewDataSo
         self.settingTableView = UITableView()
         self.settingTableView.frame = CGRect(x: x, y: y, width: w, height: h)
         self.settingTableView.backgroundColor = UIColor.clear
-        self.settingTableView.separatorStyle = UITableViewCellSeparatorStyle.none
+        self.settingTableView.separatorStyle = .none
         self.settingTableView.delegate = self
         self.settingTableView.dataSource = self
         self.view.addSubview(self.settingTableView)
@@ -93,7 +94,8 @@ class SynapseUploadSettingsViewController: BaseViewController, UITableViewDataSo
         self.closeKeyboardButton.alpha = 0.5
         self.closeKeyboardButton.isHidden = true
         self.closeKeyboardButton.addTarget(self, action: #selector(self.closeKeyboardAction), for: .touchUpInside)
-        self.view.addSubview(self.closeKeyboardButton)*/
+        self.view.addSubview(self.closeKeyboardButton)
+         */
     }
 
     // MARK: mark - SettingData methods
@@ -157,18 +159,18 @@ class SynapseUploadSettingsViewController: BaseViewController, UITableViewDataSo
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
-        var cell: UITableViewCell = UITableViewCell(style: UITableViewCellStyle.default, reuseIdentifier: "Cell")
+        var cell: UITableViewCell = UITableViewCell(style: .default, reuseIdentifier: "Cell")
         cell.backgroundColor = UIColor.clear
         cell.selectionStyle = .none
 
         if indexPath.section == 0 {
             if indexPath.row == 0 || indexPath.row == 3 {
-                cell = UITableViewCell(style: UITableViewCellStyle.default, reuseIdentifier: "line_cell")
+                cell = UITableViewCell(style: .default, reuseIdentifier: "line_cell")
                 cell.backgroundColor = UIColor.black.withAlphaComponent(0.1)
                 cell.selectionStyle = .none
             }
             else if indexPath.row == 1 {
-                let cell: SettingTableViewCell = SettingTableViewCell(style: UITableViewCellStyle.default, reuseIdentifier: "send_flag_cell")
+                let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "send_flag_cell")
                 cell.backgroundColor = UIColor.white
                 cell.selectionStyle = .none
                 cell.iconImageView.isHidden = true
@@ -180,7 +182,7 @@ class SynapseUploadSettingsViewController: BaseViewController, UITableViewDataSo
                 return cell
             }
             else if indexPath.row == 2 {
-                let cell: SettingTableViewCell = SettingTableViewCell(style: UITableViewCellStyle.default, reuseIdentifier: "send_url_cell")
+                let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "send_url_cell")
                 cell.backgroundColor = UIColor.white
                 cell.selectionStyle = .none
                 cell.iconImageView.isHidden = true
@@ -198,13 +200,13 @@ class SynapseUploadSettingsViewController: BaseViewController, UITableViewDataSo
                 return cell
             }
             else if indexPath.row == 4 {
-                cell = UITableViewCell(style: UITableViewCellStyle.default, reuseIdentifier: "note_cell")
+                cell = UITableViewCell(style: .default, reuseIdentifier: "note_cell")
                 cell.backgroundColor = UIColor.clear
                 cell.selectionStyle = .none
 
                 cell.textLabel?.text = "URL must be https. Data will be uploaded every hour on the hour."
                 cell.textLabel?.textColor = UIColor.darkGray
-                cell.textLabel?.font = UIFont(name: "HelveticaNeue", size: 14)
+                cell.textLabel?.font = UIFont(name: "HelveticaNeue", size: 14.0)
                 cell.textLabel?.numberOfLines = 0
             }
         }
@@ -226,7 +228,10 @@ class SynapseUploadSettingsViewController: BaseViewController, UITableViewDataSo
 
         if self.tableView(tableView, heightForHeaderInSection: section) > 0 {
             let view: UIView = UIView()
-            view.frame = CGRect(x: 0, y: 0, width: tableView.frame.size.width, height: self.tableView(tableView, heightForHeaderInSection: section))
+            view.frame = CGRect(x: 0,
+                                y: 0,
+                                width: tableView.frame.size.width,
+                                height: self.tableView(tableView, heightForHeaderInSection: section))
             view.backgroundColor = UIColor.clear
             return view
         }
@@ -307,5 +312,6 @@ class SynapseUploadSettingsViewController: BaseViewController, UITableViewDataSo
 
         self.view.endEditing(true)
         self.closeKeyboardButton.isHidden = true
-    }*/
+    }
+     */
 }

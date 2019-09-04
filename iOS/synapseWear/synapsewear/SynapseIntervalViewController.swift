@@ -72,7 +72,7 @@ class SynapseIntervalViewController: BaseViewController, UITableViewDataSource, 
         self.settingTableView = UITableView()
         self.settingTableView.frame = CGRect(x: x, y: y, width: w, height: h)
         self.settingTableView.backgroundColor = UIColor.clear
-        self.settingTableView.separatorStyle = UITableViewCellSeparatorStyle.none
+        self.settingTableView.separatorStyle = .none
         self.settingTableView.delegate = self
         self.settingTableView.dataSource = self
         self.view.addSubview(self.settingTableView)
@@ -97,18 +97,18 @@ class SynapseIntervalViewController: BaseViewController, UITableViewDataSource, 
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
-        var cell: UITableViewCell = UITableViewCell(style: UITableViewCellStyle.default, reuseIdentifier: "Cell")
+        var cell: UITableViewCell = UITableViewCell(style: .default, reuseIdentifier: "Cell")
         cell.backgroundColor = UIColor.clear
         cell.selectionStyle = .none
 
         if indexPath.section == 0 {
             if indexPath.row == 0 || indexPath.row == self.settingFileManager.synapseTimeIntervals.count + 1 {
-                cell = UITableViewCell(style: UITableViewCellStyle.default, reuseIdentifier: "line_cell")
+                cell = UITableViewCell(style: .default, reuseIdentifier: "line_cell")
                 cell.backgroundColor = UIColor.black.withAlphaComponent(0.1)
                 cell.selectionStyle = .none
             }
             else if indexPath.row <= self.settingFileManager.synapseTimeIntervals.count {
-                let cell: SettingTableViewCell = SettingTableViewCell(style: UITableViewCellStyle.default, reuseIdentifier: "interval_cell")
+                let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "interval_cell")
                 cell.backgroundColor = UIColor.white
                 cell.selectionStyle = .none
                 cell.iconImageView.isHidden = true
@@ -147,7 +147,10 @@ class SynapseIntervalViewController: BaseViewController, UITableViewDataSource, 
 
         if self.tableView(tableView, heightForHeaderInSection: section) > 0 {
             let view: UIView = UIView()
-            view.frame = CGRect(x: 0, y: 0, width: tableView.frame.size.width, height: self.tableView(tableView, heightForHeaderInSection: section))
+            view.frame = CGRect(x: 0,
+                                y: 0,
+                                width: tableView.frame.size.width,
+                                height: self.tableView(tableView, heightForHeaderInSection: section))
             view.backgroundColor = UIColor.clear
             return view
         }

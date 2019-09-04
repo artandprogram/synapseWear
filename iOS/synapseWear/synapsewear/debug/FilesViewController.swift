@@ -62,7 +62,6 @@ class FilesViewController: BaseViewController, UITableViewDataSource, UITableVie
         let y:CGFloat = 20.0 + 60.0
         let w:CGFloat = self.view.frame.width
         let h:CGFloat = self.view.frame.height - y
-
         self.filesView = UITableView()
         self.filesView.frame = CGRect(x: x, y: y, width: w, height: h)
         self.filesView.backgroundColor = UIColor.clear
@@ -103,7 +102,7 @@ class FilesViewController: BaseViewController, UITableViewDataSource, UITableVie
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
-        let cell: UITableViewCell = UITableViewCell(style: UITableViewCellStyle.value1, reuseIdentifier: "Cell")
+        let cell: UITableViewCell = UITableViewCell(style: .value1, reuseIdentifier: "Cell")
         cell.backgroundColor = UIColor.clear
         //cell.selectionStyle = UITableViewCellSelectionStyle.none
 
@@ -113,13 +112,12 @@ class FilesViewController: BaseViewController, UITableViewDataSource, UITableVie
         if indexPath.row < self.files.count {
             cell.textLabel?.text = self.files[indexPath.row]
         }
-        cell.accessoryType = UITableViewCellAccessoryType.none
+        cell.accessoryType = .none
         if let text = cell.textLabel?.text {
             if self.isDirectory(text) {
-                cell.accessoryType = UITableViewCellAccessoryType.disclosureIndicator
+                cell.accessoryType = .disclosureIndicator
             }
         }
-
         return cell
     }
 
@@ -134,7 +132,7 @@ class FilesViewController: BaseViewController, UITableViewDataSource, UITableVie
         let label: UILabel = UILabel()
         label.frame = CGRect(x: x, y: y, width: w, height: h)
         label.text = self.filepath
-        label.font = UIFont(name: "HelveticaNeue", size: 14)
+        label.font = UIFont(name: "HelveticaNeue", size: 14.0)
         label.numberOfLines = 0
         label.sizeToFit()
 
@@ -159,7 +157,7 @@ class FilesViewController: BaseViewController, UITableViewDataSource, UITableVie
         let label: UILabel = UILabel()
         label.frame = CGRect(x: x, y: y, width: w, height: h)
         label.text = self.filepath
-        label.font = UIFont(name: "HelveticaNeue", size: 14)
+        label.font = UIFont(name: "HelveticaNeue", size: 14.0)
         label.numberOfLines = 0
         view.addSubview(label)
 
@@ -184,7 +182,7 @@ class FilesViewController: BaseViewController, UITableViewDataSource, UITableVie
         let h:CGFloat = 0
         let label: UILabel = UILabel()
         label.frame = CGRect(x: x, y: y, width: w, height: h)
-        label.font = UIFont(name: "HelveticaNeue", size: 14)
+        label.font = UIFont(name: "HelveticaNeue", size: 14.0)
         label.numberOfLines = 0
         label.text = ""
         if indexPath.row < self.files.count {
@@ -225,5 +223,4 @@ class FilesViewController: BaseViewController, UITableViewDataSource, UITableVie
             self.navigationController?.pushViewController(vc, animated: true)
         }
     }
-
 }

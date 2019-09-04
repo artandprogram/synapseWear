@@ -126,8 +126,8 @@ class GraphDataTableViewCell: UITableViewCell {
 
     func resizeView() {
 
-        let cellWidth: CGFloat = self.contentView.frame.size.width;
-        let cellHeight: CGFloat = self.contentView.frame.size.height;
+        let cellWidth: CGFloat = self.contentView.frame.size.width
+        let cellHeight: CGFloat = self.contentView.frame.size.height
         var x: CGFloat = self.space
         var y: CGFloat = 0
         var w: CGFloat = 0

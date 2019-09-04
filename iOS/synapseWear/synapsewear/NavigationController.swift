@@ -12,7 +12,7 @@ protocol DeviceAssociatedDelegate: class {
     func changeDeviceAssociated(_ text: String)
 }
 
-class NavigationController: UINavigationController {
+class NavigationController: UINavigationController, CommonFunctionProtocol {
 
     // variables
     var appDelegate: AppDelegate = UIApplication.shared.delegate as! AppDelegate
@@ -61,7 +61,8 @@ class NavigationController: UINavigationController {
 
     func setParam() {
 
-        if let isDebug = self.appDelegate.appinfo?["is_debug"] as? Bool {
+        //print("WiFi Address: \(String(describing: self.getWiFiAddress()))")
+        if let isDebug = self.getAppinfoValue("is_debug") as? Bool {
             self.isDebug = isDebug
         }
         //self.setMenuList()
@@ -82,7 +83,8 @@ class NavigationController: UINavigationController {
             }
         }
         //print("menuList : \(self.menuList)")
-    } */
+    }
+     */
 
     // MARK: mark - Set Views methods
 
@@ -92,40 +94,53 @@ class NavigationController: UINavigationController {
 
         self.view.backgroundColor = UIColor.clear
 
-        let x: CGFloat = 0
-        let y: CGFloat = 0
-        let w: CGFloat = self.view.frame.width
-        let h: CGFloat = 20.0 + 44.0
-
+        var x: CGFloat = 0
+        var y: CGFloat = 0
+        var w: CGFloat = self.view.frame.width
+        var h: CGFloat = 20.0 + 44.0
         self.headerView = UIView()
         self.headerView.frame = CGRect(x: x, y: y, width: w, height: h)
         self.headerView.backgroundColor = UIColor.clear
         self.view.addSubview(self.headerView)
 
+        x = 44.0
+        y = 20.0
+        w = self.headerView.frame.size.width - x * 2
+        h = self.headerView.frame.size.height - y
         self.headerTitle = UILabel()
-        self.headerTitle.frame = CGRect(x: 44.0, y: 20.0, width: self.headerView.frame.size.width - 44.0 * 2, height: self.headerView.frame.size.height - 20.0)
+        self.headerTitle.frame = CGRect(x: x, y: y, width: w, height: h)
         self.headerTitle.backgroundColor = UIColor.clear
         self.headerTitle.textColor = UIColor.black
-        self.headerTitle.font = UIFont(name: "HelveticaNeue", size: 18)
-        self.headerTitle.textAlignment = NSTextAlignment.center
+        self.headerTitle.font = UIFont(name: "HelveticaNeue", size: 18.0)
+        self.headerTitle.textAlignment = .center
         self.headerTitle.numberOfLines = 1
         self.headerView.addSubview(self.headerTitle)
 
+        x = 0
+        w = 44.0
         self.headerMenuBtn = UIButton()
-        self.headerMenuBtn.frame = CGRect(x: 0, y: 20.0, width: 44.0, height: self.headerView.frame.size.height - 20.0)
+        self.headerMenuBtn.frame = CGRect(x: x, y: y, width: w, height: h)
         self.headerMenuBtn.backgroundColor = UIColor.clear
         self.headerMenuBtn.addTarget(self, action: #selector(NavigationController.menuAction), for: .touchUpInside)
         self.headerView.addSubview(self.headerMenuBtn)
 
+        w = 20.0
+        h = 16.0
+        x = (self.headerMenuBtn.frame.size.width - w) / 2
+        y = (self.headerMenuBtn.frame.size.height - h) / 2
         self.headerMenuIcon = HamburgerMenuView()
-        self.headerMenuIcon.frame = CGRect(x: (self.headerMenuBtn.frame.size.width - 20.0) / 2, y: (self.headerMenuBtn.frame.size.height - 16.0) / 2, width: 20.0, height: 16.0)
-        self.headerMenuIcon.backgroundColor = .clear
+        self.headerMenuIcon.frame = CGRect(x: x, y: y, width: w, height: h)
+        self.headerMenuIcon.backgroundColor = UIColor.clear
         self.headerMenuIcon.isUserInteractionEnabled = false
         self.headerMenuIcon.lineColor = UIColor.black
         self.headerMenuBtn.addSubview(self.headerMenuIcon)
 
+        x = 0
+        y = 20.0
+        w = 44.0
+        h = self.headerView.frame.size.height - y
         self.headerBackBtn = UIButton()
-        self.headerBackBtn.frame = CGRect(x: 0, y: 20.0, width: 44.0, height: self.headerView.frame.size.height - 20.0)
+        self.headerBackBtn.frame = CGRect(x: x, y: y, width: w, height: h)
         self.headerBackBtn.backgroundColor = UIColor.clear
         self.headerBackBtn.addTarget(self, action: #selector(NavigationController.backViewController), for: .touchUpInside)
         self.headerView.addSubview(self.headerBackBtn)
@@ -140,19 +155,27 @@ class NavigationController: UINavigationController {
 
         self.headerBackForTopIcon = BackView()
         self.headerBackForTopIcon.frame = self.headerBackIcon.frame
-        self.headerBackForTopIcon.backgroundColor = .clear
+        self.headerBackForTopIcon.backgroundColor = UIColor.clear
         self.headerBackForTopIcon.isUserInteractionEnabled = false
         self.headerBackForTopIcon.lineColor = UIColor.white
         self.headerBackForTopBtn.addSubview(self.headerBackForTopIcon)
 
+        w = 44.0
+        x = self.headerView.frame.size.width - w
+        y = 20.0
+        h = self.headerView.frame.size.height - y
         self.headerSettingBtn = UIButton()
-        self.headerSettingBtn.frame = CGRect(x: self.headerView.frame.size.width - 44.0, y: 20.0, width: 44.0, height: self.headerView.frame.size.height - 20.0)
+        self.headerSettingBtn.frame = CGRect(x: x, y: y, width: w, height: h)
         self.headerSettingBtn.backgroundColor = UIColor.clear
         self.headerSettingBtn.addTarget(self, action: #selector(NavigationController.settingAction), for: .touchUpInside)
         self.headerView.addSubview(self.headerSettingBtn)
 
+        w = 24.0
+        h = 24.0
+        x = (self.headerSettingBtn.frame.size.width - w) / 2
+        y = (self.headerSettingBtn.frame.size.height - h) / 2
         self.headerSettingIcon = UIImageView()
-        self.headerSettingIcon.frame = CGRect(x: (self.headerSettingBtn.frame.size.width - 24.0) / 2, y: (self.headerSettingBtn.frame.size.height - 24.0) / 2, width: 24.0, height: 24.0)
+        self.headerSettingIcon.frame = CGRect(x: x, y: y, width: w, height: h)
         self.headerSettingIcon.image = UIImage(named: "setting_b.png")
         self.headerSettingIcon.backgroundColor = UIColor.clear
         self.headerSettingBtn.addSubview(self.headerSettingIcon)
@@ -160,19 +183,34 @@ class NavigationController: UINavigationController {
 
     func resizeView() {
 
-        var y: CGFloat = 20.0
+        var baseY: CGFloat = 20.0
         if #available(iOS 11.0, *) {
-            y = self.view.safeAreaInsets.top
+            baseY = self.view.safeAreaInsets.top
         }
-        var h: CGFloat = y + 44.0
-        self.headerView.frame = CGRect(x: self.headerView.frame.origin.x, y: self.headerView.frame.origin.y, width: self.headerView.frame.size.width, height: h)
+        var x: CGFloat = self.headerView.frame.origin.x
+        var y: CGFloat = self.headerView.frame.origin.y
+        var w: CGFloat = self.headerView.frame.size.width
+        var h: CGFloat = baseY + 44.0
+        self.headerView.frame = CGRect(x: x, y: y, width: w, height: h)
 
-        h -= y
-        self.headerTitle.frame = CGRect(x: self.headerTitle.frame.origin.x, y: y, width: self.headerTitle.frame.size.width, height: h)
-        self.headerMenuBtn.frame = CGRect(x: self.headerMenuBtn.frame.origin.x, y: y, width: self.headerMenuBtn.frame.size.width, height: h)
-        self.headerBackBtn.frame = CGRect(x: self.headerBackBtn.frame.origin.x, y: y, width: self.headerBackBtn.frame.size.width, height: h)
+        x = self.headerTitle.frame.origin.x
+        y = baseY
+        w = self.headerTitle.frame.size.width
+        h -= baseY
+        self.headerTitle.frame = CGRect(x: x, y: y, width: w, height: h)
+
+        x = self.headerMenuBtn.frame.origin.x
+        w = self.headerMenuBtn.frame.size.width
+        self.headerMenuBtn.frame = CGRect(x: x, y: y, width: w, height: h)
+
+        x = self.headerBackBtn.frame.origin.x
+        w = self.headerBackBtn.frame.size.width
+        self.headerBackBtn.frame = CGRect(x: x, y: y, width: w, height: h)
         self.headerBackForTopBtn.frame = self.headerBackBtn.frame
-        self.headerSettingBtn.frame = CGRect(x: self.headerSettingBtn.frame.origin.x, y: y, width: self.headerSettingBtn.frame.size.width, height: h)
+
+        x = self.headerSettingBtn.frame.origin.x
+        w = self.headerSettingBtn.frame.size.width
+        self.headerSettingBtn.frame = CGRect(x: x, y: y, width: w, height: h)
     }
 
     func setHeaderBackIcon(isWhite: Bool = false) {
@@ -184,9 +222,11 @@ class NavigationController: UINavigationController {
 
         let iconW: CGFloat = 11.0
         let iconH: CGFloat = 21.0
+        let x: CGFloat = (self.headerBackBtn.frame.size.width - iconW) / 2
+        let y: CGFloat = (self.headerBackBtn.frame.size.height - iconH) / 2
         self.headerBackIcon = BackView()
-        self.headerBackIcon.frame = CGRect(x: (self.headerBackBtn.frame.size.width - iconW) / 2, y: (self.headerBackBtn.frame.size.height - iconH) / 2, width: iconW, height: iconH)
-        self.headerBackIcon.backgroundColor = .clear
+        self.headerBackIcon.frame = CGRect(x: x, y: y, width: iconW, height: iconH)
+        self.headerBackIcon.backgroundColor = UIColor.clear
         self.headerBackIcon.isUserInteractionEnabled = false
         self.headerBackIcon.lineColor = UIColor.black
         if isWhite {
@@ -265,7 +305,7 @@ class NavigationController: UINavigationController {
         }
         else if indexPath.section == 1 {
             var debug: String = ""
-            if let debugs = self.appDelegate.appinfo?["debugs"] as? [Any] {
+            if let debugs = self.getAppinfoValue("debugs") as? [Any] {
                 if indexPath.row < debugs.count {
                     debug = String(describing: debugs[indexPath.row])
                 }
@@ -323,8 +363,8 @@ class NavigationController: UINavigationController {
     func getDeviceList() -> [Any] {
 
         return self.topVC.rfduinos
-    }*/
-
+    }
+     */
     func getDeviceUUID() -> UUID? {
 
         return self.topVC.mainSynapseObject.synapseUUID

@@ -7,7 +7,7 @@
 
 import UIKit
 
-class SynapseOSCViewController: BaseViewController, UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate {
+class SynapseOSCViewController: BaseViewController, UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate, CommonFunctionProtocol {
 
     // const
     let settingFileManager: SettingFileManager = SettingFileManager()
@@ -73,16 +73,22 @@ class SynapseOSCViewController: BaseViewController, UITableViewDataSource, UITab
         if let str = self.settingFileManager.getSettingData(self.settingFileManager.oscRecvPortKey) as? String {
             self.oscRecvPort = str
         }
-        if let str = CommonFunction.getWiFiAddress() {
+        if let str = self.getWiFiAddress() {
             self.oscRecvIP = str
         }
 
-        if let path = Bundle.main.path(forResource: "appinfo", ofType: "plist"), let dict = NSDictionary(contentsOfFile: path) as? [String: Any], let flag = dict["use_osc_recv"] as? Bool {
+        if let flag = self.getAppinfoValue("use_osc_recv") as? Bool {
             self.oscRecvSettingFlag = flag
         }
 
-        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillShow(_:)), name: .UIKeyboardWillShow, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.KeyboardWillHide(_:)), name: .UIKeyboardWillHide, object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(self.keyboardWillShow(_:)),
+                                               name: .UIKeyboardWillShow,
+                                               object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(self.KeyboardWillHide(_:)),
+                                               name: .UIKeyboardWillHide,
+                                               object: nil)
     }
 
     override func setView() {
@@ -101,7 +107,7 @@ class SynapseOSCViewController: BaseViewController, UITableViewDataSource, UITab
         self.settingTableView = UITableView()
         self.settingTableView.frame = CGRect(x: x, y: y, width: w, height: h)
         self.settingTableView.backgroundColor = UIColor.clear
-        self.settingTableView.separatorStyle = UITableViewCellSeparatorStyle.none
+        self.settingTableView.separatorStyle = .none
         self.settingTableView.delegate = self
         self.settingTableView.dataSource = self
         self.view.addSubview(self.settingTableView)
@@ -187,18 +193,18 @@ class SynapseOSCViewController: BaseViewController, UITableViewDataSource, UITab
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
-        var cell: UITableViewCell = UITableViewCell(style: UITableViewCellStyle.default, reuseIdentifier: "Cell")
+        var cell: UITableViewCell = UITableViewCell(style: .default, reuseIdentifier: "Cell")
         cell.backgroundColor = UIColor.clear
         cell.selectionStyle = .none
 
         if indexPath.section == 0 {
             if indexPath.row == 0 || indexPath.row == 4 {
-                cell = UITableViewCell(style: UITableViewCellStyle.default, reuseIdentifier: "line_cell")
+                cell = UITableViewCell(style: .default, reuseIdentifier: "line_cell")
                 cell.backgroundColor = UIColor.black.withAlphaComponent(0.1)
                 cell.selectionStyle = .none
             }
             else if indexPath.row == 1 {
-                let cell: SettingTableViewCell = SettingTableViewCell(style: UITableViewCellStyle.default, reuseIdentifier: "send_mode_cell")
+                let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "send_mode_cell")
                 cell.backgroundColor = UIColor.white
                 cell.selectionStyle = .none
                 cell.iconImageView.isHidden = true
@@ -213,7 +219,7 @@ class SynapseOSCViewController: BaseViewController, UITableViewDataSource, UITab
                 return cell
             }
             else if indexPath.row == 2 {
-                let cell: SettingTableViewCell = SettingTableViewCell(style: UITableViewCellStyle.default, reuseIdentifier: "send_ip_cell")
+                let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "send_ip_cell")
                 cell.backgroundColor = UIColor.white
                 cell.selectionStyle = .none
                 cell.iconImageView.isHidden = true
@@ -229,7 +235,7 @@ class SynapseOSCViewController: BaseViewController, UITableViewDataSource, UITab
                 return cell
             }
             else if indexPath.row == 3 {
-                let cell: SettingTableViewCell = SettingTableViewCell(style: UITableViewCellStyle.default, reuseIdentifier: "send_port_cell")
+                let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "send_port_cell")
                 cell.backgroundColor = UIColor.white
                 cell.selectionStyle = .none
                 cell.iconImageView.isHidden = true
@@ -248,12 +254,12 @@ class SynapseOSCViewController: BaseViewController, UITableViewDataSource, UITab
         }
         else if indexPath.section == 1 {
             if indexPath.row == 0 || indexPath.row == 4 {
-                cell = UITableViewCell(style: UITableViewCellStyle.default, reuseIdentifier: "line_cell")
+                cell = UITableViewCell(style: .default, reuseIdentifier: "line_cell")
                 cell.backgroundColor = UIColor.black.withAlphaComponent(0.1)
                 cell.selectionStyle = .none
             }
             else if indexPath.row == 1 {
-                let cell: SettingTableViewCell = SettingTableViewCell(style: UITableViewCellStyle.default, reuseIdentifier: "recv_mode_cell")
+                let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "recv_mode_cell")
                 cell.backgroundColor = UIColor.white
                 cell.selectionStyle = .none
                 cell.iconImageView.isHidden = true
@@ -268,7 +274,7 @@ class SynapseOSCViewController: BaseViewController, UITableViewDataSource, UITab
                 return cell
             }
             else if indexPath.row == 2 {
-                let cell: SettingTableViewCell = SettingTableViewCell(style: UITableViewCellStyle.default, reuseIdentifier: "recv_ip_cell")
+                let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "recv_ip_cell")
                 cell.backgroundColor = UIColor.white
                 cell.selectionStyle = .none
                 cell.iconImageView.isHidden = true
@@ -282,7 +288,7 @@ class SynapseOSCViewController: BaseViewController, UITableViewDataSource, UITab
                 return cell
             }
             else if indexPath.row == 3 {
-                let cell: SettingTableViewCell = SettingTableViewCell(style: UITableViewCellStyle.default, reuseIdentifier: "recv_port_cell")
+                let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "recv_port_cell")
                 cell.backgroundColor = UIColor.white
                 cell.selectionStyle = .none
                 cell.iconImageView.isHidden = true
@@ -320,7 +326,10 @@ class SynapseOSCViewController: BaseViewController, UITableViewDataSource, UITab
 
         if self.tableView(tableView, heightForHeaderInSection: section) > 0 {
             let view: UIView = UIView()
-            view.frame = CGRect(x: 0, y: 0, width: tableView.frame.size.width, height: self.tableView(tableView, heightForHeaderInSection: section))
+            view.frame = CGRect(x: 0,
+                                y: 0,
+                                width: tableView.frame.size.width,
+                                height: self.tableView(tableView, heightForHeaderInSection: section))
             view.backgroundColor = UIColor.clear
             return view
         }

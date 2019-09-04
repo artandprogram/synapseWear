@@ -9,7 +9,7 @@ import UIKit
 import Alamofire
 import SwiftyJSON
 
-class SynapseFirmwareViewController: BaseViewController, UITableViewDataSource, UITableViewDelegate {
+class SynapseFirmwareViewController: BaseViewController, UITableViewDataSource, UITableViewDelegate, CommonFunctionProtocol {
 
     // const
     let settingFileManager: SettingFileManager = SettingFileManager()
@@ -59,7 +59,7 @@ class SynapseFirmwareViewController: BaseViewController, UITableViewDataSource, 
         self.settingTableView = UITableView()
         self.settingTableView.frame = CGRect(x: x, y: y, width: w, height: h)
         self.settingTableView.backgroundColor = UIColor.clear
-        self.settingTableView.separatorStyle = UITableViewCellSeparatorStyle.none
+        self.settingTableView.separatorStyle = .none
         self.settingTableView.delegate = self
         self.settingTableView.dataSource = self
         self.view.addSubview(self.settingTableView)
@@ -72,9 +72,7 @@ class SynapseFirmwareViewController: BaseViewController, UITableViewDataSource, 
         self.setHiddenLoadingView(false)
 
         let apiFirmware: ApiFirmware = ApiFirmware(url: self.firmwareURL)
-        apiFirmware.getFirmwareDataRequest(success: {
-            (json: JSON?) in
-
+        apiFirmware.getFirmwareDataRequest(success: { (json: JSON?) in
             if let res = json, let firmwares = res["firmware"].array {
                 self.firmwares = []
                 for firmware in firmwares {
@@ -175,18 +173,18 @@ class SynapseFirmwareViewController: BaseViewController, UITableViewDataSource, 
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
-        var cell: UITableViewCell = UITableViewCell(style: UITableViewCellStyle.default, reuseIdentifier: "Cell")
+        var cell: UITableViewCell = UITableViewCell(style: .default, reuseIdentifier: "Cell")
         cell.backgroundColor = UIColor.clear
         cell.selectionStyle = .none
 
         if indexPath.section == 0 {
             if indexPath.row == 0 || indexPath.row == self.firmwares.count + 1 {
-                cell = UITableViewCell(style: UITableViewCellStyle.default, reuseIdentifier: "line_cell")
+                cell = UITableViewCell(style: .default, reuseIdentifier: "line_cell")
                 cell.backgroundColor = UIColor.black.withAlphaComponent(0.1)
                 cell.selectionStyle = .none
             }
             else if indexPath.row <= self.firmwares.count {
-                let cell: SettingTableViewCell = SettingTableViewCell(style: UITableViewCellStyle.default, reuseIdentifier: "interval_cell")
+                let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "interval_cell")
                 cell.backgroundColor = UIColor.white
                 cell.iconImageView.isHidden = true
                 cell.textField.isHidden = true
@@ -233,7 +231,10 @@ class SynapseFirmwareViewController: BaseViewController, UITableViewDataSource, 
 
         if self.tableView(tableView, heightForHeaderInSection: section) > 0 {
             let view: UIView = UIView()
-            view.frame = CGRect(x: 0, y: 0, width: tableView.frame.size.width, height: self.tableView(tableView, heightForHeaderInSection: section))
+            view.frame = CGRect(x: 0,
+                                y: 0,
+                                width: tableView.frame.size.width,
+                                height: self.tableView(tableView, heightForHeaderInSection: section))
             view.backgroundColor = UIColor.clear
             return view
         }
@@ -260,10 +261,8 @@ class SynapseFirmwareViewController: BaseViewController, UITableViewDataSource, 
         tableView.deselectRow(at: indexPath, animated: false)
 
         if indexPath.row > 0 && indexPath.row <= self.firmwares.count {
-            let appDelegate: AppDelegate = UIApplication.shared.delegate as! AppDelegate
             let firmware: [String: Any] = self.firmwares[indexPath.row - 1]
-            if let appinfo = appDelegate.appinfo, let host = appinfo["firmware_domain"] as? String, let filename = firmware["hex_file"] as? String, filename.count > 0 {
-
+            if let host = self.getAppinfoValue("firmware_domain") as? String, let filename = self.getAppinfoValue("hex_file") as? String, filename.count > 0 {
                 self.startDownload("\(host)\(filename)", firmwareInfo: firmware)
                 //print("Firmware: \(firmware)")
             }

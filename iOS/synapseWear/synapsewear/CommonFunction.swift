@@ -7,24 +7,35 @@
 
 import UIKit
 
-class CommonFunction {
+protocol CommonFunctionProtocol {
+}
+extension CommonFunctionProtocol {
 
-    static func getImageFromView(_ view: UIView) -> UIImage? {
+    func getAppinfoValue(_ key: String) -> Any? {
+
+        if let path = Bundle.main.path(forResource: "appinfo", ofType: "plist"), let dic = NSDictionary(contentsOfFile: path) as? [String: Any], let value = dic[key] {
+            //print("getAppinfoValue: \(key) -> \(value)")
+            return value
+        }
+        return nil
+    }
+
+    func getImageFromView(_ view: UIView) -> UIImage? {
 
         var image: UIImage? = nil
 
-        UIGraphicsBeginImageContextWithOptions(view.frame.size, false, 0);
+        UIGraphicsBeginImageContextWithOptions(view.frame.size, false, 0)
         if let context = UIGraphicsGetCurrentContext() {
             context.translateBy(x: -view.frame.origin.x, y: -view.frame.origin.y)
             view.layer.render(in: context)
 
-            image = UIGraphicsGetImageFromCurrentImageContext();
-            UIGraphicsEndImageContext();
+            image = UIGraphicsGetImageFromCurrentImageContext()
+            UIGraphicsEndImageContext()
         }
         return image
     }
 
-    static func makeAttributedLabel(_ str: String?, width: CGFloat, color: UIColor? = nil, font: UIFont? = nil, lineHeight: CGFloat, alignment: NSTextAlignment = NSTextAlignment.left) -> UILabel {
+    func makeAttributedLabel(_ str: String?, width: CGFloat, color: UIColor? = nil, font: UIFont? = nil, lineHeight: CGFloat, alignment: NSTextAlignment = NSTextAlignment.left) -> UILabel {
 
         let label: UILabel = UILabel()
         label.lineBreakMode = NSLineBreakMode.byWordWrapping
@@ -56,7 +67,7 @@ class CommonFunction {
         return label
     }
 
-    static func getWiFiAddress() -> String? {
+    func getWiFiAddress() -> String? {
 
         var address: String?
         // Get list of all interfaces on the local machine:
@@ -84,16 +95,16 @@ class CommonFunction {
         return address
     }
 
-    static func log(_ msg: String) {
+    func makeFahrenheitTemperatureValue(_ value: Float) -> Float {
+
+        return value * 1.8 + 32.0
+    }
+
+    func log(_ msg: String) {
 
         let formatter: DateFormatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"
         print("\(formatter.string(from: Date())) \(msg)")
-    }
-
-    static func makeFahrenheitTemperatureValue(_ value: Float) -> Float {
-
-        return value * 1.8 + 32.0
     }
 }

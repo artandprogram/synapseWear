@@ -8,7 +8,7 @@
 import UIKit
 import SceneKit
 
-class CrystalGeometries: NSObject {
+class CrystalGeometries: NSObject, CommonFunctionProtocol {
 
     let colorSR: CGFloat = 91
     let colorSG: CGFloat = 18
@@ -615,7 +615,7 @@ class CrystalGeometries: NSObject {
         bgLayer.frame = bgView.frame
         bgView.layer.addSublayer(bgLayer)
         let material: SCNMaterial = SCNMaterial()
-        material.diffuse.contents = CommonFunction.getImageFromView(bgView)
+        material.diffuse.contents = self.getImageFromView(bgView)
         material.isDoubleSided = true
         return [material, material, material, material]
     }
@@ -631,7 +631,7 @@ class CrystalGeometries: NSObject {
         bgView.frame = CGRect(x: 0, y: 0, width: 100, height: 100)
         bgView.backgroundColor = color
         let material: SCNMaterial = SCNMaterial()
-        material.diffuse.contents = CommonFunction.getImageFromView(bgView)
+        material.diffuse.contents = self.getImageFromView(bgView)
         material.isDoubleSided = true
         return [material]
     }
