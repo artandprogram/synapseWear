@@ -11,8 +11,6 @@ import SwiftyJSON
 
 class SynapseFirmwareViewController: BaseViewController, UITableViewDataSource, UITableViewDelegate, CommonFunctionProtocol {
 
-    // const
-    let settingFileManager: SettingFileManager = SettingFileManager()
     // variables
     var firmwareURL: String = ""
     var firmwares: [[String: Any]] = []

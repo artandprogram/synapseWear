@@ -9,7 +9,6 @@ import UIKit
 
 class NotificationViewController: BaseViewController, UITextFieldDelegate {
 
-    let settingFileManager: SettingFileManager = SettingFileManager()
     var notificationInfo: [String: Any] = [:]
     var settingAreaView: UIView!
     var co2ValueField: UITextField!
@@ -40,7 +39,7 @@ class NotificationViewController: BaseViewController, UITextFieldDelegate {
     override func setParam() {
         super.setParam()
 
-        if let settingData = self.settingFileManager.getSettingData(), let info = settingData["notification_info"] as? [String: Any] {
+        if let info = SettingFileManager.shared.getSettingData("notification_info") as? [String: Any] {
             self.notificationInfo = info
         }
 
@@ -173,12 +172,8 @@ class NotificationViewController: BaseViewController, UITextFieldDelegate {
             co2Info["value"] = value
         }
         self.notificationInfo["co2"] = co2Info
-        var settingData: [String: Any] = [:]
-        if let data = self.settingFileManager.getSettingData() {
-            settingData = data
-        }
-        settingData["notification_info"] = self.notificationInfo
-        _ = self.settingFileManager.setSettingData(settingData)
+
+        _ = SettingFileManager.shared.setSettingValue("notification_info", value: self.notificationInfo)
         /*
         if self.settingFileManager.setSettingData(settingData) {
             if let nav = self.navigationController as? NavigationController {

@@ -11,6 +11,9 @@ import UserNotifications
 import Alamofire
 import SwiftyJSON
 
+
+// MARK: structs
+
 struct CrystalStruct {
 
     var key: String = ""
@@ -29,18 +32,74 @@ struct CrystalStruct {
 
 struct SynapseCrystalStruct {
 
-    var co2: CrystalStruct = CrystalStruct(key: "co2", name: "CO2", hasGraph: true, graphColor: UIColor.graphCO2)
-    var temp: CrystalStruct = CrystalStruct(key: "temp", name: "temperature", hasGraph: true, graphColor: UIColor.graphTemp)
-    var hum: CrystalStruct = CrystalStruct(key: "hum", name: "humidity", hasGraph: true, graphColor: UIColor.graphHumi)
-    var ill: CrystalStruct = CrystalStruct(key: "ill", name: "illumination", hasGraph: true, graphColor: UIColor.graphIllu)
-    var press: CrystalStruct = CrystalStruct(key: "press", name: "air pressure", hasGraph: true, graphColor: UIColor.graphAirP)
-    var sound: CrystalStruct = CrystalStruct(key: "sound", name: "environmental sound", hasGraph: true, graphColor: UIColor.graphEnvS)
-    var move: CrystalStruct = CrystalStruct(key: "move", name: "movement", hasGraph: false, graphColor: UIColor.graphMove)
-    var angle: CrystalStruct = CrystalStruct(key: "angle", name: "angle", hasGraph: false, graphColor: UIColor.graphAngl)
-    var volt: CrystalStruct = CrystalStruct(key: "volt", name: "voltage", hasGraph: true, graphColor: UIColor.graphVolt)
+    var co2: CrystalStruct = CrystalStruct(key: "co2",
+                                           name: "CO2",
+                                           hasGraph: true,
+                                           graphColor: UIColor.graphCO2)
+    var temp: CrystalStruct = CrystalStruct(key: "temp",
+                                            name: "temperature",
+                                            hasGraph: true,
+                                            graphColor: UIColor.graphTemp)
+    var hum: CrystalStruct = CrystalStruct(key: "hum",
+                                           name: "humidity",
+                                           hasGraph: true,
+                                           graphColor: UIColor.graphHumi)
+    var ill: CrystalStruct = CrystalStruct(key: "ill",
+                                           name: "illumination",
+                                           hasGraph: true,
+                                           graphColor: UIColor.graphIllu)
+    var press: CrystalStruct = CrystalStruct(key: "press",
+                                             name: "air pressure",
+                                             hasGraph: true,
+                                             graphColor: UIColor.graphAirP)
+    var sound: CrystalStruct = CrystalStruct(key: "sound",
+                                             name: "environmental sound",
+                                             hasGraph: true,
+                                             graphColor: UIColor.graphEnvS)
+    var move: CrystalStruct = CrystalStruct(key: "move",
+                                            name: "movement",
+                                            hasGraph: false,
+                                            graphColor: UIColor.graphMove)
+    var ax: CrystalStruct = CrystalStruct(key: "ax",
+                                          name: "ax",
+                                          hasGraph: false,
+                                          graphColor: UIColor.graphMove)
+    var ay: CrystalStruct = CrystalStruct(key: "ay",
+                                          name: "ay",
+                                          hasGraph: false,
+                                          graphColor: UIColor.graphMove)
+    var az: CrystalStruct = CrystalStruct(key: "az",
+                                          name: "az",
+                                          hasGraph: false,
+                                          graphColor: UIColor.graphMove)
+    var angle: CrystalStruct = CrystalStruct(key: "angle",
+                                             name: "angle",
+                                             hasGraph: false,
+                                             graphColor: UIColor.graphAngl)
+    var gx: CrystalStruct = CrystalStruct(key: "gx",
+                                          name: "gx",
+                                          hasGraph: false,
+                                          graphColor: UIColor.graphAngl)
+    var gy: CrystalStruct = CrystalStruct(key: "gy",
+                                          name: "gy",
+                                          hasGraph: false,
+                                          graphColor: UIColor.graphAngl)
+    var gz: CrystalStruct = CrystalStruct(key: "gz",
+                                          name: "gz",
+                                          hasGraph: false,
+                                          graphColor: UIColor.graphAngl)
+    var volt: CrystalStruct = CrystalStruct(key: "volt",
+                                            name: "voltage",
+                                            hasGraph: true,
+                                            graphColor: UIColor.graphVolt)
+    var led: CrystalStruct = CrystalStruct(key: "led",
+                                           name: "LED",
+                                           hasGraph: false,
+                                           graphColor: UIColor.clear)
     //var mag: CrystalStruct = CrystalStruct(key: "mag", name: "magnetic field", hasGraph: true, graphColor: UIColor.graphMagF)
-    var led: CrystalStruct = CrystalStruct(key: "led", name: "LED", hasGraph: false, graphColor: UIColor.clear)
 }
+
+// MARK: enums
 
 enum SendMode {
 
@@ -58,11 +117,34 @@ enum SendMode {
     case I5_3_4
 }
 
+enum TemperatureScaleKey: String {
+
+    case celsius = "C"
+    case fahrenheit = "F"
+}
+
+enum SynapseRecordTotalType: String {
+
+    case axDiff = "ax_diff"
+    case ayDiff = "ay_diff"
+    case azDiff = "az_diff"
+    case gxDiff = "gx_diff"
+    case gyDiff = "gy_diff"
+    case gzDiff = "gz_diff"
+}
+
+// MARK: protocol - DeviceScanningDelegate
+
+protocol DeviceScanningDelegate: class {
+
+    func scannedDevice()
+}
+
+// MARK: class - TopViewController
+
 class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDelegate, F53OSCClientDelegate, F53OSCPacketDestination, SynapseSoundDelegate, CommonFunctionProtocol {
 
     // const variables
-    let aScale: Float = 2.0 / 32768.0
-    let gScale: Float = 250.0 / 32768.0
     let checkSynapseTime: TimeInterval = 0.1
     let updateSynapseViewTime: TimeInterval = 0.4
     let updateSynapseValuesViewTime: TimeInterval = 1.0
@@ -72,15 +154,22 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
     let scnPixelScale: Float = 0.002
     let pinchZoomDef: Float = 5.0
     let synapseGraphMaxCnt: Int = 5 * 2
-    let appDelegate: AppDelegate = UIApplication.shared.delegate as! AppDelegate
     let synapseCrystalInfo: SynapseCrystalStruct = SynapseCrystalStruct()
-    let crystalGeometries: CrystalGeometries = CrystalGeometries()
-    let settingFileManager: SettingFileManager = SettingFileManager()
     let accessKeysFileManager: AccessKeysFileManager = AccessKeysFileManager()
+    //let synapseNotifications: AllSynapseNotifications = AllSynapseNotifications()
     // synapse data variables
+    var synapseTimeInterval: TimeInterval = 0
+    var synapseTimeIntervalBak: TimeInterval = 0
     var synapseDeviceName: String = ""
     var rfduinoManager: RFduinoManager!
-    //var rfduinos: [Any] = []
+    var scanDevices: [RFduino] = [] {
+        didSet {
+            if oldValue.count != scanDevices.count {
+                self.deviceScanningDelegate?.scannedDevice()
+            }
+        }
+    }
+    weak var deviceScanningDelegate: DeviceScanningDelegate?
     var synapseValues: [String]!
     var mainSynapseObject: SynapseObject!
     var isSynapseScanning: Bool = false
@@ -136,16 +225,19 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
     var min4Label: UILabel!
     var synapseValuesAnalyzeButton: UIButton!
     var synapseValuesBackButton: UIButton!
-    // debug views
-    var debugAreaBtn: UIButton!
-    var debugView: DebugView!
+    // status views
+    var statusItems: [String] = []
+    var statusValues: [String] = []
+    var statusAreaBtn: UIButton!
+    var statusView: UIView!
+    var statusLabels: [UILabel] = []
     // OSC variables
     var oscSynapseObject: SynapseObject?
     var updateOSCSynapseViewTimeLast: TimeInterval?
     var updateOSCSynapseValuesViewTimeLast: TimeInterval?
     var oscServer: F53OSCServer?
-    // Notifications variables
-    //var synapseNotifications: AllSynapseNotifications = AllSynapseNotifications()
+    var oscClient: F53OSCClient?
+    var oscSendMode: String = ""
     // TodayExtension variables
     var todayExtensionUpdating: Bool = false
     var todayExtensionGraphData: [Int] = []
@@ -169,13 +261,12 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         }
         self.isUpdateViewActive = true
 
+        self.setOSCClient()
         self.setOSCRecvMode()
-        //self.setSynapseNotifications()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        //print("TopViewController viewWillDisappear")
 
         self.disappearNavigationArea()
 
@@ -188,6 +279,18 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
 
     override func setParam() {
         super.setParam()
+
+        self.setNotificationCenter()
+
+        if let flag = self.getAppinfoValue("use_osc_recv") as? Bool, flag {
+            self.oscServer = F53OSCServer.init()
+        }
+
+        self.setSynapseValidKeys()
+        self.setSynapseObject()
+    }
+
+    func setSynapseValidKeys() {
 
         self.synapseValues = [
             self.synapseCrystalInfo.co2.key,
@@ -212,14 +315,14 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             self.synapseGraphs.append(self.synapseCrystalInfo.press.key)
         }
         if self.synapseCrystalInfo.move.hasGraph {
-            self.synapseGraphs.append("ax")
-            self.synapseGraphs.append("ay")
-            self.synapseGraphs.append("az")
+            self.synapseGraphs.append(self.synapseCrystalInfo.ax.key)
+            self.synapseGraphs.append(self.synapseCrystalInfo.ay.key)
+            self.synapseGraphs.append(self.synapseCrystalInfo.az.key)
         }
         if self.synapseCrystalInfo.angle.hasGraph {
-            self.synapseGraphs.append("gx")
-            self.synapseGraphs.append("gy")
-            self.synapseGraphs.append("gz")
+            self.synapseGraphs.append(self.synapseCrystalInfo.gx.key)
+            self.synapseGraphs.append(self.synapseCrystalInfo.gy.key)
+            self.synapseGraphs.append(self.synapseCrystalInfo.gz.key)
         }
         if self.synapseCrystalInfo.ill.hasGraph {
             self.synapseGraphs.append(self.synapseCrystalInfo.ill.key)
@@ -238,17 +341,6 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             self.synapseGraphs.append("my")
             self.synapseGraphs.append("mz")
         }*/
-
-        if let temperatureScale = self.settingFileManager.getSettingData(self.settingFileManager.synapseTemperatureScaleKey) as? String {
-            self.appDelegate.temperatureScale = temperatureScale
-        }
-
-        if let flag = self.getAppinfoValue("use_osc_recv") as? Bool, flag {
-            self.oscServer = F53OSCServer.init()
-        }
-
-        self.setSynapseObject()
-        self.setNotificationCenter()
     }
 
     func setSynapseObject() {
@@ -259,41 +351,14 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         }
 
         self.mainSynapseObject = SynapseObject("main")
-        self.mainSynapseObject.rotateSynapseNodeDuration = self.updateSynapseViewTime
-        self.mainSynapseObject.rotateCrystalNodeDuration = self.updateSynapseViewTime
-        self.mainSynapseObject.scaleSynapseNodeDuration = self.updateSynapseViewTime
+        self.mainSynapseObject.synapseCrystalNode.rotateSynapseNodeDuration = self.updateSynapseViewTime
+        self.mainSynapseObject.synapseCrystalNode.rotateCrystalNodeDuration = self.updateSynapseViewTime
+        self.mainSynapseObject.synapseCrystalNode.scaleSynapseNodeDuration = self.updateSynapseViewTime
         self.mainSynapseObject.offColorTime = self.synapseOffColorTime
-        if let accessKeys = self.accessKeysFileManager.getAccessKeysData() {
-            var uuidNow: UUID? = nil
-            var dateNow: Date? = nil
-            for accessKey in accessKeys {
-                if let accessKey = accessKey as? [String: Any], let uuid = accessKey[self.accessKeysFileManager.uuidKey] as? UUID {
-                    //print("setSynapseId: \(accessKey)")
-                    var date: Date? = nil
-                    if let value = accessKey[self.accessKeysFileManager.dateKey] as? Date {
-                        date = value
-                    }
-
-                    var flag: Bool = false
-                    if uuidNow == nil {
-                        flag = true
-                    }
-                    else if date != nil {
-                        if dateNow == nil || date! > dateNow! {
-                            flag = true
-                        }
-                    }
-                    if flag {
-                        uuidNow = uuid
-                        dateNow = date
-                    }
-                }
-            }
-
-            if uuidNow != nil {
-                self.mainSynapseObject.setSynapseUUID(uuidNow!)
-                self.mainSynapseObject.changeSynapseSendData()
-            }
+        if let uuid = self.accessKeysFileManager.getLatestUUID() {
+            //print("getLatestUUID: \(uuid)")
+            self.mainSynapseObject.setSynapseUUID(uuid)
+            self.mainSynapseObject.changeSynapseSendData()
         }
     }
 
@@ -313,7 +378,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         self.setNavigationArea()
         self.setSceneView()
         self.setSynapseValuesView()
-        self.setDebugButton()
+        self.initStatusView()
     }
 
     override func resizeView() {
@@ -450,8 +515,8 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         self.cameraNode.position = SCNVector3(x: 0, y: 0, z: self.pinchZoomDef)
         self.scnView.scene?.rootNode.addChildNode(self.cameraNode)
 
-        self.mainSynapseObject.setSynapseNode(scnView: self.scnView, position: nil)
-        self.mainSynapseObject.setColorOffSynapseNode()
+        self.mainSynapseObject.synapseCrystalNode.setSynapseNodes(scnView: self.scnView, position: nil)
+        self.mainSynapseObject.resetSynapseNode()
 
         w = 80.0
         h = 40.0
@@ -621,7 +686,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         let dx: CGFloat = (newDx - preDx) * 0.5
         let dy: CGFloat = (newDy - preDy) * 0.5
         //print("touchesMoved x:\(dx) y:\(dy)")
-        self.mainSynapseObject.rotateSynapseNode(dx: dx, dy: dy)
+        self.mainSynapseObject.synapseCrystalNode.rotateSynapseNodes(dx: dx, dy: dy)
     }
 
     func touchesMultiAction(_ touchEvent: UITouch) {
@@ -700,7 +765,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                             nav.headerBackForTopBtn.isHidden = false
                         }
 
-                        self.debugAreaBtn.isHidden = true
+                        self.statusAreaBtn.isHidden = true
 
                         UIView.animate(withDuration: 0.1,
                                        delay: 0,
@@ -857,9 +922,6 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         self.synapseTabView.backgroundColor = UIColor.clear
         self.synapseValuesView.addSubview(self.synapseTabView)
 
-        let fontS: CGFloat = 60.0
-        let fontS2: CGFloat = 40.0
-        let fontU: CGFloat = 16.0
         for (index, element) in self.synapseValues.enumerated() {
             let tabView: UIView = UIView()
             tabView.tag = index
@@ -879,31 +941,31 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                                      height: 60.0)
             tabView.addSubview(imageView)
             if element == self.synapseCrystalInfo.co2.key {
-                imageView.image = UIImage(named: "co2.png")
+                imageView.image = UIImage.co2LW
             }
             else if element == self.synapseCrystalInfo.temp.key {
-                imageView.image = UIImage(named: "temp.png")
+                imageView.image = UIImage.temperatureLW
             }
             else if element == self.synapseCrystalInfo.hum.key {
-                imageView.image = UIImage(named: "hum.png")
+                imageView.image = UIImage.humidityLW
             }
             else if element == self.synapseCrystalInfo.ill.key {
-                imageView.image = UIImage(named: "ill.png")
+                imageView.image = UIImage.illuminationLW
             }
             else if element == self.synapseCrystalInfo.press.key {
-                imageView.image = UIImage(named: "press.png")
+                imageView.image = UIImage.airpressureLW
             }
             else if element == self.synapseCrystalInfo.sound.key {
-                imageView.image = UIImage(named: "sound.png")
+                imageView.image = UIImage.environmentalsoundLW
             }
             /*else if element == self.synapseCrystalInfo.mag.key {
                 imageView.image = UIImage(named: "mag.png")
             }*/
             else if element == self.synapseCrystalInfo.move.key {
-                imageView.image = UIImage(named: "move.png")
+                imageView.image = UIImage.movementLW
             }
             else if element == self.synapseCrystalInfo.angle.key {
-                imageView.image = UIImage(named: "angle.png")
+                imageView.image = UIImage.angleLW
             }
 
             let tabLabel: UILabel = UILabel()
@@ -946,7 +1008,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 tabLabel.text = self.synapseCrystalInfo.angle.name
             }
 
-            let valueView: UIView = UIView()
+            var valueView: UIView = UIView()
             valueView.tag = index
             valueView.frame = CGRect(x: 0,
                                      y: 0,
@@ -957,449 +1019,37 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             self.synapseDataLabels[element] = valueView
 
             if element == self.synapseCrystalInfo.co2.key {
-                self.synapseValueLabels.co2Labels.valueLabel = UILabel()
-                self.synapseValueLabels.co2Labels.valueLabel?.text = ""
-                self.synapseValueLabels.co2Labels.valueLabel?.frame = CGRect(x: 0, y: 0, width: valueView.frame.size.width, height: valueView.frame.size.height)
-                self.synapseValueLabels.co2Labels.valueLabel?.textColor = UIColor.white
-                self.synapseValueLabels.co2Labels.valueLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.co2Labels.valueLabel?.font = UIFont(name: "HelveticaNeue", size: fontS)
-                self.synapseValueLabels.co2Labels.valueLabel?.textAlignment = .center
-                self.synapseValueLabels.co2Labels.valueLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.co2Labels.valueLabel!)
-
-                self.synapseValueLabels.co2Labels.diffLabel = UILabel()
-                self.synapseValueLabels.co2Labels.diffLabel?.text = ""
-                self.synapseValueLabels.co2Labels.diffLabel?.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
-                self.synapseValueLabels.co2Labels.diffLabel?.textColor = UIColor.white
-                self.synapseValueLabels.co2Labels.diffLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.co2Labels.diffLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.co2Labels.diffLabel?.textAlignment = .center
-                self.synapseValueLabels.co2Labels.diffLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.co2Labels.diffLabel!)
-
-                self.synapseValueLabels.co2Labels.unitLabel = UILabel()
-                self.synapseValueLabels.co2Labels.unitLabel?.text = "ppm"
-                self.synapseValueLabels.co2Labels.unitLabel?.textColor = UIColor.white
-                self.synapseValueLabels.co2Labels.unitLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.co2Labels.unitLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.co2Labels.unitLabel?.textAlignment = .center
-                self.synapseValueLabels.co2Labels.unitLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.co2Labels.unitLabel!)
+                valueView = self.synapseValueLabels.co2Labels.setSynapseValueLabels(valueView, unitLabelText: "ppm")
             }
             else if element == self.synapseCrystalInfo.temp.key {
-                self.synapseValueLabels.tempLabels.valueLabel = UILabel()
-                self.synapseValueLabels.tempLabels.valueLabel?.text = ""
-                self.synapseValueLabels.tempLabels.valueLabel?.frame = CGRect(x: 0, y: 0, width: valueView.frame.size.width, height: valueView.frame.size.height)
-                self.synapseValueLabels.tempLabels.valueLabel?.textColor = UIColor.white
-                self.synapseValueLabels.tempLabels.valueLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.tempLabels.valueLabel?.font = UIFont(name: "HelveticaNeue", size: fontS)
-                self.synapseValueLabels.tempLabels.valueLabel?.textAlignment = .center
-                self.synapseValueLabels.tempLabels.valueLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.tempLabels.valueLabel!)
-
-                self.synapseValueLabels.tempLabels.diffLabel = UILabel()
-                self.synapseValueLabels.tempLabels.diffLabel?.text = ""
-                self.synapseValueLabels.tempLabels.diffLabel?.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
-                self.synapseValueLabels.tempLabels.diffLabel?.textColor = UIColor.white
-                self.synapseValueLabels.tempLabels.diffLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.tempLabels.diffLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.tempLabels.diffLabel?.textAlignment = .center
-                self.synapseValueLabels.tempLabels.diffLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.tempLabels.diffLabel!)
-
-                self.synapseValueLabels.tempLabels.unitLabel = UILabel()
-                self.synapseValueLabels.tempLabels.unitLabel?.text = "℃"
-                self.synapseValueLabels.tempLabels.unitLabel?.textColor = UIColor.white
-                self.synapseValueLabels.tempLabels.unitLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.tempLabels.unitLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.tempLabels.unitLabel?.textAlignment = .center
-                self.synapseValueLabels.tempLabels.unitLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.tempLabels.unitLabel!)
+                valueView = self.synapseValueLabels.tempLabels.setSynapseValueLabels(valueView, unitLabelText: self.getTemperatureUnit(SettingFileManager.shared.synapseTemperatureScale))
             }
             else if element == self.synapseCrystalInfo.press.key {
-                self.synapseValueLabels.pressLabels.valueLabel = UILabel()
-                self.synapseValueLabels.pressLabels.valueLabel?.text = ""
-                self.synapseValueLabels.pressLabels.valueLabel?.frame = CGRect(x: 0, y: 0, width: valueView.frame.size.width, height: valueView.frame.size.height)
-                self.synapseValueLabels.pressLabels.valueLabel?.textColor = UIColor.white
-                self.synapseValueLabels.pressLabels.valueLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.pressLabels.valueLabel?.font = UIFont(name: "HelveticaNeue", size: fontS)
-                self.synapseValueLabels.pressLabels.valueLabel?.textAlignment = .center
-                self.synapseValueLabels.pressLabels.valueLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.pressLabels.valueLabel!)
-
-                self.synapseValueLabels.pressLabels.diffLabel = UILabel()
-                self.synapseValueLabels.pressLabels.diffLabel?.text = ""
-                self.synapseValueLabels.pressLabels.diffLabel?.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
-                self.synapseValueLabels.pressLabels.diffLabel?.textColor = UIColor.white
-                self.synapseValueLabels.pressLabels.diffLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.pressLabels.diffLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.pressLabels.diffLabel?.textAlignment = .center
-                self.synapseValueLabels.pressLabels.diffLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.pressLabels.diffLabel!)
-
-                self.synapseValueLabels.pressLabels.unitLabel = UILabel()
-                self.synapseValueLabels.pressLabels.unitLabel?.text = "hPa"
-                self.synapseValueLabels.pressLabels.unitLabel?.textColor = UIColor.white
-                self.synapseValueLabels.pressLabels.unitLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.pressLabels.unitLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.pressLabels.unitLabel?.textAlignment = .center
-                self.synapseValueLabels.pressLabels.unitLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.pressLabels.unitLabel!)
+                valueView = self.synapseValueLabels.pressLabels.setSynapseValueLabels(valueView, unitLabelText: "hPa")
             }
             else if element == self.synapseCrystalInfo.sound.key {
-                self.synapseValueLabels.soundLabels.valueLabel = UILabel()
-                self.synapseValueLabels.soundLabels.valueLabel?.text = ""
-                self.synapseValueLabels.soundLabels.valueLabel?.frame = CGRect(x: 0, y: 0, width: valueView.frame.size.width, height: valueView.frame.size.height)
-                self.synapseValueLabels.soundLabels.valueLabel?.textColor = UIColor.white
-                self.synapseValueLabels.soundLabels.valueLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.soundLabels.valueLabel?.font = UIFont(name: "HelveticaNeue", size: fontS)
-                self.synapseValueLabels.soundLabels.valueLabel?.textAlignment = .center
-                self.synapseValueLabels.soundLabels.valueLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.soundLabels.valueLabel!)
-
-                self.synapseValueLabels.soundLabels.diffLabel = UILabel()
-                self.synapseValueLabels.soundLabels.diffLabel?.text = ""
-                self.synapseValueLabels.soundLabels.diffLabel?.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
-                self.synapseValueLabels.soundLabels.diffLabel?.textColor = UIColor.white
-                self.synapseValueLabels.soundLabels.diffLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.soundLabels.diffLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.soundLabels.diffLabel?.textAlignment = .center
-                self.synapseValueLabels.soundLabels.diffLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.soundLabels.diffLabel!)
-
-                self.synapseValueLabels.soundLabels.unitLabel = UILabel()
-                self.synapseValueLabels.soundLabels.unitLabel?.text = ""
-                //self.synapseValueLabels.soundLabels.unitLabel?.text = "dB"
-                self.synapseValueLabels.soundLabels.unitLabel?.textColor = UIColor.white
-                self.synapseValueLabels.soundLabels.unitLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.soundLabels.unitLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.soundLabels.unitLabel?.textAlignment = .center
-                self.synapseValueLabels.soundLabels.unitLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.soundLabels.unitLabel!)
+                valueView = self.synapseValueLabels.soundLabels.setSynapseValueLabels(valueView, unitLabelText: "")
             }
             /*else if element == self.synapseCrystalInfo.mag.key {
-                self.synapseValueLabels.magxLabels.valueLabel = UILabel()
-                self.synapseValueLabels.magxLabels.valueLabel?.text = ""
-                self.synapseValueLabels.magxLabels.valueLabel?.frame = CGRect(x: 0, y: 0, width: valueView.frame.size.width, height: valueView.frame.size.height)
-                self.synapseValueLabels.magxLabels.valueLabel?.textColor = UIColor.white
-                self.synapseValueLabels.magxLabels.valueLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.magxLabels.valueLabel?.font = UIFont(name: "HelveticaNeue", size: fontS2)
-                self.synapseValueLabels.magxLabels.valueLabel?.textAlignment = NSTextAlignment.center
-                self.synapseValueLabels.magxLabels.valueLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.magxLabels.valueLabel!)
-
-                self.synapseValueLabels.magyLabels.valueLabel = UILabel()
-                self.synapseValueLabels.magyLabels.valueLabel?.text = ""
-                self.synapseValueLabels.magyLabels.valueLabel?.frame = CGRect(x: 0, y: 0, width: valueView.frame.size.width, height: valueView.frame.size.height)
-                self.synapseValueLabels.magyLabels.valueLabel?.textColor = UIColor.white
-                self.synapseValueLabels.magyLabels.valueLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.magyLabels.valueLabel?.font = UIFont(name: "HelveticaNeue", size: fontS2)
-                self.synapseValueLabels.magyLabels.valueLabel?.textAlignment = NSTextAlignment.center
-                self.synapseValueLabels.magyLabels.valueLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.magyLabels.valueLabel!)
-
-                self.synapseValueLabels.magzLabels.valueLabel = UILabel()
-                self.synapseValueLabels.magzLabels.valueLabel?.text = ""
-                self.synapseValueLabels.magzLabels.valueLabel?.frame = CGRect(x: 0, y: 0, width: valueView.frame.size.width, height: valueView.frame.size.height)
-                self.synapseValueLabels.magzLabels.valueLabel?.textColor = UIColor.white
-                self.synapseValueLabels.magzLabels.valueLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.magzLabels.valueLabel?.font = UIFont(name: "HelveticaNeue", size: fontS2)
-                self.synapseValueLabels.magzLabels.valueLabel?.textAlignment = NSTextAlignment.center
-                self.synapseValueLabels.magzLabels.valueLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.magzLabels.valueLabel!)
-
-                self.synapseValueLabels.magxLabels.diffLabel = UILabel()
-                self.synapseValueLabels.magxLabels.diffLabel?.text = ""
-                self.synapseValueLabels.magxLabels.diffLabel?.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
-                self.synapseValueLabels.magxLabels.diffLabel?.textColor = UIColor.white
-                self.synapseValueLabels.magxLabels.diffLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.magxLabels.diffLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.magxLabels.diffLabel?.textAlignment = NSTextAlignment.center
-                self.synapseValueLabels.magxLabels.diffLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.magxLabels.diffLabel!)
-
-                self.synapseValueLabels.magyLabels.diffLabel = UILabel()
-                self.synapseValueLabels.magyLabels.diffLabel?.text = ""
-                self.synapseValueLabels.magyLabels.diffLabel?.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
-                self.synapseValueLabels.magyLabels.diffLabel?.textColor = UIColor.white
-                self.synapseValueLabels.magyLabels.diffLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.magyLabels.diffLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.magyLabels.diffLabel?.textAlignment = NSTextAlignment.center
-                self.synapseValueLabels.magyLabels.diffLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.magyLabels.diffLabel!)
-
-                self.synapseValueLabels.magzLabels.diffLabel = UILabel()
-                self.synapseValueLabels.magzLabels.diffLabel?.text = ""
-                self.synapseValueLabels.magzLabels.diffLabel?.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
-                self.synapseValueLabels.magzLabels.diffLabel?.textColor = UIColor.white
-                self.synapseValueLabels.magzLabels.diffLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.magzLabels.diffLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.magzLabels.diffLabel?.textAlignment = NSTextAlignment.center
-                self.synapseValueLabels.magzLabels.diffLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.magzLabels.diffLabel!)
-
-                self.synapseValueLabels.magxLabels.unitLabel = UILabel()
-                self.synapseValueLabels.magxLabels.unitLabel?.text = "μT"
-                self.synapseValueLabels.magxLabels.unitLabel?.textColor = UIColor.white
-                self.synapseValueLabels.magxLabels.unitLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.magxLabels.unitLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.magxLabels.unitLabel?.textAlignment = NSTextAlignment.center
-                self.synapseValueLabels.magxLabels.unitLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.magxLabels.unitLabel!)
-
-                self.synapseValueLabels.magyLabels.unitLabel = UILabel()
-                self.synapseValueLabels.magyLabels.unitLabel?.text = "μT"
-                self.synapseValueLabels.magyLabels.unitLabel?.textColor = UIColor.white
-                self.synapseValueLabels.magyLabels.unitLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.magyLabels.unitLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.magyLabels.unitLabel?.textAlignment = NSTextAlignment.center
-                self.synapseValueLabels.magyLabels.unitLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.magyLabels.unitLabel!)
-
-                self.synapseValueLabels.magzLabels.unitLabel = UILabel()
-                self.synapseValueLabels.magzLabels.unitLabel?.text = "μT"
-                self.synapseValueLabels.magzLabels.unitLabel?.textColor = UIColor.white
-                self.synapseValueLabels.magzLabels.unitLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.magzLabels.unitLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.magzLabels.unitLabel?.textAlignment = NSTextAlignment.center
-                self.synapseValueLabels.magzLabels.unitLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.magzLabels.unitLabel!)
+                valueView = self.synapseValueLabels.magxLabels.setSynapseValueLabels(valueView, unitLabelText: "μT", fontSmall: true)
+                valueView = self.synapseValueLabels.magyLabels.setSynapseValueLabels(valueView, unitLabelText: "μT", fontSmall: true)
+                valueView = self.synapseValueLabels.magzLabels.setSynapseValueLabels(valueView, unitLabelText: "μT", fontSmall: true)
             }*/
             else if element == self.synapseCrystalInfo.move.key {
-                self.synapseValueLabels.movexLabels.valueLabel = UILabel()
-                self.synapseValueLabels.movexLabels.valueLabel?.text = ""
-                self.synapseValueLabels.movexLabels.valueLabel?.frame = CGRect(x: 0, y: 0, width: valueView.frame.size.width, height: valueView.frame.size.height)
-                self.synapseValueLabels.movexLabels.valueLabel?.textColor = UIColor.white
-                self.synapseValueLabels.movexLabels.valueLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.movexLabels.valueLabel?.font = UIFont(name: "HelveticaNeue", size: fontS2)
-                self.synapseValueLabels.movexLabels.valueLabel?.textAlignment = .center
-                self.synapseValueLabels.movexLabels.valueLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.movexLabels.valueLabel!)
-
-                self.synapseValueLabels.moveyLabels.valueLabel = UILabel()
-                self.synapseValueLabels.moveyLabels.valueLabel?.text = ""
-                self.synapseValueLabels.moveyLabels.valueLabel?.frame = CGRect(x: 0, y: 0, width: valueView.frame.size.width, height: valueView.frame.size.height)
-                self.synapseValueLabels.moveyLabels.valueLabel?.textColor = UIColor.white
-                self.synapseValueLabels.moveyLabels.valueLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.moveyLabels.valueLabel?.font = UIFont(name: "HelveticaNeue", size: fontS2)
-                self.synapseValueLabels.moveyLabels.valueLabel?.textAlignment = .center
-                self.synapseValueLabels.moveyLabels.valueLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.moveyLabels.valueLabel!)
-
-                self.synapseValueLabels.movezLabels.valueLabel = UILabel()
-                self.synapseValueLabels.movezLabels.valueLabel?.text = ""
-                self.synapseValueLabels.movezLabels.valueLabel?.frame = CGRect(x: 0, y: 0, width: valueView.frame.size.width, height: valueView.frame.size.height)
-                self.synapseValueLabels.movezLabels.valueLabel?.textColor = UIColor.white
-                self.synapseValueLabels.movezLabels.valueLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.movezLabels.valueLabel?.font = UIFont(name: "HelveticaNeue", size: fontS2)
-                self.synapseValueLabels.movezLabels.valueLabel?.textAlignment = .center
-                self.synapseValueLabels.movezLabels.valueLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.movezLabels.valueLabel!)
-
-                self.synapseValueLabels.movexLabels.diffLabel = UILabel()
-                self.synapseValueLabels.movexLabels.diffLabel?.text = ""
-                self.synapseValueLabels.movexLabels.diffLabel?.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
-                self.synapseValueLabels.movexLabels.diffLabel?.textColor = UIColor.white
-                self.synapseValueLabels.movexLabels.diffLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.movexLabels.diffLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.movexLabels.diffLabel?.textAlignment = .center
-                self.synapseValueLabels.movexLabels.diffLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.movexLabels.diffLabel!)
-
-                self.synapseValueLabels.moveyLabels.diffLabel = UILabel()
-                self.synapseValueLabels.moveyLabels.diffLabel?.text = ""
-                self.synapseValueLabels.moveyLabels.diffLabel?.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
-                self.synapseValueLabels.moveyLabels.diffLabel?.textColor = UIColor.white
-                self.synapseValueLabels.moveyLabels.diffLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.moveyLabels.diffLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.moveyLabels.diffLabel?.textAlignment = .center
-                self.synapseValueLabels.moveyLabels.diffLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.moveyLabels.diffLabel!)
-
-                self.synapseValueLabels.movezLabels.diffLabel = UILabel()
-                self.synapseValueLabels.movezLabels.diffLabel?.text = ""
-                self.synapseValueLabels.movezLabels.diffLabel?.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
-                self.synapseValueLabels.movezLabels.diffLabel?.textColor = UIColor.white
-                self.synapseValueLabels.movezLabels.diffLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.movezLabels.diffLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.movezLabels.diffLabel?.textAlignment = .center
-                self.synapseValueLabels.movezLabels.diffLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.movezLabels.diffLabel!)
-
-                self.synapseValueLabels.movexLabels.unitLabel = UILabel()
-                self.synapseValueLabels.movexLabels.unitLabel?.text = "m/s2"
-                self.synapseValueLabels.movexLabels.unitLabel?.textColor = UIColor.white
-                self.synapseValueLabels.movexLabels.unitLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.movexLabels.unitLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.movexLabels.unitLabel?.textAlignment = .center
-                self.synapseValueLabels.movexLabels.unitLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.movexLabels.unitLabel!)
-
-                self.synapseValueLabels.moveyLabels.unitLabel = UILabel()
-                self.synapseValueLabels.moveyLabels.unitLabel?.text = "m/s2"
-                self.synapseValueLabels.moveyLabels.unitLabel?.textColor = UIColor.white
-                self.synapseValueLabels.moveyLabels.unitLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.moveyLabels.unitLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.moveyLabels.unitLabel?.textAlignment = .center
-                self.synapseValueLabels.moveyLabels.unitLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.moveyLabels.unitLabel!)
-
-                self.synapseValueLabels.movezLabels.unitLabel = UILabel()
-                self.synapseValueLabels.movezLabels.unitLabel?.text = "m/s2"
-                self.synapseValueLabels.movezLabels.unitLabel?.textColor = UIColor.white
-                self.synapseValueLabels.movezLabels.unitLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.movezLabels.unitLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.movezLabels.unitLabel?.textAlignment = .center
-                self.synapseValueLabels.movezLabels.unitLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.movezLabels.unitLabel!)
+                valueView = self.synapseValueLabels.movexLabels.setSynapseValueLabels(valueView, unitLabelText: "m/s2", fontSmall: true)
+                valueView = self.synapseValueLabels.moveyLabels.setSynapseValueLabels(valueView, unitLabelText: "m/s2", fontSmall: true)
+                valueView = self.synapseValueLabels.movezLabels.setSynapseValueLabels(valueView, unitLabelText: "m/s2", fontSmall: true)
             }
             else if element == self.synapseCrystalInfo.angle.key {
-                self.synapseValueLabels.anglexLabels.valueLabel = UILabel()
-                self.synapseValueLabels.anglexLabels.valueLabel?.text = ""
-                self.synapseValueLabels.anglexLabels.valueLabel?.frame = CGRect(x: 0, y: 0, width: valueView.frame.size.width, height: valueView.frame.size.height)
-                self.synapseValueLabels.anglexLabels.valueLabel?.textColor = UIColor.white
-                self.synapseValueLabels.anglexLabels.valueLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.anglexLabels.valueLabel?.font = UIFont(name: "HelveticaNeue", size: fontS2)
-                self.synapseValueLabels.anglexLabels.valueLabel?.textAlignment = .center
-                self.synapseValueLabels.anglexLabels.valueLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.anglexLabels.valueLabel!)
-
-                self.synapseValueLabels.angleyLabels.valueLabel = UILabel()
-                self.synapseValueLabels.angleyLabels.valueLabel?.text = ""
-                self.synapseValueLabels.angleyLabels.valueLabel?.frame = CGRect(x: 0, y: 0, width: valueView.frame.size.width, height: valueView.frame.size.height)
-                self.synapseValueLabels.angleyLabels.valueLabel?.textColor = UIColor.white
-                self.synapseValueLabels.angleyLabels.valueLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.angleyLabels.valueLabel?.font = UIFont(name: "HelveticaNeue", size: fontS2)
-                self.synapseValueLabels.angleyLabels.valueLabel?.textAlignment = .center
-                self.synapseValueLabels.angleyLabels.valueLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.angleyLabels.valueLabel!)
-
-                self.synapseValueLabels.anglezLabels.valueLabel = UILabel()
-                self.synapseValueLabels.anglezLabels.valueLabel?.text = ""
-                self.synapseValueLabels.anglezLabels.valueLabel?.frame = CGRect(x: 0, y: 0, width: valueView.frame.size.width, height: valueView.frame.size.height)
-                self.synapseValueLabels.anglezLabels.valueLabel?.textColor = UIColor.white
-                self.synapseValueLabels.anglezLabels.valueLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.anglezLabels.valueLabel?.font = UIFont(name: "HelveticaNeue", size: fontS2)
-                self.synapseValueLabels.anglezLabels.valueLabel?.textAlignment = .center
-                self.synapseValueLabels.anglezLabels.valueLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.anglezLabels.valueLabel!)
-
-                self.synapseValueLabels.anglexLabels.diffLabel = UILabel()
-                self.synapseValueLabels.anglexLabels.diffLabel?.text = ""
-                self.synapseValueLabels.anglexLabels.diffLabel?.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
-                self.synapseValueLabels.anglexLabels.diffLabel?.textColor = UIColor.white
-                self.synapseValueLabels.anglexLabels.diffLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.anglexLabels.diffLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.anglexLabels.diffLabel?.textAlignment = .center
-                self.synapseValueLabels.anglexLabels.diffLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.anglexLabels.diffLabel!)
-
-                self.synapseValueLabels.angleyLabels.diffLabel = UILabel()
-                self.synapseValueLabels.angleyLabels.diffLabel?.text = ""
-                self.synapseValueLabels.angleyLabels.diffLabel?.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
-                self.synapseValueLabels.angleyLabels.diffLabel?.textColor = UIColor.white
-                self.synapseValueLabels.angleyLabels.diffLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.angleyLabels.diffLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.angleyLabels.diffLabel?.textAlignment = .center
-                self.synapseValueLabels.angleyLabels.diffLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.angleyLabels.diffLabel!)
-
-                self.synapseValueLabels.anglezLabels.diffLabel = UILabel()
-                self.synapseValueLabels.anglezLabels.diffLabel?.text = ""
-                self.synapseValueLabels.anglezLabels.diffLabel?.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
-                self.synapseValueLabels.anglezLabels.diffLabel?.textColor = UIColor.white
-                self.synapseValueLabels.anglezLabels.diffLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.anglezLabels.diffLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.anglezLabels.diffLabel?.textAlignment = .center
-                self.synapseValueLabels.anglezLabels.diffLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.anglezLabels.diffLabel!)
-
-                self.synapseValueLabels.anglexLabels.unitLabel = UILabel()
-                self.synapseValueLabels.anglexLabels.unitLabel?.text = "rad/s"
-                self.synapseValueLabels.anglexLabels.unitLabel?.textColor = UIColor.white
-                self.synapseValueLabels.anglexLabels.unitLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.anglexLabels.unitLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.anglexLabels.unitLabel?.textAlignment = .center
-                self.synapseValueLabels.anglexLabels.unitLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.anglexLabels.unitLabel!)
-
-                self.synapseValueLabels.angleyLabels.unitLabel = UILabel()
-                self.synapseValueLabels.angleyLabels.unitLabel?.text = "rad/s"
-                self.synapseValueLabels.angleyLabels.unitLabel?.textColor = UIColor.white
-                self.synapseValueLabels.angleyLabels.unitLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.angleyLabels.unitLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.angleyLabels.unitLabel?.textAlignment = .center
-                self.synapseValueLabels.angleyLabels.unitLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.angleyLabels.unitLabel!)
-
-                self.synapseValueLabels.anglezLabels.unitLabel = UILabel()
-                self.synapseValueLabels.anglezLabels.unitLabel?.text = "rad/s"
-                self.synapseValueLabels.anglezLabels.unitLabel?.textColor = UIColor.white
-                self.synapseValueLabels.anglezLabels.unitLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.anglezLabels.unitLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.anglezLabels.unitLabel?.textAlignment = .center
-                self.synapseValueLabels.anglezLabels.unitLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.anglezLabels.unitLabel!)
+                valueView = self.synapseValueLabels.anglexLabels.setSynapseValueLabels(valueView, unitLabelText: "rad/s", fontSmall: true)
+                valueView = self.synapseValueLabels.angleyLabels.setSynapseValueLabels(valueView, unitLabelText: "rad/s", fontSmall: true)
+                valueView = self.synapseValueLabels.anglezLabels.setSynapseValueLabels(valueView, unitLabelText: "rad/s", fontSmall: true)
             }
             else if element == self.synapseCrystalInfo.ill.key {
-                self.synapseValueLabels.illLabels.valueLabel = UILabel()
-                self.synapseValueLabels.illLabels.valueLabel?.text = ""
-                self.synapseValueLabels.illLabels.valueLabel?.frame = CGRect(x: 0, y: 0, width: valueView.frame.size.width, height: valueView.frame.size.height)
-                self.synapseValueLabels.illLabels.valueLabel?.textColor = UIColor.white
-                self.synapseValueLabels.illLabels.valueLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.illLabels.valueLabel?.font = UIFont(name: "HelveticaNeue", size: fontS)
-                self.synapseValueLabels.illLabels.valueLabel?.textAlignment = .center
-                self.synapseValueLabels.illLabels.valueLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.illLabels.valueLabel!)
-
-                self.synapseValueLabels.illLabels.diffLabel = UILabel()
-                self.synapseValueLabels.illLabels.diffLabel?.text = ""
-                self.synapseValueLabels.illLabels.diffLabel?.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
-                self.synapseValueLabels.illLabels.diffLabel?.textColor = UIColor.white
-                self.synapseValueLabels.illLabels.diffLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.illLabels.diffLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.illLabels.diffLabel?.textAlignment = .center
-                self.synapseValueLabels.illLabels.diffLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.illLabels.diffLabel!)
-
-                self.synapseValueLabels.illLabels.unitLabel = UILabel()
-                self.synapseValueLabels.illLabels.unitLabel?.text = "lux"
-                self.synapseValueLabels.illLabels.unitLabel?.textColor = UIColor.white
-                self.synapseValueLabels.illLabels.unitLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.illLabels.unitLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.illLabels.unitLabel?.textAlignment = .center
-                self.synapseValueLabels.illLabels.unitLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.illLabels.unitLabel!)
+                valueView = self.synapseValueLabels.illLabels.setSynapseValueLabels(valueView, unitLabelText: "lux")
             }
             else if element == self.synapseCrystalInfo.hum.key {
-                self.synapseValueLabels.humLabels.valueLabel = UILabel()
-                self.synapseValueLabels.humLabels.valueLabel?.text = ""
-                self.synapseValueLabels.humLabels.valueLabel?.frame = CGRect(x: 0, y: 0, width: valueView.frame.size.width, height: valueView.frame.size.height)
-                self.synapseValueLabels.humLabels.valueLabel?.textColor = UIColor.white
-                self.synapseValueLabels.humLabels.valueLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.humLabels.valueLabel?.font = UIFont(name: "HelveticaNeue", size: fontS)
-                self.synapseValueLabels.humLabels.valueLabel?.textAlignment = .center
-                self.synapseValueLabels.humLabels.valueLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.humLabels.valueLabel!)
-
-                self.synapseValueLabels.humLabels.diffLabel = UILabel()
-                self.synapseValueLabels.humLabels.diffLabel?.text = ""
-                self.synapseValueLabels.humLabels.diffLabel?.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
-                self.synapseValueLabels.humLabels.diffLabel?.textColor = UIColor.white
-                self.synapseValueLabels.humLabels.diffLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.humLabels.diffLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.humLabels.diffLabel?.textAlignment = .center
-                self.synapseValueLabels.humLabels.diffLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.humLabels.diffLabel!)
-
-                self.synapseValueLabels.humLabels.unitLabel = UILabel()
-                self.synapseValueLabels.humLabels.unitLabel?.text = "%"
-                self.synapseValueLabels.humLabels.unitLabel?.textColor = UIColor.white
-                self.synapseValueLabels.humLabels.unitLabel?.backgroundColor = UIColor.clear
-                self.synapseValueLabels.humLabels.unitLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
-                self.synapseValueLabels.humLabels.unitLabel?.textAlignment = .center
-                self.synapseValueLabels.humLabels.unitLabel?.numberOfLines = 1
-                valueView.addSubview(self.synapseValueLabels.humLabels.unitLabel!)
+                valueView = self.synapseValueLabels.humLabels.setSynapseValueLabels(valueView, unitLabelText: "%")
             }
         }
 
@@ -1570,40 +1220,25 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         self.synapseValuesAnalyzeButton.clipsToBounds = true
         self.synapseValuesAnalyzeButton.layer.borderColor = UIColor(red: 255/255.0, green: 255/255.0, blue: 255/255.0, alpha: 0.3).cgColor
         self.synapseValuesAnalyzeButton.layer.borderWidth = 1.0
-        self.synapseValuesAnalyzeButton.addTarget(self, action: #selector(self.pushAnalyzeViewAction), for: .touchUpInside)
+        self.synapseValuesAnalyzeButton.addTarget(self, action: #selector(self.pushAnalyzeViewAction(_:)), for: .touchUpInside)
         self.synapseValuesView.addSubview(self.synapseValuesAnalyzeButton)
-        /*
-        w = 100.0
-        x = (self.synapseValuesView.frame.size.width - w) / 2
-        y = self.graphScaleAreaView.frame.origin.y + self.graphScaleAreaView.frame.size.height + 10.0
-        h = (self.synapseValuesView.frame.size.height - y) / 2
-        if h > 44.0 {
-            h = 44.0
-        }
-        self.synapseValuesAnalyzeButton = UIButton()
-        self.synapseValuesAnalyzeButton.frame = CGRect(x: x, y: y, width: w, height: h)
-        self.synapseValuesAnalyzeButton.setTitle("Analyze", for: .normal)
-        self.synapseValuesAnalyzeButton.setTitleColor(UIColor.white, for: .normal)
-        self.synapseValuesAnalyzeButton.titleLabel?.font = UIFont(name: "HelveticaNeue", size: 16)
-        self.synapseValuesAnalyzeButton.backgroundColor = UIColor.clear
-        self.synapseValuesAnalyzeButton.addTarget(self, action: #selector(self.pushAnalyzeViewAction), for: .touchUpInside)
-        self.synapseValuesView.addSubview(self.synapseValuesAnalyzeButton)
-
-        y += h
-        self.synapseValuesBackButton = UIButton()
-        self.synapseValuesBackButton.frame = CGRect(x: x, y: y, width: w, height: h)
-        self.synapseValuesBackButton.setTitle("Back", for: .normal)
-        self.synapseValuesBackButton.setTitleColor(UIColor.white, for: .normal)
-        self.synapseValuesBackButton.titleLabel?.font = UIFont(name: "HelveticaNeue", size: 16)
-        self.synapseValuesBackButton.backgroundColor = UIColor.clear
-        self.synapseValuesBackButton.addTarget(self, action: #selector(self.closeSynapseValuesViewAction), for: .touchUpInside)
-        self.synapseValuesView.addSubview(self.synapseValuesBackButton)
-         */
+        let bgView: UIView = UIView()
+        bgView.frame = CGRect(x: 0, y: 0, width: w, height: h)
+        bgView.backgroundColor = UIColor.white.withAlphaComponent(0.3)
+        self.synapseValuesAnalyzeButton.setBackgroundImage(self.getImageFromView(bgView), for: .highlighted)
     }
 
-    @objc func pushAnalyzeViewAction() {
+    @objc func pushAnalyzeViewAction(_ sender: UIButton) {
 
-        if self.synapseValueLabels.name == self.mainSynapseObject.synapseValues.name {
+        var isPush: Bool = true
+        if sender == self.synapseValuesAnalyzeButton {
+            if self.synapseValueLabels.name != self.mainSynapseObject.synapseValues.name {
+                isPush = false
+            }
+        }
+        if isPush {
+            self.statusView.isHidden = true
+
             let vc: AnalyzeViewController = AnalyzeViewController()
             vc.synapseUUID = self.mainSynapseObject.synapseUUID
             self.navigationController?.pushViewController(vc, animated: true)
@@ -1618,7 +1253,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
 
         self.setNavigatioHeaderColor(isWhite: false)
         self.setNavigatioHeaderMenuBtn()
-        self.debugAreaBtn.isHidden = false
+        self.statusAreaBtn.isHidden = false
 
         let vector: SCNVector3 = SCNVector3(x: self.cameraNode.position.x,
                                             y: self.cameraNode.position.y,
@@ -1820,22 +1455,22 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             else if key == self.synapseCrystalInfo.press.key, let val = synapseValues.pressure {
                 values = [1, Double(val)]
             }
-            else if key == "ax", let val = synapseValues.ax {
+            else if key == self.synapseCrystalInfo.ax.key, let val = synapseValues.ax {
                 values = [1, Double(val)]
             }
-            else if key == "ay", let val = synapseValues.ay {
+            else if key == self.synapseCrystalInfo.ay.key, let val = synapseValues.ay {
                 values = [1, Double(val)]
             }
-            else if key == "az", let val = synapseValues.az {
+            else if key == self.synapseCrystalInfo.az.key, let val = synapseValues.az {
                 values = [1, Double(val)]
             }
-            else if key == "gx", let val = synapseValues.gx {
+            else if key == self.synapseCrystalInfo.gx.key, let val = synapseValues.gx {
                 values = [1, Double(val)]
             }
-            else if key == "gy", let val = synapseValues.gy {
+            else if key == self.synapseCrystalInfo.gy.key, let val = synapseValues.gy {
                 values = [1, Double(val)]
             }
-            else if key == "gz", let val = synapseValues.gz {
+            else if key == self.synapseCrystalInfo.gz.key, let val = synapseValues.gz {
                 values = [1, Double(val)]
             }
             else if key == self.synapseCrystalInfo.ill.key, let val = synapseValues.light {
@@ -1962,7 +1597,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             }
         }*/
         else if key == self.synapseCrystalInfo.move.key && self.synapseCrystalInfo.move.hasGraph {
-            if let data = self.synapseGraphData["ax"] {
+            if let data = self.synapseGraphData[self.synapseCrystalInfo.ax.key] {
                 graphData.append(data)
                 if let ax = synapseObject.synapseValues.ax {
                     lastVals.append(Double(ax))
@@ -1971,7 +1606,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                     lastVals.append(0)
                 }
             }
-            if let data = self.synapseGraphData["ay"] {
+            if let data = self.synapseGraphData[self.synapseCrystalInfo.ay.key] {
                 graphData.append(data)
                 if let ay = synapseObject.synapseValues.ay {
                     lastVals.append(Double(ay))
@@ -1980,7 +1615,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                     lastVals.append(0)
                 }
             }
-            if let data = self.synapseGraphData["az"] {
+            if let data = self.synapseGraphData[self.synapseCrystalInfo.az.key] {
                 graphData.append(data)
                 if let az = synapseObject.synapseValues.az {
                     lastVals.append(Double(az))
@@ -1991,7 +1626,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             }
         }
         else if key == self.synapseCrystalInfo.angle.key && self.synapseCrystalInfo.angle.hasGraph {
-            if let data = self.synapseGraphData["gx"] {
+            if let data = self.synapseGraphData[self.synapseCrystalInfo.gx.key] {
                 graphData.append(data)
                 if let gx = synapseObject.synapseValues.gx {
                     lastVals.append(Double(gx))
@@ -2000,7 +1635,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                     lastVals.append(0)
                 }
             }
-            if let data = self.synapseGraphData["gy"] {
+            if let data = self.synapseGraphData[self.synapseCrystalInfo.gy.key] {
                 graphData.append(data)
                 if let gy = synapseObject.synapseValues.gy {
                     lastVals.append(Double(gy))
@@ -2009,7 +1644,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                     lastVals.append(0)
                 }
             }
-            if let data = self.synapseGraphData["gz"] {
+            if let data = self.synapseGraphData[self.synapseCrystalInfo.gz.key] {
                 graphData.append(data)
                 if let gz = synapseObject.synapseValues.gz {
                     lastVals.append(Double(gz))
@@ -2246,9 +1881,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 if self.mainSynapseObject.synapseValues.isConnected {
                     self.updateSynapseViewTimeLast = now
                 }
-                self.mainSynapseObject.rotateSynapseNode()
-                self.mainSynapseObject.scaleSynapseNode()
-                self.mainSynapseObject.setColorSynapseNodeFromBatteryLevel()
+                self.mainSynapseObject.updateSynapseNode()
                 /*self.updateSynapseCrystalViewRealtime()
                 self.updateSynapseCrystalViewConstant()*/
             }
@@ -2263,7 +1896,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             }
         }
 
-        self.updateDebugAreaView(synapseObject: self.mainSynapseObject)
+        self.updateStatusView(synapseObject: self.mainSynapseObject)
     }
     /*
     func updateSynapseCrystalViewRealtime() {
@@ -2282,8 +1915,8 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             self.mainSynapseObject.scaleSynapseNode()
             self.mainSynapseObject.setColorSynapseNodeFromBatteryLevel()
         }
-    }*/
-
+    }
+     */
     func updateSynapseValuesViewFromSetting() {
 
         if self.canUpdateValuesView {
@@ -2291,7 +1924,6 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.updateSynapseValuesView(synapseValues: self.mainSynapseObject.synapseValues)
             }
         }
-        //self.updateDebugAreaView(synapseObject: self.mainSynapseObject)
     }
 
     func updateSynapseValuesView(synapseValues: SynapseValues) {
@@ -2301,664 +1933,94 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             return
         }
 
-        self.resetSynapseValuesView()
+        //self.resetSynapseValuesView()
 
-        if let co2 = synapseValues.co2, let co2Label = self.synapseValueLabels.co2Labels.valueLabel {
-            self.synapseValueLabels.co2Labels.diffLabel?.text = ""
+        let baseW: CGFloat = self.synapseValuesView.frame.width
+        let baseH: CGFloat = self.synapseDataView.frame.height
 
-            let co2Str: String = String(co2)
-            if co2Label.text != co2Str {
-                if let text = co2Label.text {
-                    if text.count > 0 {
-                        let val: Int = Int(text)!
-                        if co2 > val {
-                            self.synapseValueLabels.co2Labels.diffLabel?.text = "⬆︎ \(String(co2 - val))"
-                        }
-                        else if co2 < val {
-                            self.synapseValueLabels.co2Labels.diffLabel?.text = "⬇︎ \(String(val - co2))"
-                        }
-                    }
-                }
-
-                co2Label.text = co2Str
-                co2Label.sizeToFit()
-                var w: CGFloat = co2Label.frame.size.width
-                var h: CGFloat = co2Label.frame.size.height
-                var x: CGFloat = (self.synapseValuesView.frame.width - w) / 2
-                var y: CGFloat = (self.synapseDataView.frame.height - h) / 2
-                co2Label.frame = CGRect(x: x, y: y, width: w, height: h)
-
-                self.synapseValueLabels.co2Labels.unitLabel?.sizeToFit()
-                x = x + w + 10.0
-                y = y + h - (self.synapseValueLabels.co2Labels.unitLabel?.frame.size.height)! - 5.0
-                w = (self.synapseValueLabels.co2Labels.unitLabel?.frame.size.width)!
-                h = (self.synapseValueLabels.co2Labels.unitLabel?.frame.size.height)!
-                self.synapseValueLabels.co2Labels.unitLabel?.frame = CGRect(x: x, y: y, width: w, height: h)
-
-                self.synapseValueLabels.co2Labels.diffLabel?.sizeToFit()
-                w = (self.synapseValueLabels.co2Labels.diffLabel?.frame.size.width)!
-                h = (self.synapseValueLabels.co2Labels.diffLabel?.frame.size.height)!
-                x = co2Label.frame.origin.x - (w + 5.0)
-                y = co2Label.frame.origin.y
-                if x < 0.0 {
-                    x = 0
-                    y -= h
-                }
-                self.synapseValueLabels.co2Labels.diffLabel?.frame = CGRect(x: x, y: y, width: w, height: h)
-            }
+        if let co2 = synapseValues.co2 {
+            self.synapseValueLabels.co2Labels.updateSynapseValueLabels(co2, baseW: baseW, baseH: baseH)
         }
-        if let temp = synapseValues.temp, let tempLabel = self.synapseValueLabels.tempLabels.valueLabel {
-            self.synapseValueLabels.tempLabels.diffLabel?.text = ""
-
-            var tempVal: Float = temp
-            self.synapseValueLabels.tempLabels.unitLabel?.text = "℃"
-            if self.appDelegate.temperatureScale == "F" {
-                tempVal = self.makeFahrenheitTemperatureValue(tempVal)
-                self.synapseValueLabels.tempLabels.unitLabel?.text = "℉"
-            }
-            let tempStr: String = String(format:"%.1f", tempVal)
-            if tempLabel.text != tempStr {
-                if let text = tempLabel.text {
-                    if text.count > 0 {
-                        let val: Float = Float(atof(text))
-                        if tempVal > val {
-                            self.synapseValueLabels.tempLabels.diffLabel?.text = "⬆︎ \(String(format:"%.1f", tempVal - val))"
-                        }
-                        else if tempVal < val {
-                            self.synapseValueLabels.tempLabels.diffLabel?.text = "⬇︎ \(String(format:"%.1f", val - tempVal))"
-                        }
-                    }
-                }
-
-                tempLabel.text = tempStr
-                tempLabel.sizeToFit()
-                var w: CGFloat = tempLabel.frame.size.width
-                var h: CGFloat = tempLabel.frame.size.height
-                var x: CGFloat = (self.synapseValuesView.frame.width - w) / 2
-                var y: CGFloat = (self.synapseDataView.frame.height - h) / 2
-                tempLabel.frame = CGRect(x: x, y: y, width: w, height: h)
-
-                self.synapseValueLabels.tempLabels.unitLabel?.sizeToFit()
-                x = x + w + 10.0
-                y = y + h - (self.synapseValueLabels.tempLabels.unitLabel?.frame.size.height)! - 5.0
-                w = (self.synapseValueLabels.tempLabels.unitLabel?.frame.size.width)!
-                h = (self.synapseValueLabels.tempLabels.unitLabel?.frame.size.height)!
-                self.synapseValueLabels.tempLabels.unitLabel?.frame = CGRect(x: x, y: y, width: w, height: h)
-
-                self.synapseValueLabels.tempLabels.diffLabel?.sizeToFit()
-                w = (self.synapseValueLabels.tempLabels.diffLabel?.frame.size.width)!
-                h = (self.synapseValueLabels.tempLabels.diffLabel?.frame.size.height)!
-                x = tempLabel.frame.origin.x - (w + 5.0)
-                y = tempLabel.frame.origin.y
-                if x < 0.0 {
-                    x = 0
-                    y -= h
-                }
-                self.synapseValueLabels.tempLabels.diffLabel?.frame = CGRect(x: x, y: y, width: w, height: h)
-            }
+        else {
+            self.synapseValueLabels.co2Labels.resetSynapseValueLabels()
         }
-        if let pressure = synapseValues.pressure, let pressLabel = self.synapseValueLabels.pressLabels.valueLabel {
-            self.synapseValueLabels.pressLabels.diffLabel?.text = ""
 
-            let pressStr: String = String(format:"%.1f", pressure)
-            if pressLabel.text != pressStr {
-                if let text = pressLabel.text {
-                    if text.count > 0 {
-                        let val: Float = Float(atof(text))
-                        if pressure > val {
-                            self.synapseValueLabels.pressLabels.diffLabel?.text = "⬆︎ \(String(format:"%.1f", pressure - val))"
-                        }
-                        else if pressure < val {
-                            self.synapseValueLabels.pressLabels.diffLabel?.text = "⬇︎ \(String(format:"%.1f", val - pressure))"
-                        }
-                    }
-                }
-
-                pressLabel.text = pressStr
-                pressLabel.sizeToFit()
-                var w: CGFloat = pressLabel.frame.size.width
-                var h: CGFloat = pressLabel.frame.size.height
-                var x: CGFloat = (self.synapseValuesView.frame.width - w) / 2
-                var y: CGFloat = (self.synapseDataView.frame.height - h) / 2
-                pressLabel.frame = CGRect(x: x, y: y, width: w, height: h)
-
-                self.synapseValueLabels.pressLabels.unitLabel?.sizeToFit()
-                x = x + w + 10.0
-                y = y + h - (self.synapseValueLabels.pressLabels.unitLabel?.frame.size.height)! - 5.0
-                w = (self.synapseValueLabels.pressLabels.unitLabel?.frame.size.width)!
-                h = (self.synapseValueLabels.pressLabels.unitLabel?.frame.size.height)!
-                self.synapseValueLabels.pressLabels.unitLabel?.frame = CGRect(x: x, y: y, width: w, height: h)
-
-                self.synapseValueLabels.pressLabels.diffLabel?.sizeToFit()
-                w = (self.synapseValueLabels.pressLabels.diffLabel?.frame.size.width)!
-                h = (self.synapseValueLabels.pressLabels.diffLabel?.frame.size.height)!
-                x = pressLabel.frame.origin.x - (w + 5.0)
-                y = pressLabel.frame.origin.y
-                if x < 0.0 {
-                    x = 0
-                    y -= h
-                }
-                self.synapseValueLabels.pressLabels.diffLabel?.frame = CGRect(x: x, y: y, width: w, height: h)
-            }
+        if let temp = synapseValues.temp {
+            self.synapseValueLabels.tempLabels.unitLabel?.text = self.getTemperatureUnit(SettingFileManager.shared.synapseTemperatureScale)
+            self.synapseValueLabels.tempLabels.updateSynapseValueLabels(temp, baseW: baseW, baseH: baseH, option: [self.synapseCrystalInfo.temp.key: ["scale": SettingFileManager.shared.synapseTemperatureScale]])
         }
-        /*if let mx = synapseValues.mx, let my = synapseValues.my, let mz = synapseValues.mz, let magxLabel = self.synapseValueLabels.magxLabels.valueLabel, let magyLabel = self.synapseValueLabels.magyLabels.valueLabel, let magzLabel = self.synapseValueLabels.magzLabels.valueLabel {
-            self.synapseValueLabels.magxLabels.diffLabel?.text = ""
-            self.synapseValueLabels.magyLabels.diffLabel?.text = ""
-            self.synapseValueLabels.magzLabels.diffLabel?.text = ""
+        else {
+            self.synapseValueLabels.tempLabels.resetSynapseValueLabels()
+        }
 
-            let mxStr: String = String(mx)
-            let myStr: String = String(my)
-            let mzStr: String = String(mz)
-            if magxLabel.text != mxStr || magyLabel.text != myStr || magzLabel.text != mzStr {
-                if let text = magxLabel.text {
-                    if text.count > 0 {
-                        let val: Int = Int(text)!
-                        if mx > val {
-                            self.synapseValueLabels.magxLabels.diffLabel?.text = "⬆︎ \(String(mx - val))"
-                        }
-                        else if mx < val {
-                            self.synapseValueLabels.magxLabels.diffLabel?.text = "⬇︎ \(String(val - mx))"
-                        }
-                    }
-                }
-                if let text = magyLabel.text {
-                    if text.count > 0 {
-                        let val: Int = Int(text)!
-                        if my > val {
-                            self.synapseValueLabels.magyLabels.diffLabel?.text = "⬆︎ \(String(my - val))"
-                        }
-                        else if my < val {
-                            self.synapseValueLabels.magyLabels.diffLabel?.text = "⬇︎ \(String(val - my))"
-                        }
-                    }
-                }
-                if let text = magzLabel.text {
-                    if text.count > 0 {
-                        let val: Int = Int(text)!
-                        if mz > val {
-                            self.synapseValueLabels.magzLabels.diffLabel?.text = "⬆︎ \(String(mz - val))"
-                        }
-                        else if mz < val {
-                            self.synapseValueLabels.magzLabels.diffLabel?.text = "⬇︎ \(String(val - mz))"
-                        }
-                    }
-                }
+        if let pressure = synapseValues.pressure {
+            self.synapseValueLabels.pressLabels.updateSynapseValueLabels(pressure, baseW: baseW, baseH: baseH)
+        }
+        else {
+            self.synapseValueLabels.pressLabels.resetSynapseValueLabels()
+        }
 
-                magxLabel.text = mxStr
-                magxLabel.sizeToFit()
-                magyLabel.text = myStr
-                magyLabel.sizeToFit()
-                magzLabel.text = mzStr
-                magzLabel.sizeToFit()
-
-                let baseY: CGFloat = (self.synapseDataView.frame.height - (magxLabel.frame.size.height + magyLabel.frame.size.height + magzLabel.frame.size.height + 10.0 * 2)) / 2
-                var baseW: CGFloat = magxLabel.frame.size.width
-                if baseW < magyLabel.frame.size.width {
-                    baseW = magyLabel.frame.size.width
-                }
-                if baseW < magzLabel.frame.size.width {
-                    baseW = magzLabel.frame.size.width
-                }
-                let baseX: CGFloat = (self.synapseValuesView.frame.width - baseW) / 2
-
-                var w: CGFloat = magxLabel.frame.size.width
-                var h: CGFloat = magxLabel.frame.size.height
-                var x: CGFloat = baseX + (baseW - w)
-                var y: CGFloat = baseY
-                magxLabel.frame = CGRect(x: x, y: y, width: w, height: h)
-                y += h + 10.0
-                w = magyLabel.frame.size.width
-                x = baseX + (baseW - w)
-                h = magyLabel.frame.size.height
-                magyLabel.frame = CGRect(x: x, y: y, width: w, height: h)
-                y += h + 10.0
-                w = magzLabel.frame.size.width
-                x = baseX + (baseW - w)
-                h = magzLabel.frame.size.height
-                magzLabel.frame = CGRect(x: x, y: y, width: w, height: h)
-
-                self.synapseValueLabels.magxLabels.unitLabel?.sizeToFit()
-                x = magxLabel.frame.origin.x + magxLabel.frame.size.width + 10.0
-                y = magxLabel.frame.origin.y + magxLabel.frame.size.height - (self.synapseValueLabels.magxLabels.unitLabel?.frame.size.height)! - 5.0
-                w = (self.synapseValueLabels.magxLabels.unitLabel?.frame.size.width)!
-                h = (self.synapseValueLabels.magxLabels.unitLabel?.frame.size.height)!
-                self.synapseValueLabels.magxLabels.unitLabel?.frame = CGRect(x: x, y: y, width: w, height: h)
-                self.synapseValueLabels.magyLabels.unitLabel?.sizeToFit()
-                x = magyLabel.frame.origin.x + magyLabel.frame.size.width + 10.0
-                y = magyLabel.frame.origin.y + magyLabel.frame.size.height - (self.synapseValueLabels.magyLabels.unitLabel?.frame.size.height)! - 5.0
-                w = (self.synapseValueLabels.magyLabels.unitLabel?.frame.size.width)!
-                h = (self.synapseValueLabels.magyLabels.unitLabel?.frame.size.height)!
-                self.synapseValueLabels.magyLabels.unitLabel?.frame = CGRect(x: x, y: y, width: w, height: h)
-                self.synapseValueLabels.magzLabels.unitLabel?.sizeToFit()
-                x = magzLabel.frame.origin.x + magzLabel.frame.size.width + 10.0
-                y = magzLabel.frame.origin.y + magzLabel.frame.size.height - (self.synapseValueLabels.magzLabels.unitLabel?.frame.size.height)! - 5.0
-                w = (self.synapseValueLabels.magzLabels.unitLabel?.frame.size.width)!
-                h = (self.synapseValueLabels.magzLabels.unitLabel?.frame.size.height)!
-                self.synapseValueLabels.magzLabels.unitLabel?.frame = CGRect(x: x, y: y, width: w, height: h)
-
-                self.synapseValueLabels.magxLabels.diffLabel?.sizeToFit()
-                w = (self.synapseValueLabels.magxLabels.diffLabel?.frame.size.width)!
-                h = (self.synapseValueLabels.magxLabels.diffLabel?.frame.size.height)!
-                x = baseX - (w + 5.0)
-                y = magxLabel.frame.origin.y
-                if x < 0.0 {
-                    x = 0
-                    y -= h
-                }
-                self.synapseValueLabels.magxLabels.diffLabel?.frame = CGRect(x: x, y: y, width: w, height: h)
-                self.synapseValueLabels.magyLabels.diffLabel?.sizeToFit()
-                w = (self.synapseValueLabels.magyLabels.diffLabel?.frame.size.width)!
-                h = (self.synapseValueLabels.magyLabels.diffLabel?.frame.size.height)!
-                x = baseX - (w + 5.0)
-                y = magyLabel.frame.origin.y
-                if x < 0.0 {
-                    x = 0
-                    y -= h
-                }
-                self.synapseValueLabels.magyLabels.diffLabel?.frame = CGRect(x: x, y: y, width: w, height: h)
-                self.synapseValueLabels.magzLabels.diffLabel?.sizeToFit()
-                w = (self.synapseValueLabels.magzLabels.diffLabel?.frame.size.width)!
-                h = (self.synapseValueLabels.magzLabels.diffLabel?.frame.size.height)!
-                x = baseX - (w + 5.0)
-                y = magzLabel.frame.origin.y
-                if x < 0.0 {
-                    x = 0
-                    y -= h
-                }
-                self.synapseValueLabels.magzLabels.diffLabel?.frame = CGRect(x: x, y: y, width: w, height: h)
-            }
+        /*if let mx = synapseValues.mx, let my = synapseValues.my, let mz = synapseValues.mz {
+            self.synapseValueLabels.magxLabels.updateSynapseValueLabels(mx, baseW: baseW, baseH: baseH)
+            self.synapseValueLabels.magyLabels.updateSynapseValueLabels(my, baseW: baseW, baseH: baseH)
+            self.synapseValueLabels.magzLabels.updateSynapseValueLabels(mz, baseW: baseW, baseH: baseH)
+            self.updateMultiSynapseValuesLabels([self.synapseValueLabels.magxLabels, self.synapseValueLabels.magyLabels, self.synapseValueLabels.magzLabels])
+        }
+        else {
+            self.synapseValueLabels.magxLabels.resetSynapseValueLabels()
+            self.synapseValueLabels.magyLabels.resetSynapseValueLabels()
+            self.synapseValueLabels.magzLabels.resetSynapseValueLabels()
         }*/
-        if let ax = synapseValues.ax, let ay = synapseValues.ay, let az = synapseValues.az, let movexLabel = self.synapseValueLabels.movexLabels.valueLabel, let moveyLabel = self.synapseValueLabels.moveyLabels.valueLabel, let movezLabel = self.synapseValueLabels.movezLabels.valueLabel {
-            self.synapseValueLabels.movexLabels.diffLabel?.text = ""
-            self.synapseValueLabels.moveyLabels.diffLabel?.text = ""
-            self.synapseValueLabels.movezLabels.diffLabel?.text = ""
 
-            let axF: Float = Float(ax) * self.aScale
-            let ayF: Float = Float(ay) * self.aScale
-            let azF: Float = Float(az) * self.aScale
-            let axStr: String = String(format:"%.4f", axF)
-            let ayStr: String = String(format:"%.4f", ayF)
-            let azStr: String = String(format:"%.4f", azF)
-            if movexLabel.text != axStr || moveyLabel.text != ayStr || movezLabel.text != azStr {
-                if let text = movexLabel.text {
-                    if text.count > 0 {
-                        let val: Float = Float(atof(text))
-                        if axF > val {
-                            self.synapseValueLabels.movexLabels.diffLabel?.text = "⬆︎ \(String(format:"%.4f", axF - val))"
-                        }
-                        else if axF < val {
-                            self.synapseValueLabels.movexLabels.diffLabel?.text = "⬇︎ \(String(format:"%.4f", val - axF))"
-                        }
-                    }
-                }
-                if let text = moveyLabel.text {
-                    if text.count > 0 {
-                        let val: Float = Float(atof(text))
-                        if ayF > val {
-                            self.synapseValueLabels.moveyLabels.diffLabel?.text = "⬆︎ \(String(format:"%.4f", ayF - val))"
-                        }
-                        else if ayF < val {
-                            self.synapseValueLabels.moveyLabels.diffLabel?.text = "⬇︎ \(String(format:"%.4f", val - ayF))"
-                        }
-                    }
-                }
-                if let text = movezLabel.text {
-                    if text.count > 0 {
-                        let val: Float = Float(atof(text))
-                        if azF > val {
-                            self.synapseValueLabels.movezLabels.diffLabel?.text = "⬆︎ \(String(format:"%.4f", azF - val))"
-                        }
-                        else if azF < val {
-                            self.synapseValueLabels.movezLabels.diffLabel?.text = "⬇︎ \(String(format:"%.4f", val - azF))"
-                        }
-                    }
-                }
-
-                movexLabel.text = axStr
-                movexLabel.sizeToFit()
-                moveyLabel.text = ayStr
-                moveyLabel.sizeToFit()
-                movezLabel.text = azStr
-                movezLabel.sizeToFit()
-
-                let baseY: CGFloat = (self.synapseDataView.frame.height - (movexLabel.frame.size.height + moveyLabel.frame.size.height + movezLabel.frame.size.height + 10.0 * 2)) / 2
-                var baseW: CGFloat = movexLabel.frame.size.width
-                if baseW < moveyLabel.frame.size.width {
-                    baseW = moveyLabel.frame.size.width
-                }
-                if baseW < movezLabel.frame.size.width {
-                    baseW = movezLabel.frame.size.width
-                }
-                let baseX: CGFloat = (self.synapseValuesView.frame.width - baseW) / 2
-
-                var w: CGFloat = movexLabel.frame.size.width
-                var h: CGFloat = movexLabel.frame.size.height
-                var x: CGFloat = baseX + (baseW - w)
-                var y: CGFloat = baseY
-                movexLabel.frame = CGRect(x: x, y: y, width: w, height: h)
-                y += h + 10.0
-                w = moveyLabel.frame.size.width
-                x = baseX + (baseW - w)
-                h = moveyLabel.frame.size.height
-                moveyLabel.frame = CGRect(x: x, y: y, width: w, height: h)
-                y += h + 10.0
-                w = movezLabel.frame.size.width
-                x = baseX + (baseW - w)
-                h = movezLabel.frame.size.height
-                movezLabel.frame = CGRect(x: x, y: y, width: w, height: h)
-
-                self.synapseValueLabels.movexLabels.unitLabel?.sizeToFit()
-                x = movexLabel.frame.origin.x + movexLabel.frame.size.width + 10.0
-                y = movexLabel.frame.origin.y + movexLabel.frame.size.height - (self.synapseValueLabels.movexLabels.unitLabel?.frame.size.height)! - 5.0
-                w = (self.synapseValueLabels.movexLabels.unitLabel?.frame.size.width)!
-                h = (self.synapseValueLabels.movexLabels.unitLabel?.frame.size.height)!
-                self.synapseValueLabels.movexLabels.unitLabel?.frame = CGRect(x: x, y: y, width: w, height: h)
-                self.synapseValueLabels.moveyLabels.unitLabel?.sizeToFit()
-                x = moveyLabel.frame.origin.x + moveyLabel.frame.size.width + 10.0
-                y = moveyLabel.frame.origin.y + moveyLabel.frame.size.height - (self.synapseValueLabels.moveyLabels.unitLabel?.frame.size.height)! - 5.0
-                w = (self.synapseValueLabels.moveyLabels.unitLabel?.frame.size.width)!
-                h = (self.synapseValueLabels.moveyLabels.unitLabel?.frame.size.height)!
-                self.synapseValueLabels.moveyLabels.unitLabel?.frame = CGRect(x: x, y: y, width: w, height: h)
-                self.synapseValueLabels.movezLabels.unitLabel?.sizeToFit()
-                x = movezLabel.frame.origin.x + movezLabel.frame.size.width + 10.0
-                y = movezLabel.frame.origin.y + movezLabel.frame.size.height - (self.synapseValueLabels.movezLabels.unitLabel?.frame.size.height)! - 5.0
-                w = (self.synapseValueLabels.movezLabels.unitLabel?.frame.size.width)!
-                h = (self.synapseValueLabels.movezLabels.unitLabel?.frame.size.height)!
-                self.synapseValueLabels.movezLabels.unitLabel?.frame = CGRect(x: x, y: y, width: w, height: h)
-
-                self.synapseValueLabels.movexLabels.diffLabel?.sizeToFit()
-                w = (self.synapseValueLabels.movexLabels.diffLabel?.frame.size.width)!
-                h = (self.synapseValueLabels.movexLabels.diffLabel?.frame.size.height)!
-                x = baseX - (w + 5.0)
-                y = movexLabel.frame.origin.y
-                if x < 0.0 {
-                    x = 0
-                    y -= h
-                }
-                self.synapseValueLabels.movexLabels.diffLabel?.frame = CGRect(x: x, y: y, width: w, height: h)
-                self.synapseValueLabels.moveyLabels.diffLabel?.sizeToFit()
-                w = (self.synapseValueLabels.moveyLabels.diffLabel?.frame.size.width)!
-                h = (self.synapseValueLabels.moveyLabels.diffLabel?.frame.size.height)!
-                x = baseX - (w + 5.0)
-                y = moveyLabel.frame.origin.y
-                if x < 0.0 {
-                    x = 0
-                    y -= h
-                }
-                self.synapseValueLabels.moveyLabels.diffLabel?.frame = CGRect(x: x, y: y, width: w, height: h)
-                self.synapseValueLabels.movezLabels.diffLabel?.sizeToFit()
-                w = (self.synapseValueLabels.movezLabels.diffLabel?.frame.size.width)!
-                h = (self.synapseValueLabels.movezLabels.diffLabel?.frame.size.height)!
-                x = baseX - (w + 5.0)
-                y = movezLabel.frame.origin.y
-                if x < 0.0 {
-                    x = 0
-                    y -= h
-                }
-                self.synapseValueLabels.movezLabels.diffLabel?.frame = CGRect(x: x, y: y, width: w, height: h)
-            }
+        if let ax = synapseValues.ax, let ay = synapseValues.ay, let az = synapseValues.az {
+            let axF: Float = self.makeAccelerationValue(Float(ax))
+            let ayF: Float = self.makeAccelerationValue(Float(ay))
+            let azF: Float = self.makeAccelerationValue(Float(az))
+            self.synapseValueLabels.movexLabels.updateSynapseValueLabels(axF, baseW: baseW, baseH: baseH, floatFormat: "%.4f")
+            self.synapseValueLabels.moveyLabels.updateSynapseValueLabels(ayF, baseW: baseW, baseH: baseH, floatFormat: "%.4f")
+            self.synapseValueLabels.movezLabels.updateSynapseValueLabels(azF, baseW: baseW, baseH: baseH, floatFormat: "%.4f")
+            self.updateMultiSynapseValuesLabels([self.synapseValueLabels.movexLabels, self.synapseValueLabels.moveyLabels, self.synapseValueLabels.movezLabels])
         }
-        if let gx = synapseValues.gx, let gy = synapseValues.gy, let gz = synapseValues.gz, let anglexLabel = self.synapseValueLabels.anglexLabels.valueLabel, let angleyLabel = self.synapseValueLabels.angleyLabels.valueLabel, let anglezLabel = self.synapseValueLabels.anglezLabels.valueLabel {
-            self.synapseValueLabels.anglexLabels.diffLabel?.text = ""
-            self.synapseValueLabels.angleyLabels.diffLabel?.text = ""
-            self.synapseValueLabels.anglezLabels.diffLabel?.text = ""
-
-            let gxF: Float = Float(gx) * self.gScale * Float(Double.pi / 180.0)
-            let gyF: Float = Float(gy) * self.gScale * Float(Double.pi / 180.0)
-            let gzF: Float = Float(gz) * self.gScale * Float(Double.pi / 180.0)
-            let gxStr: String = String(format:"%.4f", gxF)
-            let gyStr: String = String(format:"%.4f", gyF)
-            let gzStr: String = String(format:"%.4f", gzF)
-            if anglexLabel.text != gxStr || angleyLabel.text != gyStr || anglezLabel.text != gzStr {
-                if let text = anglexLabel.text {
-                    if text.count > 0 {
-                        let val: Float = Float(atof(text))
-                        if gxF > val {
-                            self.synapseValueLabels.anglexLabels.diffLabel?.text = "⬆︎ \(String(format:"%.4f", gxF - val))"
-                        }
-                        else if gxF < val {
-                            self.synapseValueLabels.anglexLabels.diffLabel?.text = "⬇︎ \(String(format:"%.4f", val - gxF))"
-                        }
-                    }
-                }
-                if let text = angleyLabel.text {
-                    if text.count > 0 {
-                        let val: Float = Float(atof(text))
-                        if gyF > val {
-                            self.synapseValueLabels.angleyLabels.diffLabel?.text = "⬆︎ \(String(format:"%.4f", gyF - val))"
-                        }
-                        else if gyF < val {
-                            self.synapseValueLabels.angleyLabels.diffLabel?.text = "⬇︎ \(String(format:"%.4f", val - gyF))"
-                        }
-                    }
-                }
-                if let text = anglezLabel.text {
-                    if text.count > 0 {
-                        let val: Float = Float(atof(text))
-                        if gzF > val {
-                            self.synapseValueLabels.anglezLabels.diffLabel?.text = "⬆︎ \(String(format:"%.4f", gzF - val))"
-                        }
-                        else if gzF < val {
-                            self.synapseValueLabels.anglezLabels.diffLabel?.text = "⬇︎ \(String(format:"%.4f", val - gzF))"
-                        }
-                    }
-                }
-
-                anglexLabel.text = gxStr
-                anglexLabel.sizeToFit()
-                angleyLabel.text = gyStr
-                angleyLabel.sizeToFit()
-                anglezLabel.text = gzStr
-                anglezLabel.sizeToFit()
-
-                let baseY: CGFloat = (self.synapseDataView.frame.height - (anglexLabel.frame.size.height + angleyLabel.frame.size.height + anglezLabel.frame.size.height + 10.0 * 2)) / 2
-                var baseW: CGFloat = anglexLabel.frame.size.width
-                if baseW < angleyLabel.frame.size.width {
-                    baseW = angleyLabel.frame.size.width
-                }
-                if baseW < anglezLabel.frame.size.width {
-                    baseW = anglezLabel.frame.size.width
-                }
-                let baseX: CGFloat = (self.synapseValuesView.frame.width - baseW) / 2
-
-                var w: CGFloat = anglexLabel.frame.size.width
-                var h: CGFloat = anglexLabel.frame.size.height
-                var x: CGFloat = baseX + (baseW - w)
-                var y: CGFloat = baseY
-                anglexLabel.frame = CGRect(x: x, y: y, width: w, height: h)
-                y += h + 10.0
-                w = angleyLabel.frame.size.width
-                x = baseX + (baseW - w)
-                h = angleyLabel.frame.size.height
-                angleyLabel.frame = CGRect(x: x, y: y, width: w, height: h)
-                y += h + 10.0
-                w = anglezLabel.frame.size.width
-                x = baseX + (baseW - w)
-                h = anglezLabel.frame.size.height
-                anglezLabel.frame = CGRect(x: x, y: y, width: w, height: h)
-
-                self.synapseValueLabels.anglexLabels.unitLabel?.sizeToFit()
-                x = anglexLabel.frame.origin.x + anglexLabel.frame.size.width + 10.0
-                y = anglexLabel.frame.origin.y + anglexLabel.frame.size.height - (self.synapseValueLabels.anglexLabels.unitLabel?.frame.size.height)! - 5.0
-                w = (self.synapseValueLabels.anglexLabels.unitLabel?.frame.size.width)!
-                h = (self.synapseValueLabels.anglexLabels.unitLabel?.frame.size.height)!
-                self.synapseValueLabels.anglexLabels.unitLabel?.frame = CGRect(x: x, y: y, width: w, height: h)
-                self.synapseValueLabels.angleyLabels.unitLabel?.sizeToFit()
-                x = angleyLabel.frame.origin.x + angleyLabel.frame.size.width + 10.0
-                y = angleyLabel.frame.origin.y + angleyLabel.frame.size.height - (self.synapseValueLabels.angleyLabels.unitLabel?.frame.size.height)! - 5.0
-                w = (self.synapseValueLabels.angleyLabels.unitLabel?.frame.size.width)!
-                h = (self.synapseValueLabels.angleyLabels.unitLabel?.frame.size.height)!
-                self.synapseValueLabels.angleyLabels.unitLabel?.frame = CGRect(x: x, y: y, width: w, height: h)
-                self.synapseValueLabels.anglezLabels.unitLabel?.sizeToFit()
-                x = anglezLabel.frame.origin.x + anglezLabel.frame.size.width + 10.0
-                y = anglezLabel.frame.origin.y + anglezLabel.frame.size.height - (self.synapseValueLabels.anglezLabels.unitLabel?.frame.size.height)! - 5.0
-                w = (self.synapseValueLabels.anglezLabels.unitLabel?.frame.size.width)!
-                h = (self.synapseValueLabels.anglezLabels.unitLabel?.frame.size.height)!
-                self.synapseValueLabels.anglezLabels.unitLabel?.frame = CGRect(x: x, y: y, width: w, height: h)
-
-                self.synapseValueLabels.anglexLabels.diffLabel?.sizeToFit()
-                w = (self.synapseValueLabels.anglexLabels.diffLabel?.frame.size.width)!
-                h = (self.synapseValueLabels.anglexLabels.diffLabel?.frame.size.height)!
-                x = baseX - (w + 5.0)
-                y = anglexLabel.frame.origin.y
-                if x < 0.0 {
-                    x = 0
-                    y -= h
-                }
-                self.synapseValueLabels.anglexLabels.diffLabel?.frame = CGRect(x: x, y: y, width: w, height: h)
-                self.synapseValueLabels.angleyLabels.diffLabel?.sizeToFit()
-                w = (self.synapseValueLabels.angleyLabels.diffLabel?.frame.size.width)!
-                h = (self.synapseValueLabels.angleyLabels.diffLabel?.frame.size.height)!
-                x = baseX - (w + 5.0)
-                y = angleyLabel.frame.origin.y
-                if x < 0.0 {
-                    x = 0
-                    y -= h
-                }
-                self.synapseValueLabels.angleyLabels.diffLabel?.frame = CGRect(x: x, y: y, width: w, height: h)
-                self.synapseValueLabels.anglezLabels.diffLabel?.sizeToFit()
-                w = (self.synapseValueLabels.anglezLabels.diffLabel?.frame.size.width)!
-                h = (self.synapseValueLabels.anglezLabels.diffLabel?.frame.size.height)!
-                x = baseX - (w + 5.0)
-                y = anglezLabel.frame.origin.y
-                if x < 0.0 {
-                    x = 0
-                    y -= h
-                }
-                self.synapseValueLabels.anglezLabels.diffLabel?.frame = CGRect(x: x, y: y, width: w, height: h)
-            }
+        else {
+            self.synapseValueLabels.movexLabels.resetSynapseValueLabels()
+            self.synapseValueLabels.moveyLabels.resetSynapseValueLabels()
+            self.synapseValueLabels.movezLabels.resetSynapseValueLabels()
         }
-        if let light = synapseValues.light, let illLabel = self.synapseValueLabels.illLabels.valueLabel {
-            self.synapseValueLabels.illLabels.diffLabel?.text = ""
 
-            let illStr: String = String(light)
-            if illLabel.text != illStr {
-                if let text = illLabel.text {
-                    if text.count > 0 {
-                        let val: Int = Int(text)!
-                        if light > val {
-                            self.synapseValueLabels.illLabels.diffLabel?.text = "⬆︎ \(String(light - val))"
-                        }
-                        else if light < val {
-                            self.synapseValueLabels.illLabels.diffLabel?.text = "⬇︎ \(String(val - light))"
-                        }
-                    }
-                }
-
-                illLabel.text = illStr
-                illLabel.sizeToFit()
-                var w: CGFloat = illLabel.frame.size.width
-                var h: CGFloat = illLabel.frame.size.height
-                var x: CGFloat = (self.synapseValuesView.frame.width - w) / 2
-                var y: CGFloat = (self.synapseDataView.frame.height - h) / 2
-                illLabel.frame = CGRect(x: x, y: y, width: w, height: h)
-
-                self.synapseValueLabels.illLabels.unitLabel?.sizeToFit()
-                x = x + w + 10.0
-                y = y + h - (self.synapseValueLabels.illLabels.unitLabel?.frame.size.height)! - 5.0
-                w = (self.synapseValueLabels.illLabels.unitLabel?.frame.size.width)!
-                h = (self.synapseValueLabels.illLabels.unitLabel?.frame.size.height)!
-                self.synapseValueLabels.illLabels.unitLabel?.frame = CGRect(x: x, y: y, width: w, height: h)
-
-                self.synapseValueLabels.illLabels.diffLabel?.sizeToFit()
-                w = (self.synapseValueLabels.illLabels.diffLabel?.frame.size.width)!
-                h = (self.synapseValueLabels.illLabels.diffLabel?.frame.size.height)!
-                x = illLabel.frame.origin.x - (w + 5.0)
-                y = illLabel.frame.origin.y
-                if x < 0.0 {
-                    x = 0
-                    y -= h
-                }
-                self.synapseValueLabels.illLabels.diffLabel?.frame = CGRect(x: x, y: y, width: w, height: h)
-            }
+        if let gx = synapseValues.gx, let gy = synapseValues.gy, let gz = synapseValues.gz {
+            let gxF: Float = self.makeGyroscopeValue(Float(gx))
+            let gyF: Float = self.makeGyroscopeValue(Float(gy))
+            let gzF: Float = self.makeGyroscopeValue(Float(gz))
+            self.synapseValueLabels.anglexLabels.updateSynapseValueLabels(gxF, baseW: baseW, baseH: baseH, floatFormat: "%.4f")
+            self.synapseValueLabels.angleyLabels.updateSynapseValueLabels(gyF, baseW: baseW, baseH: baseH, floatFormat: "%.4f")
+            self.synapseValueLabels.anglezLabels.updateSynapseValueLabels(gzF, baseW: baseW, baseH: baseH, floatFormat: "%.4f")
+            self.updateMultiSynapseValuesLabels([self.synapseValueLabels.anglexLabels, self.synapseValueLabels.angleyLabels, self.synapseValueLabels.anglezLabels])
         }
-        if let humidity = synapseValues.humidity, let humLabel = self.synapseValueLabels.humLabels.valueLabel {
-            self.synapseValueLabels.humLabels.diffLabel?.text = ""
-
-            let humStr: String = String(humidity)
-            if humLabel.text != humStr {
-                if let text = humLabel.text {
-                    if text.count > 0 {
-                        let val: Int = Int(text)!
-                        if humidity > val {
-                            self.synapseValueLabels.humLabels.diffLabel?.text = "⬆︎ \(String(humidity - val))"
-                        }
-                        else if humidity < val {
-                            self.synapseValueLabels.humLabels.diffLabel?.text = "⬇︎ \(String(val - humidity))"
-                        }
-                    }
-                }
-
-                humLabel.text = "\(String(humidity))"
-                humLabel.sizeToFit()
-                var w: CGFloat = humLabel.frame.size.width
-                var h: CGFloat = humLabel.frame.size.height
-                var x: CGFloat = (self.synapseValuesView.frame.width - w) / 2
-                var y: CGFloat = (self.synapseDataView.frame.height - h) / 2
-                humLabel.frame = CGRect(x: x, y: y, width: w, height: h)
-
-                self.synapseValueLabels.humLabels.unitLabel?.sizeToFit()
-                x = x + w + 10.0
-                y = y + h - (self.synapseValueLabels.humLabels.unitLabel?.frame.size.height)! - 5.0
-                w = (self.synapseValueLabels.humLabels.unitLabel?.frame.size.width)!
-                h = (self.synapseValueLabels.humLabels.unitLabel?.frame.size.height)!
-                self.synapseValueLabels.humLabels.unitLabel?.frame = CGRect(x: x, y: y, width: w, height: h)
-
-                self.synapseValueLabels.humLabels.diffLabel?.sizeToFit()
-                w = (self.synapseValueLabels.humLabels.diffLabel?.frame.size.width)!
-                h = (self.synapseValueLabels.humLabels.diffLabel?.frame.size.height)!
-                x = humLabel.frame.origin.x - (w + 5.0)
-                y = humLabel.frame.origin.y
-                if x < 0.0 {
-                    x = 0
-                    y -= h
-                }
-                self.synapseValueLabels.humLabels.diffLabel?.frame = CGRect(x: x, y: y, width: w, height: h)
-            }
+        else {
+            self.synapseValueLabels.anglexLabels.resetSynapseValueLabels()
+            self.synapseValueLabels.angleyLabels.resetSynapseValueLabels()
+            self.synapseValueLabels.anglezLabels.resetSynapseValueLabels()
         }
-        if let sound = synapseValues.sound, let soundLabel = self.synapseValueLabels.soundLabels.valueLabel {
-            self.synapseValueLabels.soundLabels.diffLabel?.text = ""
 
-            let soundStr: String = String(sound)
-            if soundLabel.text != soundStr {
-                if let text = soundLabel.text {
-                    if text.count > 0 {
-                        let val: Int = Int(text)!
-                        if sound > val {
-                            self.synapseValueLabels.soundLabels.diffLabel?.text = "⬆︎ \(String(sound - val))"
-                        }
-                        else if sound < val {
-                            self.synapseValueLabels.soundLabels.diffLabel?.text = "⬇︎ \(String(val - sound))"
-                        }
-                    }
-                }
+        if let light = synapseValues.light {
+            self.synapseValueLabels.illLabels.updateSynapseValueLabels(light, baseW: baseW, baseH: baseH)
+        }
+        else {
+            self.synapseValueLabels.illLabels.resetSynapseValueLabels()
+        }
 
-                soundLabel.text = soundStr
-                soundLabel.sizeToFit()
-                var w: CGFloat = soundLabel.frame.size.width
-                var h: CGFloat = soundLabel.frame.size.height
-                var x: CGFloat = (self.synapseValuesView.frame.width - w) / 2
-                var y: CGFloat = (self.synapseDataView.frame.height - h) / 2
-                soundLabel.frame = CGRect(x: x, y: y, width: w, height: h)
+        if let humidity = synapseValues.humidity {
+            self.synapseValueLabels.humLabels.updateSynapseValueLabels(humidity, baseW: baseW, baseH: baseH)
+        }
+        else {
+            self.synapseValueLabels.humLabels.resetSynapseValueLabels()
+        }
 
-                self.synapseValueLabels.soundLabels.unitLabel?.sizeToFit()
-                x = x + w + 10.0
-                y = y + h - (self.synapseValueLabels.soundLabels.unitLabel?.frame.size.height)! - 5.0
-                w = (self.synapseValueLabels.soundLabels.unitLabel?.frame.size.width)!
-                h = (self.synapseValueLabels.soundLabels.unitLabel?.frame.size.height)!
-                self.synapseValueLabels.soundLabels.unitLabel?.frame = CGRect(x: x, y: y, width: w, height: h)
-
-                self.synapseValueLabels.soundLabels.diffLabel?.sizeToFit()
-                w = (self.synapseValueLabels.soundLabels.diffLabel?.frame.size.width)!
-                h = (self.synapseValueLabels.soundLabels.diffLabel?.frame.size.height)!
-                x = soundLabel.frame.origin.x - (w + 5.0)
-                y = soundLabel.frame.origin.y
-                if x < 0.0 {
-                    x = 0
-                    y -= h
-                }
-                self.synapseValueLabels.soundLabels.diffLabel?.frame = CGRect(x: x, y: y, width: w, height: h)
-            }
+        if let sound = synapseValues.sound {
+            self.synapseValueLabels.soundLabels.updateSynapseValueLabels(sound, baseW: baseW, baseH: baseH)
+        }
+        else {
+            self.synapseValueLabels.soundLabels.resetSynapseValueLabels()
         }
 
         if synapseValues.name == self.mainSynapseObject.synapseValues.name {
@@ -2969,53 +2031,74 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         }
     }
 
+    func updateMultiSynapseValuesLabels(_ multiSynapseValueLabels: [SynapseValueLabels]) {
+
+        let spaceH: CGFloat = 10.0
+        var baseW: CGFloat = 0
+        var baseH: CGFloat = 0
+        for labels in multiSynapseValueLabels {
+            if labels.valueLabel == nil || labels.unitLabel == nil || labels.diffLabel == nil {
+                baseW = 0
+                baseH = 0
+                break
+            }
+
+            if baseW < labels.valueLabel!.frame.size.width {
+                baseW = labels.valueLabel!.frame.size.width
+            }
+            baseH += labels.valueLabel!.frame.size.height + spaceH
+        }
+        if baseW == 0 || baseH == 0 {
+            return
+        }
+        let baseX: CGFloat = (self.synapseValuesView.frame.width - baseW) / 2
+        let baseY: CGFloat = (self.synapseDataView.frame.height - (baseH - spaceH)) / 2
+
+        var x: CGFloat = 0
+        var y: CGFloat = baseY
+        for labels in multiSynapseValueLabels {
+            let w: CGFloat = labels.valueLabel!.frame.size.width
+            let h: CGFloat = labels.valueLabel!.frame.size.height
+            x = baseX + (baseW - w)
+            labels.valueLabel!.frame = CGRect(x: x, y: y, width: w, height: h)
+
+            var altX: CGFloat = labels.valueLabel!.frame.origin.x + labels.valueLabel!.frame.size.width + 10.0
+            var altY: CGFloat = labels.valueLabel!.frame.origin.y + labels.valueLabel!.frame.size.height - (labels.unitLabel!.frame.size.height + 5.0)
+            var altW: CGFloat = labels.unitLabel!.frame.size.width
+            var altH: CGFloat = labels.unitLabel!.frame.size.height
+            labels.unitLabel?.frame = CGRect(x: altX, y: altY, width: altW, height: altH)
+
+            altW = labels.diffLabel!.frame.size.width
+            altH = labels.diffLabel!.frame.size.height
+            altX = baseX - (altW + 5.0)
+            altY = labels.valueLabel!.frame.origin.y
+            if altX < 0.0 {
+                altX = 0
+                altY -= altH
+            }
+            labels.diffLabel?.frame = CGRect(x: altX, y: altY, width: altW, height: altH)
+
+            y += h + spaceH
+        }
+    }
+
     func resetSynapseValuesView() {
 
-        self.synapseValueLabels.co2Labels.valueLabel?.text = ""
-        self.synapseValueLabels.co2Labels.diffLabel?.text = ""
-        self.synapseValueLabels.co2Labels.unitLabel?.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
-        self.synapseValueLabels.tempLabels.valueLabel?.text = ""
-        self.synapseValueLabels.tempLabels.diffLabel?.text = ""
-        self.synapseValueLabels.tempLabels.unitLabel?.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
-        self.synapseValueLabels.pressLabels.valueLabel?.text = ""
-        self.synapseValueLabels.pressLabels.diffLabel?.text = ""
-        self.synapseValueLabels.pressLabels.unitLabel?.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
-        self.synapseValueLabels.movexLabels.valueLabel?.text = ""
-        self.synapseValueLabels.movexLabels.diffLabel?.text = ""
-        self.synapseValueLabels.movexLabels.unitLabel?.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
-        self.synapseValueLabels.moveyLabels.valueLabel?.text = ""
-        self.synapseValueLabels.moveyLabels.diffLabel?.text = ""
-        self.synapseValueLabels.moveyLabels.unitLabel?.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
-        self.synapseValueLabels.movezLabels.valueLabel?.text = ""
-        self.synapseValueLabels.movezLabels.diffLabel?.text = ""
-        self.synapseValueLabels.movezLabels.unitLabel?.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
-        self.synapseValueLabels.anglexLabels.valueLabel?.text = ""
-        self.synapseValueLabels.anglexLabels.diffLabel?.text = ""
-        self.synapseValueLabels.anglexLabels.unitLabel?.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
-        self.synapseValueLabels.angleyLabels.valueLabel?.text = ""
-        self.synapseValueLabels.angleyLabels.diffLabel?.text = ""
-        self.synapseValueLabels.angleyLabels.unitLabel?.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
-        self.synapseValueLabels.anglezLabels.valueLabel?.text = ""
-        self.synapseValueLabels.anglezLabels.diffLabel?.text = ""
-        self.synapseValueLabels.anglezLabels.unitLabel?.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
-        self.synapseValueLabels.illLabels.valueLabel?.text = ""
-        self.synapseValueLabels.illLabels.diffLabel?.text = ""
-        self.synapseValueLabels.illLabels.unitLabel?.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
-        self.synapseValueLabels.humLabels.valueLabel?.text = ""
-        self.synapseValueLabels.humLabels.diffLabel?.text = ""
-        self.synapseValueLabels.humLabels.unitLabel?.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
-        self.synapseValueLabels.soundLabels.valueLabel?.text = ""
-        self.synapseValueLabels.soundLabels.diffLabel?.text = ""
-        self.synapseValueLabels.soundLabels.unitLabel?.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
-        /*self.synapseValueLabels.magxLabels.valueLabel?.text = ""
-        self.synapseValueLabels.magxLabels.diffLabel?.text = ""
-        self.synapseValueLabels.magxLabels.unitLabel?.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
-        self.synapseValueLabels.magyLabels.valueLabel?.text = ""
-        self.synapseValueLabels.magyLabels.diffLabel?.text = ""
-        self.synapseValueLabels.magyLabels.unitLabel?.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
-        self.synapseValueLabels.magzLabels.valueLabel?.text = ""
-        self.synapseValueLabels.magzLabels.diffLabel?.text = ""
-        self.synapseValueLabels.magzLabels.unitLabel?.frame = CGRect(x: 0, y: 0, width: 0, height: 0)*/
+        self.synapseValueLabels.co2Labels.resetSynapseValueLabels()
+        self.synapseValueLabels.tempLabels.resetSynapseValueLabels()
+        self.synapseValueLabels.pressLabels.resetSynapseValueLabels()
+        self.synapseValueLabels.movexLabels.resetSynapseValueLabels()
+        self.synapseValueLabels.moveyLabels.resetSynapseValueLabels()
+        self.synapseValueLabels.movezLabels.resetSynapseValueLabels()
+        self.synapseValueLabels.anglexLabels.resetSynapseValueLabels()
+        self.synapseValueLabels.angleyLabels.resetSynapseValueLabels()
+        self.synapseValueLabels.anglezLabels.resetSynapseValueLabels()
+        self.synapseValueLabels.illLabels.resetSynapseValueLabels()
+        self.synapseValueLabels.humLabels.resetSynapseValueLabels()
+        self.synapseValueLabels.soundLabels.resetSynapseValueLabels()
+        /*self.synapseValueLabels.magxLabels.resetSynapseValueLabels()
+        self.synapseValueLabels.magyLabels.resetSynapseValueLabels()
+        self.synapseValueLabels.magzLabels.resetSynapseValueLabels()*/
     }
 
     // MARK: mark - Synapse Device methods
@@ -3046,7 +2129,6 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
     func setRFduinos() {
 
         //print("setRFduinos: \(self.rfduinoManager.rfduinos.count)")
-        //self.rfduinos = []
         if let rfduinos = self.rfduinoManager.rfduinos {
             for (_, rfduino) in rfduinos.enumerated() {
                 if let rfduino = rfduino as? RFduino {
@@ -3064,17 +2146,17 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         if self.synapseDeviceName.count > 0 && rfduino.outOfRange == 0 && rfduino.advertisementData == self.synapseDeviceName.data(using: String.Encoding.utf8) {
             print("checkSynapse: \(rfduino.peripheral.identifier) lastAdvertisement: \(String(describing: rfduino.lastAdvertisement))")
             var synapseIndex: Int = -1
-            for (index, synapse) in self.appDelegate.scanDevices.enumerated() {
+            for (index, synapse) in self.scanDevices.enumerated() {
                 if synapse.peripheral.identifier == rfduino.peripheral.identifier {
                     synapseIndex = index
                     break
                 }
             }
-            if synapseIndex >= 0 && synapseIndex < self.appDelegate.scanDevices.count {
-                self.appDelegate.scanDevices[synapseIndex] = rfduino
+            if synapseIndex >= 0 && synapseIndex < self.scanDevices.count {
+                self.scanDevices[synapseIndex] = rfduino
             }
             else {
-                self.appDelegate.scanDevices.append(rfduino)
+                self.scanDevices.append(rfduino)
             }
 
             self.connectSynapse(rfduino)
@@ -3111,7 +2193,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         //print("disconnectSynapse")
         if rfduino == self.mainSynapseObject.synapse {
             self.mainSynapseObject.disconnectSynapse()
-            self.updateDebugAreaView(synapseObject: self.mainSynapseObject)
+            self.updateStatusView(synapseObject: self.mainSynapseObject)
         }
         self.synapseGraphData = [:]
         self.resetSynapseValuesView()
@@ -3140,15 +2222,8 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         }
         //print("setSynapseData: \(synapseObject.synapseData)")
         synapseObject.setSynapseValues()
-        /*
-        var values: Data? = Data(bytes: synapseObject.receiveData)
-        var time: TimeInterval? = self.appDelegate.synapseTimeInterval
-        DispatchQueue.global(qos: .background).async {
-            _ = synapseObject.synapseRecordFileManager?.setValues(values!, date: now, timeInterval: time!)
-            values = nil
-            time = nil
-        }
-         */
+        //self.setSynapseValueFile(synapseObject: synapseObject, values: Data(bytes: synapseObject.receiveData), date: now, timeInterval: self.synapseTimeInterval)
+
         if synapseObject.synapseValues.isConnected {
             synapseObject.setSynapseMaxAndMinValues()
 
@@ -3156,10 +2231,10 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.updateSynapseViews()
             }
 
-            //self.checkSynapseNotifications(self.synapseValuesMain)
+            //self.synapseNotifications.checkSynapseNotifications(synapseObject.synapseValues)
             self.setAudioValues(synapseObject.synapseValues)
 
-            let timeInterval: TimeInterval = self.appDelegate.synapseTimeInterval
+            let timeInterval: TimeInterval = self.synapseTimeInterval
             DispatchQueue.global(qos: .background).async {
                 synapseObject.checkSynapseDataSave(timeInterval: timeInterval)
             }
@@ -3171,6 +2246,13 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
 
         DispatchQueue.global(qos: .background).async {
             self.sendOSC(synapseValues: synapseObject.synapseValues)
+        }
+    }
+
+    func setSynapseValueFile(synapseObject: SynapseObject, values: Data, date: Date, timeInterval: TimeInterval) {
+
+        DispatchQueue.global(qos: .background).async {
+            _ = synapseObject.synapseRecordFileManager?.setValues(values, date: date, timeInterval: timeInterval)
         }
     }
 
@@ -3269,90 +2351,100 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
 
     func setSynapseMaxAndMinLabel(_ synapseDataMaxAndMins: AllSynapseDataMaxAndMins, synapseValuesMain: SynapseValues) {
 
-        self.nowValueLabel.text = ""
-        self.maxValueLabel.text = ""
-        self.minValueLabel.text = ""
-
+        var unitValue: String = ""
+        var nowValue: String = ""
+        var maxValue: String = ""
+        var minValue: String = ""
         let key: String = self.synapseValues[self.focusSynapsePt]
         if key == self.synapseCrystalInfo.co2.key && self.synapseCrystalInfo.co2.hasGraph {
+            unitValue = "ppm"
             if let value = synapseValuesMain.co2 {
-                self.nowValueLabel.text = "\(String(value)) ppm"
+                nowValue = String(value)
             }
-            if let maxNow = synapseDataMaxAndMins.co2.maxNow {
-                self.maxValueLabel.text = "max:\(String(format:"%.0f", maxNow)) ppm"
+            if let value = synapseDataMaxAndMins.co2.maxNow {
+                maxValue = String(format:"%.0f", value)
             }
-            if let minNow = synapseDataMaxAndMins.co2.minNow {
-                self.minValueLabel.text = "min:\(String(format:"%.0f", minNow)) ppm"
+            if let value = synapseDataMaxAndMins.co2.minNow {
+                minValue = String(format:"%.0f", value)
             }
         }
         else if key == self.synapseCrystalInfo.temp.key && self.synapseCrystalInfo.temp.hasGraph {
+            unitValue = self.getTemperatureUnit(SettingFileManager.shared.synapseTemperatureScale)
             if let value = synapseValuesMain.temp {
-                self.nowValueLabel.text = "\(String(format:"%.1f", value)) ℃"
-                if self.appDelegate.temperatureScale == "F" {
-                    self.nowValueLabel.text = "\(String(format:"%.1f", self.makeFahrenheitTemperatureValue(value))) ℉"
-                }
+                nowValue = String(format:"%.1f", self.getTemperatureValue(SettingFileManager.shared.synapseTemperatureScale, value: value))
             }
-            if let maxNow = synapseDataMaxAndMins.temp.maxNow {
-                self.maxValueLabel.text = "max:\(String(format:"%.1f", maxNow)) ℃"
-                if self.appDelegate.temperatureScale == "F" {
-                    self.maxValueLabel.text = "max:\(String(format:"%.1f", self.makeFahrenheitTemperatureValue(Float(maxNow)))) ℉"
-                }
+            if let value = synapseDataMaxAndMins.temp.maxNow {
+                maxValue = String(format:"%.1f", self.getTemperatureValue(SettingFileManager.shared.synapseTemperatureScale, value: Float(value)))
             }
-            if let minNow = synapseDataMaxAndMins.temp.minNow {
-                self.minValueLabel.text = "min:\(String(format:"%.1f", minNow)) ℃"
-                if self.appDelegate.temperatureScale == "F" {
-                    self.minValueLabel.text = "min:\(String(format:"%.1f", self.makeFahrenheitTemperatureValue(Float(minNow)))) ℉"
-                }
+            if let value = synapseDataMaxAndMins.temp.minNow {
+                minValue = String(format:"%.1f", self.getTemperatureValue(SettingFileManager.shared.synapseTemperatureScale, value: Float(value)))
             }
         }
         else if key == self.synapseCrystalInfo.press.key && self.synapseCrystalInfo.press.hasGraph {
+            unitValue = "hPa"
             if let value = synapseValuesMain.pressure {
-                self.nowValueLabel.text = "\(String(format:"%.1f", value)) hPa"
+                nowValue = String(format:"%.1f", value)
             }
-            if let maxNow = synapseDataMaxAndMins.press.maxNow {
-                self.maxValueLabel.text = "max:\(String(format:"%.1f", maxNow)) hPa"
+            if let value = synapseDataMaxAndMins.press.maxNow {
+                maxValue = String(format:"%.1f", value)
             }
-            if let minNow = synapseDataMaxAndMins.press.minNow {
-                self.minValueLabel.text = "min:\(String(format:"%.1f", minNow)) hPa"
+            if let value = synapseDataMaxAndMins.press.minNow {
+                minValue = String(format:"%.1f", value)
             }
         }
         else if key == self.synapseCrystalInfo.ill.key && self.synapseCrystalInfo.ill.hasGraph {
+            unitValue = "lux"
             if let value = synapseValuesMain.light {
-                self.nowValueLabel.text = "\(String(value)) lux"
+                nowValue = String(value)
             }
-            if let maxNow = synapseDataMaxAndMins.light.maxNow {
-                self.maxValueLabel.text = "max:\(String(format:"%.0f", maxNow)) lux"
+            if let value = synapseDataMaxAndMins.light.maxNow {
+                maxValue = String(format:"%.0f", value)
             }
-            if let minNow = synapseDataMaxAndMins.light.minNow {
-                self.minValueLabel.text = "min:\(String(format:"%.0f", minNow)) lux"
+            if let value = synapseDataMaxAndMins.light.minNow {
+                minValue = String(format:"%.0f", value)
             }
         }
         else if key == self.synapseCrystalInfo.hum.key && self.synapseCrystalInfo.hum.hasGraph {
+            unitValue = "%"
             if let value = synapseValuesMain.humidity {
-                self.nowValueLabel.text = "\(String(format:"%.1f", Float(value))) %"
+                nowValue = String(format:"%.1f", Float(value))
             }
-            if let maxNow = synapseDataMaxAndMins.hum.maxNow {
-                self.maxValueLabel.text = "max:\(String(format:"%.1f", maxNow)) %"
+            if let value = synapseDataMaxAndMins.hum.maxNow {
+                maxValue = String(format:"%.1f", value)
             }
-            if let minNow = synapseDataMaxAndMins.hum.minNow {
-                self.minValueLabel.text = "min:\(String(format:"%.1f", minNow)) %"
+            if let value = synapseDataMaxAndMins.hum.minNow {
+                minValue = String(format:"%.1f", value)
             }
         }
         else if key == self.synapseCrystalInfo.sound.key && self.synapseCrystalInfo.sound.hasGraph {
+            unitValue = ""
+            //unitValue = "dB"
             if let value = synapseValuesMain.sound {
-                self.nowValueLabel.text = "\(String(value))"
-                //self.nowValueLabel.text = "\(String(value)) dB"
+                nowValue = String(value)
             }
-            if let maxNow = synapseDataMaxAndMins.sound.maxNow {
-                self.maxValueLabel.text = "max:\(String(format:"%.0f", maxNow))"
-                //self.maxValueLabel.text = "max:\(String(format:"%.0f", maxNow)) dB"
+            if let value = synapseDataMaxAndMins.sound.maxNow {
+                maxValue = String(format:"%.0f", value)
             }
-            if let minNow = synapseDataMaxAndMins.sound.minNow {
-                self.minValueLabel.text = "min:\(String(format:"%.0f", minNow))"
-                //self.minValueLabel.text = "min:\(String(format:"%.0f", minNow)) dB"
+            if let value = synapseDataMaxAndMins.sound.minNow {
+                minValue = String(format:"%.0f", value)
             }
         }
+        if unitValue.count > 0 {
+            unitValue = " \(unitValue)"
+        }
+        if nowValue.count > 0 {
+            nowValue = "\(nowValue)\(unitValue)"
+        }
+        if maxValue.count > 0 {
+            maxValue = "max:\(maxValue)\(unitValue)"
+        }
+        if minValue.count > 0 {
+            minValue = "min:\(minValue)\(unitValue)"
+        }
 
+        self.nowValueLabel.text = nowValue
+        self.maxValueLabel.text = maxValue
+        self.minValueLabel.text = minValue
         self.nowValueLabel.sizeToFit()
         let x: CGFloat = self.min0Label.frame.origin.x + self.min0Label.frame.size.width / 2 - self.nowValueLabel.frame.size.width / 2
         let y: CGFloat = self.graphAreaView.frame.origin.y + self.nowValueLabelY - (self.nowValueLabel.frame.size.height + 8.0)
@@ -3600,15 +2692,9 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
 
     func resendSynapseSettingToDeviceStart(_ synapseObject: SynapseObject) {
 
-        var timeInterval: String = ""
-        if let str = self.settingFileManager.getSettingData(self.settingFileManager.synapseTimeIntervalKey) as? String {
-            timeInterval = str
-        }
-        var isPlaySound: Bool = true
-        if let flag = self.settingFileManager.getSettingData(self.settingFileManager.synapseSoundInfoKey) as? Bool {
-            isPlaySound = flag
-        }
-        if self.settingFileManager.checkSynapseTimeIntervalUpdate(timeInterval, isPlaySound: isPlaySound) {
+        let mode: String = SettingFileManager.shared.synapseTimeInterval
+        let isPlaySound: Bool = SettingFileManager.shared.synapseSoundInfo
+        if SettingFileManager.shared.checkSynapseTimeIntervalUpdate(mode, isPlaySound: isPlaySound) {
             self.sendSynapseSettingToDeviceStart(synapseObject)
         }
     }
@@ -3627,8 +2713,8 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
     func sendTimeIntervalToDevice(_ synapseObject: SynapseObject) {
 
         if let synapse = synapseObject.synapse {
-            self.appDelegate.synapseTimeInterval = self.getSynapseTimeInterval()
-            var timeInt: Int = Int(self.appDelegate.synapseTimeInterval * 1000)
+            self.synapseTimeInterval = self.getSynapseTimeInterval()
+            var timeInt: Int = Int(self.synapseTimeInterval * 1000)
             let timeData: [UInt8] = [UInt8](Data(buffer: UnsafeBufferPointer(start: &timeInt, count: 1)))
 
             var data: Data = Data(bytes: [0x04])
@@ -3656,20 +2742,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             else {
                 data.append(0)
             }
-
-            var timeInterval: String = ""
-            if let str = self.settingFileManager.getSettingData(self.settingFileManager.synapseTimeIntervalKey) as? String {
-                timeInterval = str
-            }
-            if timeInterval == "Live" {
-                data.append(0x01)
-            }
-            else if timeInterval == "Low Power" {
-                data.append(0x02)
-            }
-            else {
-                data.append(0x00)
-            }
+            data.append(SettingFileManager.shared.getSynapseTimeIntervalByteData())
 
             synapseObject.synapseSendMode = SendMode.I3
             print("sendTimeIntervalToDevice: \([UInt8](data))")
@@ -3684,11 +2757,11 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         //print("receiveTimeIntervalToDevice: \(bytes)")
         if bytes.count == length {
             if Int(bytes[0]) == 0 {
-                self.appDelegate.synapseTimeIntervalBak = self.appDelegate.synapseTimeInterval
-                print("receiveTimeIntervalToDevice OK: \(self.appDelegate.synapseTimeInterval)")
+                self.synapseTimeIntervalBak = self.synapseTimeInterval
+                print("receiveTimeIntervalToDevice OK: \(self.synapseTimeInterval)")
             }
             else {
-                self.appDelegate.synapseTimeInterval = self.appDelegate.synapseTimeIntervalBak
+                self.synapseTimeInterval = self.synapseTimeIntervalBak
                 print("receiveTimeIntervalToDevice NG")
             }
 
@@ -3709,15 +2782,9 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
 
     func getSynapseTimeInterval() -> TimeInterval {
 
-        var timeInterval: String = ""
-        if let str = self.settingFileManager.getSettingData(self.settingFileManager.synapseTimeIntervalKey) as? String {
-            timeInterval = str
-        }
-        var isPlaySound: Bool = true
-        if let flag = self.settingFileManager.getSettingData(self.settingFileManager.synapseSoundInfoKey) as? Bool {
-            isPlaySound = flag
-        }
-        return self.settingFileManager.getSynapseTimeInterval(timeInterval, isBackground: !self.isSynapseAppActive, isPlaySound: isPlaySound)
+        let mode: String = SettingFileManager.shared.synapseTimeInterval
+        let isPlaySound: Bool = SettingFileManager.shared.synapseSoundInfo
+        return SettingFileManager.shared.getSynapseTimeInterval(mode, isBackground: !self.isSynapseAppActive, isPlaySound: isPlaySound)
     }
 
     func sendSensorToDeviceStart(_ synapseObject: SynapseObject) {
@@ -3736,7 +2803,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         if let synapse = synapseObject.synapse {
             var data: Data = Data(bytes: [0x05])
             var byte: UInt8 = 0x01
-            if let dic = self.settingFileManager.getSettingData(self.settingFileManager.synapseValidSensorsKey) as? [String: Bool], let flag = dic[self.synapseCrystalInfo.co2.key] {
+            if let flag = SettingFileManager.shared.synapseValidSensors[self.synapseCrystalInfo.co2.key] {
                 if !flag {
                     byte = 0x00
                 }
@@ -3744,7 +2811,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             data.append(byte)
 
             byte = 0x01
-            if let dic = self.settingFileManager.getSettingData(self.settingFileManager.synapseValidSensorsKey) as? [String: Bool], let flag = dic[self.synapseCrystalInfo.temp.key] {
+            if let flag = SettingFileManager.shared.synapseValidSensors[self.synapseCrystalInfo.temp.key] {
                 if !flag {
                     byte = 0x00
                 }
@@ -3752,7 +2819,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             data.append(byte)
 
             byte = 0x01
-            if let dic = self.settingFileManager.getSettingData(self.settingFileManager.synapseValidSensorsKey) as? [String: Bool], let flag = dic[self.synapseCrystalInfo.hum.key] {
+            if let flag = SettingFileManager.shared.synapseValidSensors[self.synapseCrystalInfo.hum.key] {
                 if !flag {
                     byte = 0x00
                 }
@@ -3760,7 +2827,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             data.append(byte)
 
             byte = 0x01
-            if let dic = self.settingFileManager.getSettingData(self.settingFileManager.synapseValidSensorsKey) as? [String: Bool], let flag = dic[self.synapseCrystalInfo.ill.key] {
+            if let flag = SettingFileManager.shared.synapseValidSensors[self.synapseCrystalInfo.ill.key] {
                 if !flag {
                     byte = 0x00
                 }
@@ -3768,7 +2835,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             data.append(byte)
 
             byte = 0x01
-            if let dic = self.settingFileManager.getSettingData(self.settingFileManager.synapseValidSensorsKey) as? [String: Bool], let flag = dic[self.synapseCrystalInfo.press.key] {
+            if let flag = SettingFileManager.shared.synapseValidSensors[self.synapseCrystalInfo.press.key] {
                 if !flag {
                     byte = 0x00
                 }
@@ -3776,7 +2843,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             data.append(byte)
 
             byte = 0x01
-            if let dic = self.settingFileManager.getSettingData(self.settingFileManager.synapseValidSensorsKey) as? [String: Bool], let flag = dic[self.synapseCrystalInfo.sound.key] {
+            if let flag = SettingFileManager.shared.synapseValidSensors[self.synapseCrystalInfo.sound.key] {
                 if !flag {
                     byte = 0x00
                 }
@@ -3784,7 +2851,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             data.append(byte)
 
             byte = 0x01
-            if let dic = self.settingFileManager.getSettingData(self.settingFileManager.synapseValidSensorsKey) as? [String: Bool], let flag = dic[self.synapseCrystalInfo.move.key] {
+            if let flag = SettingFileManager.shared.synapseValidSensors[self.synapseCrystalInfo.move.key] {
                 if !flag {
                     byte = 0x00
                 }
@@ -3792,7 +2859,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             data.append(byte)
 
             byte = 0x01
-            if let dic = self.settingFileManager.getSettingData(self.settingFileManager.synapseValidSensorsKey) as? [String: Bool], let flag = dic[self.synapseCrystalInfo.angle.key] {
+            if let flag = SettingFileManager.shared.synapseValidSensors[self.synapseCrystalInfo.angle.key] {
                 if !flag {
                     byte = 0x00
                 }
@@ -3800,7 +2867,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             data.append(byte)
 
             byte = 0x01
-            if let dic = self.settingFileManager.getSettingData(self.settingFileManager.synapseValidSensorsKey) as? [String: Bool], let flag = dic[self.synapseCrystalInfo.led.key] {
+            if let flag = SettingFileManager.shared.synapseValidSensors[self.synapseCrystalInfo.led.key] {
                 if !flag {
                     byte = 0x00
                 }
@@ -3859,21 +2926,12 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 let dateVal2: Int = Int(bytes[4]) * 256 * 256
                 let dateVal3: Int = Int(bytes[5]) * 256
                 let dateVal4: Int = Int(bytes[6])
-                let firmwareInfo: [String: Any] = [
+                SettingFileManager.shared.synapseFirmwareInfo = [
                     "device_version": "\(versionVal1).\(versionVal2)",
                     "date": "\(dateVal1 + dateVal2 + dateVal3 + dateVal4)",
                 ]
-                print("receiveFirmwareVersionToDevice OK -> \(firmwareInfo)")
-
-                var settingData: [String: Any] = [:]
-                if let data = self.settingFileManager.getSettingData() {
-                    settingData = data
-                    settingData[self.settingFileManager.synapseFirmwareInfoKey] = firmwareInfo
-                }
-                else {
-                    settingData = [self.settingFileManager.synapseFirmwareInfoKey: firmwareInfo]
-                }
-                _ = self.settingFileManager.setSettingData(settingData)
+                print("receiveFirmwareVersionToDevice OK -> \(SettingFileManager.shared.synapseFirmwareInfo)")
+                _ = SettingFileManager.shared.saveData()
             }
             else {
                 print("receiveFirmwareVersionToDevice Error")
@@ -3988,9 +3046,27 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
 
     // MARK: mark - OSC methods
 
+    func setOSCClient() {
+
+        self.oscClient = nil
+        self.oscSendMode = SettingFileManager.shared.oscSendMode
+        if self.oscSendMode == "on" {
+            let oscIPAddress: String = SettingFileManager.shared.oscSendIPAddress
+            let oscPort: String = SettingFileManager.shared.oscSendPort
+            if oscIPAddress.count > 0, let oscPortNum = UInt16(oscPort) {
+                self.oscClient = F53OSCClient.init()
+                self.oscClient?.host = oscIPAddress
+                self.oscClient?.port = oscPortNum
+            }
+        }
+        /*if let settingData = SettingFileManager().getSettingData(), let oscRecvMode = settingData["osc_recv_mode"] as? String {
+            self.oscRecvMode = oscRecvMode
+        }*/
+    }
+
     func sendOSC(synapseValues: SynapseValues) {
 
-        if let oscClient = self.appDelegate.oscClient, self.appDelegate.oscSendMode == "on" {
+        if let oscClient = self.oscClient, self.oscSendMode == "on" {
             var arguments: [Any] = [
                 0, // time
                 0, // co2
@@ -4072,8 +3148,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 arguments[15] = pow
                 //self.sendMessage(client: oscClient, addressPattern: "/pow", arguments: [pow])
             }
-            /*
-            if let mx = synapseValues.mx {
+            /*if let mx = synapseValues.mx {
                 arguments[9] = mx
                 //self.sendMessage(client: oscClient, addressPattern: "/magnetic/x", arguments: [mx])
             }
@@ -4099,7 +3174,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
     func sendKickOSC(name: String?) {
 
         //print("sendKickOSC name: \(name)")
-        if let oscClient = self.appDelegate.oscClient, self.appDelegate.oscSendMode == "on", name == self.mainSynapseObject.synapseValues.name {
+        if let oscClient = self.oscClient, self.oscSendMode == "on", name == self.mainSynapseObject.synapseValues.name {
             let synapseValues: SynapseValues = self.mainSynapseObject.synapseValues
             var arguments: [Any] = [
                 0, // time
@@ -4123,21 +3198,16 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
     func setOSCRecvMode() {
 
         if self.oscServer != nil {
-            var oscRecvMode: String = ""
+            let oscRecvMode: String = SettingFileManager.shared.oscRecvMode
             var oscRecvPort: UInt16?
-            if let settingData = self.settingFileManager.getSettingData() {
-                if let mode = settingData[self.settingFileManager.oscRecvModeKey] as? String {
-                    oscRecvMode = mode
-                }
-                if let port = settingData[self.settingFileManager.oscRecvPortKey] as? String, let portNum = UInt16(port) {
-                    oscRecvPort = portNum
-                }
+            if let port = UInt16(SettingFileManager.shared.oscRecvPort) {
+                oscRecvPort = port
             }
 
             if oscRecvMode != "on" {
                 if let oscSynapseObject = self.oscSynapseObject, oscSynapseObject.synapseValues.isConnected {
                     oscSynapseObject.synapseValues.isConnected = false
-                    oscSynapseObject.removeSynapseNode()
+                    oscSynapseObject.synapseCrystalNode.removeSynapseNodes()
 
                     self.oscServer?.stopListening()
                     self.oscServer?.delegate = nil
@@ -4149,17 +3219,17 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             else if oscRecvMode == "on" {
                 if self.oscSynapseObject == nil {
                     self.oscSynapseObject = SynapseObject("osc")
-                    self.oscSynapseObject?.rotateSynapseNodeDuration = self.updateSynapseViewTime
-                    self.oscSynapseObject?.rotateCrystalNodeDuration = self.updateSynapseViewTime
-                    self.oscSynapseObject?.scaleSynapseNodeDuration = self.updateSynapseViewTime
+                    self.oscSynapseObject?.synapseCrystalNode.rotateSynapseNodeDuration = self.updateSynapseViewTime
+                    self.oscSynapseObject?.synapseCrystalNode.rotateCrystalNodeDuration = self.updateSynapseViewTime
+                    self.oscSynapseObject?.synapseCrystalNode.scaleSynapseNodeDuration = self.updateSynapseViewTime
                     self.oscSynapseObject?.offColorTime = self.synapseOffColorTime
                     self.oscSynapseObject?.synapseValues.isConnected = false
                 }
                 if let oscSynapseObject = self.oscSynapseObject, !oscSynapseObject.synapseValues.isConnected {
                     print("Start OSCRecvMode")
                     self.oscSynapseObject?.synapseValues.isConnected = true
-                    self.oscSynapseObject?.setSynapseNode(scnView: self.scnView, position: SCNVector3(x: 3.5, y: 0, z: 0))
-                    self.oscSynapseObject?.setColorSynapseNode(colorLevel: 0)
+                    self.oscSynapseObject?.synapseCrystalNode.setSynapseNodes(scnView: self.scnView, position: SCNVector3(x: 3.5, y: 0, z: 0))
+                    self.oscSynapseObject?.synapseCrystalNode.setColorSynapseNodes(colorLevel: 0)
                     self.redirectCameraNodePosition(name: self.oscSynapseObject!.synapseCrystalNode.name!)
 
                     if let oscPort = oscRecvPort {
@@ -4261,9 +3331,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             if self.updateOSCSynapseViewTimeLast == nil || now - self.updateOSCSynapseViewTimeLast! >= self.updateSynapseViewTime {
                 if let oscSynapseObject = self.oscSynapseObject, oscSynapseObject.synapseValues.isConnected {
                     self.updateOSCSynapseViewTimeLast = now
-                    oscSynapseObject.rotateSynapseNode()
-                    oscSynapseObject.scaleSynapseNode()
-                    oscSynapseObject.setColorSynapseNodeFromBatteryLevel()
+                    oscSynapseObject.updateSynapseNode()
                 }
             }
         }
@@ -4278,144 +3346,94 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         }
     }
 
-    // MARK: mark - Notifications methods
-    /*
-    func setSynapseNotifications() {
+    // MARK: mark - StatusView methods
 
-        self.synapseNotifications.co2.value = nil
-        var settingData: [String: Any] = [:]
-        if let data = SettingFileManager().getSettingData() {
-            settingData = data
+    func initStatusView() {
+
+        self.statusItems = [
+            "UUID",
+            "Status",
+            "Time",
+            "CO2",
+            "Accelerometer",
+            "Light",
+            "Gyro",
+            "Pressure",
+            "Temperature",
+            "Humidity",
+            "Environmental sound",
+            "tVOC",
+            "Volt",
+            "Pow",
+            "OSC Send Mode",
+            "Address/Port"
+        ]
+        if self.oscServer != nil {
+            self.statusItems += [
+                "OSC Recv Mode",
+                "Port"
+            ]
         }
-        if let notificationInfo = settingData["notification_info"] as? [String: Any] {
-            if let co2Info = notificationInfo["co2"] as? [String: Any] {
-                if let flag = co2Info["flag"] as? Bool {
-                    if flag {
-                        if let value = co2Info["value"] as? Int {
-                            self.synapseNotifications.co2.value = Double(value)
-                        }
-                    }
-                }
-            }
+        self.statusValues = []
+        for _ in self.statusItems {
+            self.statusValues.append("")
         }
+
+        self.setStatusButton()
+        self.setStatusView()
     }
 
-    func checkSynapseNotifications(_ synapseValues: SynapseValues) {
-
-        if let value = self.synapseNotifications.co2.value, let co2 = synapseValues.co2 {
-            if co2 >= Int(value) {
-                var isSend: Bool = false
-                if let flag = self.synapseNotifications.co2.isSend {
-                    isSend = flag
-                }
-
-                if !isSend {
-                    print("CO2 value exceeded \(Int(value))")
-                    self.sendSynapseNotification(notificationId: "co2Notification", body: "CO2 value exceeded \(Int(value))")
-                }
-                self.synapseNotifications.co2.isSend = true
-            }
-            else {
-                if let flag = self.synapseNotifications.co2.isSend {
-                    if flag {
-                        print("CO2 value exceeded reset")
-                    }
-                }
-                self.synapseNotifications.co2.isSend = false
-            }
-        }
-    }
-
-    func sendSynapseNotification(notificationId: String, body: String) {
-
-        if #available(iOS 10.0, *) {
-            let content: UNMutableNotificationContent = UNMutableNotificationContent()
-            //content.title = NSString.localizedUserNotificationString(forKey: "Test", arguments: nil)
-            content.body = NSString.localizedUserNotificationString(forKey: body, arguments: nil)
-            //content.sound = UNNotificationSound.default()
-            //let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 10, repeats: false)
-            /*
-            var dateInfo = DateComponents()
-            dateInfo.hour = 7
-            dateInfo.minute = 0
-            let trigger = UNCalendarNotificationTrigger(dateMatching: dateInfo, repeats: false)
-             */
-            let request: UNNotificationRequest = UNNotificationRequest(identifier: notificationId, content: content, trigger: nil)
-            let center: UNUserNotificationCenter = UNUserNotificationCenter.current()
-            center.add(request) { (error: Error?) in
-                if let error = error {
-                    print("UserNotificationCenter error : \(error.localizedDescription)")
-                }
-                else {
-                    print("UserNotificationCenter success")
-                }
-            }
-        }
-        else {
-            let notification: UILocalNotification = UILocalNotification()
-            notification.alertBody = body
-            notification.timeZone = NSTimeZone.default
-            //notification.fireDate = Date(timeInterval: 10, since: Date())
-            //notification.soundName = UILocalNotificationDefaultSoundName
-            //notification.applicationIconBadgeNumber = 1
-            notification.userInfo = ["notifyID": notificationId]
-            UIApplication.shared.scheduleLocalNotification(notification)
-        }
-    }
-     */
-
-    // MARK: mark - DebugAreaView methods
-
-    func setDebugButton() {
+    func setStatusButton() {
 
         var w: CGFloat = 44.0
         var h: CGFloat = 44.0
         var x: CGFloat = self.view.frame.size.width - (w + 10.0)
         var y: CGFloat = self.view.frame.size.height - (h + 10.0)
-        self.debugAreaBtn = UIButton()
-        self.debugAreaBtn.frame = CGRect(x: x, y: y, width: w, height: h)
-        self.debugAreaBtn.backgroundColor = UIColor.clear
-        self.debugAreaBtn.addTarget(self, action: #selector(self.setDebugAreaViewHiddenAction), for: .touchUpInside)
-        self.view.addSubview(self.debugAreaBtn)
+        self.statusAreaBtn = UIButton()
+        self.statusAreaBtn.frame = CGRect(x: x, y: y, width: w, height: h)
+        self.statusAreaBtn.backgroundColor = UIColor.clear
+        self.statusAreaBtn.addTarget(self, action: #selector(self.setStatusViewHiddenAction), for: .touchUpInside)
+        self.view.addSubview(self.statusAreaBtn)
 
         w = 24.0
         h = 24.0
-        x = (self.debugAreaBtn.frame.size.width - w) / 2
-        y = (self.debugAreaBtn.frame.size.height - h) / 2
+        x = (self.statusAreaBtn.frame.size.width - w) / 2
+        y = (self.statusAreaBtn.frame.size.height - h) / 2
         let icon: UIImageView = UIImageView()
         icon.frame = CGRect(x: x, y: y, width: w, height: h)
-        icon.image = UIImage(named: "status.png")
+        icon.image = UIImage.statusSB
         icon.backgroundColor = UIColor.clear
-        self.debugAreaBtn.addSubview(icon)
-
-        self.debugView = DebugView()
+        self.statusAreaBtn.addSubview(icon)
     }
 
-    func setDebugAreaView() {
+    func setStatusView() {
 
         if let nav = self.navigationController as? NavigationController {
             var x: CGFloat = 0
             var y: CGFloat = 0
             var w: CGFloat = nav.view.frame.width
             var h: CGFloat = nav.view.frame.height
-            self.debugView.debugAreaView = UIView()
-            self.debugView.debugAreaView?.frame = CGRect(x: x, y: y, width: w, height: h)
-            self.debugView.debugAreaView?.backgroundColor = UIColor.black.withAlphaComponent(0.8)
-            nav.view.addSubview(self.debugView.debugAreaView!)
+            self.statusView = UIView()
+            self.statusView.frame = CGRect(x: x, y: y, width: w, height: h)
+            self.statusView.backgroundColor = UIColor.black.withAlphaComponent(0.8)
+            self.statusView.isHidden = true
+            nav.view.addSubview(self.statusView)
 
             w = 44.0
             h = 44.0
-            x = self.debugView.debugAreaView!.frame.size.width - w
+            x = self.statusView.frame.size.width - w
             y = 20.0
             if #available(iOS 11.0, *) {
-                y = self.view.safeAreaInsets.top
+                if y < self.view.safeAreaInsets.top {
+                    y = self.view.safeAreaInsets.top
+                }
             }
             let closeButton: UIButton = UIButton()
             closeButton.tag = 2
             closeButton.frame = CGRect(x: x, y: y, width: w, height: h)
             closeButton.backgroundColor = UIColor.clear
-            closeButton.addTarget(self, action: #selector(self.setDebugAreaViewHiddenAction), for: .touchUpInside)
-            self.debugView.debugAreaView?.addSubview(closeButton)
+            closeButton.addTarget(self, action: #selector(self.setStatusViewHiddenAction), for: .touchUpInside)
+            self.statusView.addSubview(closeButton)
 
             w = 18.0
             h = 18.0
@@ -4430,7 +3448,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
 
             x = 10.0
             y = closeButton.frame.origin.y + 44.0
-            w = self.debugView.debugAreaView!.frame.size.width - x
+            w = self.statusView.frame.size.width - x
             h = 50.0
             let titleLabel: UILabel = UILabel()
             titleLabel.frame = CGRect(x: x, y: y, width: w, height: h)
@@ -4440,625 +3458,206 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             titleLabel.font = UIFont(name: "HelveticaNeue", size: 24.0)
             titleLabel.textAlignment = .left
             titleLabel.numberOfLines = 1
-            self.debugView.debugAreaView?.addSubview(titleLabel)
+            self.statusView.addSubview(titleLabel)
+
+            w = 200.0
+            h = 44.0
+            x = (self.statusView.frame.size.width - w) / 2
+            y = self.statusView.frame.size.height - (h + 20.0)
+            let analyzeButton: UIButton = UIButton()
+            analyzeButton.frame = CGRect(x: x, y: y, width: w, height: h)
+            analyzeButton.setTitle("Analyze", for: .normal)
+            analyzeButton.setTitleColor(UIColor.white, for: .normal)
+            analyzeButton.titleLabel?.font = UIFont(name: "HelveticaNeue", size: 16.0)
+            analyzeButton.backgroundColor = UIColor.clear
+            analyzeButton.layer.cornerRadius = h / 2
+            analyzeButton.clipsToBounds = true
+            analyzeButton.layer.borderColor = UIColor.white.withAlphaComponent(0.3).cgColor
+            analyzeButton.layer.borderWidth = 1.0
+            analyzeButton.addTarget(self, action: #selector(self.pushAnalyzeViewAction(_:)), for: .touchUpInside)
+            self.statusView.addSubview(analyzeButton)
+            let bgView: UIView = UIView()
+            bgView.frame = CGRect(x: 0, y: 0, width: w, height: h)
+            bgView.backgroundColor = UIColor.white.withAlphaComponent(0.3)
+            analyzeButton.setBackgroundImage(self.getImageFromView(bgView), for: .highlighted)
 
             x = 0
             y = titleLabel.frame.origin.y + titleLabel.frame.size.height + 10.0
-            w = self.debugView.debugAreaView!.frame.size.width
-            h = self.debugView.debugAreaView!.frame.size.height - y
+            w = self.statusView.frame.size.width
+            h = (analyzeButton.frame.origin.y - 20.0) - y
             let mainScrollView: UIScrollView = UIScrollView()
             mainScrollView.frame = CGRect(x: x, y: y, width: w, height: h)
             mainScrollView.backgroundColor = UIColor.clear
-            self.debugView.debugAreaView?.addSubview(mainScrollView)
+            self.statusView.addSubview(mainScrollView)
 
-            x = 10.0
+            self.statusLabels = []
             y = 0
             h = 24.0
-            let label0: UILabel = UILabel()
-            label0.text = "UUID:"
-            label0.textColor = UIColor.white
-            label0.backgroundColor = UIColor.clear
-            label0.font = UIFont(name: "Migu 2M", size: 14.0)
-            label0.textAlignment = .left
-            label0.numberOfLines = 1
-            label0.sizeToFit()
-            w = label0.frame.size.width
-            label0.frame = CGRect(x: x, y: y, width: w, height: h)
-            mainScrollView.addSubview(label0)
-
-            x = label0.frame.origin.x + label0.frame.size.width + 10.0
-            w = mainScrollView.frame.size.width - x
-            self.debugView.data0Label = UILabel()
-            self.debugView.data0Label?.text = ""
-            self.debugView.data0Label?.frame = CGRect(x: x, y: y, width: w, height: h)
-            self.debugView.data0Label?.textColor = UIColor.fluorescentPink
-            self.debugView.data0Label?.backgroundColor = UIColor.clear
-            self.debugView.data0Label?.font = UIFont(name: "Migu 2M", size: 14.0)
-            self.debugView.data0Label?.textAlignment = .left
-            self.debugView.data0Label?.numberOfLines = 1
-            mainScrollView.addSubview(self.debugView.data0Label!)
-
-            x = 10.0
-            y += h
-            let label1: UILabel = UILabel()
-            label1.text = "Status:"
-            label1.textColor = UIColor.white
-            label1.backgroundColor = UIColor.clear
-            label1.font = UIFont(name: "Migu 2M", size: 14.0)
-            label1.textAlignment = .left
-            label1.numberOfLines = 1
-            label1.sizeToFit()
-            w = label1.frame.size.width
-            label1.frame = CGRect(x: x, y: y, width: w, height: h)
-            mainScrollView.addSubview(label1)
-
-            x = label1.frame.origin.x + label1.frame.size.width + 10.0
-            w = mainScrollView.frame.size.width - x
-            self.debugView.data1Label = UILabel()
-            self.debugView.data1Label?.text = ""
-            self.debugView.data1Label?.frame = CGRect(x: x, y: y, width: w, height: h)
-            self.debugView.data1Label?.textColor = UIColor.fluorescentPink
-            self.debugView.data1Label?.backgroundColor = UIColor.clear
-            self.debugView.data1Label?.font = UIFont(name: "Migu 2M", size: 14.0)
-            self.debugView.data1Label?.textAlignment = .left
-            self.debugView.data1Label?.numberOfLines = 1
-            mainScrollView.addSubview(self.debugView.data1Label!)
-
-            x = 10.0
-            y += h
-            let label2: UILabel = UILabel()
-            label2.text = "Time:"
-            label2.textColor = UIColor.white
-            label2.backgroundColor = UIColor.clear
-            label2.font = UIFont(name: "Migu 2M", size: 14.0)
-            label2.textAlignment = .left
-            label2.numberOfLines = 1
-            label2.sizeToFit()
-            w = label2.frame.size.width
-            label2.frame = CGRect(x: x, y: y, width: w, height: h)
-            mainScrollView.addSubview(label2)
-
-            x = label2.frame.origin.x + label2.frame.size.width + 10.0
-            w = mainScrollView.frame.size.width - x
-            self.debugView.data2Label = UILabel()
-            self.debugView.data2Label?.text = ""
-            self.debugView.data2Label?.frame = CGRect(x: x, y: y, width: w, height: h)
-            self.debugView.data2Label?.textColor = UIColor.fluorescentPink
-            self.debugView.data2Label?.backgroundColor = UIColor.clear
-            self.debugView.data2Label?.font = UIFont(name: "Migu 2M", size: 14.0)
-            self.debugView.data2Label?.textAlignment = .left
-            self.debugView.data2Label?.numberOfLines = 1
-            mainScrollView.addSubview(self.debugView.data2Label!)
-
-            x = 10.0
-            y += h
-            let label3: UILabel = UILabel()
-            label3.text = "CO2:"
-            label3.textColor = UIColor.white
-            label3.backgroundColor = UIColor.clear
-            label3.font = UIFont(name: "Migu 2M", size: 14.0)
-            label3.textAlignment = .left
-            label3.numberOfLines = 1
-            label3.sizeToFit()
-            w = label3.frame.size.width
-            label3.frame = CGRect(x: x, y: y, width: w, height: h)
-            mainScrollView.addSubview(label3)
-
-            x = label3.frame.origin.x + label3.frame.size.width + 10.0
-            w = mainScrollView.frame.size.width - x
-            self.debugView.data3Label = UILabel()
-            self.debugView.data3Label?.text = ""
-            self.debugView.data3Label?.frame = CGRect(x: x, y: y, width: w, height: h)
-            self.debugView.data3Label?.textColor = UIColor.fluorescentPink
-            self.debugView.data3Label?.backgroundColor = UIColor.clear
-            self.debugView.data3Label?.font = UIFont(name: "Migu 2M", size: 14.0)
-            self.debugView.data3Label?.textAlignment = .left
-            self.debugView.data3Label?.numberOfLines = 1
-            mainScrollView.addSubview(self.debugView.data3Label!)
-
-            x = 10.0
-            y += h
-            let label4: UILabel = UILabel()
-            label4.text = "Accelerometer:"
-            label4.textColor = UIColor.white
-            label4.backgroundColor = UIColor.clear
-            label4.font = UIFont(name: "Migu 2M", size: 14.0)
-            label4.textAlignment = .left
-            label4.numberOfLines = 1
-            label4.sizeToFit()
-            w = label4.frame.size.width
-            label4.frame = CGRect(x: x, y: y, width: w, height: h)
-            mainScrollView.addSubview(label4)
-
-            x = label4.frame.origin.x + label4.frame.size.width + 10.0
-            w = mainScrollView.frame.size.width - x
-            self.debugView.data4Label = UILabel()
-            self.debugView.data4Label?.text = ""
-            self.debugView.data4Label?.frame = CGRect(x: x, y: y, width: w, height: h)
-            self.debugView.data4Label?.textColor = UIColor.fluorescentPink
-            self.debugView.data4Label?.backgroundColor = UIColor.clear
-            self.debugView.data4Label?.font = UIFont(name: "Migu 2M", size: 14.0)
-            self.debugView.data4Label?.textAlignment = .left
-            self.debugView.data4Label?.numberOfLines = 1
-            mainScrollView.addSubview(self.debugView.data4Label!)
-
-            x = 10.0
-            y += h
-            let label5: UILabel = UILabel()
-            label5.text = "Light:"
-            label5.textColor = UIColor.white
-            label5.backgroundColor = UIColor.clear
-            label5.font = UIFont(name: "Migu 2M", size: 14.0)
-            label5.textAlignment = .left
-            label5.numberOfLines = 1
-            label5.sizeToFit()
-            w = label5.frame.size.width
-            label5.frame = CGRect(x: x, y: y, width: w, height: h)
-            mainScrollView.addSubview(label5)
-
-            x = label5.frame.origin.x + label5.frame.size.width + 10.0
-            w = mainScrollView.frame.size.width - x
-            self.debugView.data5Label = UILabel()
-            self.debugView.data5Label?.text = ""
-            self.debugView.data5Label?.frame = CGRect(x: x, y: y, width: w, height: h)
-            self.debugView.data5Label?.textColor = UIColor.fluorescentPink
-            self.debugView.data5Label?.backgroundColor = UIColor.clear
-            self.debugView.data5Label?.font = UIFont(name: "Migu 2M", size: 14.0)
-            self.debugView.data5Label?.textAlignment = .left
-            self.debugView.data5Label?.numberOfLines = 1
-            mainScrollView.addSubview(self.debugView.data5Label!)
-
-            x = 10.0
-            y += h
-            let label6: UILabel = UILabel()
-            label6.text = "Gyro:"
-            label6.textColor = UIColor.white
-            label6.backgroundColor = UIColor.clear
-            label6.font = UIFont(name: "Migu 2M", size: 14.0)
-            label6.textAlignment = .left
-            label6.numberOfLines = 1
-            label6.sizeToFit()
-            w = label6.frame.size.width
-            label6.frame = CGRect(x: x, y: y, width: w, height: h)
-            mainScrollView.addSubview(label6)
-
-            x = label6.frame.origin.x + label6.frame.size.width + 10.0
-            w = mainScrollView.frame.size.width - x
-            self.debugView.data6Label = UILabel()
-            self.debugView.data6Label?.text = ""
-            self.debugView.data6Label?.frame = CGRect(x: x, y: y, width: w, height: h)
-            self.debugView.data6Label?.textColor = UIColor.fluorescentPink
-            self.debugView.data6Label?.backgroundColor = UIColor.clear
-            self.debugView.data6Label?.font = UIFont(name: "Migu 2M", size: 14.0)
-            self.debugView.data6Label?.textAlignment = .left
-            self.debugView.data6Label?.numberOfLines = 1
-            mainScrollView.addSubview(self.debugView.data6Label!)
-
-            x = 10.0
-            y += h
-            let label7: UILabel = UILabel()
-            label7.text = "Pressure:"
-            label7.textColor = UIColor.white
-            label7.backgroundColor = UIColor.clear
-            label7.font = UIFont(name: "Migu 2M", size: 14.0)
-            label7.textAlignment = .left
-            label7.numberOfLines = 1
-            label7.sizeToFit()
-            w = label7.frame.size.width
-            label7.frame = CGRect(x: x, y: y, width: w, height: h)
-            mainScrollView.addSubview(label7)
-
-            x = label7.frame.origin.x + label7.frame.size.width + 10.0
-            w = mainScrollView.frame.size.width - x
-            self.debugView.data7Label = UILabel()
-            self.debugView.data7Label?.text = ""
-            self.debugView.data7Label?.frame = CGRect(x: x, y: y, width: w, height: h)
-            self.debugView.data7Label?.textColor = UIColor.fluorescentPink
-            self.debugView.data7Label?.backgroundColor = UIColor.clear
-            self.debugView.data7Label?.font = UIFont(name: "Migu 2M", size: 14.0)
-            self.debugView.data7Label?.textAlignment = .left
-            self.debugView.data7Label?.numberOfLines = 1
-            mainScrollView.addSubview(self.debugView.data7Label!)
-
-            x = 10.0
-            y += h
-            let label8: UILabel = UILabel()
-            label8.text = "Temperature:"
-            label8.textColor = UIColor.white
-            label8.backgroundColor = UIColor.clear
-            label8.font = UIFont(name: "Migu 2M", size: 14.0)
-            label8.textAlignment = .left
-            label8.numberOfLines = 1
-            label8.sizeToFit()
-            w = label8.frame.size.width
-            label8.frame = CGRect(x: x, y: y, width: w, height: h)
-            mainScrollView.addSubview(label8)
-
-            x = label8.frame.origin.x + label8.frame.size.width + 10.0
-            w = mainScrollView.frame.size.width - x
-            self.debugView.data8Label = UILabel()
-            self.debugView.data8Label?.text = ""
-            self.debugView.data8Label?.frame = CGRect(x: x, y: y, width: w, height: h)
-            self.debugView.data8Label?.textColor = UIColor.fluorescentPink
-            self.debugView.data8Label?.backgroundColor = UIColor.clear
-            self.debugView.data8Label?.font = UIFont(name: "Migu 2M", size: 14.0)
-            self.debugView.data8Label?.textAlignment = .left
-            self.debugView.data8Label?.numberOfLines = 1
-            mainScrollView.addSubview(self.debugView.data8Label!)
-
-            x = 10.0
-            y += h
-            let label9: UILabel = UILabel()
-            label9.text = "Humidity:"
-            label9.textColor = UIColor.white
-            label9.backgroundColor = UIColor.clear
-            label9.font = UIFont(name: "Migu 2M", size: 14.0)
-            label9.textAlignment = .left
-            label9.numberOfLines = 1
-            label9.sizeToFit()
-            w = label9.frame.size.width
-            label9.frame = CGRect(x: x, y: y, width: w, height: h)
-            mainScrollView.addSubview(label9)
-
-            x = label9.frame.origin.x + label9.frame.size.width + 10.0
-            w = mainScrollView.frame.size.width - x
-            self.debugView.data9Label = UILabel()
-            self.debugView.data9Label?.text = ""
-            self.debugView.data9Label?.frame = CGRect(x: x, y: y, width: w, height: h)
-            self.debugView.data9Label?.textColor = UIColor.fluorescentPink
-            self.debugView.data9Label?.backgroundColor = UIColor.clear
-            self.debugView.data9Label?.font = UIFont(name: "Migu 2M", size: 14.0)
-            self.debugView.data9Label?.textAlignment = .left
-            self.debugView.data9Label?.numberOfLines = 1
-            mainScrollView.addSubview(self.debugView.data9Label!)
-
-            x = 10.0
-            y += h
-            let label10: UILabel = UILabel()
-            label10.text = "Environmental sound:"
-            label10.textColor = UIColor.white
-            label10.backgroundColor = UIColor.clear
-            label10.font = UIFont(name: "Migu 2M", size: 14.0)
-            label10.textAlignment = .left
-            label10.numberOfLines = 1
-            label10.sizeToFit()
-            w = label10.frame.size.width
-            label10.frame = CGRect(x: x, y: y, width: w, height: h)
-            mainScrollView.addSubview(label10)
-
-            x = label10.frame.origin.x + label10.frame.size.width + 10.0
-            w = mainScrollView.frame.size.width - x
-            self.debugView.data10Label = UILabel()
-            self.debugView.data10Label?.text = ""
-            self.debugView.data10Label?.frame = CGRect(x: x, y: y, width: w, height: h)
-            self.debugView.data10Label?.textColor = UIColor.fluorescentPink
-            self.debugView.data10Label?.backgroundColor = UIColor.clear
-            self.debugView.data10Label?.font = UIFont(name: "Migu 2M", size: 14.0)
-            self.debugView.data10Label?.textAlignment = .left
-            self.debugView.data10Label?.numberOfLines = 1
-            mainScrollView.addSubview(self.debugView.data10Label!)
-
-            x = 10.0
-            y += h
-            let label11: UILabel = UILabel()
-            label11.text = "tVOC:"
-            label11.textColor = UIColor.white
-            label11.backgroundColor = UIColor.clear
-            label11.font = UIFont(name: "Migu 2M", size: 14.0)
-            label11.textAlignment = .left
-            label11.numberOfLines = 1
-            label11.sizeToFit()
-            w = label11.frame.size.width
-            label11.frame = CGRect(x: x, y: y, width: w, height: h)
-            mainScrollView.addSubview(label11)
-
-            x = label11.frame.origin.x + label11.frame.size.width + 10.0
-            w = mainScrollView.frame.size.width - x
-            self.debugView.data11Label = UILabel()
-            self.debugView.data11Label?.text = ""
-            self.debugView.data11Label?.frame = CGRect(x: x, y: y, width: w, height: h)
-            self.debugView.data11Label?.textColor = UIColor.fluorescentPink
-            self.debugView.data11Label?.backgroundColor = UIColor.clear
-            self.debugView.data11Label?.font = UIFont(name: "Migu 2M", size: 14.0)
-            self.debugView.data11Label?.textAlignment = .left
-            self.debugView.data11Label?.numberOfLines = 1
-            mainScrollView.addSubview(self.debugView.data11Label!)
-
-            x = 10.0
-            y += h
-            let label12: UILabel = UILabel()
-            label12.text = "Volt:"
-            label12.textColor = UIColor.white
-            label12.backgroundColor = UIColor.clear
-            label12.font = UIFont(name: "Migu 2M", size: 14.0)
-            label12.textAlignment = .left
-            label12.numberOfLines = 1
-            label12.sizeToFit()
-            w = label12.frame.size.width
-            label12.frame = CGRect(x: x, y: y, width: w, height: h)
-            mainScrollView.addSubview(label12)
-
-            x = label12.frame.origin.x + label12.frame.size.width + 10.0
-            w = mainScrollView.frame.size.width - x
-            self.debugView.data12Label = UILabel()
-            self.debugView.data12Label?.text = ""
-            self.debugView.data12Label?.frame = CGRect(x: x, y: y, width: w, height: h)
-            self.debugView.data12Label?.textColor = UIColor.fluorescentPink
-            self.debugView.data12Label?.backgroundColor = UIColor.clear
-            self.debugView.data12Label?.font = UIFont(name: "Migu 2M", size: 14.0)
-            self.debugView.data12Label?.textAlignment = .left
-            self.debugView.data12Label?.numberOfLines = 1
-            mainScrollView.addSubview(self.debugView.data12Label!)
-
-            x = 10.0
-            y += h
-            let label13: UILabel = UILabel()
-            label13.text = "Pow:"
-            label13.textColor = UIColor.white
-            label13.backgroundColor = UIColor.clear
-            label13.font = UIFont(name: "Migu 2M", size: 14.0)
-            label13.textAlignment = .left
-            label13.numberOfLines = 1
-            label13.sizeToFit()
-            w = label13.frame.size.width
-            label13.frame = CGRect(x: x, y: y, width: w, height: h)
-            mainScrollView.addSubview(label13)
-
-            x = label13.frame.origin.x + label13.frame.size.width + 10.0
-            w = mainScrollView.frame.size.width - x
-            self.debugView.data13Label = UILabel()
-            self.debugView.data13Label?.text = ""
-            self.debugView.data13Label?.frame = CGRect(x: x, y: y, width: w, height: h)
-            self.debugView.data13Label?.textColor = UIColor.fluorescentPink
-            self.debugView.data13Label?.backgroundColor = UIColor.clear
-            self.debugView.data13Label?.font = UIFont(name: "Migu 2M", size: 14.0)
-            self.debugView.data13Label?.textAlignment = .left
-            self.debugView.data13Label?.numberOfLines = 1
-            mainScrollView.addSubview(self.debugView.data13Label!)
-
-            x = 10.0
-            y += h
-            let label14: UILabel = UILabel()
-            label14.text = "OSC Send Mode:"
-            label14.textColor = UIColor.white
-            label14.backgroundColor = UIColor.clear
-            label14.font = UIFont(name: "Migu 2M", size: 14.0)
-            label14.textAlignment = .left
-            label14.numberOfLines = 1
-            label14.sizeToFit()
-            w = label14.frame.size.width
-            label14.frame = CGRect(x: x, y: y, width: w, height: h)
-            mainScrollView.addSubview(label14)
-
-            x = label14.frame.origin.x + label14.frame.size.width + 10.0
-            w = mainScrollView.frame.size.width - x
-            self.debugView.data14Label = UILabel()
-            self.debugView.data14Label?.text = ""
-            self.debugView.data14Label?.frame = CGRect(x: x, y: y, width: w, height: h)
-            self.debugView.data14Label?.textColor = UIColor.fluorescentPink
-            self.debugView.data14Label?.backgroundColor = UIColor.clear
-            self.debugView.data14Label?.font = UIFont(name: "Migu 2M", size: 14.0)
-            self.debugView.data14Label?.textAlignment = .left
-            self.debugView.data14Label?.numberOfLines = 1
-            mainScrollView.addSubview(self.debugView.data14Label!)
-
-            x = 10.0
-            y += h
-            let label15: UILabel = UILabel()
-            label15.text = "Address/Port:"
-            label15.textColor = UIColor.white
-            label15.backgroundColor = UIColor.clear
-            label15.font = UIFont(name: "Migu 2M", size: 14.0)
-            label15.textAlignment = .left
-            label15.numberOfLines = 1
-            label15.sizeToFit()
-            w = label15.frame.size.width
-            label15.frame = CGRect(x: x, y: y, width: w, height: h)
-            mainScrollView.addSubview(label15)
-
-            x = label15.frame.origin.x + label15.frame.size.width + 10.0
-            w = mainScrollView.frame.size.width - x
-            self.debugView.data15Label = UILabel()
-            self.debugView.data15Label?.text = ""
-            self.debugView.data15Label?.frame = CGRect(x: x, y: y, width: w, height: h)
-            self.debugView.data15Label?.textColor = UIColor.fluorescentPink
-            self.debugView.data15Label?.backgroundColor = UIColor.clear
-            self.debugView.data15Label?.font = UIFont(name: "Migu 2M", size: 14.0)
-            self.debugView.data15Label?.textAlignment = .left
-            self.debugView.data15Label?.numberOfLines = 1
-            mainScrollView.addSubview(self.debugView.data15Label!)
-
-            if self.oscServer != nil {
+            for item in self.statusItems {
+                let itemLabel: UILabel = UILabel()
+                itemLabel.text = "\(item):"
+                itemLabel.textColor = UIColor.white
+                itemLabel.backgroundColor = UIColor.clear
+                itemLabel.font = UIFont(name: "Migu 2M", size: 14.0)
+                itemLabel.textAlignment = .left
+                itemLabel.numberOfLines = 1
+                itemLabel.sizeToFit()
                 x = 10.0
-                y += h
-                let label16: UILabel = UILabel()
-                label16.text = "OSC Recv Mode:"
-                label16.textColor = UIColor.white
-                label16.backgroundColor = UIColor.clear
-                label16.font = UIFont(name: "Migu 2M", size: 14.0)
-                label16.textAlignment = .left
-                label16.numberOfLines = 1
-                label16.sizeToFit()
-                w = label16.frame.size.width
-                label16.frame = CGRect(x: x, y: y, width: w, height: h)
-                mainScrollView.addSubview(label16)
+                w = itemLabel.frame.size.width
+                itemLabel.frame = CGRect(x: x, y: y, width: w, height: h)
+                mainScrollView.addSubview(itemLabel)
 
-                x = label16.frame.origin.x + label16.frame.size.width + 10.0
+                x = itemLabel.frame.origin.x + itemLabel.frame.size.width + 10.0
                 w = mainScrollView.frame.size.width - x
-                self.debugView.data16Label = UILabel()
-                self.debugView.data16Label?.text = ""
-                self.debugView.data16Label?.frame = CGRect(x: x, y: y, width: w, height: h)
-                self.debugView.data16Label?.textColor = UIColor.fluorescentPink
-                self.debugView.data16Label?.backgroundColor = UIColor.clear
-                self.debugView.data16Label?.font = UIFont(name: "Migu 2M", size: 14.0)
-                self.debugView.data16Label?.textAlignment = .left
-                self.debugView.data16Label?.numberOfLines = 1
-                mainScrollView.addSubview(self.debugView.data16Label!)
+                let valueLabel: UILabel = UILabel()
+                valueLabel.text = ""
+                valueLabel.frame = CGRect(x: x, y: y, width: w, height: h)
+                valueLabel.textColor = UIColor.fluorescentPink
+                valueLabel.backgroundColor = UIColor.clear
+                valueLabel.font = UIFont(name: "Migu 2M", size: 14.0)
+                valueLabel.textAlignment = .left
+                valueLabel.numberOfLines = 1
+                mainScrollView.addSubview(valueLabel)
+                self.statusLabels.append(valueLabel)
 
-                x = 10.0
                 y += h
-                let label17: UILabel = UILabel()
-                label17.text = "Port:"
-                label17.textColor = UIColor.white
-                label17.backgroundColor = UIColor.clear
-                label17.font = UIFont(name: "Migu 2M", size: 14.0)
-                label17.textAlignment = .left
-                label17.numberOfLines = 1
-                label17.sizeToFit()
-                w = label17.frame.size.width
-                label17.frame = CGRect(x: x, y: y, width: w, height: h)
-                mainScrollView.addSubview(label17)
-
-                x = label17.frame.origin.x + label17.frame.size.width + 10.0
-                w = mainScrollView.frame.size.width - x
-                self.debugView.data17Label = UILabel()
-                self.debugView.data17Label?.text = ""
-                self.debugView.data17Label?.frame = CGRect(x: x, y: y, width: w, height: h)
-                self.debugView.data17Label?.textColor = UIColor.fluorescentPink
-                self.debugView.data17Label?.backgroundColor = UIColor.clear
-                self.debugView.data17Label?.font = UIFont(name: "Migu 2M", size: 14.0)
-                self.debugView.data17Label?.textAlignment = .left
-                self.debugView.data17Label?.numberOfLines = 1
-                mainScrollView.addSubview(self.debugView.data17Label!)
             }
-
-            y += h + 10.0
+            //y += h + 10.0
             mainScrollView.contentSize = CGSize(width: mainScrollView.frame.width, height: y)
         }
     }
 
-    @objc func setDebugAreaViewHiddenAction() {
+    @objc func setStatusViewHiddenAction() {
 
-        if self.debugView.debugAreaView == nil {
-            self.setDebugAreaView()
-            self.updateDebugAreaView(synapseObject: self.mainSynapseObject)
-        }
-        else {
-            self.debugView.debugAreaView?.removeFromSuperview()
-            self.debugView.debugAreaView = nil
+        self.statusView.isHidden = !self.statusView.isHidden
+        if !self.statusView.isHidden {
+            self.updateStatusView(synapseObject: self.mainSynapseObject)
         }
     }
 
-    func updateDebugAreaView(synapseObject: SynapseObject) {
+    func updateStatusView(synapseObject: SynapseObject) {
 
-        if let debugAreaView = self.debugView.debugAreaView {
-            if !debugAreaView.isHidden {
-                /*
-                var synapseValues: SynapseValues = self.synapseValuesMain
-                if self.synapseValuesOSC.isConnected {
-                    synapseValues = self.synapseValuesOSC
-                }
-                 */
-                var data0str: String = ""
-                var data1str: String = ""
-                var data2str: String = ""
-                var data3str: String = ""
-                var data4str: String = ""
-                var data5str: String = ""
-                var data6str: String = ""
-                var data7str: String = ""
-                var data8str: String = ""
-                var data9str: String = ""
-                var data10str: String = ""
-                var data11str: String = ""
-                var data12str: String = ""
-                var data13str: String = ""
-
-                if let uuid = synapseObject.synapseUUID {
-                    data0str = uuid.uuidString
-                }
-                data1str = synapseObject.getDeviceStatus()
-                if let time = synapseObject.synapseValues.time {
-                    let formatter: DateFormatter = DateFormatter()
-                    formatter.locale = Locale(identifier: "en_US_POSIX")
-                    formatter.dateFormat = "yyyy/MM/dd HH:mm:ss.SSS"
-                    data2str = formatter.string(from: Date(timeIntervalSince1970: time))
-                }
-                if let co2 = synapseObject.synapseValues.co2 {
-                    data3str = "\(String(co2))"
-                }
-                if let ax = synapseObject.synapseValues.ax, let ay = synapseObject.synapseValues.ay, let az = synapseObject.synapseValues.az {
-                    data4str = "\(String(format:"%.4f", Float(ax) * self.aScale))/\(String(format:"%.4f", Float(ay) * self.aScale))/\(String(format:"%.4f", Float(az) * self.aScale))"
-                }
-                /*if let ax = synapseValues.ax, let ay = synapseValues.ay, let az = synapseValues.az {
-                    let radx: Double = atan(Double(ax) / sqrt(pow(Double(ay), 2) + pow(Double(az), 2)))
-                    let rady: Double = atan(Double(ay) / sqrt(pow(Double(ax), 2) + pow(Double(az), 2)))
-                    let radz: Double = atan(Double(az) / sqrt(pow(Double(ay), 2) + pow(Double(ax), 2)))
-                    data4str = "\(String(format:"%.2f", radx * 180.0 / Double.pi))/\(String(format:"%.2f", rady * 180.0 / Double.pi))/\(String(format:"%.2f", radz * 180.0 / Double.pi))"
-                    //data4str = "\(String(ax)) | \(String(ay)) | \(String(az))"
-                }*/
-                if let light = synapseObject.synapseValues.light {
-                    data5str = "\(String(light))"
-                }
-                if let gx = synapseObject.synapseValues.gx, let gy = synapseObject.synapseValues.gy, let gz = synapseObject.synapseValues.gz {
-                    data6str = "\(String(format:"%.4f", Float(gx) * self.gScale * Float(Double.pi / 180.0)))/\(String(format:"%.4f", Float(gy) * self.gScale * Float(Double.pi / 180.0)))/\(String(format:"%.4f", Float(gz) * self.gScale * Float(Double.pi / 180.0)))"
-                }
-                if let pressure = synapseObject.synapseValues.pressure {
-                    data7str = "\(String(pressure))"
-                }
-                if let temp = synapseObject.synapseValues.temp {
-                    var tempVal: Float = temp
-                    if self.appDelegate.temperatureScale == "F" {
-                        tempVal = self.makeFahrenheitTemperatureValue(tempVal)
-                    }
-                    data8str = "\(String(tempVal))"
-                }
-                if let humidity = synapseObject.synapseValues.humidity {
-                    data9str = "\(String(humidity))"
-                }
-                if let sound = synapseObject.synapseValues.sound {
-                    data10str = "\(String(sound))"
-                }
-                if let tvoc = synapseObject.synapseValues.tvoc {
-                    data11str = "\(String(tvoc))"
-                }
-                if let power = synapseObject.synapseValues.power {
-                    data12str = "\(String(power))"
-                }
-                if let battery = synapseObject.synapseValues.battery {
-                    data13str = "\(String(battery))"
-                }
-                /*if let mx = synapseValues.mx, let my = synapseValues.my, let mz = synapseValues.mz {
-                    data6str = "\(String(mx))/\(String(my))/\(String(mz))"
-                }*/
-                self.debugView.data0Label?.text = data0str
-                self.debugView.data1Label?.text = data1str
-                self.debugView.data2Label?.text = data2str
-                self.debugView.data3Label?.text = data3str
-                self.debugView.data4Label?.text = data4str
-                self.debugView.data5Label?.text = data5str
-                self.debugView.data6Label?.text = data6str
-                self.debugView.data7Label?.text = data7str
-                self.debugView.data8Label?.text = data8str
-                self.debugView.data9Label?.text = data9str
-                self.debugView.data10Label?.text = data10str
-                self.debugView.data11Label?.text = data11str
-                self.debugView.data12Label?.text = data12str
-                self.debugView.data13Label?.text = data13str
-
-                self.debugView.data14Label?.text = "\(self.appDelegate.oscSendMode)"
-                var str: String = ""
-                if let oscIPAddress = SettingFileManager().getSettingData(SettingFileManager().oscSendIPAddressKey) as? String {
-                    str += oscIPAddress
-                }
-                if let oscPort = SettingFileManager().getSettingData(SettingFileManager().oscSendPortKey) as? String {
-                    str += "/\(oscPort)"
-                }
-                self.debugView.data15Label?.text = str
-
-                if self.oscServer != nil {
-                    if let settingData = self.settingFileManager.getSettingData() {
-                        self.debugView.data16Label?.text = ""
-                        if let mode = settingData[self.settingFileManager.oscRecvModeKey] as? String {
-                            self.debugView.data16Label?.text = "\(mode)"
-                        }
-                        self.debugView.data17Label?.text = ""
-                        if let port = settingData[self.settingFileManager.oscRecvPortKey] as? String {
-                            self.debugView.data17Label?.text = "\(port)"
-                        }
-                    }
-                }
+        if !self.statusView.isHidden {
+            var value: String = ""
+            if let uuid = synapseObject.synapseUUID {
+                value = uuid.uuidString
             }
+            self.updateStatusValueLabel(0, value: value)
+
+            value = synapseObject.getDeviceStatus()
+            self.updateStatusValueLabel(1, value: value)
+
+            value = ""
+            if let time = synapseObject.synapseValues.time {
+                let formatter: DateFormatter = DateFormatter()
+                formatter.locale = Locale(identifier: "en_US_POSIX")
+                formatter.dateFormat = "yyyy/MM/dd HH:mm:ss.SSS"
+                value = formatter.string(from: Date(timeIntervalSince1970: time))
+            }
+            self.updateStatusValueLabel(2, value: value)
+
+            value = ""
+            if let co2 = synapseObject.synapseValues.co2 {
+                value = "\(String(co2))"
+            }
+            self.updateStatusValueLabel(3, value: value)
+
+            value = ""
+            if let ax = synapseObject.synapseValues.ax, let ay = synapseObject.synapseValues.ay, let az = synapseObject.synapseValues.az {
+                value = "\(String(format:"%.4f", self.makeAccelerationValue(Float(ax))))/\(String(format:"%.4f", self.makeAccelerationValue(Float(ay))))/\(String(format:"%.4f", self.makeAccelerationValue(Float(az))))"
+            }
+            /*if let ax = synapseValues.ax, let ay = synapseValues.ay, let az = synapseValues.az {
+                let radx: Double = atan(Double(ax) / sqrt(pow(Double(ay), 2) + pow(Double(az), 2)))
+                let rady: Double = atan(Double(ay) / sqrt(pow(Double(ax), 2) + pow(Double(az), 2)))
+                let radz: Double = atan(Double(az) / sqrt(pow(Double(ay), 2) + pow(Double(ax), 2)))
+                value = "\(String(format:"%.2f", radx * 180.0 / Double.pi))/\(String(format:"%.2f", rady * 180.0 / Double.pi))/\(String(format:"%.2f", radz * 180.0 / Double.pi))"
+                //value = "\(String(ax)) | \(String(ay)) | \(String(az))"
+            }*/
+            self.updateStatusValueLabel(4, value: value)
+
+            value = ""
+            if let light = synapseObject.synapseValues.light {
+                value = "\(String(light))"
+            }
+            self.updateStatusValueLabel(5, value: value)
+
+            value = ""
+            if let gx = synapseObject.synapseValues.gx, let gy = synapseObject.synapseValues.gy, let gz = synapseObject.synapseValues.gz {
+                value = "\(String(format:"%.4f", self.makeGyroscopeValue(Float(gx))))/\(String(format:"%.4f", self.makeGyroscopeValue(Float(gy))))/\(String(format:"%.4f", self.makeGyroscopeValue(Float(gz))))"
+            }
+            self.updateStatusValueLabel(6, value: value)
+
+            value = ""
+            if let pressure = synapseObject.synapseValues.pressure {
+                value = "\(String(pressure))"
+            }
+            self.updateStatusValueLabel(7, value: value)
+
+            value = ""
+            if let temp = synapseObject.synapseValues.temp {
+                value = "\(String(self.getTemperatureValue(SettingFileManager.shared.synapseTemperatureScale, value: temp)))"
+            }
+            self.updateStatusValueLabel(8, value: value)
+
+            value = ""
+            if let humidity = synapseObject.synapseValues.humidity {
+                value = "\(String(humidity))"
+            }
+            self.updateStatusValueLabel(9, value: value)
+
+            value = ""
+            if let sound = synapseObject.synapseValues.sound {
+                value = "\(String(sound))"
+            }
+            self.updateStatusValueLabel(10, value: value)
+
+            value = ""
+            if let tvoc = synapseObject.synapseValues.tvoc {
+                value = "\(String(tvoc))"
+            }
+            self.updateStatusValueLabel(11, value: value)
+
+            value = ""
+            if let power = synapseObject.synapseValues.power {
+                value = "\(String(power))"
+            }
+            self.updateStatusValueLabel(12, value: value)
+
+            value = ""
+            if let battery = synapseObject.synapseValues.battery {
+                value = "\(String(battery))"
+            }
+            self.updateStatusValueLabel(13, value: value)
+
+            value = "\(self.oscSendMode)"
+            self.updateStatusValueLabel(14, value: value)
+
+            value = ""
+            let oscIPAddress: String = SettingFileManager.shared.oscSendIPAddress
+            if oscIPAddress.count > 0 {
+                value += oscIPAddress
+            }
+            let oscPort: String = SettingFileManager.shared.oscSendPort
+            if oscPort.count > 0 {
+                value += "/\(oscPort)"
+            }
+            self.updateStatusValueLabel(15, value: value)
+
+            if self.oscServer != nil {
+                self.updateStatusValueLabel(16, value: SettingFileManager.shared.oscRecvMode)
+                self.updateStatusValueLabel(17, value: SettingFileManager.shared.oscRecvPort)
+            }
+            else {
+                self.updateStatusValueLabel(16, value: "")
+                self.updateStatusValueLabel(17, value: "")
+            }
+        }
+    }
+
+    func updateStatusValueLabel(_ pt: Int, value: String) {
+
+        if pt < self.statusLabels.count {
+            self.statusLabels[pt].text = value
         }
     }
 
@@ -5082,18 +3681,6 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         if synapseObject.synapseValues.isConnected, let synapseSound = self.synapseSound {
             if play && !synapseSound.isPlaying {
                 self.playAudio()
-                /*var flag: Bool = true
-                if let soundInfo = self.settingFileManager.getSettingData(self.settingFileManager.synapseSoundInfoKey) as? Bool {
-                    flag = soundInfo
-                }
-                if flag {
-                    if let timeInterval = self.settingFileManager.getSettingData(self.settingFileManager.synapseTimeIntervalKey) as? String {
-                        flag = self.settingFileManager.checkPlayableSound(timeInterval)
-                    }
-                }
-                if flag {
-                    self.playAudio()
-                }*/
             }
             else if !play && synapseSound.isPlaying {
                 self.stopAudio()
@@ -5103,14 +3690,9 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
 
     func checkEnableAudio() -> Bool {
 
-        var flag: Bool = true
-        if let soundInfo = self.settingFileManager.getSettingData(self.settingFileManager.synapseSoundInfoKey) as? Bool {
-            flag = soundInfo
-        }
+        var flag: Bool = SettingFileManager.shared.synapseSoundInfo
         if flag {
-            if let timeInterval = self.settingFileManager.getSettingData(self.settingFileManager.synapseTimeIntervalKey) as? String {
-                flag = self.settingFileManager.checkPlayableSound(timeInterval)
-            }
+            flag = SettingFileManager.shared.checkPlayableSound(SettingFileManager.shared.synapseTimeInterval)
         }
         return flag
     }
@@ -5154,12 +3736,13 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
     }
 }
 
+// MARK: class - SynapseObject
+
 class SynapseObject {
 
     // const
-    let synapseCrystalInfo: SynapseCrystalStruct = SynapseCrystalStruct()
-    let crystalGeometries: CrystalGeometries = CrystalGeometries()
     let synapseConnectLastDateKey: String = "synapseConnectLastDate"
+    let synapseCrystalInfo: SynapseCrystalStruct = SynapseCrystalStruct()
     // variables
     var synapseUUID: UUID?
     var synapse: RFduino?
@@ -5176,9 +3759,6 @@ class SynapseObject {
     var synapseCrystalNode: SynapseCrystalNodes!
     var labelNode: LabelNode!
     var synapseRecordFileManager: SynapseRecordFileManager?
-    var rotateSynapseNodeDuration: TimeInterval = 0
-    var rotateCrystalNodeDuration: TimeInterval = 0
-    var scaleSynapseNodeDuration: TimeInterval = 0
     var offColorTime: TimeInterval = 0
     var canSaveSynapseValues: Bool = true
     // send data variables
@@ -5214,7 +3794,7 @@ class SynapseObject {
         self.setSynapseUUID(rfduino.peripheral.identifier)
         //print("connectSynapse synapseUUID: \(String(describing: self.synapseUUID?.uuidString))")
 
-        self.setColorSynapseNode(colorLevel: 0)
+        self.synapseCrystalNode.setColorSynapseNodes(colorLevel: 0)
 
         if let synapseRecordFileManager = self.synapseRecordFileManager {
             if UserDefaults.standard.object(forKey: self.synapseConnectLastDateKey) != nil, let dic = UserDefaults.standard.dictionary(forKey: self.synapseConnectLastDateKey), let uuid = self.synapseUUID, let time = dic[uuid.uuidString] as? TimeInterval {
@@ -5240,8 +3820,7 @@ class SynapseObject {
         self.synapseValuesBak = nil
         self.synapseData = []
         self.synapseValues.isConnected = false
-        self.setColorOffSynapseNode()
-        self.scaleSynapseNode()
+        self.resetSynapseNode()
 
         self.synapseRecordFileManager = nil
         if let uuid = self.synapseUUID {
@@ -5272,617 +3851,35 @@ class SynapseObject {
         }
     }
 
+    func getDeviceStatus() -> String {
+
+        var res: String = ""
+        if self.synapse != nil {
+            if self.synapseValues.isConnected {
+                res = "Associated"
+            }
+            else {
+                res = "Not Associated"
+            }
+        }
+        /*else {
+            res = "Device Not Found"
+        }*/
+        return res
+    }
+
     // MARK: mark - CrystalNode methods
 
-    func setSynapseNode(scnView: SCNView, position: SCNVector3?) {
+    func updateSynapseNode() {
 
-        if let position = position {
-            self.synapseCrystalNode.position = position
-        }
-
-        self.synapseCrystalNode.mainNodeRoll = SCNNode()
-        self.synapseCrystalNode.mainNodeRoll?.position = self.synapseCrystalNode.position
-        scnView.scene?.rootNode.addChildNode(synapseCrystalNode.mainNodeRoll!)
-
-        self.synapseCrystalNode.mainNode = SCNNode()
-        self.synapseCrystalNode.mainNode?.position = SCNVector3(x: 0, y: 0, z: 0)
-        self.synapseCrystalNode.mainNodeRoll?.addChildNode(self.synapseCrystalNode.mainNode!)
-
-        self.synapseCrystalNode.mainXNode = SCNNode()
-        self.synapseCrystalNode.mainXNode?.position = SCNVector3(x: 0, y: 0, z: 0)
-        self.synapseCrystalNode.mainNode?.addChildNode(self.synapseCrystalNode.mainXNode!)
-
-        self.synapseCrystalNode.mainYNode = SCNNode()
-        self.synapseCrystalNode.mainYNode?.position = SCNVector3(x: 0, y: 0, z: 0)
-        self.synapseCrystalNode.mainXNode?.addChildNode(self.synapseCrystalNode.mainYNode!)
-
-        self.synapseCrystalNode.mainZNode = SCNNode()
-        self.synapseCrystalNode.mainZNode?.position = SCNVector3(x: 0, y: 0, z: 0)
-        self.synapseCrystalNode.mainYNode?.addChildNode(self.synapseCrystalNode.mainZNode!)
-
-        self.synapseCrystalNode.co2Node = SCNNode()
-        self.synapseCrystalNode.co2Node?.geometry = self.crystalGeometries.makeCO2CrystalGeometry(1.0)
-        self.synapseCrystalNode.co2Node?.position = SCNVector3(x: -0.4, y: 0.6, z: 0.7)
-        self.synapseCrystalNode.co2Node?.rotation = SCNVector4(x: 0, y: 1.0, z: 0.8, w: Float(Double.pi / 180.0) * 70.0)
-        self.synapseCrystalNode.co2Node?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(0.5)
-        self.synapseCrystalNode.mainZNode?.addChildNode(self.synapseCrystalNode.co2Node!)
-        self.synapseCrystalNode.co2Node?.name = self.synapseCrystalInfo.co2.key
-        if let name = self.synapseCrystalNode.name {
-            self.synapseCrystalNode.co2Node?.name = "\(name)_\(self.synapseCrystalInfo.co2.key)"
-        }
-        /*
-         self.co2BaseNode = SCNNode()
-         self.co2BaseNode.position = SCNVector3(x: 0, y: 0, z: 0.7)
-         self.mainNode.addChildNode(self.co2BaseNode)
-         self.co2BaseXNode = SCNNode()
-         self.co2BaseXNode.position = SCNVector3(x: 0, y: 0, z: 0)
-         self.co2BaseNode.addChildNode(self.co2BaseXNode)
-         self.co2BaseZNode = SCNNode()
-         self.co2BaseZNode.position = SCNVector3(x: 0, y: 0, z: 0)
-         self.co2BaseXNode.addChildNode(self.co2BaseZNode)
-
-         self.co2CrystalNode = CrystalNode()
-         self.co2CrystalNode.setCrystalNodeScale(1, ratio: 0.7)
-         self.co2CrystalNode.setCrystalNodeRotation(x: 0, y: 0, z: 0)
-         self.co2CrystalNode.position = SCNVector3(x: 0, y: 0, z: 0)
-         self.co2BaseZNode.addChildNode(self.co2CrystalNode)
-         self.co2CrystalNode.topNode.name = self.synapseCrystalInfo.co2.key
-         self.co2CrystalNode.bottomNode.name = self.synapseCrystalInfo.co2.key
-         */
-        self.synapseCrystalNode.tempNode = SCNNode()
-        self.synapseCrystalNode.tempNode?.geometry = self.crystalGeometries.makeTemperatureCrystalGeometry(1.0)
-        self.synapseCrystalNode.tempNode?.position = SCNVector3(x: 0.4, y: 0, z: 0.7)
-        self.synapseCrystalNode.tempNode?.rotation = SCNVector4(x: -0.3, y: -0.5, z: -1.0, w: Float(Double.pi / 180.0) * 120.0)
-        self.synapseCrystalNode.tempNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(0.5)
-        self.synapseCrystalNode.mainZNode?.addChildNode(self.synapseCrystalNode.tempNode!)
-        self.synapseCrystalNode.tempNode?.name = self.synapseCrystalInfo.temp.key
-        if let name = self.synapseCrystalNode.name {
-            self.synapseCrystalNode.tempNode?.name = "\(name)_\(self.synapseCrystalInfo.temp.key)"
-        }
-
-        self.synapseCrystalNode.humidityNode = SCNNode()
-        self.synapseCrystalNode.humidityNode?.geometry = self.crystalGeometries.makeHumidityCrystalGeometry(1.0)
-        self.synapseCrystalNode.humidityNode?.position = SCNVector3(x: -0.4, y: -0.45, z: 0.7)
-        self.synapseCrystalNode.humidityNode?.rotation = SCNVector4(x: -0.5, y: 0, z: 1.0, w: Float(Double.pi / 180.0) * 150.0)
-        self.synapseCrystalNode.humidityNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(0.5)
-        self.synapseCrystalNode.mainZNode?.addChildNode(self.synapseCrystalNode.humidityNode!)
-        self.synapseCrystalNode.humidityNode?.name = self.synapseCrystalInfo.hum.key
-        if let name = self.synapseCrystalNode.name {
-            self.synapseCrystalNode.humidityNode?.name = "\(name)_\(self.synapseCrystalInfo.hum.key)"
-        }
-
-        self.synapseCrystalNode.pressureNode = SCNNode()
-        self.synapseCrystalNode.pressureNode?.geometry = self.crystalGeometries.makePressureCrystalGeometry(3.0)
-        self.synapseCrystalNode.pressureNode?.position = SCNVector3(x: 0, y: 0, z: -0.45)
-        self.synapseCrystalNode.pressureNode?.rotation = SCNVector4(x: -0.4, y: -0.8, z: -1.0, w: Float(Double.pi / 180.0) * 90.0)
-        self.synapseCrystalNode.pressureNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(0.5)
-        self.synapseCrystalNode.mainZNode?.addChildNode(self.synapseCrystalNode.pressureNode!)
-        self.synapseCrystalNode.pressureNode?.name = self.synapseCrystalInfo.press.key
-        if let name = self.synapseCrystalNode.name {
-            self.synapseCrystalNode.pressureNode?.name = "\(name)_\(self.synapseCrystalInfo.press.key)"
-        }
-
-        self.synapseCrystalNode.light1Node = SCNNode()
-        self.synapseCrystalNode.light1Node?.geometry = self.crystalGeometries.makeIlluminationCrystalGeometry(3.0)
-        self.synapseCrystalNode.light1Node?.position = SCNVector3(x: 0, y: 0, z: 0.2)
-        self.synapseCrystalNode.light1Node?.rotation = SCNVector4(x: 0, y: 0, z: 1.0, w: Float(Double.pi / 180.0) * 20.0)
-        self.synapseCrystalNode.light1Node?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(0.5)
-        self.synapseCrystalNode.mainZNode?.addChildNode(self.synapseCrystalNode.light1Node!)
-        self.synapseCrystalNode.light1Node?.name = self.synapseCrystalInfo.ill.key
-        if let name = self.synapseCrystalNode.name {
-            self.synapseCrystalNode.light1Node?.name = "\(name)_\(self.synapseCrystalInfo.ill.key)"
-        }
-
-        self.synapseCrystalNode.light2Node = SCNNode()
-        self.synapseCrystalNode.light2Node?.geometry = self.crystalGeometries.makeIlluminationCrystalGeometry(3.0)
-        self.synapseCrystalNode.light2Node?.position = SCNVector3(x: 0, y: 0, z: 0)
-        self.synapseCrystalNode.light2Node?.rotation = SCNVector4(x: 0, y: 0, z: 1.0, w: Float(Double.pi / 180.0) * 46.0)
-        self.synapseCrystalNode.light2Node?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(0.5)
-        self.synapseCrystalNode.mainZNode?.addChildNode(self.synapseCrystalNode.light2Node!)
-        self.synapseCrystalNode.light2Node?.name = self.synapseCrystalInfo.ill.key
-        if let name = self.synapseCrystalNode.name {
-            self.synapseCrystalNode.light2Node?.name = "\(name)_\(self.synapseCrystalInfo.ill.key)"
-        }
-
-        self.synapseCrystalNode.light3Node = SCNNode()
-        self.synapseCrystalNode.light3Node?.geometry = self.crystalGeometries.makeIlluminationCrystalGeometry(3.0)
-        self.synapseCrystalNode.light3Node?.position = SCNVector3(x: 0, y: 0, z: 0.4)
-        self.synapseCrystalNode.light3Node?.rotation = SCNVector4(x: 0, y: 0, z: 1.0, w: Float(Double.pi / 180.0) * 150.0)
-        self.synapseCrystalNode.light3Node?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(0.5)
-        self.synapseCrystalNode.mainZNode?.addChildNode(self.synapseCrystalNode.light3Node!)
-        self.synapseCrystalNode.light3Node?.name = self.synapseCrystalInfo.ill.key
-        if let name = self.synapseCrystalNode.name {
-            self.synapseCrystalNode.light3Node?.name = "\(name)_\(self.synapseCrystalInfo.ill.key)"
-        }
-
-        self.synapseCrystalNode.soundNode = SCNNode()
-        self.synapseCrystalNode.soundNode?.geometry = self.crystalGeometries.makeMagneticCrystalGeometry(w: 3.0, h: 2.0)
-        self.synapseCrystalNode.soundNode?.position = SCNVector3(x: 0.1, y: -0.1, z: -0.8)
-        self.synapseCrystalNode.soundNode?.rotation = SCNVector4(x: 0, y: 0, z: -1.0, w: Float(Double.pi / 180.0) * 90.0)
-        self.synapseCrystalNode.soundNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(0.5)
-        self.synapseCrystalNode.mainZNode?.addChildNode(self.synapseCrystalNode.soundNode!)
-        self.synapseCrystalNode.soundNode?.name = self.synapseCrystalInfo.sound.key
-        if let name = self.synapseCrystalNode.name {
-            self.synapseCrystalNode.soundNode?.name = "\(name)_\(self.synapseCrystalInfo.sound.key)"
-        }
-
-        /*synapseCrystalNode.magneticXNode = SCNNode()
-         synapseCrystalNode.magneticXNode?.geometry = self.crystalGeometries.makeMagneticCrystalGeometry(w: 3.0, h: 1.8)
-         synapseCrystalNode.magneticXNode?.position = SCNVector3(x: -0.1, y: 0.3, z: -0.8)
-         synapseCrystalNode.magneticXNode?.rotation = SCNVector4(x: 0, y: 0, z: -1.0, w: Float(Double.pi / 180.0) * 90.0)
-         synapseCrystalNode.magneticXNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(0.5)
-         synapseCrystalNode.mainZNode?.addChildNode(synapseCrystalNode.magneticXNode!)
-         synapseCrystalNode.magneticXNode?.name = self.synapseCrystalInfo.mag.key
-         if let name = synapseCrystalNode.name {
-         synapseCrystalNode.magneticXNode?.name = "\(name)_\(self.synapseCrystalInfo.mag.key)"
-         }
-
-         synapseCrystalNode.magneticYNode = SCNNode()
-         synapseCrystalNode.magneticYNode?.geometry = self.crystalGeometries.makeMagneticCrystalGeometry(w: 0.8, h: 1.2)
-         synapseCrystalNode.magneticYNode?.position = SCNVector3(x: 0.9, y: -0.5, z: -0.6)
-         synapseCrystalNode.magneticYNode?.rotation = SCNVector4(x: 0, y: 0, z: -1.0, w: Float(Double.pi / 180.0) * 110.0)
-         synapseCrystalNode.magneticYNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(0.5)
-         synapseCrystalNode.mainZNode?.addChildNode(synapseCrystalNode.magneticYNode!)
-         synapseCrystalNode.magneticYNode?.name = self.synapseCrystalInfo.mag.key
-         if let name = synapseCrystalNode.name {
-         synapseCrystalNode.magneticYNode?.name = "\(name)_\(self.synapseCrystalInfo.mag.key)"
-         }
-
-         synapseCrystalNode.magneticZNode = SCNNode()
-         synapseCrystalNode.magneticZNode?.geometry = self.crystalGeometries.makeMagneticCrystalGeometry(w: 0.9, h: 1.6)
-         synapseCrystalNode.magneticZNode?.position = SCNVector3(x: -0.1, y: -1.1, z: -0.7)
-         synapseCrystalNode.magneticZNode?.rotation = SCNVector4(x: 0, y: 0, z: 1.0, w: Float(Double.pi / 180.0) * 160.0)
-         synapseCrystalNode.magneticZNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(0.5)
-         synapseCrystalNode.mainZNode?.addChildNode(synapseCrystalNode.magneticZNode!)
-         synapseCrystalNode.magneticZNode?.name = self.synapseCrystalInfo.mag.key
-         if let name = synapseCrystalNode.name {
-         synapseCrystalNode.magneticZNode?.name = "\(name)_\(self.synapseCrystalInfo.mag.key)"
-         }*/
-        /*
-        var width: CGFloat = 0
-        var name: String = ""
-        if let str = self.synapseCrystalNode.name {
-            name = str
-            width = 0.1 * CGFloat(str.count)
-        }
-        self.labelNode = LabelNode(text: name, width: width, textColor: UIColor.white, panelColor: UIColor.clear, textThickness: 0, panelThickness: 0)
-        self.labelNode.position = SCNVector3(x: self.synapseCrystalNode.position.x, y: self.synapseCrystalNode.position.y - 2.0, z: self.synapseCrystalNode.position.z)
-        self.labelNode.light = SCNLight()
-        self.labelNode.light?.type = .spot
-        self.labelNode.light?.color = UIColor.white
-        scnView.scene?.rootNode.addChildNode(self.labelNode)*/
-
-        self.synapseCrystalNode.lightingNode = SCNNode()
-        self.synapseCrystalNode.lightingNode?.light = SCNLight()
-        self.synapseCrystalNode.lightingNode?.light?.type = .omni
-        self.synapseCrystalNode.lightingNode?.light?.color = UIColor.white
-        self.synapseCrystalNode.lightingNode?.position = SCNVector3(x: -2.0 + self.synapseCrystalNode.position.x, y: 0 + self.synapseCrystalNode.position.y, z: 7.0 + self.synapseCrystalNode.position.z)
-        self.synapseCrystalNode.lightingNode?.rotation = SCNVector4(x: 0, y: 1.0, z: 0, w: Float(Double.pi / 180.0) * -20.0)
-        scnView.scene?.rootNode.addChildNode(self.synapseCrystalNode.lightingNode!)
-
-        self.synapseCrystalNode.lightingNode2 = SCNNode()
-        self.synapseCrystalNode.lightingNode2?.light = SCNLight()
-        self.synapseCrystalNode.lightingNode2?.light?.type = .spot
-        self.synapseCrystalNode.lightingNode2?.light?.color = UIColor.white
-        self.synapseCrystalNode.lightingNode2?.position = SCNVector3(x: 0 + self.synapseCrystalNode.position.x, y: 10.0 + self.synapseCrystalNode.position.y, z: 0 + self.synapseCrystalNode.position.z)
-        self.synapseCrystalNode.lightingNode2?.rotation = SCNVector4(x: 1.0, y: 0, z: 0, w: Float(Double.pi / 180.0) * -90.0)
-        scnView.scene?.rootNode.addChildNode(self.synapseCrystalNode.lightingNode2!)
-        /*
-         let diffuseLightNode: SCNNode = SCNNode()
-         diffuseLightNode.light = SCNLight()
-         diffuseLightNode.light!.type = .omni
-         diffuseLightNode.light!.color = UIColor.white
-         diffuseLightNode.position = SCNVector3(x: 2, y: 2, z: 1)
-         scene.rootNode.addChildNode(diffuseLightNode)
-         
-         let spotNode: SCNNode = SCNNode()
-         spotNode.light = SCNLight()
-         spotNode.light!.type = .spot
-         spotNode.light!.color = UIColor.white
-         spotNode.position = SCNVector3(x: -0.5, y: -1.0, z: 2)
-         scene.rootNode.addChildNode(spotNode)
-         */
+        self.synapseCrystalNode.rotateSynapseNodes(synapseValues: self.synapseValues)
+        self.synapseCrystalNode.scaleSynapseNodes(synapseValues: self.synapseValues)
+        self.synapseCrystalNode.setColorSynapseNodeFromBatteryLevel(synapseValues: self.synapseValues)
     }
 
-    func removeSynapseNode() {
+    func resetSynapseNode() {
 
-        self.synapseCrystalNode.mainNodeRoll?.removeFromParentNode()
-        self.synapseCrystalNode.mainNodeRoll = nil
-        self.synapseCrystalNode.mainNode?.removeFromParentNode()
-        self.synapseCrystalNode.mainNode = nil
-        self.synapseCrystalNode.mainXNode?.removeFromParentNode()
-        self.synapseCrystalNode.mainXNode = nil
-        self.synapseCrystalNode.mainYNode?.removeFromParentNode()
-        self.synapseCrystalNode.mainYNode = nil
-        self.synapseCrystalNode.mainZNode?.removeFromParentNode()
-        self.synapseCrystalNode.mainZNode = nil
-        self.synapseCrystalNode.co2Node?.removeFromParentNode()
-        self.synapseCrystalNode.co2Node = nil
-        self.synapseCrystalNode.tempNode?.removeFromParentNode()
-        self.synapseCrystalNode.tempNode = nil
-        self.synapseCrystalNode.humidityNode?.removeFromParentNode()
-        self.synapseCrystalNode.humidityNode = nil
-        self.synapseCrystalNode.pressureNode?.removeFromParentNode()
-        self.synapseCrystalNode.pressureNode = nil
-        self.synapseCrystalNode.light1Node?.removeFromParentNode()
-        self.synapseCrystalNode.light1Node = nil
-        self.synapseCrystalNode.light2Node?.removeFromParentNode()
-        self.synapseCrystalNode.light2Node = nil
-        self.synapseCrystalNode.light3Node?.removeFromParentNode()
-        self.synapseCrystalNode.light3Node = nil
-        self.synapseCrystalNode.soundNode?.removeFromParentNode()
-        self.synapseCrystalNode.soundNode = nil
-        /*synapseCrystalNode.magneticXNode?.removeFromParentNode()
-         synapseCrystalNode.magneticXNode = nil
-         synapseCrystalNode.magneticYNode?.removeFromParentNode()
-         synapseCrystalNode.magneticYNode = nil
-         synapseCrystalNode.magneticZNode?.removeFromParentNode()
-         synapseCrystalNode.magneticZNode = nil*/
-        self.synapseCrystalNode.lightingNode?.removeFromParentNode()
-        self.synapseCrystalNode.lightingNode = nil
-        self.synapseCrystalNode.lightingNode2?.removeFromParentNode()
-        self.synapseCrystalNode.lightingNode2 = nil
-    }
-
-    func rotateSynapseNode(dx: CGFloat, dy: CGFloat) {
-
-        if let mainNodeRoll = self.synapseCrystalNode.mainNodeRoll {
-            let aroundSide: SCNVector3 = SCNVector3(x: 0, y: 1, z: 0)
-            let actionSide: SCNAction = SCNAction.rotate(by: CGFloat(Double.pi / 180.0) * dx,
-                                                         around: aroundSide,
-                                                         duration: 0)
-            actionSide.timingMode = .easeOut
-            mainNodeRoll.runAction(actionSide, completionHandler: {
-                //print("mainNodeRoll: \(self.mainNodeRoll.rotation) mainNode: \(self.mainNode.rotation)")
-                //self.mainNodeRoll.removeAllActions()
-            })
-
-            if let mainNode = self.synapseCrystalNode.mainNode {
-                let aroundLong: SCNVector3 = SCNVector3(x: Float(cos(mainNodeRoll.rotation.y * mainNodeRoll.rotation.w)),
-                                                        y: 0,
-                                                        z: Float(sin(mainNodeRoll.rotation.y * mainNodeRoll.rotation.w)))
-                let actionLong: SCNAction = SCNAction.rotate(by: CGFloat(Double.pi / 180.0) * dy,
-                                                             around: aroundLong,
-                                                             duration: 0)
-                actionLong.timingMode = .easeOut
-                mainNode.runAction(actionLong, completionHandler: {
-                    //self.mainNode.removeAllActions()
-                })
-            }
-        }
-    }
-
-    func rotateSynapseNode() {
-
-        if let mainZNode = self.synapseCrystalNode.mainZNode, let ax = self.synapseValues.ax, let ay = self.synapseValues.ay, let az = self.synapseValues.az {
-            let radx: Double = atan(Double(ax) / sqrt(pow(Double(ay), 2) + pow(Double(az), 2)))
-            let rady: Double = atan(Double(ay) / sqrt(pow(Double(ax), 2) + pow(Double(az), 2)))
-            let radz: Double = atan(Double(az) / sqrt(pow(Double(ay), 2) + pow(Double(ax), 2)))
-
-            if let radxBak = self.synapseCrystalNode.radxBak, let radyBak = self.synapseCrystalNode.radyBak {
-                var deltaX: Double = radx - radxBak
-                var deltaY: Double = rady - radyBak
-                if radz < 0.0 {
-                    deltaX = -deltaX
-                    deltaY = -deltaY
-                }
-                self.synapseCrystalNode.rotateX += deltaX
-                self.synapseCrystalNode.rotateY += deltaY
-            }
-            self.synapseCrystalNode.radxBak = radx
-            self.synapseCrystalNode.radyBak = rady
-
-            let action: SCNAction = SCNAction.rotateTo(x: CGFloat(-self.synapseCrystalNode.rotateY),
-                                                       y: 0,
-                                                       z: CGFloat(-self.synapseCrystalNode.rotateX),
-                                                       duration: self.rotateSynapseNodeDuration)
-            action.timingMode = .easeOut
-            mainZNode.runAction(action, completionHandler: {
-                //self.mainZNode.removeAllActions()
-            })
-        }
-        /*
-         let action: SCNAction = SCNAction.rotateBy(x: 0, y: CGFloat(Float(Double.pi / 180.0) * self.rotationValue), z: 0, duration: self.checkSynapseTime)
-         self.co2CrystalNode.runAction(action)
-         self.tempCrystalNode.runAction(action)
-         self.pressureCrystalNode.runAction(action)
-         self.magneticCrystalNode.runAction(action)
-         self.lightCrystalNode.runAction(action)
-         self.humidityCrystalNode.runAction(action)
-         */
-    }
-
-    func rotateCrystalNode() {
-
-        let rotationValue: CGFloat = 1.0
-        let action: SCNAction = SCNAction.rotateBy(x: 0,
-                                                   y: CGFloat(Double.pi / 180.0) * rotationValue,
-                                                   z: 0,
-                                                   duration: self.rotateCrystalNodeDuration)
-        self.synapseCrystalNode.co2Node?.runAction(action, completionHandler: {
-            //synapseCrystalNode.co2Node?.removeAllActions()
-        })
-        self.synapseCrystalNode.tempNode?.runAction(action, completionHandler: {
-            //synapseCrystalNode.tempNode?.removeAllActions()
-        })
-        self.synapseCrystalNode.humidityNode?.runAction(action, completionHandler: {
-            //synapseCrystalNode.humidityNode?.removeAllActions()
-        })
-
-        let rotationValue2: CGFloat = 0.5
-        let action2: SCNAction = SCNAction.rotateBy(x: 0,
-                                                    y: 0,
-                                                    z: CGFloat(Double.pi / 180.0) * rotationValue2,
-                                                    duration: self.rotateCrystalNodeDuration)
-        self.synapseCrystalNode.light1Node?.runAction(action2, completionHandler: {
-            //synapseCrystalNode.light1Node?.removeAllActions()
-        })
-        self.synapseCrystalNode.light2Node?.runAction(action2, completionHandler: {
-            //synapseCrystalNode.light2Node?.removeAllActions()
-        })
-        self.synapseCrystalNode.light3Node?.runAction(action2, completionHandler: {
-            //synapseCrystalNode.light3Node?.removeAllActions()
-        })
-
-        let rotationValue3: CGFloat = 0.5
-        let action3: SCNAction = SCNAction.rotateBy(x: 0,
-                                                    y: 0,
-                                                    z: CGFloat(Double.pi / 180.0) * -rotationValue3,
-                                                    duration: self.rotateCrystalNodeDuration)
-        self.synapseCrystalNode.pressureNode?.runAction(action3, completionHandler: {
-            //synapseCrystalNode.pressureNode?.removeAllActions()
-        })
-    }
-
-    func scaleSynapseNode() {
-
-        let co2Base: Double = 400.0
-        let co2BaseScale: CGFloat = 0.8
-        let tempBase: Double = 25.0
-        let tempBaseScale: CGFloat = 1.0
-        let pressBase: Double = 1000.0
-        let pressBaseScale: CGFloat = 1.0
-        let lightBase: Double = 10000.0
-        let lightBaseScale: CGFloat = 1.0
-        let humBase: Double = 100.0
-        let humBaseScale: CGFloat = 2.0
-        let soundBase: Double = 1023.0
-        let soundBaseScale: CGFloat = 1.5
-
-        var co2Scale: CGFloat = 1.0
-        if self.synapseValues.isConnected {
-            co2Scale = 0
-            if let co2 = self.synapseValues.co2 {
-                co2Scale = CGFloat(sqrt(Double(co2)) / sqrt(co2Base)) * co2BaseScale
-            }
-        }
-        /*if co2Scale > 2.0 {
-         co2Scale = 2.0
-         }
-         else if co2Scale < 0.2 {
-         co2Scale = 0.2
-         }*/
-        let co2Action: SCNAction = SCNAction.scale(to: co2Scale, duration: self.scaleSynapseNodeDuration)
-        co2Action.timingMode = .easeOut
-        self.synapseCrystalNode.co2Node?.runAction(co2Action, completionHandler: {
-            //synapseCrystalNode.co2Node?.removeAllActions()
-        })
-
-        var tempScale: CGFloat = 1.0
-        if self.synapseValues.isConnected {
-            tempScale = 0
-            if let temp = self.synapseValues.temp {
-                if temp > 0.0 {
-                    tempScale = CGFloat(sqrt(Double(temp)) / sqrt(tempBase)) * tempBaseScale
-                }
-                else {
-                    tempScale = 0
-                }
-            }
-        }
-        /*if tempScale > 2.0 {
-         tempScale = 2.0
-         }
-         else if tempScale < 0.2 {
-         tempScale = 0.2
-         }*/
-        let tempAction: SCNAction = SCNAction.scale(to: tempScale, duration: self.scaleSynapseNodeDuration)
-        tempAction.timingMode = .easeOut
-        self.synapseCrystalNode.tempNode?.runAction(tempAction, completionHandler: {
-            //synapseCrystalNode.tempNode?.removeAllActions()
-        })
-
-        var pressScale: CGFloat = 1.0
-        if self.synapseValues.isConnected {
-            pressScale = 0
-            if let press = self.synapseValues.pressure {
-                pressScale = CGFloat(sqrt(Double(press)) / sqrt(pressBase)) * pressBaseScale
-            }
-        }
-        /*if pressScale > 2.0 {
-         pressScale = 2.0
-         }
-         else if pressScale < 0.2 {
-         pressScale = 0.2
-         }*/
-        let pressAction: SCNAction = SCNAction.scale(to: pressScale, duration: self.scaleSynapseNodeDuration)
-        pressAction.timingMode = .easeOut
-        self.synapseCrystalNode.pressureNode?.runAction(pressAction, completionHandler: {
-            //synapseCrystalNode.pressureNode?.removeAllActions()
-        })
-
-        var lightScale: CGFloat = 1.0
-        if self.synapseValues.isConnected {
-            lightScale = 0
-            if let light = self.synapseValues.light {
-                lightScale = CGFloat(sqrt(Double(light)) / sqrt(lightBase)) * lightBaseScale
-            }
-        }
-        /*if lightScale > 2.0 {
-         lightScale = 2.0
-         }
-         else if lightScale < 0.2 {
-         lightScale = 0.2
-         }*/
-        let lightAction: SCNAction = SCNAction.scale(to: lightScale, duration: self.scaleSynapseNodeDuration)
-        lightAction.timingMode = .easeOut
-        self.synapseCrystalNode.light1Node?.runAction(lightAction, completionHandler: {
-            //synapseCrystalNode.light1Node?.removeAllActions()
-        })
-        self.synapseCrystalNode.light2Node?.runAction(lightAction, completionHandler: {
-            //synapseCrystalNode.light2Node?.removeAllActions()
-        })
-        self.synapseCrystalNode.light3Node?.runAction(lightAction, completionHandler: {
-            //synapseCrystalNode.light3Node?.removeAllActions()
-        })
-
-        var humScale: CGFloat = 1.0
-        if self.synapseValues.isConnected {
-            humScale = 0
-            if let hum = self.synapseValues.humidity {
-                humScale = CGFloat(Double(hum) / humBase) * humBaseScale
-            }
-        }
-        /*if humScale > 2.0 {
-         humScale = 2.0
-         }
-         else if humScale < 0.2 {
-         humScale = 0.2
-         }*/
-        let humAction: SCNAction = SCNAction.scale(to: humScale, duration: self.scaleSynapseNodeDuration)
-        humAction.timingMode = .easeOut
-        self.synapseCrystalNode.humidityNode?.runAction(humAction, completionHandler: {
-            //synapseCrystalNode.humidityNode?.removeAllActions()
-        })
-
-        var soundScale: CGFloat = 1.0
-        if self.synapseValues.isConnected {
-            soundScale = 0
-            if let sound = self.synapseValues.sound {
-                soundScale = CGFloat(sqrt(Double(sound)) / sqrt(soundBase)) * soundBaseScale
-            }
-        }
-        /*if soundScale > 2.0 {
-         soundScale = 2.0
-         }
-         else if soundScale < 0.2 {
-         soundScale = 0.2
-         }*/
-        let soundAction: SCNAction = SCNAction.scale(to: soundScale, duration: self.scaleSynapseNodeDuration)
-        soundAction.timingMode = .easeOut
-        self.synapseCrystalNode.soundNode?.runAction(soundAction, completionHandler: {
-            //synapseCrystalNode.humidityNode?.removeAllActions()
-        })
-        /*
-        var magxScale: CGFloat = 1.0
-        if let mx = synapseValues.mx {
-            let val: CGFloat = CGFloat(abs(mx))
-            if val <= 200.0 {
-                magxScale = val / 200.0
-            }
-            else {
-                magxScale = 1.0 + (val - 200.0) / 5000.0
-            }
-        }
-        if magxScale > 2.0 {
-            magxScale = 2.0
-        }
-        else if magxScale < 0.2 {
-            magxScale = 0.2
-        }
-        let magxAction: SCNAction = SCNAction.scale(to: magxScale, duration: self.updateSynapseViewTime)
-        magxAction.timingMode = .easeOut
-        synapseCrystalNode.magneticXNode?.runAction(magxAction, completionHandler: {
-            //synapseCrystalNode.magneticXNode?.removeAllActions()
-        })
-        var magyScale: CGFloat = 1.0
-        if let my = synapseValues.my {
-            let val: CGFloat = CGFloat(abs(my))
-            if val <= 200.0 {
-                magyScale = val / 200.0
-            }
-            else {
-                magyScale = 1.0 + (val - 200.0) / 5000.0
-            }
-        }
-        if magyScale > 2.0 {
-            magyScale = 2.0
-        }
-        else if magyScale < 0.2 {
-            magyScale = 0.2
-        }
-        let magyAction: SCNAction = SCNAction.scale(to: magyScale, duration: self.updateSynapseViewTime)
-        magyAction.timingMode = .easeOut
-        synapseCrystalNode.magneticYNode?.runAction(magyAction, completionHandler: {
-            //synapseCrystalNode.magneticYNode?.removeAllActions()
-        })
-        var magzScale: CGFloat = 1.0
-        if let mz = synapseValues.mz {
-            let val: CGFloat = CGFloat(abs(mz))
-            if val <= 200.0 {
-                magzScale = val / 200.0
-            }
-            else {
-                magzScale = 1.0 + (val - 200.0) / 5000.0
-            }
-        }
-        if magzScale > 2.0 {
-            magzScale = 2.0
-        }
-        else if magzScale < 0.2 {
-            magzScale = 0.2
-        }
-        let magzAction: SCNAction = SCNAction.scale(to: magzScale, duration: self.updateSynapseViewTime)
-        magzAction.timingMode = .easeOut
-        synapseCrystalNode.magneticZNode?.runAction(magzAction, completionHandler: {
-            //synapseCrystalNode.magneticZNode?.removeAllActions()
-        })*/
-    }
-
-    func setColorSynapseNode(colorLevel: Double) {
-
-        self.synapseCrystalNode.co2Node?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(colorLevel)
-        self.synapseCrystalNode.tempNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(colorLevel)
-        self.synapseCrystalNode.humidityNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(colorLevel)
-        self.synapseCrystalNode.pressureNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(colorLevel)
-        self.synapseCrystalNode.light1Node?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(colorLevel)
-        self.synapseCrystalNode.light2Node?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(colorLevel)
-        self.synapseCrystalNode.light3Node?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(colorLevel)
-        self.synapseCrystalNode.soundNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(colorLevel)
-        /*
-         synapseCrystalNode.magneticXNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(colorLevel)
-         synapseCrystalNode.magneticYNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(colorLevel)
-         synapseCrystalNode.magneticZNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(colorLevel)*/
-        self.synapseCrystalNode.colorLevel = colorLevel
-    }
-
-    func setColorSynapseNodeFromBatteryLevel() {
-
-        if let battery = self.synapseValues.battery {
-            var level: Double = 0
-            if battery > 0.0 && battery <= 10.0 {
-                level = 0.1
-            }
-            else if battery > 10.0 && battery <= 30.0 {
-                level = 0.2
-            }
-            else if battery > 30.0 && battery <= 50.0 {
-                level = 0.3
-            }
-            else if battery > 50.0 && battery <= 70.0 {
-                level = 0.4
-            }
-            else if battery > 70.0 {
-                level = 0.5
-            }
-            if level != self.synapseCrystalNode.colorLevel {
-                self.setColorSynapseNode(colorLevel: level)
-                //print("batteryLevel: \(self.batteryLevel)")
-            }
-        }
-    }
-
-    func setColorOffSynapseNode() {
+        self.synapseCrystalNode.scaleSynapseNodes(synapseValues: self.synapseValues)
 
         var isOff: Bool = true
         if let synapseRecordFileManager = self.synapseRecordFileManager {
@@ -5895,20 +3892,7 @@ class SynapseObject {
                 }
             }
         }
-
-        self.synapseCrystalNode.co2Node?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColorOff(isOff)
-        self.synapseCrystalNode.tempNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColorOff(isOff)
-        self.synapseCrystalNode.humidityNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColorOff(isOff)
-        self.synapseCrystalNode.pressureNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColorOff(isOff)
-        self.synapseCrystalNode.light1Node?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColorOff(isOff)
-        self.synapseCrystalNode.light2Node?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColorOff(isOff)
-        self.synapseCrystalNode.light3Node?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColorOff(isOff)
-        self.synapseCrystalNode.soundNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColorOff(isOff)
-        /*
-         synapseCrystalNode.magneticXNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColorOff(isOff)
-         synapseCrystalNode.magneticYNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColorOff(isOff)
-         synapseCrystalNode.magneticZNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColorOff(isOff)*/
-        self.synapseCrystalNode.colorLevel = nil
+        self.synapseCrystalNode.setColorOffSynapseNodes(isOff)
     }
 
     // MARK: mark - Make SynapseData methods
@@ -5924,201 +3908,133 @@ class SynapseObject {
                 formatter.dateFormat = "yyyyMMddHHmmss"
                 self.synapseNowDate = formatter.string(from: Date(timeIntervalSince1970: time))
                 //print("setSynapseNowDate: \(self.synapseNowDate)")
-                self.synapseValues.time = time
 
+                let values: SynapseValues = self.makeSynapseData(data)
+                self.synapseValues.time = time
                 self.synapseValues.axBak = self.synapseValues.ax
                 self.synapseValues.ayBak = self.synapseValues.ay
                 self.synapseValues.azBak = self.synapseValues.az
                 self.synapseValues.gxBak = self.synapseValues.gx
                 self.synapseValues.gyBak = self.synapseValues.gy
                 self.synapseValues.gzBak = self.synapseValues.gz
-                self.synapseValues.co2 = nil
-                self.synapseValues.ax = nil
-                self.synapseValues.ay = nil
-                self.synapseValues.az = nil
-                self.synapseValues.light = nil
-                self.synapseValues.gx = nil
-                self.synapseValues.gy = nil
-                self.synapseValues.gz = nil
-                self.synapseValues.pressure = nil
-                self.synapseValues.temp = nil
-                self.synapseValues.humidity = nil
-                self.synapseValues.sound = nil
-                self.synapseValues.tvoc = nil
-                self.synapseValues.power = nil
-                self.synapseValues.battery = nil
-                let values: [String: Any] = self.makeSynapseData(data)
-                //print("setSynapseValues: \(self.synapseNowDate)\n\(values)")
-                if let co2 = values["co2"] as? Int, co2 >= 400 {
-                    self.synapseValues.co2 = co2
-                }
-                if let ax = values["ax"] as? Int {
-                    self.synapseValues.ax = ax
-                }
-                if let ay = values["ay"] as? Int {
-                    self.synapseValues.ay = ay
-                }
-                if let az = values["az"] as? Int {
-                    self.synapseValues.az = az
-                }
-                if let light = values["light"] as? Int {
-                    self.synapseValues.light = light
-                }
-                if let gx = values["gx"] as? Int {
-                    self.synapseValues.gx = gx
-                }
-                if let gy = values["gy"] as? Int {
-                    self.synapseValues.gy = gy
-                }
-                if let gz = values["gz"] as? Int {
-                    self.synapseValues.gz = gz
-                }
-                if let pressure = values["pressure"] as? Float {
-                    self.synapseValues.pressure = pressure
-                }
-                if let temp = values["temp"] as? Float {
-                    self.synapseValues.temp = temp
-                }
-                if let humidity = values["humidity"] as? Int {
-                    self.synapseValues.humidity = humidity
-                }
-                if let sound = values["sound"] as? Int {
-                    self.synapseValues.sound = sound
-                }
-                if let tvoc = values["tvoc"] as? Int {
-                    self.synapseValues.tvoc = tvoc
-                }
-                if let volt = values["volt"] as? Float {
-                    self.synapseValues.power = volt
-                }
-                if let pow = values["pow"] as? Float {
-                    self.synapseValues.battery = pow
-                }
-                /*
-                if let mx = values["mx"] as? Int {
-                    synapseValues.mx = mx
-                }
-                if let my = values["my"] as? Int {
-                    synapseValues.my = my
-                }
-                if let mz = values["mz"] as? Int {
-                    synapseValues.mz = mz
-                }*/
+                self.synapseValues.co2 = values.co2
+                self.synapseValues.ax = values.ax
+                self.synapseValues.ay = values.ay
+                self.synapseValues.az = values.az
+                self.synapseValues.light = values.light
+                self.synapseValues.gx = values.gx
+                self.synapseValues.gy = values.gy
+                self.synapseValues.gz = values.gz
+                self.synapseValues.pressure = values.pressure
+                self.synapseValues.temp = values.temp
+                self.synapseValues.humidity = values.humidity
+                self.synapseValues.sound = values.sound
+                self.synapseValues.tvoc = values.tvoc
+                self.synapseValues.power = values.power
+                self.synapseValues.battery = values.battery
+                /*self.synapseValues.mx = values.mx
+                self.synapseValues.my = values.my
+                self.synapseValues.mz = values.mz*/
+                //self.synapseValues.debug()
 
                 self.setSynapseConnectLastDate(time)
             }
         }
     }
 
-    func makeSynapseData(_ data: [UInt8]) -> [String: Any] {
+    func makeSynapseData(_ data: [UInt8]) -> SynapseValues {
 
         //print("makeSynapseData: \(data)")
-        var synapseData: [String: Any] = [:]
+        let synapseValues: SynapseValues = SynapseValues()
         if data.count >= 6 {
             if data[4] != 0xff || data[5] != 0xff {
-                synapseData["co2"] = self.makeSynapseInt(byte1: data[4], byte2: data[5], unsigned: true)
+                synapseValues.co2 = self.makeSynapseInt(byte1: data[4], byte2: data[5], unsigned: true)
+                if let co2 = synapseValues.co2, co2 < 400 {
+                    synapseValues.co2 = nil
+                }
             }
-            //print("co2: \(String(describing: synapseData["co2"]))")
         }
         if data.count >= 8 {
             if data[6] != 0xff || data[7] != 0xff {
-                synapseData["ax"] = -self.makeSynapseInt(byte1: data[6], byte2: data[7], unsigned: false)
+                synapseValues.ax = -self.makeSynapseInt(byte1: data[6], byte2: data[7], unsigned: false)
             }
-            //print("ax: \(String(describing: synapseData["ax"]))")
         }
         if data.count >= 10 {
             if data[8] != 0xff || data[9] != 0xff {
-                synapseData["ay"] = -self.makeSynapseInt(byte1: data[8], byte2: data[9], unsigned: false)
+                synapseValues.ay = -self.makeSynapseInt(byte1: data[8], byte2: data[9], unsigned: false)
             }
-            //print("ay: \(String(describing: synapseData["ay"]))")
         }
         if data.count >= 12 {
             if data[10] != 0xff || data[11] != 0xff {
-                synapseData["az"] = self.makeSynapseInt(byte1: data[10], byte2: data[11], unsigned: false)
+                synapseValues.az = self.makeSynapseInt(byte1: data[10], byte2: data[11], unsigned: false)
             }
-            //print("az: \(String(describing: synapseData["az"]))")
         }
         if data.count >= 14 {
             if data[12] != 0xff || data[13] != 0xff {
-                synapseData["gx"] = -self.makeSynapseInt(byte1: data[12], byte2: data[13], unsigned: false)
+                synapseValues.gx = -self.makeSynapseInt(byte1: data[12], byte2: data[13], unsigned: false)
             }
-            //print("gx: \(String(describing: synapseData["gx"]))")
         }
         if data.count >= 16 {
             if data[14] != 0xff || data[15] != 0xff {
-                synapseData["gy"] = -self.makeSynapseInt(byte1: data[14], byte2: data[15], unsigned: false)
+                synapseValues.gy = -self.makeSynapseInt(byte1: data[14], byte2: data[15], unsigned: false)
             }
-            //print("gy: \(String(describing: synapseData["gy"]))")
         }
         if data.count >= 18 {
             if data[16] != 0xff || data[17] != 0xff {
-                synapseData["gz"] = self.makeSynapseInt(byte1: data[16], byte2: data[17], unsigned: false)
+                synapseValues.gz = self.makeSynapseInt(byte1: data[16], byte2: data[17], unsigned: false)
             }
-            //print("gz: \(String(describing: synapseData["gz"]))")
         }
         if data.count >= 20 {
             if data[18] != 0xff || data[19] != 0xff {
-                synapseData["light"] = self.makeSynapseInt(byte1: data[18], byte2: data[19], unsigned: true)
+                synapseValues.light = self.makeSynapseInt(byte1: data[18], byte2: data[19], unsigned: true)
             }
-            //print("light: \(String(describing: synapseData["light"]))")
         }
         if data.count >= 22 {
             if data[20] != 0xff {
-                synapseData["temp"] = self.makeSynapseFloat8(byte1: data[20], byte2: data[21])
+                synapseValues.temp = self.makeSynapseFloat8(byte1: data[20], byte2: data[21])
             }
-            //print("temp: \(String(describing: synapseData["temp"]))")
         }
         if data.count >= 23 {
             if data[22] != 0xff {
-                synapseData["humidity"] = Int(data[22])
+                synapseValues.humidity = Int(data[22])
             }
-            //print("humidity: \(String(describing: synapseData["humidity"]))")
         }
         if data.count >= 26 {
             if data[23] != 0xff || data[24] != 0xff {
-                synapseData["pressure"] = self.makeSynapseFloat16(byte1: data[23], byte2: data[24], byte3: data[25])
+                synapseValues.pressure = self.makeSynapseFloat16(byte1: data[23], byte2: data[24], byte3: data[25])
             }
-            //print("pressure: \(String(describing: synapseData["pressure"]))")
         }
         if data.count >= 28 {
             if data[26] != 0xff || data[27] != 0xff {
-                synapseData["tvoc"] = self.makeSynapseInt(byte1: data[26], byte2: data[27], unsigned: true)
+                synapseValues.tvoc = self.makeSynapseInt(byte1: data[26], byte2: data[27], unsigned: true)
             }
-            //print("tvoc: \(String(describing: synapseData["tvoc"]))")
         }
         if data.count >= 30 {
             if data[28] != 0xff || data[29] != 0xff {
-                synapseData["volt"] = self.makeSynapseVoltageValue(byte1: data[28], byte2: data[29])
+                synapseValues.power = self.makeSynapseVoltageValue(byte1: data[28], byte2: data[29])
             }
-            //print("volt: \(String(describing: synapseData["volt"]))")
         }
         if data.count >= 32 {
             if data[30] != 0xff || data[31] != 0xff {
-                synapseData["pow"] = self.makeSynapsePowerValue(byte1: data[30], byte2: data[31])
+                synapseValues.battery = self.makeSynapsePowerValue(byte1: data[30], byte2: data[31])
             }
-            //print("pow: \(String(describing: synapseData["pow"]))")
         }
         if data.count >= 34 {
             if data[32] != 0xff || data[33] != 0xff {
-                synapseData["sound"] = self.makeSynapseInt(byte1: data[32], byte2: data[33], unsigned: true)
-                //synapseData["sound"] = self.makeSynapseSoundDBValue(byte1: data[32], byte2: data[33])
+                synapseValues.sound = self.makeSynapseInt(byte1: data[32], byte2: data[33], unsigned: true)
+                //synapseValues.sound = self.makeSynapseSoundDBValue(byte1: data[32], byte2: data[33])
             }
-            //print("sound: \(String(describing: synapseData["sound"]))")
         }
-        /*
-        if synapseValues.count >= 20 {
-            synapseData["my"] = -self.makeSynapseValue(synapseValues[19] + synapseValues[18], unsigned: false)
-            //print("my: \(String(describing: synapseData["my"]))")
+        /*if synapseValues.count >= 20 {
+            synapseValues.my = -self.makeSynapseValue(synapseValues[19] + synapseValues[18], unsigned: false)
         }
         if synapseValues.count >= 22 {
-            synapseData["mx"] = -self.makeSynapseValue(synapseValues[21] + synapseValues[20], unsigned: false)
-            //print("mx: \(String(describing: synapseData["mx"]))")
+            synapseValues.mx = -self.makeSynapseValue(synapseValues[21] + synapseValues[20], unsigned: false)
         }
         if synapseValues.count >= 24 {
-            synapseData["mz"] = -self.makeSynapseValue(synapseValues[23] + synapseValues[22], unsigned: false)
-            //print("mz: \(String(describing: synapseData["mz"]))")
+            synapseValues.mz = -self.makeSynapseValue(synapseValues[23] + synapseValues[22], unsigned: false)
         }*/
-        return synapseData
+        return synapseValues
     }
 
     func makeSynapseInt(byte1: UInt8, byte2: UInt8, unsigned: Bool) -> Int {
@@ -6259,17 +4175,15 @@ class SynapseObject {
 
         DispatchQueue.global(qos: .background).async {
             self.saveSynapseMaxAndMinValues()
-            //print("check saveSynapseMaxAndMinValues")
         }
         DispatchQueue.global(qos: .background).async {
             self.checkSynapseTotalInHour()
-            //print("check SynapseTotalInHour")
         }
     }
 
     func copySynapseValues(_ synapseValues: SynapseValues) -> SynapseValues {
 
-        let synapseValuesCopy: SynapseValues = SynapseValues("")
+        let synapseValuesCopy: SynapseValues = SynapseValues()
         synapseValuesCopy.time = synapseValues.time
         synapseValuesCopy.co2 = synapseValues.co2
         synapseValuesCopy.ax = synapseValues.ax
@@ -6349,9 +4263,9 @@ class SynapseObject {
                 }
                 if self.synapseCrystalInfo.move.hasGraph {
                     if let ax = synapseValues.ax, let ay = synapseValues.ay, let az = synapseValues.az {
-                        res = synapseRecordFileManager.setSynapseRecordTotal(Double(ax), day: day, hour: hour, min: min, sec: sec, type: "ax")
-                        res = synapseRecordFileManager.setSynapseRecordTotal(Double(ay), day: day, hour: hour, min: min, sec: sec, type: "ay")
-                        res = synapseRecordFileManager.setSynapseRecordTotal(Double(az), day: day, hour: hour, min: min, sec: sec, type: "az")
+                        res = synapseRecordFileManager.setSynapseRecordTotal(Double(ax), day: day, hour: hour, min: min, sec: sec, type: self.synapseCrystalInfo.ax.key)
+                        res = synapseRecordFileManager.setSynapseRecordTotal(Double(ay), day: day, hour: hour, min: min, sec: sec, type: self.synapseCrystalInfo.ay.key)
+                        res = synapseRecordFileManager.setSynapseRecordTotal(Double(az), day: day, hour: hour, min: min, sec: sec, type: self.synapseCrystalInfo.az.key)
                     }
                 }
                 if self.synapseCrystalInfo.ill.hasGraph {
@@ -6361,9 +4275,9 @@ class SynapseObject {
                 }
                 if self.synapseCrystalInfo.angle.hasGraph {
                     if let gx = synapseValues.gx, let gy = synapseValues.gy, let gz = synapseValues.gz {
-                        res = synapseRecordFileManager.setSynapseRecordTotal(Double(gx), day: day, hour: hour, min: min, sec: sec, type: "gx")
-                        res = synapseRecordFileManager.setSynapseRecordTotal(Double(gy), day: day, hour: hour, min: min, sec: sec, type: "gy")
-                        res = synapseRecordFileManager.setSynapseRecordTotal(Double(gz), day: day, hour: hour, min: min, sec: sec, type: "gz")
+                        res = synapseRecordFileManager.setSynapseRecordTotal(Double(gx), day: day, hour: hour, min: min, sec: sec, type: self.synapseCrystalInfo.gx.key)
+                        res = synapseRecordFileManager.setSynapseRecordTotal(Double(gy), day: day, hour: hour, min: min, sec: sec, type: self.synapseCrystalInfo.gy.key)
+                        res = synapseRecordFileManager.setSynapseRecordTotal(Double(gz), day: day, hour: hour, min: min, sec: sec, type: self.synapseCrystalInfo.gz.key)
                     }
                 }
                 if self.synapseCrystalInfo.temp.hasGraph {
@@ -6391,8 +4305,7 @@ class SynapseObject {
                         res = synapseRecordFileManager.setSynapseRecordTotal(Double(volt), day: day, hour: hour, min: min, sec: sec, type: self.synapseCrystalInfo.volt.key)
                     }
                 }
-                /*
-                if self.synapseCrystalInfo.mag.hasGraph {
+                /*if self.synapseCrystalInfo.mag.hasGraph {
                     if let mx = synapseValues.mx, let my = synapseValues.my, let mz = synapseValues.mz {
                         res = self.synapseRecordFileManager.setSynapseRecordTotal(Double(mx), day: day, hour: hour, min: min, sec: sec, type: "mx")
                         res = self.synapseRecordFileManager.setSynapseRecordTotal(Double(my), day: day, hour: hour, min: min, sec: sec, type: "my")
@@ -6417,9 +4330,9 @@ class SynapseObject {
                         azDiff = abs(az - azBak)
                     }
                     //print("saveSynapseTotal aDiff: \(axDiff) \(ayDiff) \(azDiff)")
-                    res = synapseRecordFileManager.setSynapseRecordTotal(Double(axDiff), day: day, hour: hour, min: min, sec: sec, type: "ax_diff")
-                    res = synapseRecordFileManager.setSynapseRecordTotal(Double(ayDiff), day: day, hour: hour, min: min, sec: sec, type: "ay_diff")
-                    res = synapseRecordFileManager.setSynapseRecordTotal(Double(azDiff), day: day, hour: hour, min: min, sec: sec, type: "az_diff")
+                    res = synapseRecordFileManager.setSynapseRecordTotal(Double(axDiff), day: day, hour: hour, min: min, sec: sec, type: SynapseRecordTotalType.axDiff.rawValue)
+                    res = synapseRecordFileManager.setSynapseRecordTotal(Double(ayDiff), day: day, hour: hour, min: min, sec: sec, type: SynapseRecordTotalType.ayDiff.rawValue)
+                    res = synapseRecordFileManager.setSynapseRecordTotal(Double(azDiff), day: day, hour: hour, min: min, sec: sec, type: SynapseRecordTotalType.azDiff.rawValue)
                 }
                 if let gx = synapseValues.gx, let gy = synapseValues.gy, let gz = synapseValues.gz {
                     var gxDiff: Int = 0
@@ -6435,9 +4348,9 @@ class SynapseObject {
                         gzDiff = abs(gz - gzBak)
                     }
                     //print("saveSynapseTotal gDiff: \(gxDiff) \(gyDiff) \(gzDiff)")
-                    res = synapseRecordFileManager.setSynapseRecordTotal(Double(gxDiff), day: day, hour: hour, min: min, sec: sec, type: "gx_diff")
-                    res = synapseRecordFileManager.setSynapseRecordTotal(Double(gyDiff), day: day, hour: hour, min: min, sec: sec, type: "gy_diff")
-                    res = synapseRecordFileManager.setSynapseRecordTotal(Double(gzDiff), day: day, hour: hour, min: min, sec: sec, type: "gz_diff")
+                    res = synapseRecordFileManager.setSynapseRecordTotal(Double(gxDiff), day: day, hour: hour, min: min, sec: sec, type: SynapseRecordTotalType.gxDiff.rawValue)
+                    res = synapseRecordFileManager.setSynapseRecordTotal(Double(gyDiff), day: day, hour: hour, min: min, sec: sec, type: SynapseRecordTotalType.gyDiff.rawValue)
+                    res = synapseRecordFileManager.setSynapseRecordTotal(Double(gzDiff), day: day, hour: hour, min: min, sec: sec, type: SynapseRecordTotalType.gzDiff.rawValue)
                 }
             }
         }
@@ -6461,17 +4374,17 @@ class SynapseObject {
             self.synapseRecordFileManager?.setSynapseRecordTotalInHour(type: self.synapseCrystalInfo.co2.key, start: startDate)
         }
         if self.synapseCrystalInfo.move.hasGraph {
-            self.synapseRecordFileManager?.setSynapseRecordTotalInHour(type: "ax", start: startDate)
-            self.synapseRecordFileManager?.setSynapseRecordTotalInHour(type: "ay", start: startDate)
-            self.synapseRecordFileManager?.setSynapseRecordTotalInHour(type: "az", start: startDate)
+            self.synapseRecordFileManager?.setSynapseRecordTotalInHour(type: self.synapseCrystalInfo.ax.key, start: startDate)
+            self.synapseRecordFileManager?.setSynapseRecordTotalInHour(type: self.synapseCrystalInfo.ay.key, start: startDate)
+            self.synapseRecordFileManager?.setSynapseRecordTotalInHour(type: self.synapseCrystalInfo.az.key, start: startDate)
         }
         if self.synapseCrystalInfo.ill.hasGraph {
             self.synapseRecordFileManager?.setSynapseRecordTotalInHour(type: self.synapseCrystalInfo.ill.key, start: startDate)
         }
         if self.synapseCrystalInfo.angle.hasGraph {
-            self.synapseRecordFileManager?.setSynapseRecordTotalInHour(type: "gx", start: startDate)
-            self.synapseRecordFileManager?.setSynapseRecordTotalInHour(type: "gy", start: startDate)
-            self.synapseRecordFileManager?.setSynapseRecordTotalInHour(type: "gz", start: startDate)
+            self.synapseRecordFileManager?.setSynapseRecordTotalInHour(type: self.synapseCrystalInfo.gx.key, start: startDate)
+            self.synapseRecordFileManager?.setSynapseRecordTotalInHour(type: self.synapseCrystalInfo.gy.key, start: startDate)
+            self.synapseRecordFileManager?.setSynapseRecordTotalInHour(type: self.synapseCrystalInfo.gz.key, start: startDate)
         }
         if self.synapseCrystalInfo.temp.hasGraph {
             self.synapseRecordFileManager?.setSynapseRecordTotalInHour(type: self.synapseCrystalInfo.temp.key, start: startDate)
@@ -6488,901 +4401,33 @@ class SynapseObject {
         if self.synapseCrystalInfo.volt.hasGraph {
             self.synapseRecordFileManager?.setSynapseRecordTotalInHour(type: self.synapseCrystalInfo.volt.key, start: startDate)
         }
-        /*
-        if self.synapseCrystalInfo.mag.hasGraph {
+        /*if self.synapseCrystalInfo.mag.hasGraph {
             self.synapseRecordFileManager.setSynapseRecordTotalInHour(type: "mx")
             self.synapseRecordFileManager.setSynapseRecordTotalInHour(type: "my")
             self.synapseRecordFileManager.setSynapseRecordTotalInHour(type: "mz")
             self.synapseRecordFileManager.setSynapseRecordTotalInHour(type: self.synapseCrystalInfo.mag.key)
         }*/
 
-        self.synapseRecordFileManager?.setSynapseRecordTotalInHour(type: "ax_diff", start: startDate)
-        self.synapseRecordFileManager?.setSynapseRecordTotalInHour(type: "ay_diff", start: startDate)
-        self.synapseRecordFileManager?.setSynapseRecordTotalInHour(type: "az_diff", start: startDate)
-        self.synapseRecordFileManager?.setSynapseRecordTotalInHour(type: "gx_diff", start: startDate)
-        self.synapseRecordFileManager?.setSynapseRecordTotalInHour(type: "gy_diff", start: startDate)
-        self.synapseRecordFileManager?.setSynapseRecordTotalInHour(type: "gz_diff", start: startDate)
+        self.synapseRecordFileManager?.setSynapseRecordTotalInHour(type: SynapseRecordTotalType.axDiff.rawValue, start: startDate)
+        self.synapseRecordFileManager?.setSynapseRecordTotalInHour(type: SynapseRecordTotalType.ayDiff.rawValue, start: startDate)
+        self.synapseRecordFileManager?.setSynapseRecordTotalInHour(type: SynapseRecordTotalType.azDiff.rawValue, start: startDate)
+        self.synapseRecordFileManager?.setSynapseRecordTotalInHour(type: SynapseRecordTotalType.gxDiff.rawValue, start: startDate)
+        self.synapseRecordFileManager?.setSynapseRecordTotalInHour(type: SynapseRecordTotalType.gyDiff.rawValue, start: startDate)
+        self.synapseRecordFileManager?.setSynapseRecordTotalInHour(type: SynapseRecordTotalType.gzDiff.rawValue, start: startDate)
     }
 
     // MARK: mark - SynapseData MaxAndMin methods
 
     func setSynapseMaxAndMinValues() {
 
-        if let co2 = self.synapseValues.co2 {
-            let co2Val: Double = Double(co2)
-            if let dateStr = self.synapseDataMaxAndMins.co2.dateStr, let max = self.synapseDataMaxAndMins.co2.max, let maxNow = self.synapseDataMaxAndMins.co2.maxNow, let min = self.synapseDataMaxAndMins.co2.min, let minNow = self.synapseDataMaxAndMins.co2.minNow {
-                let dateNow: String = String(self.synapseNowDate[self.synapseNowDate.startIndex..<self.synapseNowDate.index(self.synapseNowDate.startIndex, offsetBy: 12)])
-                let dateCheck: String = String(dateStr[dateStr.startIndex..<dateStr.index(dateStr.startIndex, offsetBy: 12)])
-                //print("setSynapseMaxAndMinValues dateStr: \(dateNow) - \(dateCheck)")
-                if maxNow < co2Val {
-                    self.synapseDataMaxAndMins.co2.maxNow = co2Val
-                    self.synapseDataMaxAndMins.co2.updatedMax = true
-                }
-                if max < co2Val || dateNow != dateCheck {
-                    self.synapseDataMaxAndMins.co2.max = co2Val
-                    self.synapseDataMaxAndMins.co2.updatedMax = true
-                }
-                if minNow > co2Val {
-                    self.synapseDataMaxAndMins.co2.minNow = co2Val
-                    self.synapseDataMaxAndMins.co2.updatedMin = true
-                }
-                if min > co2Val || dateNow != dateCheck {
-                    self.synapseDataMaxAndMins.co2.min = co2Val
-                    self.synapseDataMaxAndMins.co2.updatedMin = true
-                }
-            }
-            else {
-                self.synapseDataMaxAndMins.co2.maxNow = co2Val
-                self.synapseDataMaxAndMins.co2.max = co2Val
-                self.synapseDataMaxAndMins.co2.minNow = co2Val
-                self.synapseDataMaxAndMins.co2.min = co2Val
-                self.synapseDataMaxAndMins.co2.updatedMax = true
-                self.synapseDataMaxAndMins.co2.updatedMin = true
-            }
-            self.synapseDataMaxAndMins.co2.dateStr = self.synapseNowDate
-        }
-        if let ax = self.synapseValues.ax {
-            let axVal: Double = Double(ax)
-            if let dateStr = self.synapseDataMaxAndMins.ax.dateStr, let max = self.synapseDataMaxAndMins.ax.max, let maxNow = self.synapseDataMaxAndMins.ax.maxNow, let min = self.synapseDataMaxAndMins.ax.min, let minNow = self.synapseDataMaxAndMins.ax.minNow {
-                let dateNow: String = String(self.synapseNowDate[self.synapseNowDate.startIndex..<self.synapseNowDate.index(self.synapseNowDate.startIndex, offsetBy: 12)])
-                let dateCheck: String = String(dateStr[dateStr.startIndex..<dateStr.index(dateStr.startIndex, offsetBy: 12)])
-                //print("setSynapseMaxAndMinValues dateStr: \(dateNow) - \(dateCheck)")
-                if maxNow < axVal {
-                    self.synapseDataMaxAndMins.ax.maxNow = axVal
-                    self.synapseDataMaxAndMins.ax.updatedMax = true
-                }
-                if max < axVal || dateNow != dateCheck {
-                    self.synapseDataMaxAndMins.ax.max = axVal
-                    self.synapseDataMaxAndMins.ax.updatedMax = true
-                }
-                if minNow > axVal {
-                    self.synapseDataMaxAndMins.ax.minNow = axVal
-                    self.synapseDataMaxAndMins.ax.updatedMin = true
-                }
-                if min > axVal || dateNow != dateCheck {
-                    self.synapseDataMaxAndMins.ax.min = axVal
-                    self.synapseDataMaxAndMins.ax.updatedMin = true
-                }
-            }
-            else {
-                self.synapseDataMaxAndMins.ax.maxNow = axVal
-                self.synapseDataMaxAndMins.ax.max = axVal
-                self.synapseDataMaxAndMins.ax.minNow = axVal
-                self.synapseDataMaxAndMins.ax.min = axVal
-                self.synapseDataMaxAndMins.ax.updatedMax = true
-                self.synapseDataMaxAndMins.ax.updatedMin = true
-            }
-            self.synapseDataMaxAndMins.ax.dateStr = self.synapseNowDate
-        }
-        if let ay = self.synapseValues.ay {
-            let ayVal: Double = Double(ay)
-            if let dateStr = self.synapseDataMaxAndMins.ay.dateStr, let max = self.synapseDataMaxAndMins.ay.max, let maxNow = self.synapseDataMaxAndMins.ay.maxNow, let min = self.synapseDataMaxAndMins.ay.min, let minNow = self.synapseDataMaxAndMins.ay.minNow {
-                let dateNow: String = String(self.synapseNowDate[self.synapseNowDate.startIndex..<self.synapseNowDate.index(self.synapseNowDate.startIndex, offsetBy: 12)])
-                let dateCheck: String = String(dateStr[dateStr.startIndex..<dateStr.index(dateStr.startIndex, offsetBy: 12)])
-                //print("setSynapseMaxAndMinValues dateStr: \(dateNow) - \(dateCheck)")
-                if maxNow < ayVal {
-                    self.synapseDataMaxAndMins.ay.maxNow = ayVal
-                    self.synapseDataMaxAndMins.ay.updatedMax = true
-                }
-                if max < ayVal || dateNow != dateCheck {
-                    self.synapseDataMaxAndMins.ay.max = ayVal
-                    self.synapseDataMaxAndMins.ay.updatedMax = true
-                }
-                if minNow > ayVal {
-                    self.synapseDataMaxAndMins.ay.minNow = ayVal
-                    self.synapseDataMaxAndMins.ay.updatedMin = true
-                }
-                if min > ayVal || dateNow != dateCheck {
-                    self.synapseDataMaxAndMins.ay.min = ayVal
-                    self.synapseDataMaxAndMins.ay.updatedMin = true
-                }
-            }
-            else {
-                self.synapseDataMaxAndMins.ay.maxNow = ayVal
-                self.synapseDataMaxAndMins.ay.max = ayVal
-                self.synapseDataMaxAndMins.ay.minNow = ayVal
-                self.synapseDataMaxAndMins.ay.min = ayVal
-                self.synapseDataMaxAndMins.ay.updatedMax = true
-                self.synapseDataMaxAndMins.ay.updatedMin = true
-            }
-            self.synapseDataMaxAndMins.ay.dateStr = self.synapseNowDate
-        }
-        if let az = self.synapseValues.az {
-            let azVal: Double = Double(az)
-            if let dateStr = self.synapseDataMaxAndMins.az.dateStr, let max = self.synapseDataMaxAndMins.az.max, let maxNow = self.synapseDataMaxAndMins.az.maxNow, let min = self.synapseDataMaxAndMins.az.min, let minNow = self.synapseDataMaxAndMins.az.minNow {
-                let dateNow: String = String(self.synapseNowDate[self.synapseNowDate.startIndex..<self.synapseNowDate.index(self.synapseNowDate.startIndex, offsetBy: 12)])
-                let dateCheck: String = String(dateStr[dateStr.startIndex..<dateStr.index(dateStr.startIndex, offsetBy: 12)])
-                //print("setSynapseMaxAndMinValues dateStr: \(dateNow) - \(dateCheck)")
-                if maxNow < azVal {
-                    self.synapseDataMaxAndMins.az.maxNow = azVal
-                    self.synapseDataMaxAndMins.az.updatedMax = true
-                }
-                if max < azVal || dateNow != dateCheck {
-                    self.synapseDataMaxAndMins.az.max = azVal
-                    self.synapseDataMaxAndMins.az.updatedMax = true
-                }
-                if minNow > azVal {
-                    self.synapseDataMaxAndMins.az.minNow = azVal
-                    self.synapseDataMaxAndMins.az.updatedMin = true
-                }
-                if min > azVal || dateNow != dateCheck {
-                    self.synapseDataMaxAndMins.az.min = azVal
-                    self.synapseDataMaxAndMins.az.updatedMin = true
-                }
-            }
-            else {
-                self.synapseDataMaxAndMins.az.maxNow = azVal
-                self.synapseDataMaxAndMins.az.max = azVal
-                self.synapseDataMaxAndMins.az.minNow = azVal
-                self.synapseDataMaxAndMins.az.min = azVal
-                self.synapseDataMaxAndMins.az.updatedMax = true
-                self.synapseDataMaxAndMins.az.updatedMin = true
-            }
-            self.synapseDataMaxAndMins.az.dateStr = self.synapseNowDate
-        }
-        if let light = self.synapseValues.light {
-            let lightVal: Double = Double(light)
-            if let dateStr = self.synapseDataMaxAndMins.light.dateStr, let max = self.synapseDataMaxAndMins.light.max, let maxNow = self.synapseDataMaxAndMins.light.maxNow, let min = self.synapseDataMaxAndMins.light.min, let minNow = self.synapseDataMaxAndMins.light.minNow {
-                let dateNow: String = String(self.synapseNowDate[self.synapseNowDate.startIndex..<self.synapseNowDate.index(self.synapseNowDate.startIndex, offsetBy: 12)])
-                let dateCheck: String = String(dateStr[dateStr.startIndex..<dateStr.index(dateStr.startIndex, offsetBy: 12)])
-                //print("setSynapseMaxAndMinValues dateStr: \(dateNow) - \(dateCheck)")
-                if maxNow < lightVal {
-                    self.synapseDataMaxAndMins.light.maxNow = lightVal
-                    self.synapseDataMaxAndMins.light.updatedMax = true
-                }
-                if max < lightVal || dateNow != dateCheck {
-                    self.synapseDataMaxAndMins.light.max = lightVal
-                    self.synapseDataMaxAndMins.light.updatedMax = true
-                }
-                if minNow > lightVal {
-                    self.synapseDataMaxAndMins.light.minNow = lightVal
-                    self.synapseDataMaxAndMins.light.updatedMin = true
-                }
-                if min > lightVal || dateNow != dateCheck {
-                    self.synapseDataMaxAndMins.light.min = lightVal
-                    self.synapseDataMaxAndMins.light.updatedMin = true
-                }
-            }
-            else {
-                self.synapseDataMaxAndMins.light.maxNow = lightVal
-                self.synapseDataMaxAndMins.light.max = lightVal
-                self.synapseDataMaxAndMins.light.minNow = lightVal
-                self.synapseDataMaxAndMins.light.min = lightVal
-                self.synapseDataMaxAndMins.light.updatedMax = true
-                self.synapseDataMaxAndMins.light.updatedMin = true
-            }
-            self.synapseDataMaxAndMins.light.dateStr = self.synapseNowDate
-        }
-        if let gx = self.synapseValues.gx {
-            let gxVal: Double = Double(gx)
-            if let dateStr = self.synapseDataMaxAndMins.gx.dateStr, let max = self.synapseDataMaxAndMins.gx.max, let maxNow = self.synapseDataMaxAndMins.gx.maxNow, let min = self.synapseDataMaxAndMins.gx.min, let minNow = self.synapseDataMaxAndMins.gx.minNow {
-                let dateNow: String = String(self.synapseNowDate[self.synapseNowDate.startIndex..<self.synapseNowDate.index(self.synapseNowDate.startIndex, offsetBy: 12)])
-                let dateCheck: String = String(dateStr[dateStr.startIndex..<dateStr.index(dateStr.startIndex, offsetBy: 12)])
-                //print("setSynapseMaxAndMinValues dateStr: \(dateNow) - \(dateCheck)")
-                if maxNow < gxVal {
-                    self.synapseDataMaxAndMins.gx.maxNow = gxVal
-                    self.synapseDataMaxAndMins.gx.updatedMax = true
-                }
-                if max < gxVal || dateNow != dateCheck {
-                    self.synapseDataMaxAndMins.gx.max = gxVal
-                    self.synapseDataMaxAndMins.gx.updatedMax = true
-                }
-                if minNow > gxVal {
-                    self.synapseDataMaxAndMins.gx.minNow = gxVal
-                    self.synapseDataMaxAndMins.gx.updatedMin = true
-                }
-                if min > gxVal || dateNow != dateCheck {
-                    self.synapseDataMaxAndMins.gx.min = gxVal
-                    self.synapseDataMaxAndMins.gx.updatedMin = true
-                }
-            }
-            else {
-                self.synapseDataMaxAndMins.gx.maxNow = gxVal
-                self.synapseDataMaxAndMins.gx.max = gxVal
-                self.synapseDataMaxAndMins.gx.minNow = gxVal
-                self.synapseDataMaxAndMins.gx.min = gxVal
-                self.synapseDataMaxAndMins.gx.updatedMax = true
-                self.synapseDataMaxAndMins.gx.updatedMin = true
-            }
-            self.synapseDataMaxAndMins.gx.dateStr = self.synapseNowDate
-        }
-        if let gy = self.synapseValues.gy {
-            let gyVal: Double = Double(gy)
-            if let dateStr = self.synapseDataMaxAndMins.gy.dateStr, let max = self.synapseDataMaxAndMins.gy.max, let maxNow = self.synapseDataMaxAndMins.gy.maxNow, let min = self.synapseDataMaxAndMins.gy.min, let minNow = self.synapseDataMaxAndMins.gy.minNow {
-                let dateNow: String = String(self.synapseNowDate[self.synapseNowDate.startIndex..<self.synapseNowDate.index(self.synapseNowDate.startIndex, offsetBy: 12)])
-                let dateCheck: String = String(dateStr[dateStr.startIndex..<dateStr.index(dateStr.startIndex, offsetBy: 12)])
-                //print("setSynapseMaxAndMinValues dateStr: \(dateNow) - \(dateCheck)")
-                if maxNow < gyVal {
-                    self.synapseDataMaxAndMins.gy.maxNow = gyVal
-                    self.synapseDataMaxAndMins.gy.updatedMax = true
-                }
-                if max < gyVal || dateNow != dateCheck {
-                    self.synapseDataMaxAndMins.gy.max = gyVal
-                    self.synapseDataMaxAndMins.gy.updatedMax = true
-                }
-                if minNow > gyVal {
-                    self.synapseDataMaxAndMins.gy.minNow = gyVal
-                    self.synapseDataMaxAndMins.gy.updatedMin = true
-                }
-                if min > gyVal || dateNow != dateCheck {
-                    self.synapseDataMaxAndMins.gy.min = gyVal
-                    self.synapseDataMaxAndMins.gy.updatedMin = true
-                }
-            }
-            else {
-                self.synapseDataMaxAndMins.gy.maxNow = gyVal
-                self.synapseDataMaxAndMins.gy.max = gyVal
-                self.synapseDataMaxAndMins.gy.minNow = gyVal
-                self.synapseDataMaxAndMins.gy.min = gyVal
-                self.synapseDataMaxAndMins.gy.updatedMax = true
-                self.synapseDataMaxAndMins.gy.updatedMin = true
-            }
-            self.synapseDataMaxAndMins.gy.dateStr = self.synapseNowDate
-        }
-        if let gz = self.synapseValues.gz {
-            let gzVal: Double = Double(gz)
-            if let dateStr = self.synapseDataMaxAndMins.gz.dateStr, let max = self.synapseDataMaxAndMins.gz.max, let maxNow = self.synapseDataMaxAndMins.gz.maxNow, let min = self.synapseDataMaxAndMins.gz.min, let minNow = self.synapseDataMaxAndMins.gz.minNow {
-                let dateNow: String = String(self.synapseNowDate[self.synapseNowDate.startIndex..<self.synapseNowDate.index(self.synapseNowDate.startIndex, offsetBy: 12)])
-                let dateCheck: String = String(dateStr[dateStr.startIndex..<dateStr.index(dateStr.startIndex, offsetBy: 12)])
-                //print("setSynapseMaxAndMinValues dateStr: \(dateNow) - \(dateCheck)")
-                if maxNow < gzVal {
-                    self.synapseDataMaxAndMins.gz.maxNow = gzVal
-                    self.synapseDataMaxAndMins.gz.updatedMax = true
-                }
-                if max < gzVal || dateNow != dateCheck {
-                    self.synapseDataMaxAndMins.gz.max = gzVal
-                    self.synapseDataMaxAndMins.gz.updatedMax = true
-                }
-                if minNow > gzVal {
-                    self.synapseDataMaxAndMins.gz.minNow = gzVal
-                    self.synapseDataMaxAndMins.gz.updatedMin = true
-                }
-                if min > gzVal || dateNow != dateCheck {
-                    self.synapseDataMaxAndMins.gz.min = gzVal
-                    self.synapseDataMaxAndMins.gz.updatedMin = true
-                }
-            }
-            else {
-                self.synapseDataMaxAndMins.gz.maxNow = gzVal
-                self.synapseDataMaxAndMins.gz.max = gzVal
-                self.synapseDataMaxAndMins.gz.minNow = gzVal
-                self.synapseDataMaxAndMins.gz.min = gzVal
-                self.synapseDataMaxAndMins.gz.updatedMax = true
-                self.synapseDataMaxAndMins.gz.updatedMin = true
-            }
-            self.synapseDataMaxAndMins.gz.dateStr = self.synapseNowDate
-        }
-        if let press = self.synapseValues.pressure {
-            let pressVal: Double = Double(press)
-            if let dateStr = self.synapseDataMaxAndMins.press.dateStr, let max = self.synapseDataMaxAndMins.press.max, let maxNow = self.synapseDataMaxAndMins.press.maxNow, let min = self.synapseDataMaxAndMins.press.min, let minNow = self.synapseDataMaxAndMins.press.minNow {
-                let dateNow: String = String(self.synapseNowDate[self.synapseNowDate.startIndex..<self.synapseNowDate.index(self.synapseNowDate.startIndex, offsetBy: 12)])
-                let dateCheck: String = String(dateStr[dateStr.startIndex..<dateStr.index(dateStr.startIndex, offsetBy: 12)])
-                //print("setSynapseMaxAndMinValues dateStr: \(dateNow) - \(dateCheck)")
-                if maxNow < pressVal {
-                    self.synapseDataMaxAndMins.press.maxNow = pressVal
-                    self.synapseDataMaxAndMins.press.updatedMax = true
-                }
-                if max < pressVal || dateNow != dateCheck {
-                    self.synapseDataMaxAndMins.press.max = pressVal
-                    self.synapseDataMaxAndMins.press.updatedMax = true
-                }
-                if minNow > pressVal {
-                    self.synapseDataMaxAndMins.press.minNow = pressVal
-                    self.synapseDataMaxAndMins.press.updatedMin = true
-                }
-                if min > pressVal || dateNow != dateCheck {
-                    self.synapseDataMaxAndMins.press.min = pressVal
-                    self.synapseDataMaxAndMins.press.updatedMin = true
-                }
-            }
-            else {
-                self.synapseDataMaxAndMins.press.maxNow = pressVal
-                self.synapseDataMaxAndMins.press.max = pressVal
-                self.synapseDataMaxAndMins.press.minNow = pressVal
-                self.synapseDataMaxAndMins.press.min = pressVal
-                self.synapseDataMaxAndMins.press.updatedMax = true
-                self.synapseDataMaxAndMins.press.updatedMin = true
-            }
-            self.synapseDataMaxAndMins.press.dateStr = self.synapseNowDate
-        }
-        if let temp = self.synapseValues.temp {
-            let tempVal: Double = Double(temp)
-            if let dateStr = self.synapseDataMaxAndMins.temp.dateStr, let max = self.synapseDataMaxAndMins.temp.max, let maxNow = self.synapseDataMaxAndMins.temp.maxNow, let min = self.synapseDataMaxAndMins.temp.min, let minNow = self.synapseDataMaxAndMins.temp.minNow {
-                let dateNow: String = String(self.synapseNowDate[self.synapseNowDate.startIndex..<self.synapseNowDate.index(self.synapseNowDate.startIndex, offsetBy: 12)])
-                let dateCheck: String = String(dateStr[dateStr.startIndex..<dateStr.index(dateStr.startIndex, offsetBy: 12)])
-                //print("setSynapseMaxAndMinValues dateStr: \(dateNow) - \(dateCheck)")
-                if maxNow < tempVal {
-                    self.synapseDataMaxAndMins.temp.maxNow = tempVal
-                    self.synapseDataMaxAndMins.temp.updatedMax = true
-                }
-                if max < tempVal || dateNow != dateCheck {
-                    self.synapseDataMaxAndMins.temp.max = tempVal
-                    self.synapseDataMaxAndMins.temp.updatedMax = true
-                }
-                if minNow > tempVal {
-                    self.synapseDataMaxAndMins.temp.minNow = tempVal
-                    self.synapseDataMaxAndMins.temp.updatedMin = true
-                }
-                if min > tempVal || dateNow != dateCheck {
-                    self.synapseDataMaxAndMins.temp.min = tempVal
-                    self.synapseDataMaxAndMins.temp.updatedMin = true
-                }
-            }
-            else {
-                self.synapseDataMaxAndMins.temp.maxNow = tempVal
-                self.synapseDataMaxAndMins.temp.max = tempVal
-                self.synapseDataMaxAndMins.temp.minNow = tempVal
-                self.synapseDataMaxAndMins.temp.min = tempVal
-                self.synapseDataMaxAndMins.temp.updatedMax = true
-                self.synapseDataMaxAndMins.temp.updatedMin = true
-            }
-            self.synapseDataMaxAndMins.temp.dateStr = self.synapseNowDate
-        }
-        if let hum = self.synapseValues.humidity {
-            let humVal: Double = Double(hum)
-            if let dateStr = self.synapseDataMaxAndMins.hum.dateStr, let max = self.synapseDataMaxAndMins.hum.max, let maxNow = self.synapseDataMaxAndMins.hum.maxNow, let min = self.synapseDataMaxAndMins.hum.min, let minNow = self.synapseDataMaxAndMins.hum.minNow {
-                let dateNow: String = String(self.synapseNowDate[self.synapseNowDate.startIndex..<self.synapseNowDate.index(self.synapseNowDate.startIndex, offsetBy: 12)])
-                let dateCheck: String = String(dateStr[dateStr.startIndex..<dateStr.index(dateStr.startIndex, offsetBy: 12)])
-                //print("setSynapseMaxAndMinValues dateStr: \(dateNow) - \(dateCheck)")
-                if maxNow < humVal {
-                    self.synapseDataMaxAndMins.hum.maxNow = humVal
-                    self.synapseDataMaxAndMins.hum.updatedMax = true
-                }
-                if max < humVal || dateNow != dateCheck {
-                    self.synapseDataMaxAndMins.hum.max = humVal
-                    self.synapseDataMaxAndMins.hum.updatedMax = true
-                }
-                if minNow > humVal {
-                    self.synapseDataMaxAndMins.hum.minNow = humVal
-                    self.synapseDataMaxAndMins.hum.updatedMin = true
-                }
-                if min > humVal || dateNow != dateCheck {
-                    self.synapseDataMaxAndMins.hum.min = humVal
-                    self.synapseDataMaxAndMins.hum.updatedMin = true
-                }
-            }
-            else {
-                self.synapseDataMaxAndMins.hum.maxNow = humVal
-                self.synapseDataMaxAndMins.hum.max = humVal
-                self.synapseDataMaxAndMins.hum.minNow = humVal
-                self.synapseDataMaxAndMins.hum.min = humVal
-                self.synapseDataMaxAndMins.hum.updatedMax = true
-                self.synapseDataMaxAndMins.hum.updatedMin = true
-            }
-            self.synapseDataMaxAndMins.hum.dateStr = self.synapseNowDate
-        }
-        if let sound = self.synapseValues.sound {
-            let soundVal: Double = Double(sound)
-            if let dateStr = self.synapseDataMaxAndMins.sound.dateStr, let max = self.synapseDataMaxAndMins.sound.max, let maxNow = self.synapseDataMaxAndMins.sound.maxNow, let min = self.synapseDataMaxAndMins.sound.min, let minNow = self.synapseDataMaxAndMins.sound.minNow {
-                let dateNow: String = String(self.synapseNowDate[self.synapseNowDate.startIndex..<self.synapseNowDate.index(self.synapseNowDate.startIndex, offsetBy: 12)])
-                let dateCheck: String = String(dateStr[dateStr.startIndex..<dateStr.index(dateStr.startIndex, offsetBy: 12)])
-                //print("setSynapseMaxAndMinValues dateStr: \(dateNow) - \(dateCheck)")
-                if maxNow < soundVal {
-                    self.synapseDataMaxAndMins.sound.maxNow = soundVal
-                    self.synapseDataMaxAndMins.sound.updatedMax = true
-                }
-                if max < soundVal || dateNow != dateCheck {
-                    self.synapseDataMaxAndMins.sound.max = soundVal
-                    self.synapseDataMaxAndMins.sound.updatedMax = true
-                }
-                if minNow > soundVal {
-                    self.synapseDataMaxAndMins.sound.minNow = soundVal
-                    self.synapseDataMaxAndMins.sound.updatedMin = true
-                }
-                if min > soundVal || dateNow != dateCheck {
-                    self.synapseDataMaxAndMins.sound.min = soundVal
-                    self.synapseDataMaxAndMins.sound.updatedMin = true
-                }
-            }
-            else {
-                self.synapseDataMaxAndMins.sound.maxNow = soundVal
-                self.synapseDataMaxAndMins.sound.max = soundVal
-                self.synapseDataMaxAndMins.sound.minNow = soundVal
-                self.synapseDataMaxAndMins.sound.min = soundVal
-                self.synapseDataMaxAndMins.sound.updatedMax = true
-                self.synapseDataMaxAndMins.sound.updatedMin = true
-            }
-            self.synapseDataMaxAndMins.sound.dateStr = self.synapseNowDate
-        }
-        if let volt = self.synapseValues.power {
-            let voltVal: Double = Double(volt)
-            if let dateStr = self.synapseDataMaxAndMins.volt.dateStr, let max = self.synapseDataMaxAndMins.volt.max, let maxNow = self.synapseDataMaxAndMins.volt.maxNow, let min = self.synapseDataMaxAndMins.volt.min, let minNow = self.synapseDataMaxAndMins.volt.minNow {
-                let dateNow: String = String(self.synapseNowDate[self.synapseNowDate.startIndex..<self.synapseNowDate.index(self.synapseNowDate.startIndex, offsetBy: 12)])
-                let dateCheck: String = String(dateStr[dateStr.startIndex..<dateStr.index(dateStr.startIndex, offsetBy: 12)])
-                //print("setSynapseMaxAndMinValues dateStr: \(dateNow) - \(dateCheck)")
-                if maxNow < voltVal {
-                    self.synapseDataMaxAndMins.volt.maxNow = voltVal
-                    self.synapseDataMaxAndMins.volt.updatedMax = true
-                }
-                if max < voltVal || dateNow != dateCheck {
-                    self.synapseDataMaxAndMins.volt.max = voltVal
-                    self.synapseDataMaxAndMins.volt.updatedMax = true
-                }
-                if minNow > voltVal {
-                    self.synapseDataMaxAndMins.volt.minNow = voltVal
-                    self.synapseDataMaxAndMins.volt.updatedMin = true
-                }
-                if min > voltVal || dateNow != dateCheck {
-                    self.synapseDataMaxAndMins.volt.min = voltVal
-                    self.synapseDataMaxAndMins.volt.updatedMin = true
-                }
-            }
-            else {
-                self.synapseDataMaxAndMins.volt.maxNow = voltVal
-                self.synapseDataMaxAndMins.volt.max = voltVal
-                self.synapseDataMaxAndMins.volt.minNow = voltVal
-                self.synapseDataMaxAndMins.volt.min = voltVal
-                self.synapseDataMaxAndMins.volt.updatedMax = true
-                self.synapseDataMaxAndMins.volt.updatedMin = true
-            }
-            self.synapseDataMaxAndMins.volt.dateStr = self.synapseNowDate
-        }
-        /*
-        if let mx = synapseValues.mx {
-            let mxVal: Double = Double(mx)
-            if let dateStr = self.synapseDataMaxAndMins.mx.dateStr, let max = self.synapseDataMaxAndMins.mx.max, let maxNow = self.synapseDataMaxAndMins.mx.maxNow, let min = self.synapseDataMaxAndMins.mx.min, let minNow = self.synapseDataMaxAndMins.mx.minNow {
-                let dateNow: String = self.synapseNowDate.substring(to: self.synapseNowDate.index(self.synapseNowDate.startIndex, offsetBy: 12))
-                let dateCheck: String = dateStr.substring(to: dateStr.index(dateStr.startIndex, offsetBy: 12))
-                if maxNow < mxVal {
-                    self.synapseDataMaxAndMins.mx.maxNow = mxVal
-                    self.synapseDataMaxAndMins.mx.updatedMax = true
-                }
-                if max < mxVal || dateNow != dateCheck {
-                    self.synapseDataMaxAndMins.mx.max = mxVal
-                    self.synapseDataMaxAndMins.mx.updatedMax = true
-                }
-                if minNow > mxVal {
-                    self.synapseDataMaxAndMins.mx.minNow = mxVal
-                    self.synapseDataMaxAndMins.mx.updatedMin = true
-                }
-                if min > mxVal || dateNow != dateCheck {
-                    self.synapseDataMaxAndMins.mx.min = mxVal
-                    self.synapseDataMaxAndMins.mx.updatedMin = true
-                }
-            }
-            else {
-                self.synapseDataMaxAndMins.mx.maxNow = mxVal
-                self.synapseDataMaxAndMins.mx.max = mxVal
-                self.synapseDataMaxAndMins.mx.minNow = mxVal
-                self.synapseDataMaxAndMins.mx.min = mxVal
-                self.synapseDataMaxAndMins.mx.updatedMax = true
-                self.synapseDataMaxAndMins.mx.updatedMin = true
-            }
-            self.synapseDataMaxAndMins.mx.dateStr = self.synapseNowDate
-        }
-        if let my = synapseValues.my {
-            let myVal: Double = Double(my)
-            if let dateStr = self.synapseDataMaxAndMins.my.dateStr, let max = self.synapseDataMaxAndMins.my.max, let maxNow = self.synapseDataMaxAndMins.my.maxNow, let min = self.synapseDataMaxAndMins.my.min, let minNow = self.synapseDataMaxAndMins.my.minNow {
-                let dateNow: String = self.synapseNowDate.substring(to: self.synapseNowDate.index(self.synapseNowDate.startIndex, offsetBy: 12))
-                let dateCheck: String = dateStr.substring(to: dateStr.index(dateStr.startIndex, offsetBy: 12))
-                if maxNow < myVal {
-                    self.synapseDataMaxAndMins.my.maxNow = myVal
-                    self.synapseDataMaxAndMins.my.updatedMax = true
-                }
-                if max < myVal || dateNow != dateCheck {
-                    self.synapseDataMaxAndMins.my.max = myVal
-                    self.synapseDataMaxAndMins.my.updatedMax = true
-                }
-                if minNow > myVal {
-                    self.synapseDataMaxAndMins.my.minNow = myVal
-                    self.synapseDataMaxAndMins.my.updatedMin = true
-                }
-                if min > myVal || dateNow != dateCheck {
-                    self.synapseDataMaxAndMins.my.min = myVal
-                    self.synapseDataMaxAndMins.my.updatedMin = true
-                }
-            }
-            else {
-                self.synapseDataMaxAndMins.my.maxNow = myVal
-                self.synapseDataMaxAndMins.my.max = myVal
-                self.synapseDataMaxAndMins.my.minNow = myVal
-                self.synapseDataMaxAndMins.my.min = myVal
-                self.synapseDataMaxAndMins.my.updatedMax = true
-                self.synapseDataMaxAndMins.my.updatedMin = true
-            }
-            self.synapseDataMaxAndMins.my.dateStr = self.synapseNowDate
-        }
-        if let mz = synapseValues.mz {
-            let mzVal: Double = Double(mz)
-            if let dateStr = self.synapseDataMaxAndMins.mz.dateStr, let max = self.synapseDataMaxAndMins.mz.max, let maxNow = self.synapseDataMaxAndMins.mz.maxNow, let min = self.synapseDataMaxAndMins.mz.min, let minNow = self.synapseDataMaxAndMins.mz.minNow {
-                let dateNow: String = self.synapseNowDate.substring(to: self.synapseNowDate.index(self.synapseNowDate.startIndex, offsetBy: 12))
-                let dateCheck: String = dateStr.substring(to: dateStr.index(dateStr.startIndex, offsetBy: 12))
-                if maxNow < mzVal {
-                    self.synapseDataMaxAndMins.mz.maxNow = mzVal
-                    self.synapseDataMaxAndMins.mz.updatedMax = true
-                }
-                if max < mzVal || dateNow != dateCheck {
-                    self.synapseDataMaxAndMins.mz.max = mzVal
-                    self.synapseDataMaxAndMins.mz.updatedMax = true
-                }
-                if minNow > mzVal {
-                    self.synapseDataMaxAndMins.mz.minNow = mzVal
-                    self.synapseDataMaxAndMins.mz.updatedMin = true
-                }
-                if min > mzVal || dateNow != dateCheck {
-                    self.synapseDataMaxAndMins.mz.min = mzVal
-                    self.synapseDataMaxAndMins.mz.updatedMin = true
-                }
-            }
-            else {
-                self.synapseDataMaxAndMins.mz.maxNow = mzVal
-                self.synapseDataMaxAndMins.mz.max = mzVal
-                self.synapseDataMaxAndMins.mz.minNow = mzVal
-                self.synapseDataMaxAndMins.mz.min = mzVal
-                self.synapseDataMaxAndMins.mz.updatedMax = true
-                self.synapseDataMaxAndMins.mz.updatedMin = true
-            }
-            self.synapseDataMaxAndMins.mz.dateStr = self.synapseNowDate
-        }*/
+        self.synapseDataMaxAndMins.setValues(synapseValues: self.synapseValues, nowStr: self.synapseNowDate)
     }
 
     func saveSynapseMaxAndMinValues() {
 
-        if self.synapseCrystalInfo.co2.hasGraph {
-            if let dateStr = self.synapseDataMaxAndMins.co2.dateStr {
-                if let max = self.synapseDataMaxAndMins.co2.max, let updated = self.synapseDataMaxAndMins.co2.updatedMax {
-                    if updated {
-                        if self.saveSynapseMaxAndMinValue(value: max, date: dateStr, type: self.synapseCrystalInfo.co2.key, valueType: "max") {
-                            self.synapseDataMaxAndMins.co2.updatedMax = false
-                        }
-                    }
-                }
-                if let min = self.synapseDataMaxAndMins.co2.min, let updated = self.synapseDataMaxAndMins.co2.updatedMin {
-                    if updated {
-                        if self.saveSynapseMaxAndMinValue(value: min, date: dateStr, type: self.synapseCrystalInfo.co2.key, valueType: "min") {
-                            self.synapseDataMaxAndMins.co2.updatedMin = false
-                        }
-                    }
-                }
-            }
+        if let synapseRecordFileManager = self.synapseRecordFileManager {
+            self.synapseDataMaxAndMins.saveValues(synapseRecordFileManager: synapseRecordFileManager)
         }
-        if self.synapseCrystalInfo.move.hasGraph {
-            if let dateStr = self.synapseDataMaxAndMins.ax.dateStr {
-                if let max = self.synapseDataMaxAndMins.ax.max, let updated = self.synapseDataMaxAndMins.ax.updatedMax {
-                    if updated {
-                        if self.saveSynapseMaxAndMinValue(value: max, date: dateStr, type: "ax", valueType: "max") {
-                            self.synapseDataMaxAndMins.ax.updatedMax = false
-                        }
-                    }
-                }
-                if let min = self.synapseDataMaxAndMins.ax.min, let updated = self.synapseDataMaxAndMins.ax.updatedMin {
-                    if updated {
-                        if self.saveSynapseMaxAndMinValue(value: min, date: dateStr, type: "ax", valueType: "min") {
-                            self.synapseDataMaxAndMins.ax.updatedMin = false
-                        }
-                    }
-                }
-            }
-            if let dateStr = self.synapseDataMaxAndMins.ay.dateStr {
-                if let max = self.synapseDataMaxAndMins.ay.max, let updated = self.synapseDataMaxAndMins.ay.updatedMax {
-                    if updated {
-                        if self.saveSynapseMaxAndMinValue(value: max, date: dateStr, type: "ay", valueType: "max") {
-                            self.synapseDataMaxAndMins.ay.updatedMax = false
-                        }
-                    }
-                }
-                if let min = self.synapseDataMaxAndMins.ay.min, let updated = self.synapseDataMaxAndMins.ay.updatedMin {
-                    if updated {
-                        if self.saveSynapseMaxAndMinValue(value: min, date: dateStr, type: "ay", valueType: "min") {
-                            self.synapseDataMaxAndMins.ay.updatedMin = false
-                        }
-                    }
-                }
-            }
-            if let dateStr = self.synapseDataMaxAndMins.az.dateStr {
-                if let max = self.synapseDataMaxAndMins.az.max, let updated = self.synapseDataMaxAndMins.az.updatedMax {
-                    if updated {
-                        if self.saveSynapseMaxAndMinValue(value: max, date: dateStr, type: "az", valueType: "max") {
-                            self.synapseDataMaxAndMins.az.updatedMax = false
-                        }
-                    }
-                }
-                if let min = self.synapseDataMaxAndMins.az.min, let updated = self.synapseDataMaxAndMins.az.updatedMin {
-                    if updated {
-                        if self.saveSynapseMaxAndMinValue(value: min, date: dateStr, type: "az", valueType: "min") {
-                            self.synapseDataMaxAndMins.az.updatedMin = false
-                        }
-                    }
-                }
-            }
-        }
-        if self.synapseCrystalInfo.ill.hasGraph {
-            if let dateStr = self.synapseDataMaxAndMins.light.dateStr {
-                if let max = self.synapseDataMaxAndMins.light.max, let updated = self.synapseDataMaxAndMins.light.updatedMax {
-                    if updated {
-                        if self.saveSynapseMaxAndMinValue(value: max, date: dateStr, type: self.synapseCrystalInfo.ill.key, valueType: "max") {
-                            self.synapseDataMaxAndMins.light.updatedMax = false
-                        }
-                    }
-                }
-                if let min = self.synapseDataMaxAndMins.light.min, let updated = self.synapseDataMaxAndMins.light.updatedMin {
-                    if updated {
-                        if self.saveSynapseMaxAndMinValue(value: min, date: dateStr, type: self.synapseCrystalInfo.ill.key, valueType: "min") {
-                            self.synapseDataMaxAndMins.light.updatedMin = false
-                        }
-                    }
-                }
-            }
-        }
-        if self.synapseCrystalInfo.angle.hasGraph {
-            if let dateStr = self.synapseDataMaxAndMins.gx.dateStr {
-                if let max = self.synapseDataMaxAndMins.gx.max, let updated = self.synapseDataMaxAndMins.gx.updatedMax {
-                    if updated {
-                        if self.saveSynapseMaxAndMinValue(value: max, date: dateStr, type: "gx", valueType: "max") {
-                            self.synapseDataMaxAndMins.gx.updatedMax = false
-                        }
-                    }
-                }
-                if let min = self.synapseDataMaxAndMins.gx.min, let updated = self.synapseDataMaxAndMins.gx.updatedMin {
-                    if updated {
-                        if self.saveSynapseMaxAndMinValue(value: min, date: dateStr, type: "gx", valueType: "min") {
-                            self.synapseDataMaxAndMins.gx.updatedMin = false
-                        }
-                    }
-                }
-            }
-            if let dateStr = self.synapseDataMaxAndMins.gy.dateStr {
-                if let max = self.synapseDataMaxAndMins.gy.max, let updated = self.synapseDataMaxAndMins.gy.updatedMax {
-                    if updated {
-                        if self.saveSynapseMaxAndMinValue(value: max, date: dateStr, type: "gy", valueType: "max") {
-                            self.synapseDataMaxAndMins.gy.updatedMax = false
-                        }
-                    }
-                }
-                if let min = self.synapseDataMaxAndMins.gy.min, let updated = self.synapseDataMaxAndMins.gy.updatedMin {
-                    if updated {
-                        if self.saveSynapseMaxAndMinValue(value: min, date: dateStr, type: "gy", valueType: "min") {
-                            self.synapseDataMaxAndMins.gy.updatedMin = false
-                        }
-                    }
-                }
-            }
-            if let dateStr = self.synapseDataMaxAndMins.gz.dateStr {
-                if let max = self.synapseDataMaxAndMins.gz.max, let updated = self.synapseDataMaxAndMins.gz.updatedMax {
-                    if updated {
-                        if self.saveSynapseMaxAndMinValue(value: max, date: dateStr, type: "gz", valueType: "max") {
-                            self.synapseDataMaxAndMins.gz.updatedMax = false
-                        }
-                    }
-                }
-                if let min = self.synapseDataMaxAndMins.gz.min, let updated = self.synapseDataMaxAndMins.gz.updatedMin {
-                    if updated {
-                        if self.saveSynapseMaxAndMinValue(value: min, date: dateStr, type: "gz", valueType: "min") {
-                            self.synapseDataMaxAndMins.gz.updatedMin = false
-                        }
-                    }
-                }
-            }
-        }
-        if self.synapseCrystalInfo.temp.hasGraph {
-            if let dateStr = self.synapseDataMaxAndMins.temp.dateStr {
-                if let max = self.synapseDataMaxAndMins.temp.max, let updated = self.synapseDataMaxAndMins.temp.updatedMax {
-                    if updated {
-                        if self.saveSynapseMaxAndMinValue(value: max, date: dateStr, type: self.synapseCrystalInfo.temp.key, valueType: "max") {
-                            self.synapseDataMaxAndMins.temp.updatedMax = false
-                        }
-                    }
-                }
-                if let min = self.synapseDataMaxAndMins.temp.min, let updated = self.synapseDataMaxAndMins.temp.updatedMin {
-                    if updated {
-                        if self.saveSynapseMaxAndMinValue(value: min, date: dateStr, type: self.synapseCrystalInfo.temp.key, valueType: "min") {
-                            self.synapseDataMaxAndMins.temp.updatedMin = false
-                        }
-                    }
-                }
-            }
-        }
-        if self.synapseCrystalInfo.hum.hasGraph {
-            if let dateStr = self.synapseDataMaxAndMins.hum.dateStr {
-                if let max = self.synapseDataMaxAndMins.hum.max, let updated = self.synapseDataMaxAndMins.hum.updatedMax {
-                    if updated {
-                        if self.saveSynapseMaxAndMinValue(value: max, date: dateStr, type: self.synapseCrystalInfo.hum.key, valueType: "max") {
-                            self.synapseDataMaxAndMins.hum.updatedMax = false
-                        }
-                    }
-                }
-                if let min = self.synapseDataMaxAndMins.hum.min, let updated = self.synapseDataMaxAndMins.hum.updatedMin {
-                    if updated {
-                        if self.saveSynapseMaxAndMinValue(value: min, date: dateStr, type: self.synapseCrystalInfo.hum.key, valueType: "min") {
-                            self.synapseDataMaxAndMins.hum.updatedMin = false
-                        }
-                    }
-                }
-            }
-        }
-        if self.synapseCrystalInfo.press.hasGraph {
-            if let dateStr = self.synapseDataMaxAndMins.press.dateStr {
-                if let max = self.synapseDataMaxAndMins.press.max, let updated = self.synapseDataMaxAndMins.press.updatedMax {
-                    if updated {
-                        if self.saveSynapseMaxAndMinValue(value: max, date: dateStr, type: self.synapseCrystalInfo.press.key, valueType: "max") {
-                            self.synapseDataMaxAndMins.press.updatedMax = false
-                        }
-                    }
-                }
-                if let min = self.synapseDataMaxAndMins.press.min, let updated = self.synapseDataMaxAndMins.press.updatedMin {
-                    if updated {
-                        if self.saveSynapseMaxAndMinValue(value: min, date: dateStr, type: self.synapseCrystalInfo.press.key, valueType: "min") {
-                            self.synapseDataMaxAndMins.press.updatedMin = false
-                        }
-                    }
-                }
-            }
-        }
-        if self.synapseCrystalInfo.sound.hasGraph {
-            if let dateStr = self.synapseDataMaxAndMins.sound.dateStr {
-                if let max = self.synapseDataMaxAndMins.sound.max, let updated = self.synapseDataMaxAndMins.sound.updatedMax {
-                    if updated {
-                        if self.saveSynapseMaxAndMinValue(value: max, date: dateStr, type: self.synapseCrystalInfo.sound.key, valueType: "max") {
-                            self.synapseDataMaxAndMins.sound.updatedMax = false
-                        }
-                    }
-                }
-                if let min = self.synapseDataMaxAndMins.sound.min, let updated = self.synapseDataMaxAndMins.sound.updatedMin {
-                    if updated {
-                        if self.saveSynapseMaxAndMinValue(value: min, date: dateStr, type: self.synapseCrystalInfo.sound.key, valueType: "min") {
-                            self.synapseDataMaxAndMins.sound.updatedMin = false
-                        }
-                    }
-                }
-            }
-        }
-        if self.synapseCrystalInfo.volt.hasGraph {
-            if let dateStr = self.synapseDataMaxAndMins.volt.dateStr {
-                if let max = self.synapseDataMaxAndMins.volt.max, let updated = self.synapseDataMaxAndMins.volt.updatedMax {
-                    if updated {
-                        if self.saveSynapseMaxAndMinValue(value: max, date: dateStr, type: self.synapseCrystalInfo.volt.key, valueType: "max") {
-                            self.synapseDataMaxAndMins.volt.updatedMax = false
-                        }
-                    }
-                }
-                if let min = self.synapseDataMaxAndMins.volt.min, let updated = self.synapseDataMaxAndMins.volt.updatedMin {
-                    if updated {
-                        if self.saveSynapseMaxAndMinValue(value: min, date: dateStr, type: self.synapseCrystalInfo.volt.key, valueType: "min") {
-                            self.synapseDataMaxAndMins.volt.updatedMin = false
-                        }
-                    }
-                }
-            }
-        }
-        /*
-        if self.synapseCrystalInfo.mag.hasGraph {
-            if let dateStr = self.synapseDataMaxAndMins.mx.dateStr {
-                if let max = self.synapseDataMaxAndMins.mx.max, let updated = self.synapseDataMaxAndMins.mx.updatedMax {
-                    if updated {
-                        if self.saveSynapseMaxAndMinValue(value: max, date: dateStr, type: "mx", valueType: "max") {
-                            self.synapseDataMaxAndMins.mx.updatedMax = false
-                        }
-                    }
-                }
-                if let min = self.synapseDataMaxAndMins.mx.min, let updated = self.synapseDataMaxAndMins.mx.updatedMin {
-                    if updated {
-                        if self.saveSynapseMaxAndMinValue(value: min, date: dateStr, type: "mx", valueType: "min") {
-                            self.synapseDataMaxAndMins.mx.updatedMin = false
-                        }
-                    }
-                }
-            }
-            if let dateStr = self.synapseDataMaxAndMins.my.dateStr {
-                if let max = self.synapseDataMaxAndMins.my.max, let updated = self.synapseDataMaxAndMins.my.updatedMax {
-                    if updated {
-                        if self.saveSynapseMaxAndMinValue(value: max, date: dateStr, type: "my", valueType: "max") {
-                            self.synapseDataMaxAndMins.my.updatedMax = false
-                        }
-                    }
-                }
-                if let min = self.synapseDataMaxAndMins.my.min, let updated = self.synapseDataMaxAndMins.my.updatedMin {
-                    if updated {
-                        if self.saveSynapseMaxAndMinValue(value: min, date: dateStr, type: "my", valueType: "min") {
-                            self.synapseDataMaxAndMins.my.updatedMin = false
-                        }
-                    }
-                }
-            }
-            if let dateStr = self.synapseDataMaxAndMins.mz.dateStr {
-                if let max = self.synapseDataMaxAndMins.mz.max, let updated = self.synapseDataMaxAndMins.mz.updatedMax {
-                    if updated {
-                        if self.saveSynapseMaxAndMinValue(value: max, date: dateStr, type: "mz", valueType: "max") {
-                            self.synapseDataMaxAndMins.mz.updatedMax = false
-                        }
-                    }
-                }
-                if let min = self.synapseDataMaxAndMins.mz.min, let updated = self.synapseDataMaxAndMins.mz.updatedMin {
-                    if updated {
-                        if self.saveSynapseMaxAndMinValue(value: min, date: dateStr, type: "mz", valueType: "min") {
-                            self.synapseDataMaxAndMins.mz.updatedMin = false
-                        }
-                    }
-                }
-            }
-        }*/
-    }
-
-    func saveSynapseMaxAndMinValue(value: Double, date: String, type: String, valueType: String) -> Bool {
-
-        var res: Bool = false
-        if date.count >= 14, let synapseRecordFileManager = self.synapseRecordFileManager {
-            let day: String = String(date[date.startIndex..<date.index(date.startIndex, offsetBy: 8)])
-            let hour: String = String(date[date.index(date.startIndex, offsetBy: 8)..<date.index(date.startIndex, offsetBy: 10)])
-            let min: String = String(date[date.index(date.startIndex, offsetBy: 10)..<date.index(date.startIndex, offsetBy: 12)])
-            //print("saveSynapseMaxAndMinValue dateStr: \(day) \(hour) \(min)")
-            let valueStr = "\(date)_\(value)"
-
-            res = synapseRecordFileManager.setSynapseRecordValueType(valueStr, day: day, hour: hour, min: min, type: type, valueType: valueType)
-            if res {
-                var flag: Bool = false
-                var records: [String]? = synapseRecordFileManager.getSynapseRecordValueTypeIn10min(day: day, hour: hour, min: Int(min)! / 10, type: type, valueType: valueType)
-                if records != nil && records!.count > 0 {
-                    let record: [String] = records![0].components(separatedBy: "_")
-                    if record.count > 1, let value10min = Double(record[1]) {
-                        if (valueType == "max" && value > value10min) || (valueType == "min" && value < value10min) {
-                            flag = true
-                        }
-                    }
-                }
-                else {
-                    flag = true
-                }
-                if flag {
-                    res = synapseRecordFileManager.setSynapseRecordValueTypeIn10min(valueStr, day: day, hour: hour, min: Int(min)! / 10, type: type, valueType: valueType)
-                    if res {
-                        flag = false
-                        records = synapseRecordFileManager.getSynapseRecordValueTypeInHour(day: day, hour: hour, type: type, valueType: valueType)
-                        if records != nil && records!.count > 0 {
-                            let record: [String] = records![0].components(separatedBy: "_")
-                            if record.count > 1, let valueHour = Double(record[1]) {
-                                if (valueType == "max" && value > valueHour) || (valueType == "min" && value < valueHour) {
-                                    flag = true
-                                }
-                            }
-                        }
-                        else {
-                            flag = true
-                        }
-                        if flag {
-                            res = synapseRecordFileManager.setSynapseRecordValueTypeInHour(valueStr, day: day, hour: hour, type: type, valueType: valueType)
-                        }
-                    }
-                }
-            }
-        }
-        return res
-    }
-
-    func getDeviceStatus() -> String {
-
-        var res: String = ""
-        if self.synapse != nil {
-            if self.synapseValues.isConnected {
-                res = "Associated"
-            }
-            else {
-                res = "Not Associated"
-            }
-        }
-        /*else {
-            res = "Device Not Found"
-        }*/
-        return res
     }
 
     // MARK: mark - SynapseData SendToServer methods
@@ -7406,9 +4451,8 @@ class SynapseObject {
 
         self.stopSynapseSendData()
 
-        let settingFileManager: SettingFileManager = SettingFileManager()
-        if let flag = settingFileManager.getSettingData(settingFileManager.synapseSendFlagKey) as? Bool, let url = settingFileManager.getSettingData(settingFileManager.synapseSendURLKey) as? String, flag, url.count > 0 {
-            self.startSynapseSendData(url: url)
+        if SettingFileManager.shared.synapseSendFlag && SettingFileManager.shared.synapseSendURL.count > 0 {
+            self.startSynapseSendData(url: SettingFileManager.shared.synapseSendURL)
         }
     }
 
@@ -7583,6 +4627,8 @@ class SynapseObject {
     }
 }
 
+// MARK: class - SynapseValues
+
 class SynapseValues {
 
     var name: String?
@@ -7602,10 +4648,9 @@ class SynapseValues {
     var tvoc: Int?
     var power: Float?
     var battery: Float?
-    /*
-     var mx: Int?
-     var my: Int?
-     var mz: Int?*/
+    /*var mx: Int?
+    var my: Int?
+    var mz: Int?*/
     var axBak: Int?
     var ayBak: Int?
     var azBak: Int?
@@ -7614,7 +4659,7 @@ class SynapseValues {
     var gzBak: Int?
     var isConnected: Bool = false
 
-    init(_ name: String) {
+    init(_ name: String? = nil) {
 
         self.name = name
     }
@@ -7637,10 +4682,9 @@ class SynapseValues {
         self.tvoc = nil
         self.power = nil
         self.battery = nil
-        /*
-         self.mx = nil
-         self.my = nil
-         self.mz = nil*/
+        /*self.mx = nil
+        self.my = nil
+        self.mz = nil*/
         self.axBak = nil
         self.ayBak = nil
         self.azBak = nil
@@ -7649,10 +4693,175 @@ class SynapseValues {
         self.gzBak = nil
         self.isConnected = false
     }
+
+    func debug() {
+
+        var str: String = ""
+        if let time = self.time {
+            str = "\(str)time: \(time)"
+        }
+        else {
+            str = "\(str)time: nil"
+        }
+        str = "\(str), "
+        if let co2 = self.co2 {
+            str = "\(str)co2: \(co2)"
+        }
+        else {
+            str = "\(str)co2: nil"
+        }
+        str = "\(str), "
+        if let temp = self.temp {
+            str = "\(str)temp: \(temp)"
+        }
+        else {
+            str = "\(str)temp: nil"
+        }
+        str = "\(str), "
+        if let humidity = self.humidity {
+            str = "\(str)humidity: \(humidity)"
+        }
+        else {
+            str = "\(str)humidity: nil"
+        }
+        str = "\(str), "
+        if let pressure = self.pressure {
+            str = "\(str)pressure: \(pressure)"
+        }
+        else {
+            str = "\(str)pressure: nil"
+        }
+        str = "\(str), "
+        if let light = self.light {
+            str = "\(str)light: \(light)"
+        }
+        else {
+            str = "\(str)light: nil"
+        }
+        str = "\(str), "
+        if let sound = self.sound {
+            str = "\(str)sound: \(sound)"
+        }
+        else {
+            str = "\(str)sound: nil"
+        }
+        str = "\(str), "
+        if let tvoc = self.tvoc {
+            str = "\(str)tvoc: \(tvoc)"
+        }
+        else {
+            str = "\(str)tvoc: nil"
+        }
+        str = "\(str), "
+        if let power = self.power {
+            str = "\(str)power: \(power)"
+        }
+        else {
+            str = "\(str)power: nil"
+        }
+        str = "\(str), "
+        if let battery = self.battery {
+            str = "\(str)battery: \(battery)"
+        }
+        else {
+            str = "\(str)battery: nil"
+        }
+        str = "\(str), "
+        if let ax = self.ax {
+            str = "\(str)ax: \(ax)"
+        }
+        else {
+            str = "\(str)ax: nil"
+        }
+        str = "\(str), "
+        if let ay = self.ay {
+            str = "\(str)ay: \(ay)"
+        }
+        else {
+            str = "\(str)ay: nil"
+        }
+        str = "\(str), "
+        if let az = self.az {
+            str = "\(str)az: \(az)"
+        }
+        else {
+            str = "\(str)az: nil"
+        }
+        str = "\(str), "
+        if let gx = self.gx {
+            str = "\(str)gx: \(gx)"
+        }
+        else {
+            str = "\(str)gx: nil"
+        }
+        str = "\(str), "
+        if let gy = self.gy {
+            str = "\(str)gy: \(gy)"
+        }
+        else {
+            str = "\(str)gy: nil"
+        }
+        str = "\(str), "
+        if let gz = self.gz {
+            str = "\(str)gz: \(gz)"
+        }
+        else {
+            str = "\(str)gz: nil"
+        }
+        str = "\(str), "
+        if let axBak = self.axBak {
+            str = "\(str)axBak: \(axBak)"
+        }
+        else {
+            str = "\(str)axBak: nil"
+        }
+        str = "\(str), "
+        if let ayBak = self.ayBak {
+            str = "\(str)ayBak: \(ayBak)"
+        }
+        else {
+            str = "\(str)ayBak: nil"
+        }
+        str = "\(str), "
+        if let azBak = self.azBak {
+            str = "\(str)azBak: \(azBak)"
+        }
+        else {
+            str = "\(str)azBak: nil"
+        }
+        str = "\(str), "
+        if let gxBak = self.gxBak {
+            str = "\(str)gxBak: \(gxBak)"
+        }
+        else {
+            str = "\(str)gxBak: nil"
+        }
+        str = "\(str), "
+        if let gyBak = self.gyBak {
+            str = "\(str)gyBak: \(gyBak)"
+        }
+        else {
+            str = "\(str)gyBak: nil"
+        }
+        str = "\(str), "
+        if let gzBak = self.gzBak {
+            str = "\(str)gzBak: \(gzBak)"
+        }
+        else {
+            str = "\(str)gzBak: nil"
+        }
+        str = "\(str), "
+        str = "\(str)isConnected: \(self.isConnected)"
+        print(str)
+    }
 }
+
+// MARK: class - SynapseCrystalNodes
 
 class SynapseCrystalNodes {
 
+    let synapseCrystalInfo: SynapseCrystalStruct = SynapseCrystalStruct()
+    let crystalGeometries: CrystalGeometries = CrystalGeometries()
     var name: String?
     var mainNodeRoll: SCNNode?
     var mainNode: SCNNode?
@@ -7669,10 +4878,9 @@ class SynapseCrystalNodes {
     var lightingNode: SCNNode?
     var lightingNode2: SCNNode?
     var soundNode: SCNNode?
-    /*
-     var magneticXNode: SCNNode?
-     var magneticYNode: SCNNode?
-     var magneticZNode: SCNNode?*/
+    /*var magneticXNode: SCNNode?
+    var magneticYNode: SCNNode?
+    var magneticZNode: SCNNode?*/
     var position: SCNVector3 = SCNVector3(x: 0, y: 0, z: 0)
     var isDisplay: Bool = false
     var rotateX: Double = 0
@@ -7682,6 +4890,9 @@ class SynapseCrystalNodes {
     var radyBak: Double?
     var radzBak: Double?
     var colorLevel: Double?
+    var rotateSynapseNodeDuration: TimeInterval = 0
+    var rotateCrystalNodeDuration: TimeInterval = 0
+    var scaleSynapseNodeDuration: TimeInterval = 0
 
     init(_ name: String, position: SCNVector3, isDisplay: Bool) {
 
@@ -7689,14 +4900,735 @@ class SynapseCrystalNodes {
         self.position = position
         self.isDisplay = isDisplay
     }
+
+    func setSynapseNodes(scnView: SCNView, position: SCNVector3?) {
+
+        if let position = position {
+            self.position = position
+        }
+
+        self.mainNodeRoll = SCNNode()
+        self.mainNodeRoll?.position = self.position
+        scnView.scene?.rootNode.addChildNode(self.mainNodeRoll!)
+
+        self.mainNode = SCNNode()
+        self.mainNode?.position = SCNVector3(x: 0, y: 0, z: 0)
+        self.mainNodeRoll?.addChildNode(self.mainNode!)
+
+        self.mainXNode = SCNNode()
+        self.mainXNode?.position = SCNVector3(x: 0, y: 0, z: 0)
+        self.mainNode?.addChildNode(self.mainXNode!)
+
+        self.mainYNode = SCNNode()
+        self.mainYNode?.position = SCNVector3(x: 0, y: 0, z: 0)
+        self.mainXNode?.addChildNode(self.mainYNode!)
+
+        self.mainZNode = SCNNode()
+        self.mainZNode?.position = SCNVector3(x: 0, y: 0, z: 0)
+        self.mainYNode?.addChildNode(self.mainZNode!)
+
+        self.co2Node = SCNNode()
+        self.co2Node?.geometry = self.crystalGeometries.makeCO2CrystalGeometry(1.0)
+        self.co2Node?.position = SCNVector3(x: -0.4, y: 0.6, z: 0.7)
+        self.co2Node?.rotation = SCNVector4(x: 0, y: 1.0, z: 0.8, w: Float(Double.pi / 180.0) * 70.0)
+        self.co2Node?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(0.5)
+        self.mainZNode?.addChildNode(self.co2Node!)
+        self.co2Node?.name = self.synapseCrystalInfo.co2.key
+        if let name = self.name {
+            self.co2Node?.name = "\(name)_\(self.synapseCrystalInfo.co2.key)"
+        }
+        /*self.co2BaseNode = SCNNode()
+        self.co2BaseNode.position = SCNVector3(x: 0, y: 0, z: 0.7)
+        self.mainNode.addChildNode(self.co2BaseNode)
+        self.co2BaseXNode = SCNNode()
+        self.co2BaseXNode.position = SCNVector3(x: 0, y: 0, z: 0)
+        self.co2BaseNode.addChildNode(self.co2BaseXNode)
+        self.co2BaseZNode = SCNNode()
+        self.co2BaseZNode.position = SCNVector3(x: 0, y: 0, z: 0)
+        self.co2BaseXNode.addChildNode(self.co2BaseZNode)
+
+        self.co2CrystalNode = CrystalNode()
+        self.co2CrystalNode.setCrystalNodeScale(1, ratio: 0.7)
+        self.co2CrystalNode.setCrystalNodeRotation(x: 0, y: 0, z: 0)
+        self.co2CrystalNode.position = SCNVector3(x: 0, y: 0, z: 0)
+        self.co2BaseZNode.addChildNode(self.co2CrystalNode)
+        self.co2CrystalNode.topNode.name = self.synapseCrystalInfo.co2.key
+        self.co2CrystalNode.bottomNode.name = self.synapseCrystalInfo.co2.key*/
+
+        self.tempNode = SCNNode()
+        self.tempNode?.geometry = self.crystalGeometries.makeTemperatureCrystalGeometry(1.0)
+        self.tempNode?.position = SCNVector3(x: 0.4, y: 0, z: 0.7)
+        self.tempNode?.rotation = SCNVector4(x: -0.3, y: -0.5, z: -1.0, w: Float(Double.pi / 180.0) * 120.0)
+        self.tempNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(0.5)
+        self.mainZNode?.addChildNode(self.tempNode!)
+        self.tempNode?.name = self.synapseCrystalInfo.temp.key
+        if let name = self.name {
+            self.tempNode?.name = "\(name)_\(self.synapseCrystalInfo.temp.key)"
+        }
+
+        self.humidityNode = SCNNode()
+        self.humidityNode?.geometry = self.crystalGeometries.makeHumidityCrystalGeometry(1.0)
+        self.humidityNode?.position = SCNVector3(x: -0.4, y: -0.45, z: 0.7)
+        self.humidityNode?.rotation = SCNVector4(x: -0.5, y: 0, z: 1.0, w: Float(Double.pi / 180.0) * 150.0)
+        self.humidityNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(0.5)
+        self.mainZNode?.addChildNode(self.humidityNode!)
+        self.humidityNode?.name = self.synapseCrystalInfo.hum.key
+        if let name = self.name {
+            self.humidityNode?.name = "\(name)_\(self.synapseCrystalInfo.hum.key)"
+        }
+        
+        self.pressureNode = SCNNode()
+        self.pressureNode?.geometry = self.crystalGeometries.makePressureCrystalGeometry(3.0)
+        self.pressureNode?.position = SCNVector3(x: 0, y: 0, z: -0.45)
+        self.pressureNode?.rotation = SCNVector4(x: -0.4, y: -0.8, z: -1.0, w: Float(Double.pi / 180.0) * 90.0)
+        self.pressureNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(0.5)
+        self.mainZNode?.addChildNode(self.pressureNode!)
+        self.pressureNode?.name = self.synapseCrystalInfo.press.key
+        if let name = self.name {
+            self.pressureNode?.name = "\(name)_\(self.synapseCrystalInfo.press.key)"
+        }
+
+        self.light1Node = SCNNode()
+        self.light1Node?.geometry = self.crystalGeometries.makeIlluminationCrystalGeometry(3.0)
+        self.light1Node?.position = SCNVector3(x: 0, y: 0, z: 0.2)
+        self.light1Node?.rotation = SCNVector4(x: 0, y: 0, z: 1.0, w: Float(Double.pi / 180.0) * 20.0)
+        self.light1Node?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(0.5)
+        self.mainZNode?.addChildNode(self.light1Node!)
+        self.light1Node?.name = self.synapseCrystalInfo.ill.key
+        if let name = self.name {
+            self.light1Node?.name = "\(name)_\(self.synapseCrystalInfo.ill.key)"
+        }
+
+        self.light2Node = SCNNode()
+        self.light2Node?.geometry = self.crystalGeometries.makeIlluminationCrystalGeometry(3.0)
+        self.light2Node?.position = SCNVector3(x: 0, y: 0, z: 0)
+        self.light2Node?.rotation = SCNVector4(x: 0, y: 0, z: 1.0, w: Float(Double.pi / 180.0) * 46.0)
+        self.light2Node?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(0.5)
+        self.mainZNode?.addChildNode(self.light2Node!)
+        self.light2Node?.name = self.synapseCrystalInfo.ill.key
+        if let name = self.name {
+            self.light2Node?.name = "\(name)_\(self.synapseCrystalInfo.ill.key)"
+        }
+
+        self.light3Node = SCNNode()
+        self.light3Node?.geometry = self.crystalGeometries.makeIlluminationCrystalGeometry(3.0)
+        self.light3Node?.position = SCNVector3(x: 0, y: 0, z: 0.4)
+        self.light3Node?.rotation = SCNVector4(x: 0, y: 0, z: 1.0, w: Float(Double.pi / 180.0) * 150.0)
+        self.light3Node?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(0.5)
+        self.mainZNode?.addChildNode(self.light3Node!)
+        self.light3Node?.name = self.synapseCrystalInfo.ill.key
+        if let name = self.name {
+            self.light3Node?.name = "\(name)_\(self.synapseCrystalInfo.ill.key)"
+        }
+
+        self.soundNode = SCNNode()
+        self.soundNode?.geometry = self.crystalGeometries.makeMagneticCrystalGeometry(w: 3.0, h: 2.0)
+        self.soundNode?.position = SCNVector3(x: 0.1, y: -0.1, z: -0.8)
+        self.soundNode?.rotation = SCNVector4(x: 0, y: 0, z: -1.0, w: Float(Double.pi / 180.0) * 90.0)
+        self.soundNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(0.5)
+        self.mainZNode?.addChildNode(self.soundNode!)
+        self.soundNode?.name = self.synapseCrystalInfo.sound.key
+        if let name = self.name {
+            self.soundNode?.name = "\(name)_\(self.synapseCrystalInfo.sound.key)"
+        }
+
+        /*synapseCrystalNode.magneticXNode = SCNNode()
+        synapseCrystalNode.magneticXNode?.geometry = self.crystalGeometries.makeMagneticCrystalGeometry(w: 3.0, h: 1.8)
+        synapseCrystalNode.magneticXNode?.position = SCNVector3(x: -0.1, y: 0.3, z: -0.8)
+        synapseCrystalNode.magneticXNode?.rotation = SCNVector4(x: 0, y: 0, z: -1.0, w: Float(Double.pi / 180.0) * 90.0)
+        synapseCrystalNode.magneticXNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(0.5)
+        synapseCrystalNode.mainZNode?.addChildNode(synapseCrystalNode.magneticXNode!)
+        synapseCrystalNode.magneticXNode?.name = self.synapseCrystalInfo.mag.key
+        if let name = synapseCrystalNode.name {
+            synapseCrystalNode.magneticXNode?.name = "\(name)_\(self.synapseCrystalInfo.mag.key)"
+        }
+
+        synapseCrystalNode.magneticYNode = SCNNode()
+        synapseCrystalNode.magneticYNode?.geometry = self.crystalGeometries.makeMagneticCrystalGeometry(w: 0.8, h: 1.2)
+        synapseCrystalNode.magneticYNode?.position = SCNVector3(x: 0.9, y: -0.5, z: -0.6)
+        synapseCrystalNode.magneticYNode?.rotation = SCNVector4(x: 0, y: 0, z: -1.0, w: Float(Double.pi / 180.0) * 110.0)
+        synapseCrystalNode.magneticYNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(0.5)
+        synapseCrystalNode.mainZNode?.addChildNode(synapseCrystalNode.magneticYNode!)
+        synapseCrystalNode.magneticYNode?.name = self.synapseCrystalInfo.mag.key
+        if let name = synapseCrystalNode.name {
+            synapseCrystalNode.magneticYNode?.name = "\(name)_\(self.synapseCrystalInfo.mag.key)"
+        }
+
+        synapseCrystalNode.magneticZNode = SCNNode()
+        synapseCrystalNode.magneticZNode?.geometry = self.crystalGeometries.makeMagneticCrystalGeometry(w: 0.9, h: 1.6)
+        synapseCrystalNode.magneticZNode?.position = SCNVector3(x: -0.1, y: -1.1, z: -0.7)
+        synapseCrystalNode.magneticZNode?.rotation = SCNVector4(x: 0, y: 0, z: 1.0, w: Float(Double.pi / 180.0) * 160.0)
+        synapseCrystalNode.magneticZNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(0.5)
+        synapseCrystalNode.mainZNode?.addChildNode(synapseCrystalNode.magneticZNode!)
+        synapseCrystalNode.magneticZNode?.name = self.synapseCrystalInfo.mag.key
+        if let name = synapseCrystalNode.name {
+            synapseCrystalNode.magneticZNode?.name = "\(name)_\(self.synapseCrystalInfo.mag.key)"
+        }*/
+        /*
+        var width: CGFloat = 0
+        var name: String = ""
+        if let str = self.synapseCrystalNode.name {
+            name = str
+            width = 0.1 * CGFloat(str.count)
+        }
+        self.labelNode = LabelNode(text: name, width: width, textColor: UIColor.white, panelColor: UIColor.clear, textThickness: 0, panelThickness: 0)
+        self.labelNode.position = SCNVector3(x: self.synapseCrystalNode.position.x, y: self.synapseCrystalNode.position.y - 2.0, z: self.synapseCrystalNode.position.z)
+        self.labelNode.light = SCNLight()
+        self.labelNode.light?.type = .spot
+        self.labelNode.light?.color = UIColor.white
+        scnView.scene?.rootNode.addChildNode(self.labelNode)
+         */
+        self.lightingNode = SCNNode()
+        self.lightingNode?.light = SCNLight()
+        self.lightingNode?.light?.type = .omni
+        self.lightingNode?.light?.color = UIColor.white
+        self.lightingNode?.position = SCNVector3(x: -2.0 + self.position.x, y: 0 + self.position.y, z: 7.0 + self.position.z)
+        self.lightingNode?.rotation = SCNVector4(x: 0, y: 1.0, z: 0, w: Float(Double.pi / 180.0) * -20.0)
+        scnView.scene?.rootNode.addChildNode(self.lightingNode!)
+
+        self.lightingNode2 = SCNNode()
+        self.lightingNode2?.light = SCNLight()
+        self.lightingNode2?.light?.type = .spot
+        self.lightingNode2?.light?.color = UIColor.white
+        self.lightingNode2?.position = SCNVector3(x: 0 + self.position.x, y: 10.0 + self.position.y, z: 0 + self.position.z)
+        self.lightingNode2?.rotation = SCNVector4(x: 1.0, y: 0, z: 0, w: Float(Double.pi / 180.0) * -90.0)
+        scnView.scene?.rootNode.addChildNode(self.lightingNode2!)
+        /*
+        let diffuseLightNode: SCNNode = SCNNode()
+        diffuseLightNode.light = SCNLight()
+        diffuseLightNode.light!.type = .omni
+        diffuseLightNode.light!.color = UIColor.white
+        diffuseLightNode.position = SCNVector3(x: 2, y: 2, z: 1)
+        scene.rootNode.addChildNode(diffuseLightNode)
+
+        let spotNode: SCNNode = SCNNode()
+        spotNode.light = SCNLight()
+        spotNode.light!.type = .spot
+        spotNode.light!.color = UIColor.white
+        spotNode.position = SCNVector3(x: -0.5, y: -1.0, z: 2)
+        scene.rootNode.addChildNode(spotNode)
+         */
+    }
+
+    func removeSynapseNodes() {
+
+        self.mainNodeRoll?.removeFromParentNode()
+        self.mainNodeRoll = nil
+        self.mainNode?.removeFromParentNode()
+        self.mainNode = nil
+        self.mainXNode?.removeFromParentNode()
+        self.mainXNode = nil
+        self.mainYNode?.removeFromParentNode()
+        self.mainYNode = nil
+        self.mainZNode?.removeFromParentNode()
+        self.mainZNode = nil
+        self.co2Node?.removeFromParentNode()
+        self.co2Node = nil
+        self.tempNode?.removeFromParentNode()
+        self.tempNode = nil
+        self.humidityNode?.removeFromParentNode()
+        self.humidityNode = nil
+        self.pressureNode?.removeFromParentNode()
+        self.pressureNode = nil
+        self.light1Node?.removeFromParentNode()
+        self.light1Node = nil
+        self.light2Node?.removeFromParentNode()
+        self.light2Node = nil
+        self.light3Node?.removeFromParentNode()
+        self.light3Node = nil
+        self.soundNode?.removeFromParentNode()
+        self.soundNode = nil
+        /*synapseCrystalNode.magneticXNode?.removeFromParentNode()
+        synapseCrystalNode.magneticXNode = nil
+        synapseCrystalNode.magneticYNode?.removeFromParentNode()
+        synapseCrystalNode.magneticYNode = nil
+        synapseCrystalNode.magneticZNode?.removeFromParentNode()
+        synapseCrystalNode.magneticZNode = nil*/
+        self.lightingNode?.removeFromParentNode()
+        self.lightingNode = nil
+        self.lightingNode2?.removeFromParentNode()
+        self.lightingNode2 = nil
+    }
+
+    func rotateSynapseNodes(dx: CGFloat, dy: CGFloat) {
+
+        if let mainNodeRoll = self.mainNodeRoll {
+            let aroundSide: SCNVector3 = SCNVector3(x: 0, y: 1, z: 0)
+            let actionSide: SCNAction = SCNAction.rotate(by: CGFloat(Double.pi / 180.0) * dx,
+                                                         around: aroundSide,
+                                                         duration: 0)
+            actionSide.timingMode = .easeOut
+            mainNodeRoll.runAction(actionSide, completionHandler: {
+                //print("mainNodeRoll: \(self.mainNodeRoll.rotation) mainNode: \(self.mainNode.rotation)")
+                //self.mainNodeRoll.removeAllActions()
+            })
+
+            if let mainNode = self.mainNode {
+                let aroundLong: SCNVector3 = SCNVector3(x: Float(cos(mainNodeRoll.rotation.y * mainNodeRoll.rotation.w)),
+                                                        y: 0,
+                                                        z: Float(sin(mainNodeRoll.rotation.y * mainNodeRoll.rotation.w)))
+                let actionLong: SCNAction = SCNAction.rotate(by: CGFloat(Double.pi / 180.0) * dy,
+                                                             around: aroundLong,
+                                                             duration: 0)
+                actionLong.timingMode = .easeOut
+                mainNode.runAction(actionLong, completionHandler: {
+                    //self.mainNode.removeAllActions()
+                })
+            }
+        }
+    }
+
+    func rotateSynapseNodes(synapseValues: SynapseValues) {
+
+        if let mainZNode = self.mainZNode, let ax = synapseValues.ax, let ay = synapseValues.ay, let az = synapseValues.az {
+            let radx: Double = atan(Double(ax) / sqrt(pow(Double(ay), 2) + pow(Double(az), 2)))
+            let rady: Double = atan(Double(ay) / sqrt(pow(Double(ax), 2) + pow(Double(az), 2)))
+            let radz: Double = atan(Double(az) / sqrt(pow(Double(ay), 2) + pow(Double(ax), 2)))
+
+            if let radxBak = self.radxBak, let radyBak = self.radyBak {
+                var deltaX: Double = radx - radxBak
+                var deltaY: Double = rady - radyBak
+                if radz < 0.0 {
+                    deltaX = -deltaX
+                    deltaY = -deltaY
+                }
+                self.rotateX += deltaX
+                self.rotateY += deltaY
+            }
+            self.radxBak = radx
+            self.radyBak = rady
+
+            let action: SCNAction = SCNAction.rotateTo(x: CGFloat(-self.rotateY),
+                                                       y: 0,
+                                                       z: CGFloat(-self.rotateX),
+                                                       duration: self.rotateSynapseNodeDuration)
+            action.timingMode = .easeOut
+            mainZNode.runAction(action, completionHandler: {
+                //self.mainZNode.removeAllActions()
+            })
+        }
+        /*
+        let action: SCNAction = SCNAction.rotateBy(x: 0, y: CGFloat(Float(Double.pi / 180.0) * self.rotationValue), z: 0, duration: self.checkSynapseTime)
+        self.co2CrystalNode.runAction(action)
+        self.tempCrystalNode.runAction(action)
+        self.pressureCrystalNode.runAction(action)
+        self.magneticCrystalNode.runAction(action)
+        self.lightCrystalNode.runAction(action)
+        self.humidityCrystalNode.runAction(action)
+         */
+    }
+
+    func rotateCrystalNodes() {
+
+        let rotationValue: CGFloat = 1.0
+        let action: SCNAction = SCNAction.rotateBy(x: 0,
+                                                   y: CGFloat(Double.pi / 180.0) * rotationValue,
+                                                   z: 0,
+                                                   duration: self.rotateCrystalNodeDuration)
+        self.co2Node?.runAction(action, completionHandler: {
+            //synapseCrystalNode.co2Node?.removeAllActions()
+        })
+        self.tempNode?.runAction(action, completionHandler: {
+            //synapseCrystalNode.tempNode?.removeAllActions()
+        })
+        self.humidityNode?.runAction(action, completionHandler: {
+            //synapseCrystalNode.humidityNode?.removeAllActions()
+        })
+
+        let rotationValue2: CGFloat = 0.5
+        let action2: SCNAction = SCNAction.rotateBy(x: 0,
+                                                    y: 0,
+                                                    z: CGFloat(Double.pi / 180.0) * rotationValue2,
+                                                    duration: self.rotateCrystalNodeDuration)
+        self.light1Node?.runAction(action2, completionHandler: {
+            //synapseCrystalNode.light1Node?.removeAllActions()
+        })
+        self.light2Node?.runAction(action2, completionHandler: {
+            //synapseCrystalNode.light2Node?.removeAllActions()
+        })
+        self.light3Node?.runAction(action2, completionHandler: {
+            //synapseCrystalNode.light3Node?.removeAllActions()
+        })
+
+        let rotationValue3: CGFloat = 0.5
+        let action3: SCNAction = SCNAction.rotateBy(x: 0,
+                                                    y: 0,
+                                                    z: CGFloat(Double.pi / 180.0) * -rotationValue3,
+                                                    duration: self.rotateCrystalNodeDuration)
+        self.pressureNode?.runAction(action3, completionHandler: {
+            //synapseCrystalNode.pressureNode?.removeAllActions()
+        })
+    }
+
+    func scaleSynapseNodes(synapseValues: SynapseValues) {
+
+        let co2Base: Double = 400.0
+        let co2BaseScale: CGFloat = 0.8
+        let tempBase: Double = 25.0
+        let tempBaseScale: CGFloat = 1.0
+        let pressBase: Double = 1000.0
+        let pressBaseScale: CGFloat = 1.0
+        let lightBase: Double = 10000.0
+        let lightBaseScale: CGFloat = 1.0
+        let humBase: Double = 100.0
+        let humBaseScale: CGFloat = 2.0
+        let soundBase: Double = 1023.0
+        let soundBaseScale: CGFloat = 1.5
+
+        var co2Scale: CGFloat = 1.0
+        if synapseValues.isConnected {
+            co2Scale = 0
+            if let co2 = synapseValues.co2 {
+                co2Scale = CGFloat(sqrt(Double(co2)) / sqrt(co2Base)) * co2BaseScale
+            }
+        }
+        let co2Action: SCNAction = SCNAction.scale(to: co2Scale, duration: self.scaleSynapseNodeDuration)
+        co2Action.timingMode = .easeOut
+        self.co2Node?.runAction(co2Action, completionHandler: {
+            //synapseCrystalNode.co2Node?.removeAllActions()
+        })
+
+        var tempScale: CGFloat = 1.0
+        if synapseValues.isConnected {
+            tempScale = 0
+            if let temp = synapseValues.temp {
+                if temp > 0.0 {
+                    tempScale = CGFloat(sqrt(Double(temp)) / sqrt(tempBase)) * tempBaseScale
+                }
+                else {
+                    tempScale = 0
+                }
+            }
+        }
+        let tempAction: SCNAction = SCNAction.scale(to: tempScale, duration: self.scaleSynapseNodeDuration)
+        tempAction.timingMode = .easeOut
+        self.tempNode?.runAction(tempAction, completionHandler: {
+            //synapseCrystalNode.tempNode?.removeAllActions()
+        })
+
+        var pressScale: CGFloat = 1.0
+        if synapseValues.isConnected {
+            pressScale = 0
+            if let press = synapseValues.pressure {
+                pressScale = CGFloat(sqrt(Double(press)) / sqrt(pressBase)) * pressBaseScale
+            }
+        }
+        let pressAction: SCNAction = SCNAction.scale(to: pressScale, duration: self.scaleSynapseNodeDuration)
+        pressAction.timingMode = .easeOut
+        self.pressureNode?.runAction(pressAction, completionHandler: {
+            //synapseCrystalNode.pressureNode?.removeAllActions()
+        })
+
+        var lightScale: CGFloat = 1.0
+        if synapseValues.isConnected {
+            lightScale = 0
+            if let light = synapseValues.light {
+                lightScale = CGFloat(sqrt(Double(light)) / sqrt(lightBase)) * lightBaseScale
+            }
+        }
+        let lightAction: SCNAction = SCNAction.scale(to: lightScale, duration: self.scaleSynapseNodeDuration)
+        lightAction.timingMode = .easeOut
+        self.light1Node?.runAction(lightAction, completionHandler: {
+            //synapseCrystalNode.light1Node?.removeAllActions()
+        })
+        self.light2Node?.runAction(lightAction, completionHandler: {
+            //synapseCrystalNode.light2Node?.removeAllActions()
+        })
+        self.light3Node?.runAction(lightAction, completionHandler: {
+            //synapseCrystalNode.light3Node?.removeAllActions()
+        })
+
+        var humScale: CGFloat = 1.0
+        if synapseValues.isConnected {
+            humScale = 0
+            if let hum = synapseValues.humidity {
+                humScale = CGFloat(Double(hum) / humBase) * humBaseScale
+            }
+        }
+        let humAction: SCNAction = SCNAction.scale(to: humScale, duration: self.scaleSynapseNodeDuration)
+        humAction.timingMode = .easeOut
+        self.humidityNode?.runAction(humAction, completionHandler: {
+            //synapseCrystalNode.humidityNode?.removeAllActions()
+        })
+
+        var soundScale: CGFloat = 1.0
+        if synapseValues.isConnected {
+            soundScale = 0
+            if let sound = synapseValues.sound {
+                soundScale = CGFloat(sqrt(Double(sound)) / sqrt(soundBase)) * soundBaseScale
+            }
+        }
+        let soundAction: SCNAction = SCNAction.scale(to: soundScale, duration: self.scaleSynapseNodeDuration)
+        soundAction.timingMode = .easeOut
+        self.soundNode?.runAction(soundAction, completionHandler: {
+            //synapseCrystalNode.humidityNode?.removeAllActions()
+        })
+
+        /*var magxScale: CGFloat = 1.0
+        if let mx = synapseValues.mx {
+            let val: CGFloat = CGFloat(abs(mx))
+            if val <= 200.0 {
+                magxScale = val / 200.0
+            }
+            else {
+                magxScale = 1.0 + (val - 200.0) / 5000.0
+            }
+        }
+        if magxScale > 2.0 {
+            magxScale = 2.0
+        }
+        else if magxScale < 0.2 {
+            magxScale = 0.2
+        }
+        let magxAction: SCNAction = SCNAction.scale(to: magxScale, duration: self.updateSynapseViewTime)
+        magxAction.timingMode = .easeOut
+        synapseCrystalNode.magneticXNode?.runAction(magxAction, completionHandler: {
+            //synapseCrystalNode.magneticXNode?.removeAllActions()
+        })
+        var magyScale: CGFloat = 1.0
+        if let my = synapseValues.my {
+            let val: CGFloat = CGFloat(abs(my))
+            if val <= 200.0 {
+                magyScale = val / 200.0
+            }
+            else {
+                magyScale = 1.0 + (val - 200.0) / 5000.0
+            }
+        }
+        if magyScale > 2.0 {
+            magyScale = 2.0
+        }
+        else if magyScale < 0.2 {
+            magyScale = 0.2
+        }
+        let magyAction: SCNAction = SCNAction.scale(to: magyScale, duration: self.updateSynapseViewTime)
+        magyAction.timingMode = .easeOut
+        synapseCrystalNode.magneticYNode?.runAction(magyAction, completionHandler: {
+            //synapseCrystalNode.magneticYNode?.removeAllActions()
+        })
+        var magzScale: CGFloat = 1.0
+        if let mz = synapseValues.mz {
+            let val: CGFloat = CGFloat(abs(mz))
+            if val <= 200.0 {
+                magzScale = val / 200.0
+            }
+            else {
+                magzScale = 1.0 + (val - 200.0) / 5000.0
+            }
+        }
+        if magzScale > 2.0 {
+            magzScale = 2.0
+        }
+        else if magzScale < 0.2 {
+            magzScale = 0.2
+        }
+        let magzAction: SCNAction = SCNAction.scale(to: magzScale, duration: self.updateSynapseViewTime)
+        magzAction.timingMode = .easeOut
+        synapseCrystalNode.magneticZNode?.runAction(magzAction, completionHandler: {
+            //synapseCrystalNode.magneticZNode?.removeAllActions()
+            })*/
+    }
+
+    func setColorSynapseNodes(colorLevel: Double) {
+
+        self.co2Node?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(colorLevel)
+        self.tempNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(colorLevel)
+        self.humidityNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(colorLevel)
+        self.pressureNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(colorLevel)
+        self.light1Node?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(colorLevel)
+        self.light2Node?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(colorLevel)
+        self.light3Node?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(colorLevel)
+        self.soundNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(colorLevel)
+        /*synapseCrystalNode.magneticXNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(colorLevel)
+        synapseCrystalNode.magneticYNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(colorLevel)
+        synapseCrystalNode.magneticZNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColor(colorLevel)*/
+        self.colorLevel = colorLevel
+    }
+
+    func setColorSynapseNodeFromBatteryLevel(synapseValues: SynapseValues) {
+
+        if let battery = synapseValues.battery {
+            var level: Double = 0
+            if battery > 0.0 && battery <= 10.0 {
+                level = 0.1
+            }
+            else if battery > 10.0 && battery <= 30.0 {
+                level = 0.2
+            }
+            else if battery > 30.0 && battery <= 50.0 {
+                level = 0.3
+            }
+            else if battery > 50.0 && battery <= 70.0 {
+                level = 0.4
+            }
+            else if battery > 70.0 {
+                level = 0.5
+            }
+            if level != self.colorLevel {
+                self.setColorSynapseNodes(colorLevel: level)
+                //print("batteryLevel: \(self.batteryLevel)")
+            }
+        }
+    }
+
+    func setColorOffSynapseNodes(_ isOff: Bool) {
+
+        self.co2Node?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColorOff(isOff)
+        self.tempNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColorOff(isOff)
+        self.humidityNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColorOff(isOff)
+        self.pressureNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColorOff(isOff)
+        self.light1Node?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColorOff(isOff)
+        self.light2Node?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColorOff(isOff)
+        self.light3Node?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColorOff(isOff)
+        self.soundNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColorOff(isOff)
+        /*synapseCrystalNode.magneticXNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColorOff(isOff)
+        synapseCrystalNode.magneticYNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColorOff(isOff)
+        synapseCrystalNode.magneticZNode?.geometry?.materials = self.crystalGeometries.setCrystalGeometryColorOff(isOff)*/
+        self.colorLevel = nil
+    }
 }
 
-class SynapseValueLabels {
+// MARK: class - SynapseValueLabels
+
+class SynapseValueLabels: CommonFunctionProtocol {
 
     var valueLabel: UILabel?
     var unitLabel: UILabel?
     var diffLabel: UILabel?
+
+    func setSynapseValueLabels(_ view: UIView, unitLabelText: String, fontSmall: Bool = false) -> UIView {
+
+        let fontS: CGFloat = 60.0
+        let fontS2: CGFloat = 40.0
+        let fontU: CGFloat = 16.0
+
+        self.valueLabel = UILabel()
+        self.valueLabel?.text = ""
+        self.valueLabel?.frame = CGRect(x: 0, y: 0, width: view.frame.size.width, height: view.frame.size.height)
+        self.valueLabel?.textColor = UIColor.white
+        self.valueLabel?.backgroundColor = UIColor.clear
+        self.valueLabel?.font = UIFont(name: "HelveticaNeue", size: fontS)
+        if fontSmall {
+            self.valueLabel?.font = UIFont(name: "HelveticaNeue", size: fontS2)
+        }
+        self.valueLabel?.textAlignment = .center
+        self.valueLabel?.numberOfLines = 1
+        view.addSubview(self.valueLabel!)
+
+        self.diffLabel = UILabel()
+        self.diffLabel?.text = ""
+        self.diffLabel?.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
+        self.diffLabel?.textColor = UIColor.white
+        self.diffLabel?.backgroundColor = UIColor.clear
+        self.diffLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
+        self.diffLabel?.textAlignment = .center
+        self.diffLabel?.numberOfLines = 1
+        view.addSubview(self.diffLabel!)
+
+        self.unitLabel = UILabel()
+        self.unitLabel?.text = unitLabelText
+        self.unitLabel?.textColor = UIColor.white
+        self.unitLabel?.backgroundColor = UIColor.clear
+        self.unitLabel?.font = UIFont(name: "HelveticaNeue", size: fontU)
+        self.unitLabel?.textAlignment = .center
+        self.unitLabel?.numberOfLines = 1
+        view.addSubview(self.unitLabel!)
+
+        return view
+    }
+
+    func updateSynapseValueLabels(_ value: Any, baseW: CGFloat, baseH: CGFloat, floatFormat: String? = nil, option: [String: Any] = [:]) {
+
+        if self.valueLabel != nil, self.unitLabel != nil, self.diffLabel != nil {
+            self.diffLabel?.text = ""
+
+            var format: String = "%.1f"
+            if let floatFormat = floatFormat {
+                format = floatFormat
+            }
+            var valueStr: String = ""
+            if let intVal = value as? Int {
+                valueStr = String(format: "%d", intVal)
+            }
+            else if let floatVal = value as? Float {
+                valueStr = String(format: format, self.extendSynapseFloatValue(value: floatVal, option: option))
+            }
+            if self.valueLabel!.text != valueStr {
+                if let text = self.valueLabel!.text {
+                    if text.count > 0 {
+                        var diffText: String = ""
+                        if let intVal = value as? Int {
+                            let diffVal: Int = Int(text)!
+                            if intVal > diffVal {
+                                diffText = "⬆︎ \(String(intVal - diffVal))"
+                            }
+                            else if intVal < diffVal {
+                                diffText = "⬇︎ \(String(diffVal - intVal))"
+                            }
+                        }
+                        else if var floatVal = value as? Float {
+                            floatVal = self.extendSynapseFloatValue(value: floatVal, option: option)
+                            let diffVal: Float = Float(atof(text))
+                            if floatVal > diffVal {
+                                diffText = "⬆︎ \(String(format: format, floatVal - diffVal))"
+                            }
+                            else if floatVal < diffVal {
+                                diffText = "⬇︎ \(String(format: format, diffVal - floatVal))"
+                            }
+                        }
+                        self.diffLabel?.text = diffText
+                    }
+                }
+
+                self.valueLabel?.text = valueStr
+                self.valueLabel?.sizeToFit()
+                var w: CGFloat = self.valueLabel!.frame.size.width
+                var h: CGFloat = self.valueLabel!.frame.size.height
+                var x: CGFloat = (baseW - w) / 2
+                var y: CGFloat = (baseH - h) / 2
+                self.valueLabel?.frame = CGRect(x: x, y: y, width: w, height: h)
+
+                self.unitLabel?.sizeToFit()
+                x = x + w + 10.0
+                y = y + h - self.unitLabel!.frame.size.height - 5.0
+                w = self.unitLabel!.frame.size.width
+                h = self.unitLabel!.frame.size.height
+                self.unitLabel?.frame = CGRect(x: x, y: y, width: w, height: h)
+
+                self.diffLabel?.sizeToFit()
+                w = self.diffLabel!.frame.size.width
+                h = self.diffLabel!.frame.size.height
+                x = self.valueLabel!.frame.origin.x - (w + 5.0)
+                y = self.valueLabel!.frame.origin.y
+                if x < 0.0 {
+                    x = 0
+                    y -= h
+                }
+                self.diffLabel?.frame = CGRect(x: x, y: y, width: w, height: h)
+            }
+        }
+        else {
+            self.resetSynapseValueLabels()
+        }
+    }
+
+    func resetSynapseValueLabels() {
+
+        self.valueLabel?.text = ""
+        self.diffLabel?.text = ""
+        self.unitLabel?.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
+    }
+
+    func extendSynapseFloatValue(value: Float, option: [String: Any]) -> Float {
+
+        if let tempOption = option["temp"] as? [String: Any], let temperatureScale = tempOption["scale"] as? String {
+            return self.getTemperatureValue(temperatureScale, value: value)
+        }
+        return value
+    }
 }
+
+// MARK: class - AllSynapseValueLabels
 
 class AllSynapseValueLabels {
 
@@ -7713,11 +5645,12 @@ class AllSynapseValueLabels {
     var tempLabels: SynapseValueLabels = SynapseValueLabels()
     var humLabels: SynapseValueLabels = SynapseValueLabels()
     var soundLabels: SynapseValueLabels = SynapseValueLabels()
-    /*
-     var magxLabels: SynapseValueLabels = SynapseValueLabels()
-     var magyLabels: SynapseValueLabels = SynapseValueLabels()
-     var magzLabels: SynapseValueLabels = SynapseValueLabels()*/
+    /*var magxLabels: SynapseValueLabels = SynapseValueLabels()
+    var magyLabels: SynapseValueLabels = SynapseValueLabels()
+    var magzLabels: SynapseValueLabels = SynapseValueLabels()*/
 }
+
+// MARK: class - SynapseDataMaxAndMin
 
 class SynapseDataMaxAndMin {
 
@@ -7728,10 +5661,169 @@ class SynapseDataMaxAndMin {
     var updatedMax: Bool?
     var updatedMin: Bool?
     var dateStr: String?
+
+    func setValues(_ value: Double, nowStr: String) {
+
+        if let dateStr = self.dateStr, let max = self.max, let maxNow = self.maxNow, let min = self.min, let minNow = self.minNow {
+            let dateNow: String = String(nowStr[nowStr.startIndex..<nowStr.index(nowStr.startIndex, offsetBy: 12)])
+            let dateCheck: String = String(dateStr[dateStr.startIndex..<dateStr.index(dateStr.startIndex, offsetBy: 12)])
+            //print("SynapseDataMaxAndMin dateStr: \(dateNow) - \(dateCheck)")
+            if maxNow < value {
+                self.maxNow = value
+                self.updatedMax = true
+            }
+            if max < value || dateNow != dateCheck {
+                self.max = value
+                self.updatedMax = true
+            }
+            if minNow > value {
+                self.minNow = value
+                self.updatedMin = true
+            }
+            if min > value || dateNow != dateCheck {
+                self.min = value
+                self.updatedMin = true
+            }
+        }
+        else {
+            self.maxNow = value
+            self.max = value
+            self.minNow = value
+            self.min = value
+            self.updatedMax = true
+            self.updatedMin = true
+        }
+        self.dateStr = nowStr
+    }
+
+    func saveValuesCheck(_ key: String, synapseRecordFileManager: SynapseRecordFileManager) {
+
+        if let dateStr = self.dateStr {
+            if let max = self.max, let updated = self.updatedMax, updated {
+                if self.saveValue(max, date: dateStr, type: key, valueType: "max", synapseRecordFileManager: synapseRecordFileManager) {
+                    self.updatedMax = false
+                }
+            }
+            if let min = self.min, let updated = self.updatedMin, updated {
+                if self.saveValue(min, date: dateStr, type: key, valueType: "min", synapseRecordFileManager: synapseRecordFileManager) {
+                    self.updatedMin = false
+                }
+            }
+        }
+    }
+
+    func saveValue(_ value: Double, date: String, type: String, valueType: String, synapseRecordFileManager: SynapseRecordFileManager) -> Bool {
+
+        //print("saveSynapseMaxAndMinValue type: \(type), value: \(value), date: \(date), valueType: \(valueType)")
+        var res: Bool = false
+        if date.count >= 14 {
+            let day: String = String(date[date.startIndex..<date.index(date.startIndex, offsetBy: 8)])
+            let hour: String = String(date[date.index(date.startIndex, offsetBy: 8)..<date.index(date.startIndex, offsetBy: 10)])
+            let min: String = String(date[date.index(date.startIndex, offsetBy: 10)..<date.index(date.startIndex, offsetBy: 12)])
+            //print("saveSynapseMaxAndMinValue dateStr: \(day) \(hour) \(min)")
+            let valueStr = "\(date)_\(value)"
+
+            res = synapseRecordFileManager.setSynapseRecordValueType(valueStr, day: day, hour: hour, min: min, type: type, valueType: valueType)
+            if res {
+                var flag: Bool = false
+                var records: [String]? = synapseRecordFileManager.getSynapseRecordValueTypeIn10min(day: day, hour: hour, min: Int(min)! / 10, type: type, valueType: valueType)
+                if records != nil && records!.count > 0 {
+                    let record: [String] = records![0].components(separatedBy: "_")
+                    if record.count > 1, let value10min = Double(record[1]) {
+                        if (valueType == "max" && value > value10min) || (valueType == "min" && value < value10min) {
+                            flag = true
+                        }
+                    }
+                }
+                else {
+                    flag = true
+                }
+                if flag {
+                    res = synapseRecordFileManager.setSynapseRecordValueTypeIn10min(valueStr, day: day, hour: hour, min: Int(min)! / 10, type: type, valueType: valueType)
+                    if res {
+                        flag = false
+                        records = synapseRecordFileManager.getSynapseRecordValueTypeInHour(day: day, hour: hour, type: type, valueType: valueType)
+                        if records != nil && records!.count > 0 {
+                            let record: [String] = records![0].components(separatedBy: "_")
+                            if record.count > 1, let valueHour = Double(record[1]) {
+                                if (valueType == "max" && value > valueHour) || (valueType == "min" && value < valueHour) {
+                                    flag = true
+                                }
+                            }
+                        }
+                        else {
+                            flag = true
+                        }
+                        if flag {
+                            res = synapseRecordFileManager.setSynapseRecordValueTypeInHour(valueStr, day: day, hour: hour, type: type, valueType: valueType)
+                        }
+                    }
+                }
+            }
+        }
+        return res
+    }
+
+    func debug() {
+
+        var str: String = ""
+        if let maxNow = self.maxNow {
+            str = "\(str)maxNow: \(maxNow)"
+        }
+        else {
+            str = "\(str)maxNow: nil"
+        }
+        str = "\(str), "
+        if let max = self.max {
+            str = "\(str)max: \(max)"
+        }
+        else {
+            str = "\(str)max: nil"
+        }
+        str = "\(str), "
+        if let updatedMax = self.updatedMax {
+            str = "\(str)updatedMax: \(updatedMax)"
+        }
+        else {
+            str = "\(str)updatedMax: nil"
+        }
+        str = "\(str), "
+        if let minNow = self.minNow {
+            str = "\(str)minNow: \(minNow)"
+        }
+        else {
+            str = "\(str)minNow: nil"
+        }
+        str = "\(str), "
+        if let min = self.min {
+            str = "\(str)min: \(min)"
+        }
+        else {
+            str = "\(str)min: nil"
+        }
+        str = "\(str), "
+        if let updatedMin = self.updatedMin {
+            str = "\(str)updatedMin: \(updatedMin)"
+        }
+        else {
+            str = "\(str)updatedMin: nil"
+        }
+        str = "\(str), "
+        if let dateStr = self.dateStr {
+            str = "\(str)dateStr: \(dateStr)"
+        }
+        else {
+            str = "\(str)dateStr: nil"
+        }
+        print(str)
+    }
 }
+
+// MARK: class - AllSynapseDataMaxAndMins
 
 class AllSynapseDataMaxAndMins {
 
+    let synapseCrystalInfo: SynapseCrystalStruct = SynapseCrystalStruct()
     var co2: SynapseDataMaxAndMin = SynapseDataMaxAndMin()
     var ax: SynapseDataMaxAndMin = SynapseDataMaxAndMin()
     var ay: SynapseDataMaxAndMin = SynapseDataMaxAndMin()
@@ -7745,42 +5837,229 @@ class AllSynapseDataMaxAndMins {
     var hum: SynapseDataMaxAndMin = SynapseDataMaxAndMin()
     var sound: SynapseDataMaxAndMin = SynapseDataMaxAndMin()
     var volt: SynapseDataMaxAndMin = SynapseDataMaxAndMin()
-    /*
-     var mx: SynapseDataMaxAndMin = SynapseDataMaxAndMin()
-     var my: SynapseDataMaxAndMin = SynapseDataMaxAndMin()
-     var mz: SynapseDataMaxAndMin = SynapseDataMaxAndMin()*/
+    /*var mx: SynapseDataMaxAndMin = SynapseDataMaxAndMin()
+    var my: SynapseDataMaxAndMin = SynapseDataMaxAndMin()
+    var mz: SynapseDataMaxAndMin = SynapseDataMaxAndMin()*/
+
+    func setValues(synapseValues: SynapseValues, nowStr: String) {
+
+        if let co2 = synapseValues.co2 {
+            self.co2.setValues(Double(co2), nowStr: nowStr)
+        }
+        if let ax = synapseValues.ax {
+            self.ax.setValues(Double(ax), nowStr: nowStr)
+        }
+        if let ay = synapseValues.ay {
+            self.ay.setValues(Double(ay), nowStr: nowStr)
+        }
+        if let az = synapseValues.az {
+            self.az.setValues(Double(az), nowStr: nowStr)
+        }
+        if let light = synapseValues.light {
+            self.light.setValues(Double(light), nowStr: nowStr)
+        }
+        if let gx = synapseValues.gx {
+            self.gx.setValues(Double(gx), nowStr: nowStr)
+        }
+        if let gy = synapseValues.gy {
+            self.gy.setValues(Double(gy), nowStr: nowStr)
+        }
+        if let gz = synapseValues.gz {
+            self.gz.setValues(Double(gz), nowStr: nowStr)
+        }
+        if let press = synapseValues.pressure {
+            self.press.setValues(Double(press), nowStr: nowStr)
+        }
+        if let temp = synapseValues.temp {
+            self.temp.setValues(Double(temp), nowStr: nowStr)
+        }
+        if let hum = synapseValues.humidity {
+            self.hum.setValues(Double(hum), nowStr: nowStr)
+        }
+        if let sound = synapseValues.sound {
+            self.sound.setValues(Double(sound), nowStr: nowStr)
+        }
+        if let volt = synapseValues.power {
+            self.volt.setValues(Double(volt), nowStr: nowStr)
+        }
+        /*if let mx = synapseValues.mx {
+            self.mx.setValues(Double(mx), nowStr: nowStr)
+        }
+        if let my = synapseValues.my {
+            self.my.setValues(Double(my), nowStr: nowStr)
+        }
+        if let mz = synapseValues.mz {
+            self.mz.setValues(Double(mz), nowStr: nowStr)
+        }*/
+    }
+
+    func saveValues(synapseRecordFileManager: SynapseRecordFileManager) {
+
+        if self.synapseCrystalInfo.co2.hasGraph {
+            self.co2.saveValuesCheck(self.synapseCrystalInfo.co2.key, synapseRecordFileManager: synapseRecordFileManager)
+        }
+        if self.synapseCrystalInfo.move.hasGraph {
+            self.ax.saveValuesCheck(self.synapseCrystalInfo.ax.key, synapseRecordFileManager: synapseRecordFileManager)
+            self.ay.saveValuesCheck(self.synapseCrystalInfo.ay.key, synapseRecordFileManager: synapseRecordFileManager)
+            self.az.saveValuesCheck(self.synapseCrystalInfo.az.key, synapseRecordFileManager: synapseRecordFileManager)
+        }
+        if self.synapseCrystalInfo.ill.hasGraph {
+            self.light.saveValuesCheck(self.synapseCrystalInfo.ill.key, synapseRecordFileManager: synapseRecordFileManager)
+        }
+        if self.synapseCrystalInfo.angle.hasGraph {
+            self.gx.saveValuesCheck(self.synapseCrystalInfo.gx.key, synapseRecordFileManager: synapseRecordFileManager)
+            self.gy.saveValuesCheck(self.synapseCrystalInfo.gy.key, synapseRecordFileManager: synapseRecordFileManager)
+            self.gz.saveValuesCheck(self.synapseCrystalInfo.gz.key, synapseRecordFileManager: synapseRecordFileManager)
+        }
+        if self.synapseCrystalInfo.temp.hasGraph {
+            self.temp.saveValuesCheck(self.synapseCrystalInfo.temp.key, synapseRecordFileManager: synapseRecordFileManager)
+        }
+        if self.synapseCrystalInfo.hum.hasGraph {
+            self.hum.saveValuesCheck(self.synapseCrystalInfo.hum.key, synapseRecordFileManager: synapseRecordFileManager)
+        }
+        if self.synapseCrystalInfo.press.hasGraph {
+            self.press.saveValuesCheck(self.synapseCrystalInfo.press.key, synapseRecordFileManager: synapseRecordFileManager)
+        }
+        if self.synapseCrystalInfo.sound.hasGraph {
+            self.sound.saveValuesCheck(self.synapseCrystalInfo.sound.key, synapseRecordFileManager: synapseRecordFileManager)
+        }
+        if self.synapseCrystalInfo.volt.hasGraph {
+            self.volt.saveValuesCheck(self.synapseCrystalInfo.volt.key, synapseRecordFileManager: synapseRecordFileManager)
+        }
+        /*if self.synapseCrystalInfo.mag.hasGraph {
+            self.mx.saveValuesCheck(self.synapseCrystalInfo.mx.key, synapseRecordFileManager: synapseRecordFileManager)
+            self.my.saveValuesCheck(self.synapseCrystalInfo.my.key, synapseRecordFileManager: synapseRecordFileManager)
+            self.mz.saveValuesCheck(self.synapseCrystalInfo.mz.key, synapseRecordFileManager: synapseRecordFileManager)
+        }*/
+    }
 }
+
+// MARK: class - SynapseNotification
 
 class SynapseNotification {
 
+    var notificationId: String?
+    var body: String?
     var value: Double?
     var isSend: Bool?
+
+    init(notificationId: String, body: String) {
+
+        self.notificationId = notificationId
+        self.body = body
+    }
+
+    func checkSynapseNotifications(_ nowValue: Any) {
+
+        if let notificationId = self.notificationId, let body = self.body, let value = self.value {
+            var res: Bool = false
+            var bodyStr: String = body
+            if let nowValue = nowValue as? Double, nowValue >= value {
+                res = true
+                bodyStr = String(format: body, value)
+            }
+            else if let nowValue = nowValue as? Int, nowValue >= Int(value) {
+                res = true
+                bodyStr = String(format: body, Int(value))
+            }
+            else if let nowValue = nowValue as? Float, nowValue >= Float(value) {
+                res = true
+                bodyStr = String(format: body, Float(value))
+            }
+
+            if res {
+                if let isSend = self.isSend, !isSend {
+                    self.sendSynapseNotification(notificationId: notificationId, body: bodyStr)
+                }
+                self.isSend = true
+            }
+            else {
+                /*if let isSend = self.isSend, isSend {
+                    print("Send Notification Reset")
+                }*/
+                self.isSend = false
+            }
+        }
+    }
+
+    func sendSynapseNotification(notificationId: String, body: String) {
+
+        if #available(iOS 10.0, *) {
+            let content: UNMutableNotificationContent = UNMutableNotificationContent()
+            //content.title = NSString.localizedUserNotificationString(forKey: "Test", arguments: nil)
+            content.body = NSString.localizedUserNotificationString(forKey: body, arguments: nil)
+            //content.sound = UNNotificationSound.default()
+            //let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 10, repeats: false)
+            /*
+            var dateInfo = DateComponents()
+            dateInfo.hour = 7
+            dateInfo.minute = 0
+            let trigger = UNCalendarNotificationTrigger(dateMatching: dateInfo, repeats: false)
+             */
+            let request: UNNotificationRequest = UNNotificationRequest(identifier: notificationId, content: content, trigger: nil)
+            let center: UNUserNotificationCenter = UNUserNotificationCenter.current()
+            center.add(request) { (error: Error?) in
+                if let error = error {
+                    print("UserNotificationCenter error : \(error.localizedDescription)")
+                }
+                else {
+                    print("UserNotificationCenter success")
+                }
+            }
+        }
+        else {
+            let notification: UILocalNotification = UILocalNotification()
+            notification.alertBody = body
+            notification.timeZone = NSTimeZone.default
+            //notification.fireDate = Date(timeInterval: 10, since: Date())
+            //notification.soundName = UILocalNotificationDefaultSoundName
+            //notification.applicationIconBadgeNumber = 1
+            notification.userInfo = ["notifyID": notificationId]
+            UIApplication.shared.scheduleLocalNotification(notification)
+        }
+    }
 }
+
+// MARK: class - AllSynapseNotifications
 
 class AllSynapseNotifications {
 
-    var co2: SynapseNotification = SynapseNotification()
-}
+    var co2: SynapseNotification = SynapseNotification(notificationId: "notification_co2",
+                                                       body: "CO2 value exceeded %d")
 
-class DebugView {
+    private let info: [String: Any] = SettingFileManager.shared.getSettingData("notification_info") as? [String : Any] ?? [:]
 
-    var debugAreaView: UIView?
-    var data0Label: UILabel?
-    var data1Label: UILabel?
-    var data2Label: UILabel?
-    var data3Label: UILabel?
-    var data4Label: UILabel?
-    var data5Label: UILabel?
-    var data6Label: UILabel?
-    var data7Label: UILabel?
-    var data8Label: UILabel?
-    var data9Label: UILabel?
-    var data10Label: UILabel?
-    var data11Label: UILabel?
-    var data12Label: UILabel?
-    var data13Label: UILabel?
-    var data14Label: UILabel?
-    var data15Label: UILabel?
-    var data16Label: UILabel?
-    var data17Label: UILabel?
+    init() {
+
+        self.co2.value = self.getSynapseNotificationValue("co2")
+    }
+
+    func getSynapseNotificationValue(_ key: String) -> Double? {
+
+        if let data = self.info[key] as? [String: Any] {
+            if let flag = data["flag"] as? Bool {
+                if flag {
+                    if let value = data["value"] {
+                        if let doubleValue = value as? Double {
+                            return doubleValue
+                        }
+                        else if let intValue = value as? Int {
+                            return Double(intValue)
+                        }
+                        else if let floatValue = value as? Float {
+                            return Double(floatValue)
+                        }
+                    }
+                }
+            }
+        }
+        return nil
+    }
+
+    func checkSynapseNotifications(_ synapseValues: SynapseValues) {
+
+        if let co2 = synapseValues.co2 {
+            self.co2.checkSynapseNotifications(co2)
+        }
+    }
 }

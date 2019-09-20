@@ -95,9 +95,37 @@ extension CommonFunctionProtocol {
         return address
     }
 
+    func getTemperatureUnit(_ type: String) -> String {
+
+        if type == TemperatureScaleKey.fahrenheit.rawValue {
+            return "℉"
+        }
+        return "℃"
+    }
+
+    func getTemperatureValue(_ type: String, value: Float) -> Float {
+
+        if type == TemperatureScaleKey.fahrenheit.rawValue {
+            return self.makeFahrenheitTemperatureValue(value)
+        }
+        return value
+    }
+
     func makeFahrenheitTemperatureValue(_ value: Float) -> Float {
 
         return value * 1.8 + 32.0
+    }
+
+    func makeAccelerationValue(_ value: Float) -> Float {
+
+        let aScale: Float = 2.0 / 32768.0
+        return value * aScale
+    }
+
+    func makeGyroscopeValue(_ value: Float) -> Float {
+
+        let gScale: Float = 250.0 / 32768.0
+        return value * gScale * Float(Double.pi / 180.0)
     }
 
     func log(_ msg: String) {

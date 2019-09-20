@@ -10,7 +10,6 @@ import UIKit
 class MenuViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, CommonFunctionProtocol {
 
     // variables
-    var appDelegate: AppDelegate = UIApplication.shared.delegate as! AppDelegate
     var menuList: [Any] = []
     var debugList: [Any] = []
     var isDebug: Bool = false
@@ -34,7 +33,7 @@ class MenuViewController: UIViewController, UITableViewDataSource, UITableViewDe
 
     func setParam() {
         /*
-        if let menus = self.appDelegate.appinfo?["menus"] as? [Any] {
+        if let menus = self.getAppinfoValue("menus") as? [Any] {
             for (_, element) in menus.enumerated() {
                 if let dic = element as? [String: Any] {
                     self.menuList.append(dic)

@@ -7,7 +7,7 @@
 
 import UIKit
 
-class SettingViewController: BaseViewController, UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate {
+class SettingViewController: BaseViewController, UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate, CommonFunctionProtocol {
 
     // const
     let settings: [String] = [
@@ -237,18 +237,14 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
                     cell.swicth.isHidden = true
 
                     cell.textField.textColor = UIColor.lightGray
-                    cell.textField.text = ""
-                    if let nav = self.navigationController as? SettingNavigationViewController {
-                        if let str = nav.settingFileManager.getSettingData(nav.settingFileManager.oscSendModeKey) as? String, str == "on" {
-                            cell.textField.textColor = UIColor.fluorescentPink
-                        }
-                        if let str1 = nav.settingFileManager.getSettingData(nav.settingFileManager.oscSendIPAddressKey) as? String {
-                            cell.textField.text = str1
-                            if str1.count > 0, let str2 = nav.settingFileManager.getSettingData(nav.settingFileManager.oscSendPortKey) as? String {
-                                cell.textField.text = "\(str1):\(str2)"
-                            }
-                        }
+                    if SettingFileManager.shared.oscSendMode == "on" {
+                        cell.textField.textColor = UIColor.fluorescentPink
                     }
+                    var str: String = SettingFileManager.shared.oscSendIPAddress
+                    if str.count > 0 {
+                        str = "\(str):\(SettingFileManager.shared.oscSendPort)"
+                    }
+                    cell.textField.text = str
                     return cell
                 }
                 else if indexPath.row == 3 {
@@ -261,15 +257,10 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
                     cell.lineView.isHidden = true
 
                     cell.textField.textColor = UIColor.lightGray
-                    cell.textField.text = ""
-                    if let nav = self.navigationController as? SettingNavigationViewController {
-                        if let flag = nav.settingFileManager.getSettingData(nav.settingFileManager.synapseSendFlagKey) as? Bool, flag {
-                            cell.textField.textColor = UIColor.fluorescentPink
-                        }
-                        if let str = nav.settingFileManager.getSettingData(nav.settingFileManager.synapseSendURLKey) as? String {
-                            cell.textField.text = str
-                        }
+                    if SettingFileManager.shared.synapseSendFlag {
+                        cell.textField.textColor = UIColor.fluorescentPink
                     }
+                    cell.textField.text = SettingFileManager.shared.synapseSendURL
                     return cell
                 }
             }
@@ -365,32 +356,35 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
                     cell.backgroundColor = UIColor.white
                     cell.iconImageView.image = nil
                     if crystal.key == self.synapseCrystalInfo.co2.key {
-                        cell.iconImageView.image = UIImage(named: "co2_b.png")
+                        cell.iconImageView.image = UIImage.co2SB
                     }
                     else if crystal.key == self.synapseCrystalInfo.temp.key {
-                        cell.iconImageView.image = UIImage(named: "temp_b.png")
+                        cell.iconImageView.image = UIImage.temperatureSB
                     }
                     else if crystal.key == self.synapseCrystalInfo.hum.key {
-                        cell.iconImageView.image = UIImage(named: "hum_b.png")
+                        cell.iconImageView.image = UIImage.humiditySB
                     }
                     else if crystal.key == self.synapseCrystalInfo.ill.key {
-                        cell.iconImageView.image = UIImage(named: "ill_b.png")
+                        cell.iconImageView.image = UIImage.illuminationSB
                     }
                     else if crystal.key == self.synapseCrystalInfo.press.key {
-                        cell.iconImageView.image = UIImage(named: "press_b.png")
+                        cell.iconImageView.image = UIImage.airpressureSB
                     }
                     else if crystal.key == self.synapseCrystalInfo.sound.key {
-                        cell.iconImageView.image = UIImage(named: "sound_b.png")
+                        cell.iconImageView.image = UIImage.environmentalsoundSB
                     }
                     else if crystal.key == self.synapseCrystalInfo.move.key {
-                        cell.iconImageView.image = UIImage(named: "move_b.png")
+                        cell.iconImageView.image = UIImage.movementSB
                     }
                     else if crystal.key == self.synapseCrystalInfo.angle.key {
-                        cell.iconImageView.image = UIImage(named: "angle_b.png")
+                        cell.iconImageView.image = UIImage.angleSB
                     }
                     /*else if crystal.key == self.synapseCrystalInfo.mag.key {
                         cell.iconImageView.image = UIImage(named: "mag_b.png")
                     }*/
+                    else if crystal.key == self.synapseCrystalInfo.led.key {
+                        cell.iconImageView.image = UIImage.LEDSB
+                    }
                     cell.iconImageView.backgroundColor = UIColor.clear
                     /*if cell.iconImageView.image != nil {
                         cell.iconImageView.backgroundColor = UIColor.darkGray
@@ -429,11 +423,7 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
                     cell.lineView.isHidden = true
 
                     cell.textField.textColor = UIColor.lightGray
-                    cell.textField.text = "℃"
-                    if self.temperatureScale == "F" {
-                        //cell.textField.textColor = UIColor.fluorescentPink
-                        cell.textField.text = "℉"
-                    }
+                    cell.textField.text = self.getTemperatureUnit(self.temperatureScale)
                     return cell
                 }
             }
@@ -594,11 +584,7 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
                     self.navigationController?.pushViewController(vc, animated: true)
                 }
                 else if indexPath.row == 2 {
-                    var flag: Bool = true
-                    if let nav = self.navigationController as? SettingNavigationViewController {
-                        flag = nav.settingFileManager.checkPlayableSound(self.synapseInterval)
-                    }
-                    if flag {
+                    if SettingFileManager.shared.checkPlayableSound(self.synapseInterval) {
                         if let nav = self.navigationController as? SettingNavigationViewController {
                             let play: Bool = !self.soundInfo
                             if nav.changeAudioSettingStart(play: play) {
@@ -618,11 +604,11 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
             }
             else if self.settings[indexPath.section] == "temperature_scale" {
                 if indexPath.row == 1 {
-                    if self.temperatureScale == "F" {
-                        self.temperatureScale = "C"
+                    if self.temperatureScale == TemperatureScaleKey.fahrenheit.rawValue {
+                        self.temperatureScale = TemperatureScaleKey.celsius.rawValue
                     }
                     else {
-                        self.temperatureScale = "F"
+                        self.temperatureScale = TemperatureScaleKey.fahrenheit.rawValue
                     }
                     tableView.reloadData()
                     //tableView.reloadRows(at: [indexPath], with: UITableViewRowAnimation.none)

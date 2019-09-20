@@ -9,26 +9,41 @@ import UIKit
 
 class SettingFileManager: BaseFileManager {
 
-    let fileName: String = "setting"
-    let synapseIDKey: String = "synapse_id"
-    let oscSendModeKey: String = "osc_send_mode"
-    let oscSendIPAddressKey: String = "osc_send_ip_adress"
-    let oscSendPortKey: String = "osc_send_port"
-    let oscRecvModeKey: String = "osc_recv_mode"
-    let oscRecvPortKey: String = "osc_recv_port"
-    let synapseSendFlagKey: String = "synapse_send_flag"
-    let synapseSendURLKey: String = "synapse_send_url"
-    let synapseTimeIntervalKey: String = "synapse_time_interval"
-    let synapseFirmwareURLKey: String = "synapse_firmware_url"
-    let synapseFirmwareInfoKey: String = "synapse_firmware_info"
-    let synapseSoundInfoKey: String = "synapse_sound_info"
-    let synapseValidSensorsKey: String = "synapse_valid_sensors"
-    let synapseTemperatureScaleKey: String = "synapse_temperature_scale"
+    private let fileName: String = "setting"
+    //let synapseIDKey: String = "synapse_id"
+    private let oscSendModeKey: String = "osc_send_mode"
+    private let oscSendIPAddressKey: String = "osc_send_ip_adress"
+    private let oscSendPortKey: String = "osc_send_port"
+    private let oscRecvModeKey: String = "osc_recv_mode"
+    private let oscRecvPortKey: String = "osc_recv_port"
+    private let synapseSendFlagKey: String = "synapse_send_flag"
+    private let synapseSendURLKey: String = "synapse_send_url"
+    private let synapseTimeIntervalKey: String = "synapse_time_interval"
+    private let synapseFirmwareURLKey: String = "synapse_firmware_url"
+    private let synapseFirmwareInfoKey: String = "synapse_firmware_info"
+    private let synapseSoundInfoKey: String = "synapse_sound_info"
+    private let synapseValidSensorsKey: String = "synapse_valid_sensors"
+    private let synapseTemperatureScaleKey: String = "synapse_temperature_scale"
     let synapseTimeIntervals: [String] = [
         "Normal",
         "Live",
         "Low Power",
     ]
+    var oscSendMode: String = ""
+    var oscSendIPAddress: String = ""
+    var oscSendPort: String = ""
+    var oscRecvMode: String = ""
+    var oscRecvPort: String = ""
+    var synapseSendFlag: Bool = false
+    var synapseSendURL: String = ""
+    var synapseTimeInterval: String = ""
+    var synapseFirmwareURL: String = ""
+    var synapseFirmwareInfo: [String: Any] = [:]
+    var synapseSoundInfo: Bool = true
+    var synapseValidSensors: [String: Bool] = [:]
+    var synapseTemperatureScale: String = ""
+
+    static let shared: SettingFileManager = SettingFileManager()
 
     override init() {
         super.init()
@@ -36,6 +51,76 @@ class SettingFileManager: BaseFileManager {
         self.baseDirType = "documents"
         self.baseDirName = ""
         self.setBaseDir()
+
+        self.synapseTimeInterval = self.synapseTimeIntervals[0]
+        self.synapseTemperatureScale = TemperatureScaleKey.celsius.rawValue
+    }
+
+    func loadData() {
+
+        if let data = self.getSettingData() {
+            if let value = data[self.oscSendModeKey] as? String {
+                self.oscSendMode = value
+            }
+            if let value = data[self.oscSendIPAddressKey] as? String {
+                self.oscSendIPAddress = value
+            }
+            if let value = data[self.oscSendPortKey] as? String {
+                self.oscSendPort = value
+            }
+            if let value = data[self.oscRecvModeKey] as? String {
+                self.oscRecvMode = value
+            }
+            if let value = data[self.oscRecvPortKey] as? String {
+                self.oscRecvPort = value
+            }
+            if let value = data[self.synapseSendFlagKey] as? Bool {
+                self.synapseSendFlag = value
+            }
+            if let value = data[self.synapseSendURLKey] as? String {
+                self.synapseSendURL = value
+            }
+            if let value = data[self.synapseTimeIntervalKey] as? String {
+                self.synapseTimeInterval = value
+            }
+            if let value = data[self.synapseFirmwareURLKey] as? String {
+                self.synapseFirmwareURL = value
+            }
+            if let value = data[self.synapseFirmwareInfoKey] as? [String: Any] {
+                self.synapseFirmwareInfo = value
+            }
+            if let value = data[self.synapseSoundInfoKey] as? Bool {
+                self.synapseSoundInfo = value
+            }
+            if let value = data[self.synapseValidSensorsKey] as? [String: Bool] {
+                self.synapseValidSensors = value
+            }
+            if let value = data[self.synapseTemperatureScaleKey] as? String {
+                self.synapseTemperatureScale = value
+            }
+            //print("loadData: \(data)")
+        }
+    }
+
+    func saveData() -> Bool {
+
+        let data: [String: Any] = [
+            self.oscSendModeKey: self.oscSendMode,
+            self.oscSendIPAddressKey: self.oscSendIPAddress,
+            self.oscSendPortKey: self.oscSendPort,
+            self.oscRecvModeKey: self.oscRecvMode,
+            self.oscRecvPortKey: self.oscRecvPort,
+            self.synapseSendFlagKey: self.synapseSendFlag,
+            self.synapseSendURLKey: self.synapseSendURL,
+            self.synapseTimeIntervalKey: self.synapseTimeInterval,
+            self.synapseFirmwareURLKey: self.synapseFirmwareURL,
+            self.synapseFirmwareInfoKey: self.synapseFirmwareInfo,
+            self.synapseSoundInfoKey: self.synapseSoundInfo,
+            self.synapseValidSensorsKey: self.synapseValidSensors,
+            self.synapseTemperatureScaleKey: self.synapseTemperatureScale
+        ]
+        //print("saveData: \(data)")
+        return self.setSettingData(data)
     }
 
     func getSettingData() -> [String: Any]? {
@@ -65,13 +150,23 @@ class SettingFileManager: BaseFileManager {
         return self.setData(fileName: self.fileName, data: NSKeyedArchiver.archivedData(withRootObject: data))
     }
 
+    func setSettingValue(_ key: String, value: Any) -> Bool {
+
+        var settingData: [String: Any] = [:]
+        if let data = self.getSettingData() {
+            settingData = data
+        }
+        settingData[key] = value
+        return self.setSettingData(settingData)
+    }
+
     func getSynapseTimeInterval(_ mode: String, isBackground: Bool = false, isPlaySound: Bool = true) -> TimeInterval {
 
         var time: TimeInterval = 0
-        if mode == "Live" {
+        if mode == self.synapseTimeIntervals[1] {
             time = 0.1
         }
-        else if mode == "Low Power" {
+        else if mode == self.synapseTimeIntervals[2] {
             time = 300.0
         }
         else {
@@ -83,13 +178,26 @@ class SettingFileManager: BaseFileManager {
         return time
     }
 
+    func getSynapseTimeIntervalByteData() -> UInt8 {
+
+        if self.synapseTimeInterval == self.synapseTimeIntervals[1] {
+            return 0x01
+        }
+        else if self.synapseTimeInterval == self.synapseTimeIntervals[2] {
+            return 0x02
+        }
+        else {
+            return 0x00
+        }
+    }
+
     func checkSynapseTimeIntervalUpdate(_ mode: String, isPlaySound: Bool = true) -> Bool {
 
         var res: Bool = false
-        if mode == "Live" {
+        if mode == self.synapseTimeIntervals[1] {
             res = false
         }
-        else if mode == "Low Power" {
+        else if mode == self.synapseTimeIntervals[2] {
             res = false
         }
         else {
@@ -104,7 +212,7 @@ class SettingFileManager: BaseFileManager {
     func checkPlayableSound(_ mode: String) -> Bool {
 
         var res: Bool = true
-        if mode == "Low Power" {
+        if mode == self.synapseTimeIntervals[2] {
             res = false
         }
         return res

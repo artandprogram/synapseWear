@@ -7,13 +7,11 @@
 
 import UIKit
 
-class SynapseDevicesViewController: BaseViewController, UITableViewDataSource, UITableViewDelegate {
+class SynapseDevicesViewController: BaseViewController, UITableViewDataSource, UITableViewDelegate, DeviceScanningDelegate {
 
     // variables
-    var appDelegate: AppDelegate = UIApplication.shared.delegate as! AppDelegate
     var deviceUUID: UUID?
-    //var devices: [RFduino] = []
-    var timer: Timer?
+    var devices: [RFduino] = []
     // views
     var settingTableView: UITableView!
 
@@ -31,20 +29,12 @@ class SynapseDevicesViewController: BaseViewController, UITableViewDataSource, U
         }
     }
 
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-
-        self.checkDeviceListStart()
-    }
-
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
 
-        if self.timer != nil {
-            self.checkDeviceListStop()
-            if let nav = self.navigationController as? SettingNavigationViewController {
-                nav.stopDeviceScan()
-            }
+        if let nav = self.navigationController as? SettingNavigationViewController {
+            nav.stopDeviceScan()
+            nav.setScanDevicesDelegate(nil)
         }
     }
 
@@ -59,7 +49,8 @@ class SynapseDevicesViewController: BaseViewController, UITableViewDataSource, U
         if let nav = self.navigationController as? SettingNavigationViewController {
             nav.startDeviceScan()
             self.deviceUUID = nav.getDeviceUUID()
-            //self.devices = self.appDelegate.scanDevices
+            self.devices = nav.getScanDevices()
+            nav.setScanDevicesDelegate(self)
         }
     }
 
@@ -85,27 +76,11 @@ class SynapseDevicesViewController: BaseViewController, UITableViewDataSource, U
         self.view.addSubview(self.settingTableView)
     }
 
-    func checkDeviceListStart() {
-
-        self.timer = Timer.scheduledTimer(timeInterval: 1.0,
-                                          target: self,
-                                          selector: #selector(self.checkDeviceList),
-                                          userInfo: nil,
-                                          repeats: true)
-        self.timer?.fire()
-    }
-
-    func checkDeviceListStop() {
-
-        self.timer?.invalidate()
-        self.timer = nil
-    }
-    
-    @objc func checkDeviceList() {
+    func scannedDevice() {
 
         if let nav = self.navigationController as? SettingNavigationViewController {
             self.deviceUUID = nav.getDeviceUUID()
-            //self.devices = nav.getDeviceList()
+            self.devices = nav.getScanDevices()
             self.settingTableView.reloadData()
         }
     }
@@ -122,7 +97,7 @@ class SynapseDevicesViewController: BaseViewController, UITableViewDataSource, U
 
         var num: Int = 0
         if section == 0 {
-            num = self.appDelegate.scanDevices.count + 2
+            num = self.devices.count + 2
         }
         return num
     }
@@ -134,12 +109,12 @@ class SynapseDevicesViewController: BaseViewController, UITableViewDataSource, U
         cell.selectionStyle = .none
 
         if indexPath.section == 0 {
-            if indexPath.row == 0 || indexPath.row == self.appDelegate.scanDevices.count + 1 {
+            if indexPath.row == 0 || indexPath.row == self.devices.count + 1 {
                 cell = UITableViewCell(style: .default, reuseIdentifier: "line_cell")
                 cell.backgroundColor = UIColor.black.withAlphaComponent(0.1)
                 cell.selectionStyle = .none
             }
-            else if indexPath.row <= self.appDelegate.scanDevices.count {
+            else if indexPath.row <= self.devices.count {
                 let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "interval_cell")
                 cell.backgroundColor = UIColor.white
                 cell.iconImageView.isHidden = true
@@ -148,11 +123,11 @@ class SynapseDevicesViewController: BaseViewController, UITableViewDataSource, U
                 cell.arrowView.isHidden = true
                 cell.useCheckmark = true
                 cell.lineView.isHidden = false
-                if indexPath.row == self.appDelegate.scanDevices.count {
+                if indexPath.row == self.devices.count {
                     cell.lineView.isHidden = true
                 }
 
-                let device: RFduino = self.appDelegate.scanDevices[indexPath.row - 1]
+                let device: RFduino = self.devices[indexPath.row - 1]
                 cell.titleLabel.text = device.peripheral.identifier.uuidString
                 if let uuid = self.deviceUUID, device.peripheral.identifier == uuid {
                     cell.checkmarkView.isHidden = false
@@ -193,10 +168,10 @@ class SynapseDevicesViewController: BaseViewController, UITableViewDataSource, U
         var height: CGFloat = 0
         let cell: SettingTableViewCell = SettingTableViewCell()
         if indexPath.section == 0 {
-            if indexPath.row == 0 || indexPath.row == self.appDelegate.scanDevices.count + 1 {
+            if indexPath.row == 0 || indexPath.row == self.devices.count + 1 {
                 height = 1.0
             }
-            else if indexPath.row <= self.appDelegate.scanDevices.count {
+            else if indexPath.row <= self.devices.count {
                 height = cell.cellH
             }
         }
@@ -207,11 +182,9 @@ class SynapseDevicesViewController: BaseViewController, UITableViewDataSource, U
 
         tableView.deselectRow(at: indexPath, animated: false)
 
-        if indexPath.row > 0 && indexPath.row <= self.appDelegate.scanDevices.count {
+        if indexPath.row > 0 && indexPath.row <= self.devices.count {
             if let nav = self.navigationController as? NavigationController {
-                self.checkDeviceListStop()
-                nav.stopDeviceScan()
-                nav.reconnectSynapse(uuid: self.appDelegate.scanDevices[indexPath.row - 1].peripheral.identifier)
+                nav.reconnectSynapse(uuid: self.devices[indexPath.row - 1].peripheral.identifier)
                 self.dismiss(animated: true, completion: nil)
             }
         }

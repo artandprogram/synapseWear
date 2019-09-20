@@ -9,15 +9,6 @@ import UIKit
 
 class SynapseIntervalViewController: BaseViewController, UITableViewDataSource, UITableViewDelegate {
 
-    // const
-    /*let intervals: [TimeInterval] = [
-        0.1,
-        1,
-        10,
-        60,
-        300,
-    ]*/
-    let settingFileManager: SettingFileManager = SettingFileManager()
     // variables
     var synapseInterval: String = ""
     //var synapseInterval: TimeInterval = 0
@@ -90,7 +81,7 @@ class SynapseIntervalViewController: BaseViewController, UITableViewDataSource, 
 
         var num: Int = 0
         if section == 0 {
-            num = self.settingFileManager.synapseTimeIntervals.count + 2
+            num = SettingFileManager.shared.synapseTimeIntervals.count + 2
         }
         return num
     }
@@ -102,12 +93,12 @@ class SynapseIntervalViewController: BaseViewController, UITableViewDataSource, 
         cell.selectionStyle = .none
 
         if indexPath.section == 0 {
-            if indexPath.row == 0 || indexPath.row == self.settingFileManager.synapseTimeIntervals.count + 1 {
+            if indexPath.row == 0 || indexPath.row == SettingFileManager.shared.synapseTimeIntervals.count + 1 {
                 cell = UITableViewCell(style: .default, reuseIdentifier: "line_cell")
                 cell.backgroundColor = UIColor.black.withAlphaComponent(0.1)
                 cell.selectionStyle = .none
             }
-            else if indexPath.row <= self.settingFileManager.synapseTimeIntervals.count {
+            else if indexPath.row <= SettingFileManager.shared.synapseTimeIntervals.count {
                 let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "interval_cell")
                 cell.backgroundColor = UIColor.white
                 cell.selectionStyle = .none
@@ -117,11 +108,11 @@ class SynapseIntervalViewController: BaseViewController, UITableViewDataSource, 
                 cell.arrowView.isHidden = true
                 cell.useCheckmark = true
                 cell.lineView.isHidden = false
-                if indexPath.row == self.settingFileManager.synapseTimeIntervals.count {
+                if indexPath.row == SettingFileManager.shared.synapseTimeIntervals.count {
                     cell.lineView.isHidden = true
                 }
 
-                cell.titleLabel.text = self.settingFileManager.synapseTimeIntervals[indexPath.row - 1]
+                cell.titleLabel.text = SettingFileManager.shared.synapseTimeIntervals[indexPath.row - 1]
                 cell.checkmarkView.isHidden = true
                 if self.synapseInterval == cell.titleLabel.text {
                     cell.checkmarkView.isHidden = false
@@ -162,10 +153,10 @@ class SynapseIntervalViewController: BaseViewController, UITableViewDataSource, 
         var height: CGFloat = 0
         let cell: SettingTableViewCell = SettingTableViewCell()
         if indexPath.section == 0 {
-            if indexPath.row == 0 || indexPath.row == self.settingFileManager.synapseTimeIntervals.count + 1 {
+            if indexPath.row == 0 || indexPath.row == SettingFileManager.shared.synapseTimeIntervals.count + 1 {
                 height = 1.0
             }
-            else if indexPath.row <= self.settingFileManager.synapseTimeIntervals.count {
+            else if indexPath.row <= SettingFileManager.shared.synapseTimeIntervals.count {
                 height = cell.cellH
             }
         }
@@ -176,8 +167,8 @@ class SynapseIntervalViewController: BaseViewController, UITableViewDataSource, 
 
         tableView.deselectRow(at: indexPath, animated: false)
 
-        if indexPath.row > 0 && indexPath.row <= self.settingFileManager.synapseTimeIntervals.count {
-            let interval: String = self.settingFileManager.synapseTimeIntervals[indexPath.row - 1]
+        if indexPath.row > 0 && indexPath.row <= SettingFileManager.shared.synapseTimeIntervals.count {
+            let interval: String = SettingFileManager.shared.synapseTimeIntervals[indexPath.row - 1]
             if self.synapseInterval != interval {
                 self.synapseInterval = interval
                 self.settingTableView.reloadData()

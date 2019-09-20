@@ -11,7 +11,6 @@ class SettingNavigationViewController: NavigationController, DeviceAssociatedDel
 
     // const
     let synapseCrystalInfo: SynapseCrystalStruct = SynapseCrystalStruct()
-    let settingFileManager: SettingFileManager = SettingFileManager()
     // variables
     weak var nav: NavigationController?
     //var synapseId: String = ""
@@ -53,27 +52,12 @@ class SettingNavigationViewController: NavigationController, DeviceAssociatedDel
             self.synapseIdNew = str
         }
          */
-        if let timeInterval = self.settingFileManager.getSettingData(self.settingFileManager.synapseTimeIntervalKey) as? String {
-            self.synapseInterval = timeInterval
-        }
-        else {
-            self.synapseInterval = self.settingFileManager.synapseTimeIntervals[0]
-        }
-        if let firmwareURL = self.settingFileManager.getSettingData(self.settingFileManager.synapseFirmwareURLKey) as? String {
-            self.firmwareURL = firmwareURL
-        }
-        if let dic = self.settingFileManager.getSettingData(self.settingFileManager.synapseFirmwareInfoKey) as? [String: Any] {
-            self.firmwareInfo = dic
-        }
-        if let flag = self.settingFileManager.getSettingData(self.settingFileManager.synapseSoundInfoKey) as? Bool {
-            self.soundInfo = flag
-        }
-        if let dic = self.settingFileManager.getSettingData(self.settingFileManager.synapseValidSensorsKey) as? [String: Bool] {
-            self.sensorFlags = dic
-        }
-        if let temperatureScale = self.settingFileManager.getSettingData(self.settingFileManager.synapseTemperatureScaleKey) as? String {
-            self.temperatureScale = temperatureScale
-        }
+        self.synapseInterval = SettingFileManager.shared.synapseTimeInterval
+        self.firmwareURL = SettingFileManager.shared.synapseFirmwareURL
+        self.firmwareInfo = SettingFileManager.shared.synapseFirmwareInfo
+        self.soundInfo = SettingFileManager.shared.synapseSoundInfo
+        self.sensorFlags = SettingFileManager.shared.synapseValidSensors
+        self.temperatureScale = SettingFileManager.shared.synapseTemperatureScale
 
         self.nav?.daDelegate = self
     }
@@ -143,75 +127,51 @@ class SettingNavigationViewController: NavigationController, DeviceAssociatedDel
             self.headerBackBtn.isHidden = false
         }
     }
-    /*
-    override func getDeviceList() -> [Any] {
 
-        var rfduinos: [Any] = []
-        if let nav = self.nav {
-            rfduinos = nav.getDeviceList()
-        }
-        return rfduinos
-    }
-     */
     override func getDeviceUUID() -> UUID? {
 
-        var uuid: UUID? = nil
-        if let nav = self.nav {
-            uuid = nav.getDeviceUUID()
-        }
-        return uuid
+        return self.nav?.getDeviceUUID()
     }
 
     override func startDeviceScan() {
 
-        if let nav = self.nav {
-            nav.startDeviceScan()
-        }
+        self.nav?.startDeviceScan()
     }
 
     override func stopDeviceScan() {
 
-        if let nav = self.nav {
-            nav.stopDeviceScan()
-        }
-
+        self.nav?.stopDeviceScan()
     }
 
     override func reconnectSynapse(uuid: UUID) {
 
-        if let nav = self.nav {
-            nav.reconnectSynapse(uuid: uuid)
-        }
+        self.nav?.reconnectSynapse(uuid: uuid)
     }
 
     override func sendTimeIntervalToDevice() {
 
-        var settingData: [String: Any] = [:]
-        if let data = self.settingFileManager.getSettingData() {
-            settingData = data
-        }
-        var updatedTimeInterval: Bool = true
-        if let timeInterval = self.settingFileManager.getSettingData(self.settingFileManager.synapseTimeIntervalKey) as? String {
-            if self.synapseInterval == timeInterval {
-                updatedTimeInterval = false
-            }
-        }
-        if updatedTimeInterval {
-            settingData[self.settingFileManager.synapseTimeIntervalKey] = self.synapseInterval
-            if self.settingFileManager.setSettingData(settingData) {
+        if self.synapseInterval != SettingFileManager.shared.synapseTimeInterval {
+            SettingFileManager.shared.synapseTimeInterval = self.synapseInterval
+            if SettingFileManager.shared.saveData() {
                 self.nav?.sendTimeIntervalToDevice()
 
                 var play: Bool = self.soundInfo
                 if play {
-                    play = self.settingFileManager.checkPlayableSound(self.synapseInterval)
+                    play = SettingFileManager.shared.checkPlayableSound(self.synapseInterval)
                 }
                 if play != self.soundInfo {
-                    settingData[self.settingFileManager.synapseSoundInfoKey] = play
-                    if self.settingFileManager.setSettingData(settingData) {
+                    SettingFileManager.shared.synapseSoundInfo = play
+                    if SettingFileManager.shared.saveData() {
                         self.soundInfo = play
                         self.changeAudioSetting(play: play)
                     }
+                    else {
+                        SettingFileManager.shared.loadData()
+                    }
                 }
+            }
+            else {
+                SettingFileManager.shared.loadData()
             }
         }
     }
@@ -231,6 +191,21 @@ class SettingNavigationViewController: NavigationController, DeviceAssociatedDel
         self.nav?.sendLEDFlashToDevice()
     }
 
+    override func setOSCClient() {
+
+        self.nav?.setOSCClient()
+    }
+
+    override func getScanDevices() -> [RFduino] {
+
+        return self.nav?.getScanDevices() ?? []
+    }
+
+    override func setScanDevicesDelegate(_ delegate: DeviceScanningDelegate?) {
+
+        self.nav?.setScanDevicesDelegate(delegate)
+    }
+
     // MARK: mark - SettingNavigationViewController methods
 
     @objc func closeAction() {
@@ -241,139 +216,129 @@ class SettingNavigationViewController: NavigationController, DeviceAssociatedDel
     func saveSynapseSetting() {
 
         //print("saveSynapseSetting")
-        var settingData: [String: Any] = [:]
-        if let data = self.settingFileManager.getSettingData() {
-            settingData = data
-        }
-
-        var updatedSensorFlags: Bool = true
-        if let dic = self.settingFileManager.getSettingData(self.settingFileManager.synapseValidSensorsKey) as? [String: Bool] {
-            updatedSensorFlags = false
-            if let flag = self.sensorFlags[self.synapseCrystalInfo.co2.key] {
-                if let flagBak = dic[self.synapseCrystalInfo.co2.key] {
-                    if flag != flagBak {
-                        updatedSensorFlags = true
-                    }
-                }
-                else {
+        var updatedSensorFlags: Bool = false
+        if let flag = self.sensorFlags[self.synapseCrystalInfo.co2.key] {
+            if let flagBak = SettingFileManager.shared.synapseValidSensors[self.synapseCrystalInfo.co2.key] {
+                if flag != flagBak {
                     updatedSensorFlags = true
                 }
             }
-            if let flag = self.sensorFlags[self.synapseCrystalInfo.temp.key] {
-                if let flagBak = dic[self.synapseCrystalInfo.temp.key] {
-                    if flag != flagBak {
-                        updatedSensorFlags = true
-                    }
-                }
-                else {
-                    updatedSensorFlags = true
-                }
-            }
-            if let flag = self.sensorFlags[self.synapseCrystalInfo.hum.key] {
-                if let flagBak = dic[self.synapseCrystalInfo.hum.key] {
-                    if flag != flagBak {
-                        updatedSensorFlags = true
-                    }
-                }
-                else {
-                    updatedSensorFlags = true
-                }
-            }
-            if let flag = self.sensorFlags[self.synapseCrystalInfo.ill.key] {
-                if let flagBak = dic[self.synapseCrystalInfo.ill.key] {
-                    if flag != flagBak {
-                        updatedSensorFlags = true
-                    }
-                }
-                else {
-                    updatedSensorFlags = true
-                }
-            }
-            if let flag = self.sensorFlags[self.synapseCrystalInfo.press.key] {
-                if let flagBak = dic[self.synapseCrystalInfo.press.key] {
-                    if flag != flagBak {
-                        updatedSensorFlags = true
-                    }
-                }
-                else {
-                    updatedSensorFlags = true
-                }
-            }
-            if let flag = self.sensorFlags[self.synapseCrystalInfo.sound.key] {
-                if let flagBak = dic[self.synapseCrystalInfo.sound.key] {
-                    if flag != flagBak {
-                        updatedSensorFlags = true
-                    }
-                }
-                else {
-                    updatedSensorFlags = true
-                }
-            }
-            if let flag = self.sensorFlags[self.synapseCrystalInfo.move.key] {
-                if let flagBak = dic[self.synapseCrystalInfo.move.key] {
-                    if flag != flagBak {
-                        updatedSensorFlags = true
-                    }
-                }
-                else {
-                    updatedSensorFlags = true
-                }
-            }
-            if let flag = self.sensorFlags[self.synapseCrystalInfo.angle.key] {
-                if let flagBak = dic[self.synapseCrystalInfo.angle.key] {
-                    if flag != flagBak {
-                        updatedSensorFlags = true
-                    }
-                }
-                else {
-                    updatedSensorFlags = true
-                }
-            }
-            if let flag = self.sensorFlags[self.synapseCrystalInfo.led.key] {
-                if let flagBak = dic[self.synapseCrystalInfo.led.key] {
-                    if flag != flagBak {
-                        updatedSensorFlags = true
-                    }
-                }
-                else {
-                    updatedSensorFlags = true
-                }
+            else {
+                updatedSensorFlags = true
             }
         }
-        settingData[self.settingFileManager.synapseValidSensorsKey] = self.sensorFlags
+        if let flag = self.sensorFlags[self.synapseCrystalInfo.temp.key] {
+            if let flagBak = SettingFileManager.shared.synapseValidSensors[self.synapseCrystalInfo.temp.key] {
+                if flag != flagBak {
+                    updatedSensorFlags = true
+                }
+            }
+            else {
+                updatedSensorFlags = true
+            }
+        }
+        if let flag = self.sensorFlags[self.synapseCrystalInfo.hum.key] {
+            if let flagBak = SettingFileManager.shared.synapseValidSensors[self.synapseCrystalInfo.hum.key] {
+                if flag != flagBak {
+                    updatedSensorFlags = true
+                }
+            }
+            else {
+                updatedSensorFlags = true
+            }
+        }
+        if let flag = self.sensorFlags[self.synapseCrystalInfo.ill.key] {
+            if let flagBak = SettingFileManager.shared.synapseValidSensors[self.synapseCrystalInfo.ill.key] {
+                if flag != flagBak {
+                    updatedSensorFlags = true
+                }
+            }
+            else {
+                updatedSensorFlags = true
+            }
+        }
+        if let flag = self.sensorFlags[self.synapseCrystalInfo.press.key] {
+            if let flagBak = SettingFileManager.shared.synapseValidSensors[self.synapseCrystalInfo.press.key] {
+                if flag != flagBak {
+                    updatedSensorFlags = true
+                }
+            }
+            else {
+                updatedSensorFlags = true
+            }
+        }
+        if let flag = self.sensorFlags[self.synapseCrystalInfo.sound.key] {
+            if let flagBak = SettingFileManager.shared.synapseValidSensors[self.synapseCrystalInfo.sound.key] {
+                if flag != flagBak {
+                    updatedSensorFlags = true
+                }
+            }
+            else {
+                updatedSensorFlags = true
+            }
+        }
+        if let flag = self.sensorFlags[self.synapseCrystalInfo.move.key] {
+            if let flagBak = SettingFileManager.shared.synapseValidSensors[self.synapseCrystalInfo.move.key] {
+                if flag != flagBak {
+                    updatedSensorFlags = true
+                }
+            }
+            else {
+                updatedSensorFlags = true
+            }
+        }
+        if let flag = self.sensorFlags[self.synapseCrystalInfo.angle.key] {
+            if let flagBak = SettingFileManager.shared.synapseValidSensors[self.synapseCrystalInfo.angle.key] {
+                if flag != flagBak {
+                    updatedSensorFlags = true
+                }
+            }
+            else {
+                updatedSensorFlags = true
+            }
+        }
+        if let flag = self.sensorFlags[self.synapseCrystalInfo.led.key] {
+            if let flagBak = SettingFileManager.shared.synapseValidSensors[self.synapseCrystalInfo.led.key] {
+                if flag != flagBak {
+                    updatedSensorFlags = true
+                }
+            }
+            else {
+                updatedSensorFlags = true
+            }
+        }
 
         var updatedTemperatureScale: Bool = false
-        if let temperatureScale = self.settingFileManager.getSettingData(self.settingFileManager.synapseTemperatureScaleKey) as? String {
-            if self.temperatureScale != temperatureScale {
-                updatedTemperatureScale = true
-            }
+        if self.temperatureScale != SettingFileManager.shared.synapseTemperatureScale {
+            updatedTemperatureScale = true
         }
-        settingData[self.settingFileManager.synapseTemperatureScaleKey] = self.temperatureScale
 
-        settingData[self.settingFileManager.synapseFirmwareURLKey] = self.firmwareURL
-
-        if self.settingFileManager.setSettingData(settingData) {
+        SettingFileManager.shared.synapseValidSensors = self.sensorFlags
+        SettingFileManager.shared.synapseTemperatureScale = self.temperatureScale
+        SettingFileManager.shared.synapseFirmwareURL = self.firmwareURL
+        if SettingFileManager.shared.saveData() {
             if updatedSensorFlags {
                 self.nav?.sendSensorToDevice()
             }
-            self.appDelegate.temperatureScale = self.temperatureScale
             if updatedTemperatureScale {
                 self.nav?.topVC.updateSynapseValuesViewFromSetting()
             }
+        }
+        else {
+            SettingFileManager.shared.loadData()
         }
     }
 
     func changeAudioSettingStart(play: Bool) -> Bool {
 
-        var settingData: [String: Any] = [:]
-        if let data = self.settingFileManager.getSettingData() {
-            settingData = data
-        }
-        settingData[self.settingFileManager.synapseSoundInfoKey] = play
-        if self.settingFileManager.setSettingData(settingData) {
+        SettingFileManager.shared.synapseSoundInfo = play
+        if SettingFileManager.shared.saveData() {
             self.soundInfo = play
             self.changeAudioSetting(play: play)
             return true
+        }
+        else {
+            SettingFileManager.shared.loadData()
         }
         return false
     }

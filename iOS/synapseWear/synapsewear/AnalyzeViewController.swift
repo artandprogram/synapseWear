@@ -21,7 +21,6 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
     let hourFormatter: DateFormatter = DateFormatter()
     let minFormatter: DateFormatter = DateFormatter()
     let secFormatter: DateFormatter = DateFormatter()
-    let appDelegate: AppDelegate = UIApplication.shared.delegate as! AppDelegate
     // variables
     var synapseRecordFileManager: SynapseRecordFileManager?
     var synapseUUID: UUID?
@@ -64,20 +63,20 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
     var synapseSoundPt: Int?
     // realtime variables
     let realtimeGraphTimeIntervalKeys: [String] = [
-        "0.2 sec",
-        "1 sec",
-        "10 sec",
-        "1 min",
-        "2 min",
-        "5 min",
+        "1m",
+        "5m",
+        "1h",
+        "6h",
+        "12h",
+        "24h",
     ]
     let realtimeGraphTimeIntervalValues: [String: [String: TimeInterval]] = [
-        "0.2 sec": ["interval": 0.2, "range": 1.0],
-        "1 sec": ["interval": 1.0, "range": 10.0],
-        "10 sec": ["interval": 10.0, "range": 60.0],
-        "1 min": ["interval": 60.0, "range": 600.0],
-        "2 min": ["interval": 120.0, "range": 600.0],
-        "5 min": ["interval": 300.0, "range": 3600.0],
+        "1m": ["interval": 0.2, "range": 1.0],
+        "5m": ["interval": 1.0, "range": 10.0],
+        "1h": ["interval": 10.0, "range": 60.0],
+        "6h": ["interval": 60.0, "range": 600.0],
+        "12h": ["interval": 120.0, "range": 600.0],
+        "24h": ["interval": 300.0, "range": 3600.0],
     ]
     var isRealtime: Bool = false
     var realtimeGraphTimer: Timer?
@@ -89,19 +88,24 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
     // views
     var baseView: UIView!
     var selectLineView: UIView!
-    var graphRangeView: UILabel!
+    var realtimeModeLabel: UILabel!
+    var startLabel: UILabel!
+    var endLabel: UILabel!
     var dateStartLabel: UILabel!
     var dateEndLabel: UILabel!
     var dateStartArrow: ArrowView!
     var dateEndArrow: ArrowView!
     var dateStartButton: UIButton!
     var dateEndButton: UIButton!
-    var graphDatePickerView: UIView?
+    var graphRealtimeButton: UIButton!
+    var graphPeriodButton: UIButton!
+    var realtimeUnitLabel: UILabel!
+    var realtimeUnitArrow: ArrowView!
+    var realtimeUnitButton: UIButton!
+    var graphPickerView: UIView?
     var graphDatePicker: UIDatePicker?
+    var graphPickerCancelBtn: UIButton?
     var graphRealtimePicker: UIPickerView?
-    var graphDatePickerSetBtn: UIButton?
-    var graphDatePickerCancelBtn: UIButton?
-    var graphDatePickerRealtimeBtn: UIButton?
     var graphMusicButton: UIButton!
     var displaySettingButton: UIButton!
     var displaySettingView: UIView?
@@ -115,22 +119,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
-        if self.isRealtime {
-            if self.realtimeGraphTimeIntervals.count > 0 {
-                self.realtimeGraphTimeIntervalKey = self.realtimeGraphTimeIntervals[0]
-                if let values = self.realtimeGraphTimeIntervalValues[self.realtimeGraphTimeIntervalKey], let interval = values["interval"] {
-                    self.realtimeGraphTimeInterval = interval
-                    self.isRealtime = false
-                    self.changeRealtimeGraphDataStart()
-                }
-                else {
-                    self.realtimeGraphTimeIntervalKey = ""
-                }
-            }
-        }
-        else {
-            self.changeGraphDataStart()
-        }
+        self.changeGraphData()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -260,10 +249,19 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         self.secFormatter.dateFormat = "ss"
 
         for key in self.realtimeGraphTimeIntervalKeys {
-            if let values = self.realtimeGraphTimeIntervalValues[key], let interval = values["interval"] {
-                if interval >= self.appDelegate.synapseTimeInterval {
+            if let values = self.realtimeGraphTimeIntervalValues[key], let interval = values["interval"], let nav = self.navigationController as? NavigationController {
+                if interval >= nav.topVC.synapseTimeInterval {
                     self.realtimeGraphTimeIntervals.append(key)
                 }
+            }
+        }
+        if self.realtimeGraphTimeIntervals.count > 0 {
+            self.realtimeGraphTimeIntervalKey = self.realtimeGraphTimeIntervals[0]
+            if let values = self.realtimeGraphTimeIntervalValues[self.realtimeGraphTimeIntervalKey], let interval = values["interval"] {
+                self.realtimeGraphTimeInterval = interval
+            }
+            else {
+                self.realtimeGraphTimeIntervalKey = ""
             }
         }
 
@@ -303,16 +301,16 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         if let nav = self.navigationController as? NavigationController {
             y = nav.headerView.frame.origin.y + nav.headerView.frame.size.height
         }
-        let startLabel: UILabel = UILabel()
-        startLabel.frame = CGRect(x: x, y: y, width: w, height: h)
-        startLabel.text = "START"
-        startLabel.textColor = UIColor.white
-        startLabel.backgroundColor = UIColor.clear
-        startLabel.font = UIFont(name: "HelveticaNeue", size: 14.0)
-        startLabel.textAlignment = .left
-        startLabel.numberOfLines = 1
-        startLabel.alpha = 0.5
-        self.view.addSubview(startLabel)
+        self.startLabel = UILabel()
+        self.startLabel.frame = CGRect(x: x, y: y, width: w, height: h)
+        self.startLabel.text = "START"
+        self.startLabel.textColor = UIColor.white
+        self.startLabel.backgroundColor = UIColor.clear
+        self.startLabel.font = UIFont(name: "HelveticaNeue", size: 14.0)
+        self.startLabel.textAlignment = .left
+        self.startLabel.numberOfLines = 1
+        self.startLabel.alpha = 0.5
+        self.view.addSubview(self.startLabel)
 
         self.dateStartLabel = UILabel()
         self.dateStartLabel.frame = CGRect(x: x, y: y + h, width: w, height: h)
@@ -342,15 +340,15 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         self.view.addSubview(self.dateStartButton)
 
         x += x + w
-        let endLabel: UILabel = UILabel()
-        endLabel.frame = CGRect(x: x, y: y, width: w, height: h)
-        endLabel.text = "END"
-        endLabel.textColor = UIColor.white
-        endLabel.backgroundColor = UIColor.clear
-        endLabel.font = UIFont(name: "HelveticaNeue", size: 14.0)
-        endLabel.textAlignment = .left
-        endLabel.numberOfLines = 1
-        endLabel.alpha = 0.5
+        self.endLabel = UILabel()
+        self.endLabel.frame = CGRect(x: x, y: y, width: w, height: h)
+        self.endLabel.text = "END"
+        self.endLabel.textColor = UIColor.white
+        self.endLabel.backgroundColor = UIColor.clear
+        self.endLabel.font = UIFont(name: "HelveticaNeue", size: 14.0)
+        self.endLabel.textAlignment = .left
+        self.endLabel.numberOfLines = 1
+        self.endLabel.alpha = 0.5
         self.view.addSubview(endLabel)
 
         self.dateEndLabel = UILabel()
@@ -379,6 +377,20 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         self.dateEndButton.backgroundColor = UIColor.clear
         self.dateEndButton.addTarget(self, action: #selector(self.displayGraphDatePicker(_:)), for: .touchUpInside)
         self.view.addSubview(self.dateEndButton)
+
+        x = 10.0
+        y = self.dateStartLabel.frame.origin.y
+        w = self.view.frame.size.width - x * 2
+        h = self.dateStartLabel.frame.size.height
+        self.realtimeModeLabel = UILabel()
+        self.realtimeModeLabel.frame = CGRect(x: x, y: y, width: w, height: h)
+        self.realtimeModeLabel.text = "Realtime Mode"
+        self.realtimeModeLabel.textColor = UIColor.white
+        self.realtimeModeLabel.backgroundColor = UIColor.clear
+        self.realtimeModeLabel.font = UIFont(name: "HelveticaNeue", size: 16.0)
+        self.realtimeModeLabel.textAlignment = .center
+        self.realtimeModeLabel.numberOfLines = 1
+        self.view.addSubview(self.realtimeModeLabel)
 
         w = 44.0
         h = 44.0
@@ -434,7 +446,128 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         self.selectLineView.isHidden = true
         self.view.addSubview(self.selectLineView)
 
+        x = 10.0
+        y = self.baseView.frame.origin.y + 10.0
+        w = 74.0
+        h = 26.0
+        self.graphRealtimeButton = UIButton()
+        self.graphRealtimeButton.frame = CGRect(x: x, y: y, width: w, height: h)
+        self.graphRealtimeButton.setTitle("Realtime", for: .normal)
+        self.graphRealtimeButton.setTitleColor(UIColor.white, for: .normal)
+        self.graphRealtimeButton.titleLabel?.font = UIFont(name: "HelveticaNeue", size: 14.0)
+        self.graphRealtimeButton.backgroundColor = UIColor.clear
+        self.graphRealtimeButton.layer.borderColor = UIColor.white.cgColor
+        self.graphRealtimeButton.layer.borderWidth = 1.0
+        self.graphRealtimeButton.addTarget(self, action: #selector(self.changeGraphModeAction(_:)), for: .touchUpInside)
+        self.view.addSubview(self.graphRealtimeButton)
+
+        x += w - 1.0
+        self.graphPeriodButton = UIButton()
+        self.graphPeriodButton.frame = CGRect(x: x, y: y, width: w, height: h)
+        self.graphPeriodButton.setTitle("Period", for: .normal)
+        self.graphPeriodButton.setTitleColor(UIColor.white, for: .normal)
+        self.graphPeriodButton.titleLabel?.font = UIFont(name: "HelveticaNeue", size: 14.0)
+        self.graphPeriodButton.backgroundColor = UIColor.clear
+        self.graphPeriodButton.layer.borderColor = UIColor.white.cgColor
+        self.graphPeriodButton.layer.borderWidth = 1.0
+        self.graphPeriodButton.addTarget(self, action: #selector(self.changeGraphModeAction(_:)), for: .touchUpInside)
+        self.view.addSubview(self.graphPeriodButton)
+
+        x = self.view.frame.size.width - (10.0 * 2 + 8.0)
+        y = self.graphRealtimeButton.frame.origin.y
+        w = 0.0
+        h = 18.0
+        self.realtimeUnitLabel = UILabel()
+        self.realtimeUnitLabel.frame = CGRect(x: x, y: y, width: w, height: h)
+        self.realtimeUnitLabel.text = ""
+        self.realtimeUnitLabel.textColor = UIColor.white
+        self.realtimeUnitLabel.backgroundColor = UIColor.clear
+        self.realtimeUnitLabel.font = UIFont(name: "HelveticaNeue", size: 14.0)
+        self.realtimeUnitLabel.textAlignment = .left
+        self.realtimeUnitLabel.numberOfLines = 1
+        self.view.addSubview(self.realtimeUnitLabel)
+
+        x = self.view.frame.size.width - (10.0 + 8.0)
+        y += (h - 4.0) / 2
+        w = 8.0
+        h = 4.0
+        self.realtimeUnitArrow = ArrowView()
+        self.realtimeUnitArrow.frame = CGRect(x: x, y: y, width: w, height: h)
+        self.realtimeUnitArrow.backgroundColor = UIColor.clear
+        self.realtimeUnitArrow.triangleColor = UIColor.white
+        self.realtimeUnitArrow.alpha = 0.8
+        self.view.addSubview(self.realtimeUnitArrow)
+
+        x = self.realtimeUnitLabel.frame.origin.x
+        y = self.realtimeUnitLabel.frame.origin.y
+        w = self.view.frame.size.width - x
+        h = self.realtimeUnitLabel.frame.size.height
+        self.realtimeUnitButton = UIButton()
+        self.realtimeUnitButton.tag = 0
+        self.realtimeUnitButton.frame = CGRect(x: x, y: y, width: w, height: h)
+        self.realtimeUnitButton.backgroundColor = UIColor.clear
+        self.realtimeUnitButton.addTarget(self, action: #selector(self.displayGraphDatePicker(_:)), for: .touchUpInside)
+        self.view.addSubview(self.realtimeUnitButton)
+
+        self.setGraphModeViews()
         self.setGraphDataSmallView()
+    }
+
+    func setGraphModeViews() {
+
+        if self.isRealtime {
+            self.startLabel.isHidden = true
+            self.dateStartLabel.isHidden = true
+            self.dateStartArrow.isHidden = true
+            self.dateStartButton.isHidden = true
+            self.endLabel.isHidden = true
+            self.dateEndLabel.isHidden = true
+            self.dateEndArrow.isHidden = true
+            self.dateEndButton.isHidden = true
+            self.realtimeModeLabel.isHidden = false
+            self.realtimeUnitLabel.isHidden = false
+            self.realtimeUnitArrow.isHidden = false
+            self.realtimeUnitButton.isHidden = false
+            self.graphRealtimeButton.setTitleColor(UIColor.black, for: .normal)
+            self.graphRealtimeButton.backgroundColor = UIColor.white
+            self.graphPeriodButton.setTitleColor(UIColor.white, for: .normal)
+            self.graphPeriodButton.backgroundColor = UIColor.clear
+            self.setRealtimeUnitViews()
+        }
+        else {
+            self.startLabel.isHidden = false
+            self.dateStartLabel.isHidden = false
+            self.dateStartArrow.isHidden = false
+            self.dateStartButton.isHidden = false
+            self.endLabel.isHidden = false
+            self.dateEndLabel.isHidden = false
+            self.dateEndArrow.isHidden = false
+            self.dateEndButton.isHidden = false
+            self.realtimeModeLabel.isHidden = true
+            self.realtimeUnitLabel.isHidden = true
+            self.realtimeUnitArrow.isHidden = true
+            self.realtimeUnitButton.isHidden = true
+            self.graphRealtimeButton.setTitleColor(UIColor.white, for: .normal)
+            self.graphRealtimeButton.backgroundColor = UIColor.clear
+            self.graphPeriodButton.setTitleColor(UIColor.black, for: .normal)
+            self.graphPeriodButton.backgroundColor = UIColor.white
+        }
+    }
+
+    func setRealtimeUnitViews() {
+
+        self.realtimeUnitLabel.text = "unit: \(self.realtimeGraphTimeIntervalKey)"
+        self.realtimeUnitLabel.sizeToFit()
+
+        var x: CGFloat = self.realtimeUnitArrow.frame.origin.x - (self.realtimeUnitLabel.frame.size.width + 10.0)
+        let y: CGFloat = self.realtimeUnitLabel.frame.origin.y
+        var w: CGFloat = self.realtimeUnitLabel.frame.size.width
+        let h: CGFloat = 18.0
+        self.realtimeUnitLabel.frame = CGRect(x: x, y: y, width: w, height: h)
+
+        x = self.realtimeUnitLabel.frame.origin.x
+        w = self.view.frame.size.width - x
+        self.realtimeUnitButton.frame = CGRect(x: x, y: y, width: w, height: h)
     }
 
     func appearNavigationArea() {
@@ -448,19 +581,75 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
 
     // MARK: mark - GraphData methods
 
-    func changeGraphDataStart() {
+    func changeGraphData() {
+
+        if self.isRealtime {
+            self.changeRealtimeGraphDataStart()
+        }
+        else {
+            self.changePeriodGraphDataStart()
+        }
+    }
+
+    @objc func changeGraphModeAction(_ sender: UIButton) {
+
+        var flag: Bool = false
+        if sender == self.graphRealtimeButton {
+            if !self.isRealtime {
+                flag = true
+            }
+        }
+        else if sender == self.graphPeriodButton {
+            if self.isRealtime {
+                flag = true
+            }
+        }
+        if flag {
+            if self.isRealtime {
+                self.realtimeGraphTimer?.invalidate()
+                self.realtimeGraphTimer = nil
+
+                self.changeDateRealtimeToPeriod()
+            }
+
+            self.isRealtime = !self.isRealtime
+            self.setGraphModeViews()
+            self.changeGraphData()
+        }
+    }
+
+    func changeDateRealtimeToPeriod() {
+
+        if let startDate = self.startDate {
+            self.startDate = Date(timeIntervalSince1970: floor(startDate.timeIntervalSince1970 / 300) * 300)
+        }
+        if let endDate = self.endDate {
+            self.endDate = Date(timeIntervalSince1970: ceil(endDate.timeIntervalSince1970 / 300) * 300)
+            //self.endDate = Date(timeIntervalSince1970: floor(endDate.timeIntervalSince1970 / 300) * 300)
+        }
+        /*if let startDate = self.startDate, let endDate = self.endDate {
+            if endDate.timeIntervalSince(startDate) < 300.0 {
+                self.endDate = Date(timeInterval: 300.0, since: startDate)
+            }
+        }*/
+        //print("setGraphDateAction isRealtime: \(self.startDate), \(self.endDate)")
+    }
+
+    func changePeriodGraphDataStart() {
+
+        self.isRealtime = false
 
         self.closeGraphDataSmallView()
         self.setHiddenLoadingView(false)
-
+        
         self.changeGraphTimer = Timer.scheduledTimer(timeInterval: 0.1,
                                                      target: self,
-                                                     selector: #selector(self.changeGraphData),
+                                                     selector: #selector(self.changePeriodGraphData),
                                                      userInfo: nil,
                                                      repeats: true)
     }
 
-    @objc func changeGraphData() {
+    @objc func changePeriodGraphData() {
 
         self.changeGraphTimer?.invalidate()
         self.changeGraphTimer = nil
@@ -479,17 +668,6 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         dateFormatter.dateFormat = "yyyy.M.d HH:mm"
         self.dateStartLabel.text = dateFormatter.string(from: self.startDate!)
         self.dateEndLabel.text = dateFormatter.string(from: self.endDate!)
-        /*if self.isRealtime {
-            self.dateStartLabel.text = "------------"
-            self.dateEndLabel.text = "------------"
-        }
-        else {
-            let dateFormatter: DateFormatter = DateFormatter()
-            dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-            dateFormatter.dateFormat = "yyyy.M.d HH:mm"
-            self.dateStartLabel.text = dateFormatter.string(from: self.startDate!)
-            self.dateEndLabel.text = dateFormatter.string(from: self.endDate!)
-        }*/
 
         self.dateStartLabel.sizeToFit()
         var w: CGFloat = self.dateStartButton.frame.size.width
@@ -1059,24 +1237,27 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
 
     func changeRealtimeGraphDataStart(_ time: TimeInterval? = nil) {
 
-        if !self.isRealtime {
-            self.realtimeGraphTimer?.invalidate()
-            self.realtimeGraphTimer = nil
-
-            self.closeGraphDataSmallView()
-            self.setHiddenLoadingView(false)
-
-            var realtimeGraphTime: TimeInterval = 1.0
-            if let time = time {
-                realtimeGraphTime = time
-            }
-            self.realtimeGraphTimer = Timer.scheduledTimer(timeInterval: realtimeGraphTime,
-                                                           target: self,
-                                                           selector: #selector(self.setRealtimeGraphData),
-                                                           userInfo: nil,
-                                                           repeats: true)
+        if self.realtimeGraphTimeIntervalKey.count <= 0 {
+            return
         }
+
         self.isRealtime = true
+
+        self.realtimeGraphTimer?.invalidate()
+        self.realtimeGraphTimer = nil
+
+        self.closeGraphDataSmallView()
+        self.setHiddenLoadingView(false)
+
+        var realtimeGraphTime: TimeInterval = 1.0
+        if let time = time {
+            realtimeGraphTime = time
+        }
+        self.realtimeGraphTimer = Timer.scheduledTimer(timeInterval: realtimeGraphTime,
+                                                       target: self,
+                                                       selector: #selector(self.setRealtimeGraphData),
+                                                       userInfo: nil,
+                                                       repeats: true)
     }
 
     @objc func setRealtimeGraphData() {
@@ -1303,29 +1484,29 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                     }
 
                     let timeKey: String = String(format:"%.0f", floor(time))
-                    let values: [String: Any] = nav.topVC.mainSynapseObject.makeSynapseData(data)
+                    let values: SynapseValues = nav.topVC.mainSynapseObject.makeSynapseData(data)
                     for (_, element) in self.graphCategories.enumerated() {
                         let key: String = element.key
                         var value: Double? = nil
-                        if key == self.synapseCrystalInfo.co2.key, let co2 = values["co2"] as? Int, co2 >= 400 {
+                        if key == self.synapseCrystalInfo.co2.key, let co2 = values.co2 {
                             value = Double(co2)
                         }
-                        else if key == self.synapseCrystalInfo.temp.key, let temp = values["temp"] as? Float {
+                        else if key == self.synapseCrystalInfo.temp.key, let temp = values.temp {
                             value = Double(temp)
                         }
-                        else if key == self.synapseCrystalInfo.hum.key, let humidity = values["humidity"] as? Int {
+                        else if key == self.synapseCrystalInfo.hum.key, let humidity = values.humidity {
                             value = Double(humidity)
                         }
-                        else if key == self.synapseCrystalInfo.ill.key, let light = values["light"] as? Int {
+                        else if key == self.synapseCrystalInfo.ill.key, let light = values.light {
                             value = Double(light)
                         }
-                        else if key == self.synapseCrystalInfo.press.key, let pressure = values["pressure"] as? Float {
+                        else if key == self.synapseCrystalInfo.press.key, let pressure = values.pressure {
                             value = Double(pressure)
                         }
-                        else if key == self.synapseCrystalInfo.sound.key, let sound = values["sound"] as? Int {
+                        else if key == self.synapseCrystalInfo.sound.key, let sound = values.sound {
                             value = Double(sound)
                         }
-                        else if key == self.synapseCrystalInfo.volt.key, let power = values["volt"] as? Float {
+                        else if key == self.synapseCrystalInfo.volt.key, let power = values.power {
                             value = Double(power)
                         }
 
@@ -1444,6 +1625,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
             self.setGraphViewSize()
         }
 
+        let spaceH: CGFloat = self.graphRealtimeButton.frame.size.height + 10.0 * 2
         for (index, element) in self.graphCategories.enumerated() {
             if let data = self.graphDataList[element.key] {
                 var max: Double = 0
@@ -1458,7 +1640,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
 
                 let imageView: UIImageView = UIImageView()
                 imageView.tag = index
-                imageView.frame = CGRect(x: self.graphX, y: self.graphY, width: self.graphW, height: self.graphH)
+                imageView.frame = CGRect(x: self.graphX, y: self.graphY + spaceH, width: self.graphW, height: self.graphH - spaceH)
                 imageView.backgroundColor = UIColor.clear
                 if self.isRealtime {
                     imageView.image = self.makeRealtimeGraphImage(data, color: element.graphColor, imageW: imageView.frame.size.width, imageH: imageView.frame.size.height, minValue: min, maxValue: max)
@@ -1702,34 +1884,34 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                 imageView.frame = CGRect(x: 10.0, y: y, width: blockW, height: blockW)
                 imageView.backgroundColor = UIColor.clear
                 if element.key == self.synapseCrystalInfo.co2.key {
-                    imageView.image = UIImage(named: "co2.png")
+                    imageView.image = UIImage.co2LW
                 }
                 else if element.key == self.synapseCrystalInfo.temp.key {
-                    imageView.image = UIImage(named: "temp.png")
+                    imageView.image = UIImage.temperatureLW
                 }
                 else if element.key == self.synapseCrystalInfo.hum.key {
-                    imageView.image = UIImage(named: "hum.png")
+                    imageView.image = UIImage.humidityLW
                 }
                 else if element.key == self.synapseCrystalInfo.ill.key {
-                    imageView.image = UIImage(named: "ill.png")
+                    imageView.image = UIImage.illuminationLW
                 }
                 else if element.key == self.synapseCrystalInfo.press.key {
-                    imageView.image = UIImage(named: "press.png")
+                    imageView.image = UIImage.airpressureLW
                 }
                 else if element.key == self.synapseCrystalInfo.sound.key {
-                    imageView.image = UIImage(named: "sound.png")
+                    imageView.image = UIImage.environmentalsoundLW
                 }
                 /*else if element.key == self.synapseCrystalInfo.mag.key {
                      imageView.image = UIImage(named: "mag.png")
                 }*/
                 else if element.key == self.synapseCrystalInfo.move.key {
-                    imageView.image = UIImage(named: "move.png")
+                    imageView.image = UIImage.movementLW
                 }
                 else if element.key == self.synapseCrystalInfo.angle.key {
-                    imageView.image = UIImage(named: "angle.png")
+                    imageView.image = UIImage.angleLW
                 }
                 else if element.key == self.synapseCrystalInfo.volt.key {
-                    imageView.image = UIImage(named: "mag.png")
+                    imageView.image = UIImage.magneticfieldLW
                 }
                 mainScrollView.addSubview(imageView)
 
@@ -1871,10 +2053,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                     minUnitLabel.text = "ppm"
                 }
                 else if element.key == self.synapseCrystalInfo.temp.key {
-                    minUnitLabel.text = "℃"
-                    if self.appDelegate.temperatureScale == "F" {
-                        minUnitLabel.text = "℉"
-                    }
+                    minUnitLabel.text = self.getTemperatureUnit(SettingFileManager.shared.synapseTemperatureScale)
                 }
                 else if element.key == self.synapseCrystalInfo.hum.key {
                     minUnitLabel.text = "%"
@@ -1912,8 +2091,8 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                 minValueLabel.text = ""
                 if let value = self.graphMinRanges[element.key] {
                     minValueLabel.text = String(format:"%.1f", value)
-                    if element.key == self.synapseCrystalInfo.temp.key, self.appDelegate.temperatureScale == "F" {
-                        minValueLabel.text = String(format:"%.1f", self.makeFahrenheitTemperatureValue(Float(value)))
+                    if element.key == self.synapseCrystalInfo.temp.key {
+                        minValueLabel.text = String(format:"%.1f", self.getTemperatureValue(SettingFileManager.shared.synapseTemperatureScale, value: Float(value)))
                     }
                 }
                 mainScrollView.addSubview(minValueLabel)
@@ -2017,8 +2196,8 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                 maxValueLabel.text = ""
                 if let value = self.graphMaxRanges[element.key] {
                     maxValueLabel.text = String(format:"%.1f", value)
-                    if element.key == self.synapseCrystalInfo.temp.key, self.appDelegate.temperatureScale == "F" {
-                        maxValueLabel.text = String(format:"%.1f", self.makeFahrenheitTemperatureValue(Float(value)))
+                    if element.key == self.synapseCrystalInfo.temp.key {
+                        maxValueLabel.text = String(format:"%.1f", self.getTemperatureValue(SettingFileManager.shared.synapseTemperatureScale, value: Float(value)))
                     }
                 }
                 mainScrollView.addSubview(maxValueLabel)
@@ -2138,8 +2317,8 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                     self.graphMinRanges[self.graphCategories[index].key] = value
                     if let viewParts = self.graphRangeViewParts, let labels = viewParts[self.graphCategories[index].key], let label = labels["min"] {
                         label.text = String(format:"%.1f", value)
-                        if self.graphCategories[index].key == self.synapseCrystalInfo.temp.key, self.appDelegate.temperatureScale == "F" {
-                            label.text = String(format:"%.1f", self.makeFahrenheitTemperatureValue(Float(value)))
+                        if self.graphCategories[index].key == self.synapseCrystalInfo.temp.key {
+                            label.text = String(format:"%.1f", self.getTemperatureValue(SettingFileManager.shared.synapseTemperatureScale, value: Float(value)))
                         }
                     }
                 }
@@ -2173,8 +2352,8 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                     self.graphMaxRanges[self.graphCategories[index].key] = value
                     if let viewParts = self.graphRangeViewParts, let labels = viewParts[self.graphCategories[index].key], let label = labels["max"] {
                         label.text = String(format:"%.1f", value)
-                        if self.graphCategories[index].key == self.synapseCrystalInfo.temp.key, self.appDelegate.temperatureScale == "F" {
-                            label.text = String(format:"%.1f", self.makeFahrenheitTemperatureValue(Float(value)))
+                        if self.graphCategories[index].key == self.synapseCrystalInfo.temp.key {
+                            label.text = String(format:"%.1f", self.getTemperatureValue(SettingFileManager.shared.synapseTemperatureScale, value: Float(value)))
                         }
                     }
                 }
@@ -2198,7 +2377,6 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
     @objc func closeDisplaySettingView() {
 
         if self.isRealtime {
-            self.isRealtime = false
             self.changeRealtimeGraphDataStart()
         }
         else {
@@ -2221,11 +2399,11 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         var y: CGFloat = 0
         var w: CGFloat = self.view.frame.size.width
         var h: CGFloat = self.view.frame.size.height
-        self.graphDatePickerView = UIView()
-        self.graphDatePickerView?.tag = sender.tag
-        self.graphDatePickerView?.frame = CGRect(x: x, y: y, width: w, height: h)
-        self.graphDatePickerView?.backgroundColor = UIColor.black.withAlphaComponent(0.9)
-        self.view.addSubview(self.graphDatePickerView!)
+        self.graphPickerView = UIView()
+        self.graphPickerView?.tag = sender.tag
+        self.graphPickerView?.frame = CGRect(x: x, y: y, width: w, height: h)
+        self.graphPickerView?.backgroundColor = UIColor.black.withAlphaComponent(0.9)
+        self.view.addSubview(self.graphPickerView!)
 
         x = 0
         y = (self.view.frame.size.height - 200.0) / 2
@@ -2236,78 +2414,40 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         self.graphDatePicker?.backgroundColor = UIColor.white
         self.graphDatePicker?.datePickerMode = .dateAndTime
         self.graphDatePicker?.minuteInterval = self.timeRangeInterval
-        self.graphDatePickerView?.addSubview(self.graphDatePicker!)
+        self.graphPickerView?.addSubview(self.graphDatePicker!)
 
         self.graphRealtimePicker = UIPickerView()
         self.graphRealtimePicker?.frame = CGRect(x: x, y: y, width: w, height: h)
         self.graphRealtimePicker?.backgroundColor = UIColor.white
         self.graphRealtimePicker?.dataSource = self
         self.graphRealtimePicker?.delegate = self
-        self.graphDatePickerView?.addSubview(self.graphRealtimePicker!)
+        self.graphPickerView?.addSubview(self.graphRealtimePicker!)
         if let row = self.realtimeGraphTimeIntervals.index(of: self.realtimeGraphTimeIntervalKey) {
             self.graphRealtimePicker?.selectRow(row, inComponent: 0, animated: true)
             self.graphRealtimePicker?.reloadComponent(0)
         }
 
-        x = 10.0
-        y = (self.view.frame.size.height - 200.0) / 2 - (44.0 + x)
-        w = 120.0
-        h = 40.0
-        self.graphDatePickerSetBtn = UIButton()
-        self.graphDatePickerSetBtn?.tag = 1
-        self.graphDatePickerSetBtn?.frame = CGRect(x: x, y: y, width: w, height: h)
-        self.graphDatePickerSetBtn?.setTitle("Select", for: .normal)
-        self.graphDatePickerSetBtn?.setTitleColor(UIColor.white, for: .normal)
-        self.graphDatePickerSetBtn?.titleLabel?.font = UIFont(name: "HelveticaNeue", size: 18.0)
-        self.graphDatePickerSetBtn?.backgroundColor = UIColor.clear
-        self.graphDatePickerSetBtn?.clipsToBounds = true
-        self.graphDatePickerSetBtn?.layer.cornerRadius = h / 2
-        self.graphDatePickerSetBtn?.layer.borderColor = UIColor.white.cgColor
-        self.graphDatePickerSetBtn?.layer.borderWidth = 1.0
-        self.graphDatePickerSetBtn?.addTarget(self, action: #selector(self.graphDatePickerBtnAction(_:)), for: .touchUpInside)
-        self.graphDatePickerView?.addSubview(self.graphDatePickerSetBtn!)
-        let bgView1: UIView = UIView()
-        bgView1.frame = CGRect(x: 0, y: 0, width: w, height: h)
-        bgView1.backgroundColor = UIColor.white.withAlphaComponent(0.5)
-        self.graphDatePickerSetBtn?.setBackgroundImage(self.getImageFromView(bgView1), for: .highlighted)
-
-        x += w + x
-        self.graphDatePickerRealtimeBtn = UIButton()
-        self.graphDatePickerRealtimeBtn?.tag = 2
-        self.graphDatePickerRealtimeBtn?.frame = CGRect(x: x, y: y, width: w, height: h)
-        self.graphDatePickerRealtimeBtn?.setTitle("Realtime", for: .normal)
-        self.graphDatePickerRealtimeBtn?.setTitleColor(UIColor.white, for: .normal)
-        self.graphDatePickerRealtimeBtn?.titleLabel?.font = UIFont(name: "HelveticaNeue", size: 18.0)
-        self.graphDatePickerRealtimeBtn?.clipsToBounds = true
-        self.graphDatePickerRealtimeBtn?.layer.cornerRadius = h / 2
-        self.graphDatePickerRealtimeBtn?.layer.borderColor = UIColor.white.cgColor
-        self.graphDatePickerRealtimeBtn?.layer.borderWidth = 1.0
-        self.graphDatePickerRealtimeBtn?.addTarget(self, action: #selector(self.graphDatePickerBtnAction(_:)), for: .touchUpInside)
-        self.graphDatePickerView?.addSubview(self.graphDatePickerRealtimeBtn!)
-        let bgView2: UIView = UIView()
-        bgView2.frame = CGRect(x: 0, y: 0, width: w, height: h)
-        bgView2.backgroundColor = UIColor.white.withAlphaComponent(0.5)
-        self.graphDatePickerRealtimeBtn?.setBackgroundImage(self.getImageFromView(bgView2), for: .highlighted)
-
         w = 40.0
+        h = 40.0
         x = self.view.frame.size.width - (w + 10.0)
-        self.graphDatePickerCancelBtn = UIButton()
-        self.graphDatePickerCancelBtn?.tag = 0
-        self.graphDatePickerCancelBtn?.frame = CGRect(x: x, y: y, width: w, height: h)
-        self.graphDatePickerCancelBtn?.backgroundColor = UIColor.clear
-        self.graphDatePickerCancelBtn?.addTarget(self, action: #selector(self.setGraphDateAction(_:)), for: .touchUpInside)
-        self.graphDatePickerView?.addSubview(self.graphDatePickerCancelBtn!)
+        y = (self.view.frame.size.height - 200.0) / 2 - (h + 10.0)
+        self.graphPickerCancelBtn = UIButton()
+        self.graphPickerCancelBtn?.tag = 0
+        self.graphPickerCancelBtn?.frame = CGRect(x: x, y: y, width: w, height: h)
+        self.graphPickerCancelBtn?.backgroundColor = UIColor.clear
+        self.graphPickerCancelBtn?.addTarget(self, action: #selector(self.setGraphDateAction(_:)), for: .touchUpInside)
+        self.graphPickerView?.addSubview(self.graphPickerCancelBtn!)
 
         w = 18.0
         h = 18.0
-        x = (self.graphDatePickerCancelBtn!.frame.size.width - w) / 2
-        y = (self.graphDatePickerCancelBtn!.frame.size.height - h) / 2
+        x = (self.graphPickerCancelBtn!.frame.size.width - w) / 2
+        y = (self.graphPickerCancelBtn!.frame.size.height - h) / 2
         let closeIcon: CrossView = CrossView()
         closeIcon.frame = CGRect(x: x, y: y, width: w, height: h)
         closeIcon.backgroundColor = UIColor.clear
         closeIcon.isUserInteractionEnabled = false
         closeIcon.lineColor = UIColor.white
-        self.graphDatePickerCancelBtn!.addSubview(closeIcon)
+        self.graphPickerCancelBtn!.addSubview(closeIcon)
 
         self.graphDatePicker?.date = Date()
         self.graphDatePicker?.minimumDate = Date()
@@ -2345,92 +2485,64 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
             }
         }
 
-        self.checkGraphDatePickerIsRealtime(self.isRealtime)
+        self.graphDatePicker?.isHidden = true
+        self.graphRealtimePicker?.isHidden = true
+        if self.isRealtime {
+            self.graphRealtimePicker?.isHidden = false
+        }
+        else {
+            self.graphDatePicker?.isHidden = false
+        }
     }
 
     func removeGraphDatePicker() {
 
-        self.graphDatePickerSetBtn?.removeFromSuperview()
-        self.graphDatePickerSetBtn = nil
-        self.graphDatePickerCancelBtn?.removeFromSuperview()
-        self.graphDatePickerCancelBtn = nil
+        self.graphPickerCancelBtn?.removeFromSuperview()
+        self.graphPickerCancelBtn = nil
         self.graphDatePicker?.removeFromSuperview()
         self.graphDatePicker = nil
         self.graphRealtimePicker?.removeFromSuperview()
         self.graphRealtimePicker = nil
-        self.graphDatePickerView?.removeFromSuperview()
-        self.graphDatePickerView = nil
-    }
-
-    func checkGraphDatePickerIsRealtime(_ flag: Bool) {
-
-        if flag {
-            self.graphDatePickerSetBtn?.backgroundColor = UIColor.clear
-            self.graphDatePickerRealtimeBtn?.backgroundColor = UIColor.fluorescentPink
-            self.graphDatePicker?.isHidden = true
-            self.graphRealtimePicker?.isHidden = false
-        }
-        else {
-            self.graphDatePickerSetBtn?.backgroundColor = UIColor.fluorescentPink
-            self.graphDatePickerRealtimeBtn?.backgroundColor = UIColor.clear
-            self.graphDatePicker?.isHidden = false
-            self.graphRealtimePicker?.isHidden = true
-        }
-    }
-
-    @objc func graphDatePickerBtnAction(_ sender: UIButton) {
-
-        if sender.tag == 1 {
-            self.checkGraphDatePickerIsRealtime(false)
-        }
-        else if sender.tag == 2 {
-            self.checkGraphDatePickerIsRealtime(true)
-        }
+        self.graphPickerView?.removeFromSuperview()
+        self.graphPickerView = nil
     }
 
     @objc func setGraphDateAction(_ sender: UIButton) {
 
         if !self.graphDatePicker!.isHidden {
-            self.realtimeGraphTimer?.invalidate()
-            self.realtimeGraphTimer = nil
-
-            if self.isRealtime {
-                if let startDate = self.startDate {
-                    self.startDate = Date(timeIntervalSince1970: floor(startDate.timeIntervalSince1970 / 300) * 300)
+            var isUpdate: Bool = false
+            if self.graphPickerView?.tag == 1 {
+                if self.startDate != self.graphDatePicker?.date {
+                    self.startDate = self.graphDatePicker?.date
+                    isUpdate = true
                 }
-                if let endDate = self.endDate {
-                    self.endDate = Date(timeIntervalSince1970: ceil(endDate.timeIntervalSince1970 / 300) * 300)
+            }
+            else if self.graphPickerView?.tag == 2 {
+                if self.endDate != self.graphDatePicker?.date {
+                    self.endDate = self.graphDatePicker?.date
+                    isUpdate = true
                 }
-                //print("setGraphDateAction isRealtime: \(self.startDate), \(self.endDate)")
-            }
-            self.isRealtime = false
-
-            if self.graphDatePickerView?.tag == 1 {
-                self.startDate = self.graphDatePicker?.date
-            }
-            else if self.graphDatePickerView?.tag == 2 {
-                self.endDate = self.graphDatePicker?.date
             }
             //print("setGraphDateAction: \(self.startDate), \(self.endDate)")
-
-            self.changeGraphDataStart()
+            if isUpdate {
+                self.changePeriodGraphDataStart()
+            }
         }
         else if !self.graphRealtimePicker!.isHidden {
-            var isRealtimeUpdate: Bool = false
+            var isUpdate: Bool = false
             let selectedRow: Int = self.graphRealtimePicker!.selectedRow(inComponent: 0)
             if selectedRow < self.realtimeGraphTimeIntervals.count && self.realtimeGraphTimeIntervalKey != self.realtimeGraphTimeIntervals[selectedRow] {
                 self.realtimeGraphTimeIntervalKey = self.realtimeGraphTimeIntervals[selectedRow]
                 //print("setGraphDateAction graphRealtimePicker: \(self.realtimeGraphTimeInterval)")
                 if let values = self.realtimeGraphTimeIntervalValues[self.realtimeGraphTimeIntervalKey], let interval = values["interval"] {
                     self.realtimeGraphTimeInterval = interval
-                    isRealtimeUpdate = true
+                    isUpdate = true
                 }
             }
-
-            if isRealtimeUpdate {
-                self.isRealtime = false
+            if isUpdate {
+                self.setRealtimeUnitViews()
+                self.changeRealtimeGraphDataStart()
             }
-            self.changeRealtimeGraphDataStart()
         }
 
         self.removeGraphDatePicker()
@@ -2630,10 +2742,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                 labelUnit.text = "ppm"
             }
             else if element.key == self.synapseCrystalInfo.temp.key {
-                labelUnit.text = "℃"
-                if self.appDelegate.temperatureScale == "F" {
-                    labelUnit.text = "℉"
-                }
+                labelUnit.text = self.getTemperatureUnit(SettingFileManager.shared.synapseTemperatureScale)
             }
             else if element.key == self.synapseCrystalInfo.hum.key {
                 labelUnit.text = "%"
@@ -2683,8 +2792,8 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                     label.text = "-"
                     if let data = self.graphDataList[element.key], data.count > self.graphSelectpt, let value = data[self.graphSelectpt] {
                         label.text = String(format:"%.1f", value)
-                        if element.key == self.synapseCrystalInfo.temp.key, self.appDelegate.temperatureScale == "F" {
-                            label.text = String(format:"%.1f", self.makeFahrenheitTemperatureValue(Float(value)))
+                        if element.key == self.synapseCrystalInfo.temp.key {
+                            label.text = String(format:"%.1f", self.getTemperatureValue(SettingFileManager.shared.synapseTemperatureScale, value: Float(value)))
                         }
                     }
                     label.sizeToFit()
@@ -2823,7 +2932,6 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
     @objc func viewWillEnterForeground(notification: Notification) {
 
         if self.isRealtime {
-            self.isRealtime = false
             self.changeRealtimeGraphDataStart(3.0)
         }
     }
@@ -2868,31 +2976,31 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                 cell.titleLabel.text = crystal.name
                 cell.iconImageView.image = nil
                 if crystal.key == self.synapseCrystalInfo.co2.key {
-                    cell.iconImageView.image = UIImage(named: "co2.png")
+                    cell.iconImageView.image = UIImage.co2LW
                 }
                 else if crystal.key == self.synapseCrystalInfo.temp.key {
-                    cell.iconImageView.image = UIImage(named: "temp.png")
+                    cell.iconImageView.image = UIImage.temperatureLW
                 }
                 else if crystal.key == self.synapseCrystalInfo.hum.key {
-                    cell.iconImageView.image = UIImage(named: "hum.png")
+                    cell.iconImageView.image = UIImage.humidityLW
                 }
                 else if crystal.key == self.synapseCrystalInfo.ill.key {
-                    cell.iconImageView.image = UIImage(named: "ill.png")
+                    cell.iconImageView.image = UIImage.illuminationLW
                 }
                 else if crystal.key == self.synapseCrystalInfo.press.key {
-                    cell.iconImageView.image = UIImage(named: "press.png")
+                    cell.iconImageView.image = UIImage.airpressureLW
                 }
                 else if crystal.key == self.synapseCrystalInfo.sound.key {
-                    cell.iconImageView.image = UIImage(named: "sound.png")
+                    cell.iconImageView.image = UIImage.environmentalsoundLW
                 }
                 else if crystal.key == self.synapseCrystalInfo.move.key {
-                    cell.iconImageView.image = UIImage(named: "move.png")
+                    cell.iconImageView.image = UIImage.movementLW
                 }
                 else if crystal.key == self.synapseCrystalInfo.angle.key {
-                    cell.iconImageView.image = UIImage(named: "angle.png")
+                    cell.iconImageView.image = UIImage.angleLW
                 }
                 else if crystal.key == self.synapseCrystalInfo.volt.key {
-                    cell.iconImageView.image = UIImage(named: "mag.png")
+                    cell.iconImageView.image = UIImage.magneticfieldLW
                 }
                 return cell
             }
@@ -2905,8 +3013,8 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                 cell.text1Label.text = "-"
                 if let data = self.graphDataList[crystal.key], data.count > self.graphSelectpt, let value = data[self.graphSelectpt] {
                     cell.text1Label.text = String(format:"%.1f", value)
-                    if crystal.key == self.synapseCrystalInfo.temp.key, self.appDelegate.temperatureScale == "F" {
-                        cell.text1Label.text = String(format:"%.1f", self.makeFahrenheitTemperatureValue(Float(value)))
+                    if crystal.key == self.synapseCrystalInfo.temp.key {
+                        cell.text1Label.text = String(format:"%.1f", self.getTemperatureValue(SettingFileManager.shared.synapseTemperatureScale, value: Float(value)))
                     }
                 }
                 cell.text2Label.text = ""
@@ -2914,10 +3022,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                     cell.text2Label.text = "ppm"
                 }
                 else if crystal.key == self.synapseCrystalInfo.temp.key {
-                    cell.text2Label.text = "℃"
-                    if self.appDelegate.temperatureScale == "F" {
-                        cell.text2Label.text = "℉"
-                    }
+                    cell.text2Label.text = self.getTemperatureUnit(SettingFileManager.shared.synapseTemperatureScale)
                 }
                 else if crystal.key == self.synapseCrystalInfo.hum.key {
                     cell.text2Label.text = "%"
@@ -2939,8 +3044,8 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                 if let min = self.graphMinValues[crystal.key], let max = self.graphMaxValues[crystal.key] {
                     cell.text3Label.text = "("
                     cell.text4Label.text = String(format:"%.1f - %.1f", min, max)
-                    if crystal.key == self.synapseCrystalInfo.temp.key, self.appDelegate.temperatureScale == "F" {
-                        cell.text4Label.text = String(format:"%.1f - %.1f", self.makeFahrenheitTemperatureValue(Float(min)), self.makeFahrenheitTemperatureValue(Float(max)))
+                    if crystal.key == self.synapseCrystalInfo.temp.key {
+                        cell.text4Label.text = String(format:"%.1f - %.1f", self.getTemperatureValue(SettingFileManager.shared.synapseTemperatureScale, value: Float(min)), self.getTemperatureValue(SettingFileManager.shared.synapseTemperatureScale, value: Float(max)))
                     }
                     cell.text5Label.text = cell.text2Label.text
                     cell.text6Label.text = ")"
@@ -3071,7 +3176,6 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
             nav.topVC.playAudioStart(synapseObject: nav.topVC.mainSynapseObject)
         }
         if self.isRealtime {
-            self.isRealtime = false
             self.changeRealtimeGraphDataStart()
         }
 

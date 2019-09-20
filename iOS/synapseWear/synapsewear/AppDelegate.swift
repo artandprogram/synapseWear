@@ -12,13 +12,7 @@ import UserNotifications
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-    var oscClient: F53OSCClient?
-    var oscSendMode: String = ""
-    var scanDevices: [RFduino] = []
-    //var oscRecvMode: String = ""
-    var synapseTimeInterval: TimeInterval = 0
-    var synapseTimeIntervalBak: TimeInterval = 0
-    var temperatureScale: String = ""
+    //var scanDevices: [RFduino] = []
     var backgroundTaskID: UIBackgroundTaskIdentifier = 0
     var window: UIWindow?
 
@@ -64,8 +58,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func appSetting() {
 
-        self.setOSCClient()
-
         // set AVAudioSession
         let audioSession = AVAudioSession.sharedInstance()
         do {
@@ -87,28 +79,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         self.window = UIWindow(frame: UIScreen.main.bounds)
         self.window?.rootViewController = MainViewController()
         self.window?.makeKeyAndVisible()
-    }
-
-    // MARK: mark - OSC Client methods
-
-    func setOSCClient() {
-
-        self.oscClient = nil
-        self.oscSendMode = ""
-        //self.oscRecvMode = ""
-        if let settingData = SettingFileManager().getSettingData(), let oscSendMode = settingData["osc_send_mode"] as? String {
-            self.oscSendMode = oscSendMode
-            if self.oscSendMode == "on" {
-                if let oscIPAddress = settingData["osc_send_ip_adress"] as? String, let oscPort = settingData["osc_send_port"] as? String, let oscPortNum = UInt16(oscPort) {
-                    self.oscClient = F53OSCClient.init()
-                    self.oscClient?.host = oscIPAddress
-                    self.oscClient?.port = oscPortNum
-                }
-            }
-        }
-        /*if let settingData = SettingFileManager().getSettingData(), let oscRecvMode = settingData["osc_recv_mode"] as? String {
-            self.oscRecvMode = oscRecvMode
-        }*/
     }
 
     // MARK: mark - UserNotification methods

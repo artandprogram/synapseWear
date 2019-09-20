@@ -15,7 +15,6 @@ protocol DeviceAssociatedDelegate: class {
 class NavigationController: UINavigationController, CommonFunctionProtocol {
 
     // variables
-    var appDelegate: AppDelegate = UIApplication.shared.delegate as! AppDelegate
     var nowMenu: IndexPath?
     var menuList: [Any] = []
     var topVC: TopViewController!
@@ -66,11 +65,13 @@ class NavigationController: UINavigationController, CommonFunctionProtocol {
             self.isDebug = isDebug
         }
         //self.setMenuList()
+
+        SettingFileManager.shared.loadData()
     }
     /*
     func setMenuList() {
 
-        if let menus = self.appDelegate.appinfo?["menus"] as? [Any] {
+        if let menus = self.getAppinfoValue("menus") as? [Any] {
             for (_, element) in menus.enumerated() {
                 if var dic = element as? [String: Any] {
                     var vcName: String = ""
@@ -176,7 +177,7 @@ class NavigationController: UINavigationController, CommonFunctionProtocol {
         y = (self.headerSettingBtn.frame.size.height - h) / 2
         self.headerSettingIcon = UIImageView()
         self.headerSettingIcon.frame = CGRect(x: x, y: y, width: w, height: h)
-        self.headerSettingIcon.image = UIImage(named: "setting_b.png")
+        self.headerSettingIcon.image = UIImage.settingSB
         self.headerSettingIcon.backgroundColor = UIColor.clear
         self.headerSettingBtn.addSubview(self.headerSettingIcon)
     }
@@ -246,12 +247,12 @@ class NavigationController: UINavigationController, CommonFunctionProtocol {
 
         UIApplication.shared.statusBarStyle = .default
         self.headerTitle.textColor = UIColor.black
-        self.headerSettingIcon.image = UIImage(named: "setting_b.png")
+        self.headerSettingIcon.image = UIImage.settingSB
         self.headerSettingBtn.setTitleColor(UIColor.black, for: .normal)
         if isWhite {
             UIApplication.shared.statusBarStyle = .lightContent
             self.headerTitle.textColor = UIColor.white
-            self.headerSettingIcon.image = UIImage(named: "setting.png")
+            self.headerSettingIcon.image = UIImage.settingSW
             self.headerSettingBtn.setTitleColor(UIColor.white, for: .normal)
         }
         self.setHeaderBackIcon(isWhite: isWhite)
@@ -359,12 +360,9 @@ class NavigationController: UINavigationController, CommonFunctionProtocol {
 
         self.daDelegate?.changeDeviceAssociated(self.checkDeviceAssociated())
     }
-    /*
-    func getDeviceList() -> [Any] {
 
-        return self.topVC.rfduinos
-    }
-     */
+    // MARK: mark - TopViewController methods
+
     func getDeviceUUID() -> UUID? {
 
         return self.topVC.mainSynapseObject.synapseUUID
@@ -410,5 +408,20 @@ class NavigationController: UINavigationController, CommonFunctionProtocol {
     func sendLEDFlashToDevice() {
 
         self.topVC.sendLEDFlashToDevice(self.topVC.mainSynapseObject)
+    }
+
+    func setOSCClient() {
+
+        self.topVC.setOSCClient()
+    }
+
+    func getScanDevices() -> [RFduino] {
+
+        return self.topVC.scanDevices
+    }
+
+    func setScanDevicesDelegate(_ delegate: DeviceScanningDelegate?) {
+
+        self.topVC.deviceScanningDelegate = delegate
     }
 }

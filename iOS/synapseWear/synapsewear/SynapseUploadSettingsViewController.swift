@@ -9,8 +9,6 @@ import UIKit
 
 class SynapseUploadSettingsViewController: BaseViewController, UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate {
 
-    // const
-    let settingFileManager: SettingFileManager = SettingFileManager()
     // variables
     var synapseSendFlag: Bool = false
     var synapseSendURL: String = ""
@@ -51,12 +49,8 @@ class SynapseUploadSettingsViewController: BaseViewController, UITableViewDataSo
     override func setParam() {
         super.setParam()
 
-        if let flag = self.settingFileManager.getSettingData(self.settingFileManager.synapseSendFlagKey) as? Bool {
-            self.synapseSendFlag = flag
-        }
-        if let str = self.settingFileManager.getSettingData(self.settingFileManager.synapseSendURLKey) as? String {
-            self.synapseSendURL = str
-        }
+        self.synapseSendFlag = SettingFileManager.shared.synapseSendFlag
+        self.synapseSendURL = SettingFileManager.shared.synapseSendURL
         /*
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillShow(_:)), name: .UIKeyboardWillShow, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.KeyboardWillHide(_:)), name: .UIKeyboardWillHide, object: nil)
@@ -102,40 +96,22 @@ class SynapseUploadSettingsViewController: BaseViewController, UITableViewDataSo
 
     func saveSettingData() {
 
-        var isUpdate: Bool = false
         if let sw = self.synapseSendFlagSwitch {
             self.synapseSendFlag = sw.isOn
         }
         if let text = self.synapseSendURLField?.text {
             self.synapseSendURL = text
         }
-        if let flag = self.settingFileManager.getSettingData(self.settingFileManager.synapseSendFlagKey) as? Bool {
-            if self.synapseSendFlag != flag {
-                isUpdate = true
+        if self.synapseSendFlag != SettingFileManager.shared.synapseSendFlag || self.synapseSendURL != SettingFileManager.shared.synapseSendURL {
+            SettingFileManager.shared.synapseSendFlag = self.synapseSendFlag
+            SettingFileManager.shared.synapseSendURL = self.synapseSendURL
+            if SettingFileManager.shared.saveData() {
+                if let nav = self.navigationController as? SettingNavigationViewController {
+                    nav.changeSynapseSendData()
+                }
             }
-        }
-        else {
-            isUpdate = true
-        }
-        if let str = self.settingFileManager.getSettingData(self.settingFileManager.synapseSendURLKey) as? String {
-            if self.synapseSendURL != str {
-                isUpdate = true
-            }
-        }
-        else {
-            isUpdate = true
-        }
-
-        var settingData: [String: Any] = [:]
-        if let data = self.settingFileManager.getSettingData() {
-            settingData = data
-        }
-        settingData[self.settingFileManager.synapseSendFlagKey] = self.synapseSendFlag
-        settingData[self.settingFileManager.synapseSendURLKey] = self.synapseSendURL
-
-        if self.settingFileManager.setSettingData(settingData) {
-            if isUpdate, let nav = self.navigationController as? SettingNavigationViewController {
-                nav.changeSynapseSendData()
+            else {
+                SettingFileManager.shared.loadData()
             }
         }
     }

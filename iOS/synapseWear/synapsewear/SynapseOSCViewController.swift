@@ -9,8 +9,6 @@ import UIKit
 
 class SynapseOSCViewController: BaseViewController, UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate, CommonFunctionProtocol {
 
-    // const
-    let settingFileManager: SettingFileManager = SettingFileManager()
     // variables
     var oscSendMode: String = "off"
     var oscRecvMode: String = "off"
@@ -58,25 +56,14 @@ class SynapseOSCViewController: BaseViewController, UITableViewDataSource, UITab
     override func setParam() {
         super.setParam()
 
-        if let str = self.settingFileManager.getSettingData(self.settingFileManager.oscSendModeKey) as? String {
-            self.oscSendMode = str
-        }
-        if let str = self.settingFileManager.getSettingData(self.settingFileManager.oscRecvModeKey) as? String {
-            self.oscRecvMode = str
-        }
-        if let str = self.settingFileManager.getSettingData(self.settingFileManager.oscSendIPAddressKey) as? String {
-            self.oscSendIP = str
-        }
-        if let str = self.settingFileManager.getSettingData(self.settingFileManager.oscSendPortKey) as? String {
-            self.oscSendPort = str
-        }
-        if let str = self.settingFileManager.getSettingData(self.settingFileManager.oscRecvPortKey) as? String {
-            self.oscRecvPort = str
-        }
+        self.oscSendMode = SettingFileManager.shared.oscSendMode
+        self.oscRecvMode = SettingFileManager.shared.oscRecvMode
+        self.oscSendIP = SettingFileManager.shared.oscSendIPAddress
+        self.oscSendPort = SettingFileManager.shared.oscSendPort
+        self.oscRecvPort = SettingFileManager.shared.oscRecvPort
         if let str = self.getWiFiAddress() {
             self.oscRecvIP = str
         }
-
         if let flag = self.getAppinfoValue("use_osc_recv") as? Bool {
             self.oscRecvSettingFlag = flag
         }
@@ -151,20 +138,18 @@ class SynapseOSCViewController: BaseViewController, UITableViewDataSource, UITab
             self.oscRecvPort = text
         }
 
-        var settingData: [String: Any] = [:]
-        if let data = self.settingFileManager.getSettingData() {
-            settingData = data
-        }
-        settingData[self.settingFileManager.oscSendModeKey] = self.oscSendMode
-        settingData[self.settingFileManager.oscRecvModeKey] = self.oscRecvMode
-        settingData[self.settingFileManager.oscSendIPAddressKey] = self.oscSendIP
-        settingData[self.settingFileManager.oscSendPortKey] = self.oscSendPort
-        settingData[self.settingFileManager.oscRecvPortKey] = self.oscRecvPort
-
-        if self.settingFileManager.setSettingData(settingData) {
-            if let appDelegate = UIApplication.shared.delegate as? AppDelegate {
-                appDelegate.setOSCClient()
+        SettingFileManager.shared.oscSendMode = self.oscSendMode
+        SettingFileManager.shared.oscRecvMode = self.oscRecvMode
+        SettingFileManager.shared.oscSendIPAddress = self.oscSendIP
+        SettingFileManager.shared.oscSendPort = self.oscSendPort
+        SettingFileManager.shared.oscRecvPort = self.oscRecvPort
+        if SettingFileManager.shared.saveData() {
+            if let nav = self.navigationController as? SettingNavigationViewController {
+                nav.setOSCClient()
             }
+        }
+        else {
+            SettingFileManager.shared.loadData()
         }
     }
 
