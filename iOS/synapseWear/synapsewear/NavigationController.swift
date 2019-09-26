@@ -19,6 +19,7 @@ class NavigationController: UINavigationController, CommonFunctionProtocol {
     var menuList: [Any] = []
     var topVC: TopViewController!
     var isDebug: Bool = false
+    var isSetting: Bool = false
     weak var daDelegate: DeviceAssociatedDelegate?
     // views
     var headerView: UIView!
@@ -143,7 +144,7 @@ class NavigationController: UINavigationController, CommonFunctionProtocol {
         self.headerBackBtn = UIButton()
         self.headerBackBtn.frame = CGRect(x: x, y: y, width: w, height: h)
         self.headerBackBtn.backgroundColor = UIColor.clear
-        self.headerBackBtn.addTarget(self, action: #selector(NavigationController.backViewController), for: .touchUpInside)
+        self.headerBackBtn.addTarget(self, action: #selector(self.backViewController), for: .touchUpInside)
         self.headerView.addSubview(self.headerBackBtn)
 
         self.setHeaderBackIcon()
@@ -151,7 +152,7 @@ class NavigationController: UINavigationController, CommonFunctionProtocol {
         self.headerBackForTopBtn = UIButton()
         self.headerBackForTopBtn.frame = self.headerBackBtn.frame
         self.headerBackForTopBtn.backgroundColor = UIColor.clear
-        self.headerBackForTopBtn.addTarget(self, action: #selector(NavigationController.backForTopAction), for: .touchUpInside)
+        self.headerBackForTopBtn.addTarget(self, action: #selector(self.backForTopAction), for: .touchUpInside)
         self.headerView.addSubview(self.headerBackForTopBtn)
 
         self.headerBackForTopIcon = BackView()
@@ -168,7 +169,7 @@ class NavigationController: UINavigationController, CommonFunctionProtocol {
         self.headerSettingBtn = UIButton()
         self.headerSettingBtn.frame = CGRect(x: x, y: y, width: w, height: h)
         self.headerSettingBtn.backgroundColor = UIColor.clear
-        self.headerSettingBtn.addTarget(self, action: #selector(NavigationController.settingAction), for: .touchUpInside)
+        self.headerSettingBtn.addTarget(self, action: #selector(self.settingAction), for: .touchUpInside)
         self.headerView.addSubview(self.headerSettingBtn)
 
         w = 24.0
@@ -246,6 +247,12 @@ class NavigationController: UINavigationController, CommonFunctionProtocol {
     func setHeaderColor(isWhite: Bool) {
 
         UIApplication.shared.statusBarStyle = .default
+        if #available(iOS 13, *) {
+            if traitCollection.userInterfaceStyle == .dark {
+                //print("dark")
+                UIApplication.shared.statusBarStyle = .darkContent
+            }
+        }
         self.headerTitle.textColor = UIColor.black
         self.headerSettingIcon.image = UIImage.settingSB
         self.headerSettingBtn.setTitleColor(UIColor.black, for: .normal)
@@ -297,7 +304,7 @@ class NavigationController: UINavigationController, CommonFunctionProtocol {
         }
 
         if indexPath.section == 0 && indexPath.row < self.menuList.count {
-            if var dic = self.menuList[indexPath.row] as? [String: Any] {
+            if let dic = self.menuList[indexPath.row] as? [String: Any] {
                 if let vc = dic["vc"] as? BaseViewController {
                     self.nowMenu = indexPath
                     self.viewControllers = [vc]
@@ -328,7 +335,9 @@ class NavigationController: UINavigationController, CommonFunctionProtocol {
 
     @objc func backViewController() {
 
+        //print("backViewController")
         if self.viewControllers.count > 1 {
+            //print("backViewController popViewController")
             self.popViewController(animated: true)
         }
     }
@@ -344,8 +353,10 @@ class NavigationController: UINavigationController, CommonFunctionProtocol {
 
     @objc func settingAction() {
 
+        self.isSetting = true
         let vc: SettingNavigationViewController = SettingNavigationViewController()
         vc.nav = self
+        vc.modalPresentationStyle = .fullScreen
         self.present(vc, animated: true, completion: nil)
     }
 

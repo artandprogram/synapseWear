@@ -26,6 +26,8 @@ extension UIImage {
     class var environmentalsoundLB: UIImage? { return UIImage(named: "environmentalsound_l") }
     class var environmentalsoundSW: UIImage? { return UIImage(named: "environmentalsound_s_w") }
     class var environmentalsoundSB: UIImage? { return UIImage(named: "environmentalsound_s") }
+    class var graphsettingSW: UIImage? { return UIImage(named: "graphsetting_s_w") }
+    class var graphsettingSB: UIImage? { return UIImage(named: "graphsetting_s") }
     class var humidityLW: UIImage? { return UIImage(named: "humidity_l_w") }
     class var humidityLB: UIImage? { return UIImage(named: "humidity_l") }
     class var humiditySW: UIImage? { return UIImage(named: "humidity_s_w") }
@@ -44,6 +46,8 @@ extension UIImage {
     class var movementLB: UIImage? { return UIImage(named: "movement_l") }
     class var movementSW: UIImage? { return UIImage(named: "movement_s_w") }
     class var movementSB: UIImage? { return UIImage(named: "movement_s") }
+    class var playmusicSW: UIImage? { return UIImage(named: "playmusic_s_w") }
+    class var playmusicSB: UIImage? { return UIImage(named: "playmusic_s") }
     class var settingSW: UIImage? { return UIImage(named: "setting_s_w") }
     class var settingSB: UIImage? { return UIImage(named: "setting_s") }
     class var statusSW: UIImage? { return UIImage(named: "status_s_w") }

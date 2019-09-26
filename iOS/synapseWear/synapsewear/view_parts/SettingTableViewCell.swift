@@ -68,7 +68,7 @@ class SettingTableViewCell: UITableViewCell {
         self.titleLabel = UILabel()
         self.titleLabel.backgroundColor = UIColor.clear
         self.titleLabel.font = UIFont(name: "HelveticaNeue", size: self.titleF)
-        self.titleLabel.textColor = UIColor.darkGray
+        self.titleLabel.textColor = UIColor.dynamicColor(light: UIColor.darkGray, dark: UIColor.white)
         self.titleLabel.textAlignment = .left
         self.titleLabel.numberOfLines = 1
         self.contentView.addSubview(self.titleLabel)
@@ -87,14 +87,14 @@ class SettingTableViewCell: UITableViewCell {
         self.contentView.addSubview(self.swicth)
 
         self.lineView = UIView()
-        self.lineView.backgroundColor = UIColor.black.withAlphaComponent(0.1)
+        self.lineView.backgroundColor = UIColor.dynamicColor(light: UIColor.black, dark: UIColor.white).withAlphaComponent(0.1)
         self.contentView.addSubview(self.lineView)
 
         self.arrowView = ArrowView()
         self.arrowView.frame = CGRect(x: 0, y: 0, width: self.arrowW, height: self.arrowH)
         self.arrowView.backgroundColor = .clear
         self.arrowView.type = ArrowView.right
-        self.arrowView.triangleColor = UIColor.black
+        self.arrowView.triangleColor = UIColor.dynamicColor(light: UIColor.black, dark: UIColor.white)
         self.arrowView.alpha = 0.2
         self.contentView.addSubview(self.arrowView)
 

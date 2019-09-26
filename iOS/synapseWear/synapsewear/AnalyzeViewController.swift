@@ -137,6 +137,8 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
 
         self.realtimeGraphTimer?.invalidate()
         self.realtimeGraphTimer = nil
+
+        NotificationCenter.default.removeObserver(self)
     }
 
     override func didReceiveMemoryWarning() {
@@ -407,7 +409,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                              y: (self.graphMusicButton.frame.size.height - 24.0) / 2,
                              width: 24.0,
                              height: 24.0)
-        icon1.image = UIImage(named: "music.png")
+        icon1.image = UIImage.playmusicSW
         icon1.backgroundColor = UIColor.clear
         self.graphMusicButton.addSubview(icon1)
 
@@ -423,7 +425,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                              y: (self.displaySettingButton.frame.size.height - 24.0) / 2,
                              width: 24.0,
                              height: 24.0)
-        icon2.image = UIImage(named: "graph.png")
+        icon2.image = UIImage.graphsettingSW
         icon2.backgroundColor = UIColor.clear
         self.displaySettingButton.addSubview(icon2)
 
@@ -2411,14 +2413,14 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         h = 200.0
         self.graphDatePicker = UIDatePicker()
         self.graphDatePicker?.frame = CGRect(x: x, y: y, width: w, height: h)
-        self.graphDatePicker?.backgroundColor = UIColor.white
+        self.graphDatePicker?.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
         self.graphDatePicker?.datePickerMode = .dateAndTime
         self.graphDatePicker?.minuteInterval = self.timeRangeInterval
         self.graphPickerView?.addSubview(self.graphDatePicker!)
 
         self.graphRealtimePicker = UIPickerView()
         self.graphRealtimePicker?.frame = CGRect(x: x, y: y, width: w, height: h)
-        self.graphRealtimePicker?.backgroundColor = UIColor.white
+        self.graphRealtimePicker?.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
         self.graphRealtimePicker?.dataSource = self
         self.graphRealtimePicker?.delegate = self
         self.graphPickerView?.addSubview(self.graphRealtimePicker!)
@@ -3103,7 +3105,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
     }
 
     // MARK: mark - PickerViewDelegate methods
-    
+
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
 
         return self.realtimeGraphTimeIntervals[row]

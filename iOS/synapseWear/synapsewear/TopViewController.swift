@@ -229,7 +229,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
     var statusItems: [String] = []
     var statusValues: [String] = []
     var statusAreaBtn: UIButton!
-    var statusView: UIView!
+    var statusView: UIView?
     var statusLabels: [UILabel] = []
     // OSC variables
     var oscSynapseObject: SynapseObject?
@@ -438,6 +438,18 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 nav.headerMenuBtn.isHidden = false
             }
             nav.headerBackForTopBtn.isHidden = true
+        }
+    }
+
+    func darkmodeCheck() {
+
+        if let nav = self.navigationController as? NavigationController, nav.viewControllers.count == 1, !nav.isSetting {
+            if !self.synapseValuesView.isHidden {
+                nav.setHeaderColor(isWhite: true)
+            }
+            else {
+                nav.setHeaderColor(isWhite: false)
+            }
         }
     }
 
@@ -1237,7 +1249,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             }
         }
         if isPush {
-            self.statusView.isHidden = true
+            self.removeStatusView()
 
             let vc: AnalyzeViewController = AnalyzeViewController()
             vc.synapseUUID = self.mainSynapseObject.synapseUUID
@@ -3380,7 +3392,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         }
 
         self.setStatusButton()
-        self.setStatusView()
+        //self.setStatusView()
     }
 
     func setStatusButton() {
@@ -3414,14 +3426,13 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             var w: CGFloat = nav.view.frame.width
             var h: CGFloat = nav.view.frame.height
             self.statusView = UIView()
-            self.statusView.frame = CGRect(x: x, y: y, width: w, height: h)
-            self.statusView.backgroundColor = UIColor.black.withAlphaComponent(0.8)
-            self.statusView.isHidden = true
-            nav.view.addSubview(self.statusView)
+            self.statusView?.frame = CGRect(x: x, y: y, width: w, height: h)
+            self.statusView?.backgroundColor = UIColor.black.withAlphaComponent(0.8)
+            nav.view.addSubview(self.statusView!)
 
             w = 44.0
             h = 44.0
-            x = self.statusView.frame.size.width - w
+            x = self.statusView!.frame.size.width - w
             y = 20.0
             if #available(iOS 11.0, *) {
                 if y < self.view.safeAreaInsets.top {
@@ -3433,7 +3444,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             closeButton.frame = CGRect(x: x, y: y, width: w, height: h)
             closeButton.backgroundColor = UIColor.clear
             closeButton.addTarget(self, action: #selector(self.setStatusViewHiddenAction), for: .touchUpInside)
-            self.statusView.addSubview(closeButton)
+            self.statusView?.addSubview(closeButton)
 
             w = 18.0
             h = 18.0
@@ -3448,7 +3459,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
 
             x = 10.0
             y = closeButton.frame.origin.y + 44.0
-            w = self.statusView.frame.size.width - x
+            w = self.statusView!.frame.size.width - x
             h = 50.0
             let titleLabel: UILabel = UILabel()
             titleLabel.frame = CGRect(x: x, y: y, width: w, height: h)
@@ -3458,12 +3469,12 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             titleLabel.font = UIFont(name: "HelveticaNeue", size: 24.0)
             titleLabel.textAlignment = .left
             titleLabel.numberOfLines = 1
-            self.statusView.addSubview(titleLabel)
+            self.statusView?.addSubview(titleLabel)
 
             w = 200.0
             h = 44.0
-            x = (self.statusView.frame.size.width - w) / 2
-            y = self.statusView.frame.size.height - (h + 20.0)
+            x = (self.statusView!.frame.size.width - w) / 2
+            y = self.statusView!.frame.size.height - (h + 20.0)
             let analyzeButton: UIButton = UIButton()
             analyzeButton.frame = CGRect(x: x, y: y, width: w, height: h)
             analyzeButton.setTitle("Analyze", for: .normal)
@@ -3475,7 +3486,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             analyzeButton.layer.borderColor = UIColor.white.withAlphaComponent(0.3).cgColor
             analyzeButton.layer.borderWidth = 1.0
             analyzeButton.addTarget(self, action: #selector(self.pushAnalyzeViewAction(_:)), for: .touchUpInside)
-            self.statusView.addSubview(analyzeButton)
+            self.statusView?.addSubview(analyzeButton)
             let bgView: UIView = UIView()
             bgView.frame = CGRect(x: 0, y: 0, width: w, height: h)
             bgView.backgroundColor = UIColor.white.withAlphaComponent(0.3)
@@ -3483,12 +3494,12 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
 
             x = 0
             y = titleLabel.frame.origin.y + titleLabel.frame.size.height + 10.0
-            w = self.statusView.frame.size.width
+            w = self.statusView!.frame.size.width
             h = (analyzeButton.frame.origin.y - 20.0) - y
             let mainScrollView: UIScrollView = UIScrollView()
             mainScrollView.frame = CGRect(x: x, y: y, width: w, height: h)
             mainScrollView.backgroundColor = UIColor.clear
-            self.statusView.addSubview(mainScrollView)
+            self.statusView?.addSubview(mainScrollView)
 
             self.statusLabels = []
             y = 0
@@ -3527,17 +3538,26 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         }
     }
 
+    func removeStatusView() {
+
+        self.statusView?.removeFromSuperview()
+        self.statusView = nil
+    }
+
     @objc func setStatusViewHiddenAction() {
 
-        self.statusView.isHidden = !self.statusView.isHidden
-        if !self.statusView.isHidden {
+        if self.statusView == nil {
+            self.setStatusView()
             self.updateStatusView(synapseObject: self.mainSynapseObject)
+        }
+        else {
+            self.removeStatusView()
         }
     }
 
     func updateStatusView(synapseObject: SynapseObject) {
 
-        if !self.statusView.isHidden {
+        if self.statusView != nil {
             var value: String = ""
             if let uuid = synapseObject.synapseUUID {
                 value = uuid.uuidString
@@ -3732,6 +3752,16 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         DispatchQueue.global(qos: .background).async {
             //print("\(Date()) checkSoundTimer")
             self.synapseSound?.checkSound(date: date)
+        }
+    }
+
+    // MARK: mark - UITraitEnvironment methods
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+
+        if #available(iOS 13, *) {
+            self.darkmodeCheck()
         }
     }
 }

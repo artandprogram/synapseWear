@@ -36,7 +36,6 @@ class SettingNavigationViewController: NavigationController, DeviceAssociatedDel
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
 
-        //print("SettingNavigationViewController viewWillDisappear")
         self.saveSynapseSetting()
     }
 
@@ -46,12 +45,11 @@ class SettingNavigationViewController: NavigationController, DeviceAssociatedDel
     }
 
     override func setParam() {
-        /*
-        if let str = self.settingFileManager.getSettingData(self.settingFileManager.synapseIDKey) as? String {
+
+        /*if let str = self.settingFileManager.getSettingData(self.settingFileManager.synapseIDKey) as? String {
             self.synapseId = str
             self.synapseIdNew = str
-        }
-         */
+        }*/
         self.synapseInterval = SettingFileManager.shared.synapseTimeInterval
         self.firmwareURL = SettingFileManager.shared.synapseFirmwareURL
         self.firmwareInfo = SettingFileManager.shared.synapseFirmwareInfo
@@ -75,6 +73,9 @@ class SettingNavigationViewController: NavigationController, DeviceAssociatedDel
         self.headerSettingBtn.isEnabled = false
         //self.headerSettingBtn.isHidden = true
 
+        self.headerTitle.textColor = UIColor.dynamicColor(light: UIColor.black, dark: UIColor.white)
+        self.headerBackIcon.lineColor = UIColor.dynamicColor(light: UIColor.black, dark: UIColor.white)
+
         self.headerCloseBtn = UIButton()
         self.headerCloseBtn.frame = CGRect(x: self.headerView.frame.size.width - 44.0,
                                            y: 20.0,
@@ -91,7 +92,7 @@ class SettingNavigationViewController: NavigationController, DeviceAssociatedDel
                                             height: 18.0)
         self.headerCloseIcon.backgroundColor = .clear
         self.headerCloseIcon.isUserInteractionEnabled = false
-        self.headerCloseIcon.lineColor = UIColor.black
+        self.headerCloseIcon.lineColor = UIColor.dynamicColor(light: UIColor.black, dark: UIColor.white)
         self.headerCloseBtn.addSubview(self.headerCloseIcon)
     }
 
@@ -210,6 +211,7 @@ class SettingNavigationViewController: NavigationController, DeviceAssociatedDel
 
     @objc func closeAction() {
 
+        self.nav?.isSetting = false
         self.dismiss(animated: true, completion: nil)
     }
 

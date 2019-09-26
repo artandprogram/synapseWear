@@ -51,6 +51,17 @@ class MainViewController: UIViewController {
     override func prefersHomeIndicatorAutoHidden() -> Bool {
         return true
     }
+    
+    /*override var preferredStatusBarStyle: UIStatusBarStyle {
+
+        if #available(iOS 13, *) {
+            print("darkContent")
+            return .darkContent
+        }
+        else {
+            return .default
+        }
+    }*/
 
     // MARK: mark - Set Variables methods
 

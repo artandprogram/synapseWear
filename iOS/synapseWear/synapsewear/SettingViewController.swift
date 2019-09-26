@@ -7,7 +7,7 @@
 
 import UIKit
 
-class SettingViewController: BaseViewController, UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate, CommonFunctionProtocol {
+class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
 
     // const
     let settings: [String] = [
@@ -23,6 +23,7 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
     // variables
     var isFirst: Bool = true
     var sensors: [CrystalStruct] = []
+    var sensorIcons: [String: [String: UIImage?]] = [:]
     var synapseInterval: String = ""
     //var synapseInterval: TimeInterval = 0
     var firmwareURL: String = ""
@@ -31,7 +32,6 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
     var sensorFlags: [String: Bool] = [:]
     var temperatureScale: String = ""
     // views
-    var settingTableView: UITableView!
     var textField: UITextField?
 
     override func viewDidLoad() {
@@ -66,6 +66,8 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
             self.settingTableView.reloadData()
         }
         self.isFirst = false
+
+        self.setNotificationCenter()
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -91,6 +93,8 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
             nav.sensorFlags = self.sensorFlags
             nav.temperatureScale = self.temperatureScale
         }
+
+        NotificationCenter.default.removeObserver(self)
     }
 
     override func didReceiveMemoryWarning() {
@@ -113,7 +117,46 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
             self.synapseCrystalInfo.led,
             //self.synapseCrystalInfo.mag,
         ]
- 
+        self.sensorIcons = [
+            self.synapseCrystalInfo.co2.key: [
+                "light": UIImage.co2SB,
+                "dark": UIImage.co2SW
+            ],
+            self.synapseCrystalInfo.temp.key: [
+                "light": UIImage.temperatureSB,
+                "dark": UIImage.temperatureSW
+            ],
+            self.synapseCrystalInfo.hum.key: [
+                "light": UIImage.humiditySB,
+                "dark": UIImage.humiditySW
+            ],
+            self.synapseCrystalInfo.ill.key: [
+                "light": UIImage.illuminationSB,
+                "dark": UIImage.illuminationSW
+            ],
+            self.synapseCrystalInfo.press.key: [
+                "light": UIImage.airpressureSB,
+                "dark": UIImage.airpressureSW
+            ],
+            self.synapseCrystalInfo.sound.key: [
+                "light": UIImage.environmentalsoundSB,
+                "dark": UIImage.environmentalsoundSW
+            ],
+            self.synapseCrystalInfo.move.key: [
+                "light": UIImage.movementSB,
+                "dark": UIImage.movementSW
+            ],
+            self.synapseCrystalInfo.angle.key: [
+                "light": UIImage.angleSB,
+                "dark": UIImage.angleSW
+            ],
+            //self.synapseCrystalInfo.mag.key: [],
+            self.synapseCrystalInfo.led.key: [
+                "light": UIImage.LEDSB,
+                "dark": UIImage.LEDSW
+            ],
+        ]
+
         if let nav = self.navigationController as? SettingNavigationViewController {
             self.synapseInterval = nav.synapseInterval
             self.firmwareURL = nav.firmwareURL
@@ -121,49 +164,26 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
             self.sensorFlags = nav.sensorFlags
             self.soundInfo = nav.soundInfo
         }
- 
+    }
+
+    // MARK: mark - NotificationCenter methods
+
+    func setNotificationCenter() {
+
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(self.keyboardWillShow(notification:)),
-                                               name: NSNotification.Name.UIKeyboardWillShow,
+                                               name: .UIKeyboardWillShow,
                                                object: nil)
-    }
-
-    override func setView() {
-        super.setView()
-
-        self.view.backgroundColor = UIColor.grayBGColor
-
-        self.settingTableView = UITableView()
-        self.settingTableView.backgroundColor = UIColor.clear
-        self.settingTableView.separatorStyle = .none
-        self.settingTableView.delegate = self
-        self.settingTableView.dataSource = self
-        self.view.addSubview(self.settingTableView)
-    }
-
-    override func resizeView() {
-        super.resizeView()
-
-        let x:CGFloat = 0
-        var y:CGFloat = 0
-        let w:CGFloat = self.view.frame.width
-        var h:CGFloat = self.view.frame.height
-        if let nav = self.navigationController as? NavigationController {
-            y = nav.headerView.frame.origin.y + nav.headerView.frame.size.height
-            h -= y
-        }
-        self.settingTableView.frame = CGRect(x: x, y: y, width: w, height: h)
     }
 
     // MARK: mark - UITableViewDataSource methods
 
     func numberOfSections(in tableView: UITableView) -> Int {
 
-        let sections: Int = self.settings.count
-        return sections
+        return self.settings.count
     }
 
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 
         var num: Int = 0
         if section < self.settings.count {
@@ -192,22 +212,16 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
         return num
     }
 
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-
-        var cell: UITableViewCell = UITableViewCell(style: .default, reuseIdentifier: "Cell")
-        cell.backgroundColor = UIColor.clear
-        cell.selectionStyle = .none
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
         if indexPath.section < self.settings.count {
             if self.settings[indexPath.section] == "synapse_wear_id" {
                 if indexPath.row == 0 || indexPath.row == 4 {
-                    cell = UITableViewCell(style: .default, reuseIdentifier: "line_cell")
-                    cell.backgroundColor = UIColor.black.withAlphaComponent(0.1)
-                    cell.selectionStyle = .none
+                    return self.getLineCell()
                 }
                 else if indexPath.row == 1 {
                     let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "id_cell")
-                    cell.backgroundColor = UIColor.white
+                    cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
                     cell.iconImageView.isHidden = true
                     cell.titleLabel.text = "synapseWear"
                     /*
@@ -230,7 +244,7 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
                 }
                 else if indexPath.row == 2 {
                     let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "osc_cell")
-                    cell.backgroundColor = UIColor.white
+                    cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
                     cell.iconImageView.isHidden = true
                     cell.titleLabel.text = "OSC Settings"
                     cell.textField.isEnabled = false
@@ -249,7 +263,7 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
                 }
                 else if indexPath.row == 3 {
                     let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "send_data_cell")
-                    cell.backgroundColor = UIColor.white
+                    cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
                     cell.iconImageView.isHidden = true
                     cell.titleLabel.text = "Upload Settings"
                     cell.textField.isEnabled = false
@@ -266,13 +280,11 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
             }
             else if self.settings[indexPath.section] == "interval_time" {
                 if indexPath.row == 0 || indexPath.row == 3 {
-                    cell = UITableViewCell(style: .default, reuseIdentifier: "line_cell")
-                    cell.backgroundColor = UIColor.black.withAlphaComponent(0.1)
-                    cell.selectionStyle = .none
+                    return self.getLineCell()
                 }
                 else if indexPath.row == 1 {
                     let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "interval_cell")
-                    cell.backgroundColor = UIColor.white
+                    cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
                     cell.iconImageView.isHidden = true
                     cell.titleLabel.text = "Interval Time"
                     cell.textField.textColor = UIColor.lightGray
@@ -284,7 +296,7 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
                 }
                 else if indexPath.row == 2 {
                     let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "sound_cell")
-                    cell.backgroundColor = UIColor.white
+                    cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
                     cell.iconImageView.isHidden = true
                     cell.titleLabel.text = "Sound"
                     cell.textField.isEnabled = false
@@ -303,20 +315,18 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
             }
             else if self.settings[indexPath.section] == "firmware_version" {
                 if indexPath.row == 0 || indexPath.row == 3 {
-                    cell = UITableViewCell(style: .default, reuseIdentifier: "line_cell")
-                    cell.backgroundColor = UIColor.black.withAlphaComponent(0.1)
-                    cell.selectionStyle = .none
+                    return self.getLineCell()
                 }
                 else if indexPath.row == 1 {
                     let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "firmware_url_cell")
-                    cell.backgroundColor = UIColor.white
+                    cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
                     cell.selectionStyle = .none
                     cell.iconImageView.isHidden = true
                     cell.titleLabel.isHidden = true
                     cell.textField.text = self.firmwareURL
                     cell.textField.placeholder = "Firmware URL"
                     //cell.textField.attributedPlaceholder = NSAttributedString(string: "Firmware URL", attributes: [NSForegroundColorAttributeName: UIColor.darkGray])
-                    cell.textField.textColor = UIColor.darkGray
+                    cell.textField.textColor = UIColor.dynamicColor(light: UIColor.darkGray, dark: UIColor.white)
                     cell.textField.textAlignment = .left
                     //cell.textField.tag = 1
                     cell.textField.isEnabled = true
@@ -328,7 +338,7 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
                 }
                 else if indexPath.row == 2 {
                     let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "firmware_version_cell")
-                    cell.backgroundColor = UIColor.white
+                    cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
                     cell.iconImageView.isHidden = true
                     cell.titleLabel.text = "Firmware Version"
                     cell.textField.textColor = UIColor.lightGray
@@ -345,51 +355,15 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
             }
             else if self.settings[indexPath.section] == "sensors" {
                 if indexPath.row == 0 || indexPath.row == self.sensors.count + 1 {
-                    cell = UITableViewCell(style: .default, reuseIdentifier: "line_cell")
-                    cell.backgroundColor = UIColor.black.withAlphaComponent(0.1)
-                    cell.selectionStyle = .none
+                    return self.getLineCell()
                 }
                 else if indexPath.row <= self.sensors.count {
                     let crystal: CrystalStruct = self.sensors[indexPath.row - 1]
                     let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "sensor_cell")
                     cell.selectionStyle = .none
-                    cell.backgroundColor = UIColor.white
-                    cell.iconImageView.image = nil
-                    if crystal.key == self.synapseCrystalInfo.co2.key {
-                        cell.iconImageView.image = UIImage.co2SB
-                    }
-                    else if crystal.key == self.synapseCrystalInfo.temp.key {
-                        cell.iconImageView.image = UIImage.temperatureSB
-                    }
-                    else if crystal.key == self.synapseCrystalInfo.hum.key {
-                        cell.iconImageView.image = UIImage.humiditySB
-                    }
-                    else if crystal.key == self.synapseCrystalInfo.ill.key {
-                        cell.iconImageView.image = UIImage.illuminationSB
-                    }
-                    else if crystal.key == self.synapseCrystalInfo.press.key {
-                        cell.iconImageView.image = UIImage.airpressureSB
-                    }
-                    else if crystal.key == self.synapseCrystalInfo.sound.key {
-                        cell.iconImageView.image = UIImage.environmentalsoundSB
-                    }
-                    else if crystal.key == self.synapseCrystalInfo.move.key {
-                        cell.iconImageView.image = UIImage.movementSB
-                    }
-                    else if crystal.key == self.synapseCrystalInfo.angle.key {
-                        cell.iconImageView.image = UIImage.angleSB
-                    }
-                    /*else if crystal.key == self.synapseCrystalInfo.mag.key {
-                        cell.iconImageView.image = UIImage(named: "mag_b.png")
-                    }*/
-                    else if crystal.key == self.synapseCrystalInfo.led.key {
-                        cell.iconImageView.image = UIImage.LEDSB
-                    }
+                    cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
+                    self.setSensorIcon(cell, key: crystal.key)
                     cell.iconImageView.backgroundColor = UIColor.clear
-                    /*if cell.iconImageView.image != nil {
-                        cell.iconImageView.backgroundColor = UIColor.darkGray
-                    }
-                    //cell.iconImageView.backgroundColor = UIColor.grayBGColor*/
                     cell.titleLabel.text = crystal.name
                     cell.textField.isHidden = true
                     cell.arrowView.isHidden = true
@@ -408,13 +382,11 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
             }
             else if self.settings[indexPath.section] == "temperature_scale" {
                 if indexPath.row == 0 || indexPath.row == 2 {
-                    cell = UITableViewCell(style: .default, reuseIdentifier: "line_cell")
-                    cell.backgroundColor = UIColor.black.withAlphaComponent(0.1)
-                    cell.selectionStyle = .none
+                    return self.getLineCell()
                 }
                 else if indexPath.row == 1 {
                     let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "temperature_scale_cell")
-                    cell.backgroundColor = UIColor.white
+                    cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
                     cell.iconImageView.isHidden = true
                     cell.titleLabel.text = "Temperature Scale"
                     cell.textField.isEnabled = false
@@ -429,13 +401,11 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
             }
             else if self.settings[indexPath.section] == "flash_led" {
                 if indexPath.row == 0 || indexPath.row == 2 {
-                    cell = UITableViewCell(style: .default, reuseIdentifier: "line_cell")
-                    cell.backgroundColor = UIColor.black.withAlphaComponent(0.1)
-                    cell.selectionStyle = .none
+                    return self.getLineCell()
                 }
                 else if indexPath.row == 1 {
                     let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "temperature_scale_cell")
-                    cell.backgroundColor = UIColor.white
+                    cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
                     cell.iconImageView.isHidden = true
                     cell.titleLabel.text = "Flash LED"
                     cell.textField.isEnabled = false
@@ -447,7 +417,24 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
                 }
             }
         }
-        return cell
+        return super.tableView(tableView, cellForRowAt: indexPath)
+    }
+
+    func setSensorIcon(_ cell: SettingTableViewCell, key: String) {
+
+        cell.iconImageView.image = nil
+        if let data = self.sensorIcons[key] {
+            if let image = data["light"] {
+                cell.iconImageView.image = image
+            }
+            if #available(iOS 13, *) {
+                if traitCollection.userInterfaceStyle == .dark {
+                    if let image = data["dark"] {
+                        cell.iconImageView.image = image
+                    }
+                }
+            }
+        }
     }
 
     // MARK: mark - UITableViewDelegate methods
@@ -490,6 +477,7 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
                                 width: tableView.frame.size.width,
                                 height: self.tableView(tableView, heightForHeaderInSection: section))
             view.backgroundColor = UIColor.clear
+            view.isUserInteractionEnabled = false
             return view
         }
         return nil
@@ -502,7 +490,7 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
             let cell: SettingTableViewCell = SettingTableViewCell()
             if self.settings[indexPath.section] == "synapse_wear_id" {
                 if indexPath.row == 0 || indexPath.row == 4 {
-                    height = 1.0
+                    height = self.getLineCellHeight()
                 }
                 else if indexPath.row == 1 {
                     height = cell.cellH
@@ -516,7 +504,7 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
             }
             else if self.settings[indexPath.section] == "interval_time" {
                 if indexPath.row == 0 || indexPath.row == 3 {
-                    height = 1.0
+                    height = self.getLineCellHeight()
                 }
                 else if indexPath.row == 1 || indexPath.row == 2 {
                     height = cell.cellH
@@ -524,7 +512,7 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
             }
             else if self.settings[indexPath.section] == "firmware_version" {
                 if indexPath.row == 0 || indexPath.row == 3 {
-                    height = 1.0
+                    height = self.getLineCellHeight()
                 }
                 else if indexPath.row == 1 || indexPath.row == 2 {
                     height = cell.cellH
@@ -532,7 +520,7 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
             }
             else if self.settings[indexPath.section] == "sensors" {
                 if indexPath.row == 0 || indexPath.row == self.sensors.count + 1 {
-                    height = 1.0
+                    height = self.getLineCellHeight()
                 }
                 else if indexPath.row <= self.sensors.count {
                     height = cell.cellH
@@ -540,7 +528,7 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
             }
             else if self.settings[indexPath.section] == "temperature_scale" {
                 if indexPath.row == 0 || indexPath.row == 2 {
-                    height = 1.0
+                    height = self.getLineCellHeight()
                 }
                 else if indexPath.row == 1 {
                     height = cell.cellH
@@ -548,7 +536,7 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
             }
             else if self.settings[indexPath.section] == "flash_led" {
                 if indexPath.row == 0 || indexPath.row == 2 {
-                    height = 1.0
+                    height = self.getLineCellHeight()
                 }
                 else if indexPath.row == 1 {
                     height = cell.cellH
@@ -639,13 +627,22 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
         self.textField?.text = text
     }
 
-    // MARK: mark - UITextFieldDelegate methods
+    // MARK: mark - UITextField methods
+
+    @objc func textFieldDidChange(_ sender: UITextField) {
+
+        if let text = sender.text {
+            self.firmwareURL = text
+        }
+    }
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
 
         textField.resignFirstResponder()
         return true
     }
+
+    // MARK: mark - Keyboard Action methods
 
     @objc func keyboardWillShow(notification: NSNotification) {
 
@@ -662,15 +659,17 @@ class SettingViewController: BaseViewController, UITableViewDataSource, UITableV
                 }
             }
         }
-        /*guard let duration = userInfo[UIKeyboardAnimationDurationUserInfoKey] as? Double else {
-         return
-         }*/
     }
 
-    @objc func textFieldDidChange(_ sender: UITextField) {
+    // MARK: mark - UITraitEnvironment methods
 
-        if let text = sender.text {
-            self.firmwareURL = text
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+
+        if #available(iOS 13, *) {
+            if let section = settings.index(of: "sensors") {
+                self.settingTableView.reloadSections(IndexSet(integer: section), with: .none)
+            }
         }
     }
 }

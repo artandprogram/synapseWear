@@ -7,16 +7,13 @@
 
 import UIKit
 
-class SynapseUploadSettingsViewController: BaseViewController, UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate {
+class SynapseUploadSettingsViewController: SettingBaseViewController, UITextFieldDelegate {
 
     // variables
     var synapseSendFlag: Bool = false
     var synapseSendURL: String = ""
     // views
-    var settingTableView: UITableView!
     var closeKeyboardButton: UIButton!
-    var synapseSendFlagSwitch: UISwitch?
-    var synapseSendURLField: UITextField?
     var textFieldRect: CGRect?
 
     override func viewDidLoad() {
@@ -31,6 +28,8 @@ class SynapseUploadSettingsViewController: BaseViewController, UITableViewDataSo
         if let nav = self.navigationController as? NavigationController {
             nav.headerTitle.text = "Upload Settings"
         }
+
+        self.setNotificationCenter()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -39,6 +38,8 @@ class SynapseUploadSettingsViewController: BaseViewController, UITableViewDataSo
         self.saveSettingData()
         self.view.endEditing(true)
         //self.closeKeyboardAction()
+
+        NotificationCenter.default.removeObserver(self)
     }
 
     override func didReceiveMemoryWarning() {
@@ -51,33 +52,11 @@ class SynapseUploadSettingsViewController: BaseViewController, UITableViewDataSo
 
         self.synapseSendFlag = SettingFileManager.shared.synapseSendFlag
         self.synapseSendURL = SettingFileManager.shared.synapseSendURL
-        /*
-        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillShow(_:)), name: .UIKeyboardWillShow, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.KeyboardWillHide(_:)), name: .UIKeyboardWillHide, object: nil)
-         */
     }
 
-    override func setView() {
+    /*override func setView() {
         super.setView()
 
-        self.view.backgroundColor = UIColor.grayBGColor
-
-        let x:CGFloat = 0
-        var y:CGFloat = 0
-        let w:CGFloat = self.view.frame.width
-        var h:CGFloat = self.view.frame.height
-        if let nav = self.navigationController as? NavigationController {
-            y = nav.headerView.frame.origin.y + nav.headerView.frame.size.height
-            h -= y
-        }
-        self.settingTableView = UITableView()
-        self.settingTableView.frame = CGRect(x: x, y: y, width: w, height: h)
-        self.settingTableView.backgroundColor = UIColor.clear
-        self.settingTableView.separatorStyle = .none
-        self.settingTableView.delegate = self
-        self.settingTableView.dataSource = self
-        self.view.addSubview(self.settingTableView)
-        /*
         x = 0
         y = 0
         w = self.view.frame.size.width
@@ -89,19 +68,46 @@ class SynapseUploadSettingsViewController: BaseViewController, UITableViewDataSo
         self.closeKeyboardButton.isHidden = true
         self.closeKeyboardButton.addTarget(self, action: #selector(self.closeKeyboardAction), for: .touchUpInside)
         self.view.addSubview(self.closeKeyboardButton)
-         */
+    }*/
+
+    // MARK: mark - NotificationCenter methods
+
+    func setNotificationCenter() {
+
+        /*NotificationCenter.default.addObserver(self,
+                                               selector: #selector(self.keyboardWillShow(_:)),
+                                               name: .UIKeyboardWillShow,
+                                               object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(self.KeyboardWillHide(_:)),
+                                               name: .UIKeyboardWillHide,
+                                               object: nil)*/
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(type(of: self).textFieldDidChange(notification:)),
+                                               name: .UITextFieldTextDidChange,
+                                               object: nil)
     }
 
     // MARK: mark - SettingData methods
 
-    func saveSettingData() {
+    func setSendFlag(_ sw: UISwitch) {
 
-        if let sw = self.synapseSendFlagSwitch {
+        if sw.tag == 1 {
             self.synapseSendFlag = sw.isOn
         }
-        if let text = self.synapseSendURLField?.text {
-            self.synapseSendURL = text
+    }
+
+    func setSendURL(_ textField: UITextField) {
+
+        if let text = textField.text {
+            if textField.tag == 1 {
+                self.synapseSendURL = text
+            }
         }
+    }
+
+    func saveSettingData() {
+
         if self.synapseSendFlag != SettingFileManager.shared.synapseSendFlag || self.synapseSendURL != SettingFileManager.shared.synapseSendURL {
             SettingFileManager.shared.synapseSendFlag = self.synapseSendFlag
             SettingFileManager.shared.synapseSendURL = self.synapseSendURL
@@ -120,11 +126,10 @@ class SynapseUploadSettingsViewController: BaseViewController, UITableViewDataSo
 
     func numberOfSections(in tableView: UITableView) -> Int {
 
-        let sections: Int = 1
-        return sections
+        return 1
     }
 
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 
         var num: Int = 0
         if section == 0 {
@@ -133,60 +138,58 @@ class SynapseUploadSettingsViewController: BaseViewController, UITableViewDataSo
         return num
     }
 
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-
-        var cell: UITableViewCell = UITableViewCell(style: .default, reuseIdentifier: "Cell")
-        cell.backgroundColor = UIColor.clear
-        cell.selectionStyle = .none
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
         if indexPath.section == 0 {
             if indexPath.row == 0 || indexPath.row == 3 {
-                cell = UITableViewCell(style: .default, reuseIdentifier: "line_cell")
-                cell.backgroundColor = UIColor.black.withAlphaComponent(0.1)
-                cell.selectionStyle = .none
+                return self.getLineCell()
             }
             else if indexPath.row == 1 {
                 let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "send_flag_cell")
-                cell.backgroundColor = UIColor.white
+                cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
                 cell.selectionStyle = .none
                 cell.iconImageView.isHidden = true
                 cell.titleLabel.text = "Send"
                 cell.textField.isHidden = true
-                cell.swicth.isOn = self.synapseSendFlag
                 cell.arrowView.isHidden = true
-                self.self.synapseSendFlagSwitch = cell.swicth
+
+                cell.swicth.isOn = self.synapseSendFlag
+                cell.swicth.tag = 1
+                cell.swicth.addTarget(self, action: #selector(self.switchValueChangedAction(_:)), for: .valueChanged)
                 return cell
             }
             else if indexPath.row == 2 {
                 let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "send_url_cell")
-                cell.backgroundColor = UIColor.white
+                cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
                 cell.selectionStyle = .none
                 cell.iconImageView.isHidden = true
                 cell.titleLabel.isHidden = true
-                cell.textField.text = self.synapseSendURL
                 cell.textField.placeholder = "Upload URL"
-                cell.textField.textColor = UIColor.darkGray
+                cell.textField.textColor = UIColor.dynamicColor(light: UIColor.darkGray, dark: UIColor.white)
                 cell.textField.textAlignment = .left
                 cell.textField.tag = 1
                 cell.textField.delegate = self
                 cell.swicth.isHidden = true
                 cell.arrowView.isHidden = true
                 cell.lineView.isHidden = true
-                self.synapseSendURLField = cell.textField
+
+                cell.textField.text = self.synapseSendURL
+                cell.textField.tag = 1
                 return cell
             }
             else if indexPath.row == 4 {
-                cell = UITableViewCell(style: .default, reuseIdentifier: "note_cell")
+                let cell: UITableViewCell = UITableViewCell(style: .default, reuseIdentifier: "note_cell")
                 cell.backgroundColor = UIColor.clear
                 cell.selectionStyle = .none
 
                 cell.textLabel?.text = "URL must be https. Data will be uploaded every hour on the hour."
-                cell.textLabel?.textColor = UIColor.darkGray
+                cell.textLabel?.textColor = UIColor.dynamicColor(light: UIColor.darkGray, dark: UIColor.gray)
                 cell.textLabel?.font = UIFont(name: "HelveticaNeue", size: 14.0)
                 cell.textLabel?.numberOfLines = 0
+                return cell
             }
         }
-        return cell
+        return super.tableView(tableView, cellForRowAt: indexPath)
     }
 
     // MARK: mark - UITableViewDelegate methods
@@ -220,7 +223,7 @@ class SynapseUploadSettingsViewController: BaseViewController, UITableViewDataSo
         let cell: SettingTableViewCell = SettingTableViewCell()
         if indexPath.section == 0 {
             if indexPath.row == 0 || indexPath.row == 3 {
-                height = 1.0
+                height = self.getLineCellHeight()
             }
             else if indexPath.row == 1 {
                 height = cell.cellH
@@ -240,16 +243,32 @@ class SynapseUploadSettingsViewController: BaseViewController, UITableViewDataSo
         tableView.deselectRow(at: indexPath, animated: false)
     }
 
-    // MARK: mark - UITextFieldDelegate methods
+    // MARK: mark - Change Swicth Action methods
+
+    @objc func switchValueChangedAction(_ sw: UISwitch) {
+
+        self.setSendFlag(sw)
+    }
+
+    // MARK: mark - UITextField methods
+
+    @objc func textFieldDidChange(notification: NSNotification) {
+
+        if let textField: UITextField = notification.object as? UITextField {
+            self.setSendURL(textField)
+        }
+    }
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+
+        self.setSendURL(textField)
 
         textField.resignFirstResponder()
         return true
     }
 
-    // MARK: mark - Keyboard Action methods
-    /*
+    /*// MARK: mark - Keyboard Action methods
+
     func keyboardWillShow(_ notification: NSNotification?) {
 
         self.closeKeyboardButton.isHidden = false

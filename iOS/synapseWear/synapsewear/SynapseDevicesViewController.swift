@@ -7,13 +7,11 @@
 
 import UIKit
 
-class SynapseDevicesViewController: BaseViewController, UITableViewDataSource, UITableViewDelegate, DeviceScanningDelegate {
+class SynapseDevicesViewController: SettingBaseViewController, DeviceScanningDelegate {
 
     // variables
     var deviceUUID: UUID?
     var devices: [RFduino] = []
-    // views
-    var settingTableView: UITableView!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -54,28 +52,6 @@ class SynapseDevicesViewController: BaseViewController, UITableViewDataSource, U
         }
     }
 
-    override func setView() {
-        super.setView()
-
-        self.view.backgroundColor = UIColor.grayBGColor
-
-        let x:CGFloat = 0
-        var y:CGFloat = 0
-        let w:CGFloat = self.view.frame.width
-        var h:CGFloat = self.view.frame.height
-        if let nav = self.navigationController as? NavigationController {
-            y = nav.headerView.frame.origin.y + nav.headerView.frame.size.height
-            h -= y
-        }
-        self.settingTableView = UITableView()
-        self.settingTableView.frame = CGRect(x: x, y: y, width: w, height: h)
-        self.settingTableView.backgroundColor = UIColor.clear
-        self.settingTableView.separatorStyle = .none
-        self.settingTableView.delegate = self
-        self.settingTableView.dataSource = self
-        self.view.addSubview(self.settingTableView)
-    }
-
     func scannedDevice() {
 
         if let nav = self.navigationController as? SettingNavigationViewController {
@@ -89,11 +65,10 @@ class SynapseDevicesViewController: BaseViewController, UITableViewDataSource, U
 
     func numberOfSections(in tableView: UITableView) -> Int {
 
-        let sections: Int = 1
-        return sections
+        return 1
     }
 
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 
         var num: Int = 0
         if section == 0 {
@@ -102,21 +77,15 @@ class SynapseDevicesViewController: BaseViewController, UITableViewDataSource, U
         return num
     }
 
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-
-        var cell: UITableViewCell = UITableViewCell(style: .default, reuseIdentifier: "Cell")
-        cell.backgroundColor = UIColor.clear
-        cell.selectionStyle = .none
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
         if indexPath.section == 0 {
             if indexPath.row == 0 || indexPath.row == self.devices.count + 1 {
-                cell = UITableViewCell(style: .default, reuseIdentifier: "line_cell")
-                cell.backgroundColor = UIColor.black.withAlphaComponent(0.1)
-                cell.selectionStyle = .none
+                return self.getLineCell()
             }
             else if indexPath.row <= self.devices.count {
                 let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "interval_cell")
-                cell.backgroundColor = UIColor.white
+                cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
                 cell.iconImageView.isHidden = true
                 cell.textField.isHidden = true
                 cell.swicth.isHidden = true
@@ -135,7 +104,7 @@ class SynapseDevicesViewController: BaseViewController, UITableViewDataSource, U
                 return cell
             }
         }
-        return cell
+        return super.tableView(tableView, cellForRowAt: indexPath)
     }
 
     // MARK: mark - UITableViewDelegate methods
@@ -169,7 +138,7 @@ class SynapseDevicesViewController: BaseViewController, UITableViewDataSource, U
         let cell: SettingTableViewCell = SettingTableViewCell()
         if indexPath.section == 0 {
             if indexPath.row == 0 || indexPath.row == self.devices.count + 1 {
-                height = 1.0
+                height = self.getLineCellHeight()
             }
             else if indexPath.row <= self.devices.count {
                 height = cell.cellH

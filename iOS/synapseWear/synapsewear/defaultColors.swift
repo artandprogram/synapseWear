@@ -23,4 +23,20 @@ extension UIColor {
     class var graphAngl: UIColor { return #colorLiteral(red: 0.9960784314, green: 0.5568627451, blue: 0.2392156863, alpha: 1) }
     class var graphVolt: UIColor { return #colorLiteral(red: 0.9960784314, green: 0.5568627451, blue: 0.2392156863, alpha: 1) }
     class var grayBGColor: UIColor { return #colorLiteral(red: 0.8705882353, green: 0.8745098039, blue: 0.8901960784, alpha: 1) }
+    class var darkGrayBGColor: UIColor { return #colorLiteral(red: 0.1098039216, green: 0.1098039216, blue: 0.1176470588, alpha: 1) }
+
+    public class func dynamicColor(light: UIColor, dark: UIColor) -> UIColor {
+
+        if #available(iOS 13, *) {
+            return UIColor { (traitCollection) -> UIColor in
+                if traitCollection.userInterfaceStyle == .dark {
+                    return dark
+                }
+                else {
+                    return light
+                }
+            }
+        }
+        return light
+    }
 }

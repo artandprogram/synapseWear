@@ -7,7 +7,7 @@
 
 import UIKit
 
-class SynapseOSCViewController: BaseViewController, UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate, CommonFunctionProtocol {
+class SynapseOSCViewController: SettingBaseViewController, UITextFieldDelegate {
 
     // variables
     var oscSendMode: String = "off"
@@ -18,13 +18,7 @@ class SynapseOSCViewController: BaseViewController, UITableViewDataSource, UITab
     var oscRecvPort: String = ""
     var oscRecvSettingFlag: Bool = false
     // views
-    var settingTableView: UITableView!
     var closeKeyboardButton: UIButton!
-    var oscSendSwitch: UISwitch?
-    var oscSendIPField: UITextField?
-    var oscSendPortField: UITextField?
-    var oscRecvSwitch: UISwitch?
-    var oscRecvPortField: UITextField?
     var textFieldRect: CGRect?
 
     override func viewDidLoad() {
@@ -39,6 +33,8 @@ class SynapseOSCViewController: BaseViewController, UITableViewDataSource, UITab
         if let nav = self.navigationController as? NavigationController {
             nav.headerTitle.text = "OSC Settings"
         }
+
+        self.setNotificationCenter()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -46,6 +42,8 @@ class SynapseOSCViewController: BaseViewController, UITableViewDataSource, UITab
 
         self.saveSettingData()
         self.closeKeyboardAction()
+
+        NotificationCenter.default.removeObserver(self)
     }
 
     override func didReceiveMemoryWarning() {
@@ -67,6 +65,32 @@ class SynapseOSCViewController: BaseViewController, UITableViewDataSource, UITab
         if let flag = self.getAppinfoValue("use_osc_recv") as? Bool {
             self.oscRecvSettingFlag = flag
         }
+    }
+
+    override func setView() {
+        super.setView()
+
+        self.closeKeyboardButton = UIButton()
+        self.closeKeyboardButton.backgroundColor = UIColor.black
+        self.closeKeyboardButton.alpha = 0.5
+        self.closeKeyboardButton.isHidden = true
+        self.closeKeyboardButton.addTarget(self, action: #selector(self.closeKeyboardAction), for: .touchUpInside)
+        self.view.addSubview(self.closeKeyboardButton)
+    }
+
+    override func resizeView() {
+        super.resizeView()
+
+        let x: CGFloat = 0
+        let y: CGFloat = 0
+        let w: CGFloat = self.view.frame.size.width
+        let h: CGFloat = self.view.frame.size.height
+        self.closeKeyboardButton.frame = CGRect(x: x, y: y, width: w, height: h)
+    }
+
+    // MARK: mark - NotificationCenter methods
+
+    func setNotificationCenter() {
 
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(self.keyboardWillShow(_:)),
@@ -76,67 +100,46 @@ class SynapseOSCViewController: BaseViewController, UITableViewDataSource, UITab
                                                selector: #selector(self.KeyboardWillHide(_:)),
                                                name: .UIKeyboardWillHide,
                                                object: nil)
-    }
-
-    override func setView() {
-        super.setView()
-
-        self.view.backgroundColor = UIColor.grayBGColor
-
-        var x:CGFloat = 0
-        var y:CGFloat = 0
-        var w:CGFloat = self.view.frame.width
-        var h:CGFloat = self.view.frame.height
-        if let nav = self.navigationController as? NavigationController {
-            y = nav.headerView.frame.origin.y + nav.headerView.frame.size.height
-            h -= y
-        }
-        self.settingTableView = UITableView()
-        self.settingTableView.frame = CGRect(x: x, y: y, width: w, height: h)
-        self.settingTableView.backgroundColor = UIColor.clear
-        self.settingTableView.separatorStyle = .none
-        self.settingTableView.delegate = self
-        self.settingTableView.dataSource = self
-        self.view.addSubview(self.settingTableView)
-
-        x = 0
-        y = 0
-        w = self.view.frame.size.width
-        h = self.view.frame.size.height
-        self.closeKeyboardButton = UIButton()
-        self.closeKeyboardButton.frame = CGRect(x: x, y: y, width: w, height: h)
-        self.closeKeyboardButton.backgroundColor = UIColor.black
-        self.closeKeyboardButton.alpha = 0.5
-        self.closeKeyboardButton.isHidden = true
-        self.closeKeyboardButton.addTarget(self, action: #selector(self.closeKeyboardAction), for: .touchUpInside)
-        self.view.addSubview(self.closeKeyboardButton)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(type(of: self).textFieldDidChange(notification:)),
+                                               name: .UITextFieldTextDidChange,
+                                               object: nil)
     }
 
     // MARK: mark - SettingData methods
 
-    func saveSettingData() {
+    func setOSCMode(_ sw: UISwitch) {
 
-        if let sw = self.oscSendSwitch {
+        if sw.tag == 1 {
             self.oscSendMode = "off"
             if sw.isOn {
                 self.oscSendMode = "on"
             }
         }
-        if let sw = self.oscRecvSwitch {
+        else if sw.tag == 2 {
             self.oscRecvMode = "off"
             if sw.isOn {
                 self.oscRecvMode = "on"
             }
         }
-        if let text = self.oscSendIPField?.text {
-            self.oscSendIP = text
+    }
+
+    func setOSCValue(_ textField: UITextField) {
+
+        if let text = textField.text {
+            if textField.tag == 1 {
+                self.oscSendIP = text
+            }
+            else if textField.tag == 2 {
+                self.oscSendPort = text
+            }
+            else if textField.tag == 4 {
+                self.oscRecvPort = text
+            }
         }
-        if let text = self.oscSendPortField?.text {
-            self.oscSendPort = text
-        }
-        if let text = self.oscRecvPortField?.text {
-            self.oscRecvPort = text
-        }
+    }
+
+    func saveSettingData() {
 
         SettingFileManager.shared.oscSendMode = self.oscSendMode
         SettingFileManager.shared.oscRecvMode = self.oscRecvMode
@@ -164,7 +167,7 @@ class SynapseOSCViewController: BaseViewController, UITableViewDataSource, UITab
         return sections
     }
 
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 
         var num: Int = 0
         if section == 0 {
@@ -176,121 +179,118 @@ class SynapseOSCViewController: BaseViewController, UITableViewDataSource, UITab
         return num
     }
 
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-
-        var cell: UITableViewCell = UITableViewCell(style: .default, reuseIdentifier: "Cell")
-        cell.backgroundColor = UIColor.clear
-        cell.selectionStyle = .none
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
         if indexPath.section == 0 {
             if indexPath.row == 0 || indexPath.row == 4 {
-                cell = UITableViewCell(style: .default, reuseIdentifier: "line_cell")
-                cell.backgroundColor = UIColor.black.withAlphaComponent(0.1)
-                cell.selectionStyle = .none
+                return self.getLineCell()
             }
             else if indexPath.row == 1 {
                 let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "send_mode_cell")
-                cell.backgroundColor = UIColor.white
+                cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
                 cell.selectionStyle = .none
                 cell.iconImageView.isHidden = true
                 cell.titleLabel.text = "Send"
                 cell.textField.isHidden = true
+                cell.arrowView.isHidden = true
+
                 cell.swicth.isOn = false
                 if self.oscSendMode == "on" {
                     cell.swicth.isOn = true
                 }
-                cell.arrowView.isHidden = true
-                self.oscSendSwitch = cell.swicth
+                cell.swicth.tag = 1
+                cell.swicth.addTarget(self, action: #selector(self.switchValueChangedAction(_:)), for: .valueChanged)
                 return cell
             }
             else if indexPath.row == 2 {
                 let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "send_ip_cell")
-                cell.backgroundColor = UIColor.white
+                cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
                 cell.selectionStyle = .none
                 cell.iconImageView.isHidden = true
                 cell.titleLabel.text = "IP Address"
-                cell.textField.text = self.oscSendIP
                 cell.textField.keyboardType = .decimalPad
                 cell.textField.clearButtonMode = .never
-                cell.textField.tag = 1
                 cell.textField.delegate = self
                 cell.swicth.isHidden = true
                 cell.arrowView.isHidden = true
-                self.oscSendIPField = cell.textField
+
+                cell.textField.text = self.oscSendIP
+                cell.textField.tag = 1
                 return cell
             }
             else if indexPath.row == 3 {
                 let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "send_port_cell")
-                cell.backgroundColor = UIColor.white
+                cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
                 cell.selectionStyle = .none
                 cell.iconImageView.isHidden = true
                 cell.titleLabel.text = "Port"
-                cell.textField.text = self.oscSendPort
                 cell.textField.keyboardType = .decimalPad
                 cell.textField.clearButtonMode = .never
-                cell.textField.tag = 2
                 cell.textField.delegate = self
                 cell.swicth.isHidden = true
                 cell.arrowView.isHidden = true
                 cell.lineView.isHidden = true
-                self.oscSendPortField = cell.textField
+
+                cell.textField.text = self.oscSendPort
+                cell.textField.tag = 2
                 return cell
             }
         }
         else if indexPath.section == 1 {
             if indexPath.row == 0 || indexPath.row == 4 {
-                cell = UITableViewCell(style: .default, reuseIdentifier: "line_cell")
-                cell.backgroundColor = UIColor.black.withAlphaComponent(0.1)
-                cell.selectionStyle = .none
+                return self.getLineCell()
             }
             else if indexPath.row == 1 {
                 let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "recv_mode_cell")
-                cell.backgroundColor = UIColor.white
+                cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
                 cell.selectionStyle = .none
                 cell.iconImageView.isHidden = true
                 cell.titleLabel.text = "Recv"
                 cell.textField.isHidden = true
+                cell.arrowView.isHidden = true
+
                 cell.swicth.isOn = false
                 if self.oscRecvMode == "on" {
                     cell.swicth.isOn = true
                 }
-                cell.arrowView.isHidden = true
-                self.oscRecvSwitch = cell.swicth
+                cell.swicth.tag = 2
+                cell.swicth.addTarget(self, action: #selector(self.switchValueChangedAction(_:)), for: .valueChanged)
                 return cell
             }
             else if indexPath.row == 2 {
                 let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "recv_ip_cell")
-                cell.backgroundColor = UIColor.white
+                cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
                 cell.selectionStyle = .none
                 cell.iconImageView.isHidden = true
                 cell.titleLabel.text = "IP Address"
-                cell.textField.text = self.oscRecvIP
                 cell.textField.isEnabled = false
-                cell.textField.tag = 3
                 cell.textField.delegate = self
                 cell.swicth.isHidden = true
                 cell.arrowView.isHidden = true
+
+                cell.textField.text = self.oscRecvIP
+                cell.textField.tag = 3
                 return cell
             }
             else if indexPath.row == 3 {
                 let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "recv_port_cell")
-                cell.backgroundColor = UIColor.white
+                cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
                 cell.selectionStyle = .none
                 cell.iconImageView.isHidden = true
                 cell.titleLabel.text = "Port"
-                cell.textField.text = self.oscRecvPort
                 cell.textField.keyboardType = .decimalPad
                 cell.textField.clearButtonMode = .never
-                cell.textField.tag = 4
                 cell.textField.delegate = self
                 cell.swicth.isHidden = true
                 cell.arrowView.isHidden = true
                 cell.lineView.isHidden = true
-                self.oscRecvPortField = cell.textField
+
+                cell.textField.text = self.oscRecvPort
+                cell.textField.tag = 4
                 return cell
             }
         }
-        return cell
+        return super.tableView(tableView, cellForRowAt: indexPath)
     }
 
     // MARK: mark - UITableViewDelegate methods
@@ -327,7 +327,7 @@ class SynapseOSCViewController: BaseViewController, UITableViewDataSource, UITab
         let cell: SettingTableViewCell = SettingTableViewCell()
         if indexPath.section == 0 {
             if indexPath.row == 0 || indexPath.row == 4 {
-                height = 1.0
+                height = self.getLineCellHeight()
             }
             else if indexPath.row == 1 {
                 height = cell.cellH
@@ -341,7 +341,7 @@ class SynapseOSCViewController: BaseViewController, UITableViewDataSource, UITab
         }
         else if indexPath.section == 1 {
             if indexPath.row == 0 || indexPath.row == 4 {
-                height = 1.0
+                height = self.getLineCellHeight()
             }
             else if indexPath.row == 1 {
                 height = cell.cellH
@@ -361,9 +361,25 @@ class SynapseOSCViewController: BaseViewController, UITableViewDataSource, UITab
         tableView.deselectRow(at: indexPath, animated: false)
     }
 
-    // MARK: mark - UITextFieldDelegate methods
+    // MARK: mark - Change Swicth Action methods
+
+    @objc func switchValueChangedAction(_ sw: UISwitch) {
+
+        self.setOSCMode(sw)
+    }
+
+    // MARK: mark - UITextField methods
+
+    @objc func textFieldDidChange(notification: NSNotification) {
+
+        if let textField: UITextField = notification.object as? UITextField {
+            self.setOSCValue(textField)
+        }
+    }
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+
+        self.setOSCValue(textField)
 
         textField.resignFirstResponder()
         return true
