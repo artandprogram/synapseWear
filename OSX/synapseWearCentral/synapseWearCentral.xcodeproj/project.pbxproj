@@ -65,6 +65,7 @@
 		87F4968E211AA444008FC4FF /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87F4968D211AA444008FC4FF /* CoreBluetooth.framework */; };
 		87F49690211AE5FB008FC4FF /* SettingDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F4968F211AE5FB008FC4FF /* SettingDataManager.swift */; };
 		DD5333DA22A65B0C0007532E /* DataViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD5333D922A65B0C0007532E /* DataViewController.swift */; };
+		DD587D5D233DAEE4008613EF /* DefaultColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD587D5C233DAEE4008613EF /* DefaultColors.swift */; };
 		DD589B0E22FA6FB800C1261A /* graph.js in Resources */ = {isa = PBXBuildFile; fileRef = DD589AFB22FA6FB700C1261A /* graph.js */; };
 		DD589B0F22FA6FB800C1261A /* Chart.min.js in Resources */ = {isa = PBXBuildFile; fileRef = DD589AFC22FA6FB700C1261A /* Chart.min.js */; };
 		DD589B1022FA6FB800C1261A /* graph.html in Resources */ = {isa = PBXBuildFile; fileRef = DD589AFD22FA6FB700C1261A /* graph.html */; };
@@ -288,6 +289,7 @@
 		87F4968D211AA444008FC4FF /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
 		87F4968F211AE5FB008FC4FF /* SettingDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingDataManager.swift; sourceTree = "<group>"; };
 		DD5333D922A65B0C0007532E /* DataViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataViewController.swift; sourceTree = "<group>"; };
+		DD587D5C233DAEE4008613EF /* DefaultColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultColors.swift; sourceTree = "<group>"; };
 		DD589AFB22FA6FB700C1261A /* graph.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = graph.js; sourceTree = "<group>"; };
 		DD589AFC22FA6FB700C1261A /* Chart.min.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = Chart.min.js; sourceTree = "<group>"; };
 		DD589AFD22FA6FB700C1261A /* graph.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = graph.html; sourceTree = "<group>"; };
@@ -409,6 +411,7 @@
 				87591C17212D0F9D004DE8AB /* ApiFirmware.swift */,
 				87591C18212D0F9D004DE8AB /* ApiPostdata.swift */,
 				87E6EF3D214132D7008AD17D /* CommonFunction.swift */,
+				DD587D5C233DAEE4008613EF /* DefaultColors.swift */,
 				87591C1C212D0FC1004DE8AB /* appinfo.plist */,
 				87426A1C211832CF00D9EDA3 /* Assets.xcassets */,
 				87426A1E211832CF00D9EDA3 /* Main.storyboard */,
@@ -780,6 +783,7 @@
 				874F3912212AB05000BD9F3B /* mztools.c in Sources */,
 				87F49690211AE5FB008FC4FF /* SettingDataManager.swift in Sources */,
 				871C7433213CDFE700DEA18F /* NSData+F53OSCBlob.m in Sources */,
+				DD587D5D233DAEE4008613EF /* DefaultColors.swift in Sources */,
 				871C7432213CDFE700DEA18F /* F53OSCTimeTag.m in Sources */,
 				87E6EF3E214132D7008AD17D /* CommonFunction.swift in Sources */,
 				874F3913212AB05000BD9F3B /* SSZipArchive.m in Sources */,

@@ -15,22 +15,27 @@ class DataViewController: NSViewController, NSTableViewDataSource, NSTableViewDe
     @IBOutlet var tableView: NSTableView!
     @IBOutlet var webView: WKWebView!
 
-    let aScale: Float = 2.0 / 32768.0
-    let gScale: Float = 250.0 / 32768.0
-    let tableRows: Int = 12
-    //let uuidRowNo: Int = 0
-    let timeRowNo: Int = 0
-    let co2RowNo: Int = 1
-    let temperatureRowNo: Int = 2
-    let humidityRowNo: Int = 3
-    let lightRowNo: Int = 4
-    let airpressureRowNo: Int = 5
-    let soundRowNo: Int = 6
-    let angleRowNo: Int = 7
-    let gyroRowNo: Int = 8
-    let voltRowNo: Int = 9
-    let tvocRowNo: Int = 10
-    let batteryRowNo: Int = 11
+    let webViewBaseH: CGFloat = 200.0
+    let tableViewRowH: CGFloat = 22.0
+    let tableRows: [String] = [
+        "time",
+        "co2",
+        "temperature",
+        "humidity",
+        "light",
+        "airpressure",
+        "sound",
+        "accelx",
+        "accely",
+        "accelz",
+        "gyrox",
+        "gyroy",
+        "gyroz",
+        "volt",
+        "tvoc",
+        "battery",
+    ]
+    let synapseCrystalInfo: SynapseCrystalStruct = SynapseCrystalStruct()
     var synapseNo: Int?
     var synapseValues: SynapseValues?
     var mainViewController: ViewController?
@@ -39,12 +44,17 @@ class DataViewController: NSViewController, NSTableViewDataSource, NSTableViewDe
     var synapseGraphFlag: Bool = false
     var synapseGraphFirstFlag: Bool = false
     var synapseGraphLastUpdate: Date?
+    var synapseGraphKeys: [String] = []
     var synapseGraphLabels: [String] = []
     var synapseGraphValues: [[[String: Any]]] = []
     var synapseGraphColors: [String] = []
+    var synapseGraphScales: [[String: Double]] = []
+    var synapseGraphHiddens: [String: Bool] = [:]
     var graphLabels: String?
     var graphValues: String?
     var graphColor: String?
+    var graphScales: String?
+    var graphHiddens: String?
     var synapseGraphUpdateDate: Date?
 
     override func viewDidLoad() {
@@ -76,6 +86,8 @@ class DataViewController: NSViewController, NSTableViewDataSource, NSTableViewDe
         }
 
         self.tableView.delegate = self
+        self.tableView.allowsTypeSelect = false
+        self.tableView.action = #selector(onItemClicked)
         //self.webView.uiDelegate = self
         self.webView.navigationDelegate = self
 
@@ -84,14 +96,23 @@ class DataViewController: NSViewController, NSTableViewDataSource, NSTableViewDe
 
     @objc func resized() {
 
-        self.scrollView.frame = NSRect(x: 0,
-                                       y: 0,
-                                       width: NSApp.windows.last!.frame.size.width,
-                                       height: NSApp.windows.last!.frame.size.height - (self.webView.frame.size.height + 21.0))
-        self.webView.frame = NSRect(x: 0,
-                                    y: self.scrollView.frame.size.height,
-                                    width: NSApp.windows.last!.frame.size.width,
-                                    height: self.webView.frame.size.height)
+        if let window = NSApp.windows.last {
+            let headerH: CGFloat = 21.0
+            let spaceH: CGFloat = 20.0
+            let tableBaseH: CGFloat = CGFloat(self.tableRows.count) * self.tableViewRowH
+            var webViewH: CGFloat = self.webViewBaseH
+            if window.frame.size.height > headerH + tableBaseH + self.webViewBaseH + spaceH {
+                webViewH = window.frame.size.height - (headerH + tableBaseH + spaceH)
+            }
+            self.scrollView.frame = NSRect(x: 0,
+                                           y: 0,
+                                           width: window.frame.size.width,
+                                           height: window.frame.size.height - (webViewH + headerH))
+            self.webView.frame = NSRect(x: 0,
+                                        y: self.scrollView.frame.size.height,
+                                        width: window.frame.size.width,
+                                        height: webViewH)
+        }
         self.webView.reload()
     }
 
@@ -99,15 +120,17 @@ class DataViewController: NSViewController, NSTableViewDataSource, NSTableViewDe
 
     func numberOfRows(in tableView: NSTableView) -> Int {
 
-        return self.tableRows
+        return self.tableRows.count
     }
 
     func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
 
-        if let tableColumn = tableColumn {
+        if let tableColumn = tableColumn, row < self.tableRows.count {
             //print("row: \(row), tableColumn: \(tableColumn.identifier.rawValue)")
             var str: String = ""
-            if row == self.timeRowNo {
+            var color: NSColor = NSColor.white
+            var alpha: CGFloat = 1.0
+            if self.tableRows[row] == "time" {
                 if tableColumn.identifier.rawValue == "title" {
                     str = "Time"
                 }
@@ -120,7 +143,7 @@ class DataViewController: NSViewController, NSTableViewDataSource, NSTableViewDe
                     }
                 }
             }
-            else if row == self.co2RowNo {
+            else if self.tableRows[row] == "co2" {
                 if tableColumn.identifier.rawValue == "title" {
                     str = "CO2"
                 }
@@ -129,8 +152,15 @@ class DataViewController: NSViewController, NSTableViewDataSource, NSTableViewDe
                         str = "\(String(co2)) ppm"
                     }
                 }
+                else if tableColumn.identifier.rawValue == "graph" {
+                    str = "●"
+                    color = NSColor.graphWhite
+                    if let flag = self.synapseGraphHiddens[self.synapseCrystalInfo.co2.key], flag {
+                        alpha = 0.2
+                    }
+                }
             }
-            else if row == self.temperatureRowNo {
+            else if self.tableRows[row] == "temperature" {
                 if tableColumn.identifier.rawValue == "title" {
                     str = "Temperature"
                 }
@@ -139,8 +169,15 @@ class DataViewController: NSViewController, NSTableViewDataSource, NSTableViewDe
                         str = "\(String(format:"%.1f", temp)) ℃"
                     }
                 }
+                else if tableColumn.identifier.rawValue == "graph" {
+                    str = "●"
+                    color = NSColor.graphRed
+                    if let flag = self.synapseGraphHiddens[self.synapseCrystalInfo.temp.key], flag {
+                        alpha = 0.2
+                    }
+                }
             }
-            else if row == self.humidityRowNo {
+            else if self.tableRows[row] == "humidity" {
                 if tableColumn.identifier.rawValue == "title" {
                     str = "Humidity"
                 }
@@ -149,8 +186,15 @@ class DataViewController: NSViewController, NSTableViewDataSource, NSTableViewDe
                         str = "\(String(humidity)) %"
                     }
                 }
+                else if tableColumn.identifier.rawValue == "graph" {
+                    str = "●"
+                    color = NSColor.graphGreen
+                    if let flag = self.synapseGraphHiddens[self.synapseCrystalInfo.hum.key], flag {
+                        alpha = 0.2
+                    }
+                }
             }
-            else if row == self.lightRowNo {
+            else if self.tableRows[row] == "light" {
                 if tableColumn.identifier.rawValue == "title" {
                     str = "Light"
                 }
@@ -159,8 +203,15 @@ class DataViewController: NSViewController, NSTableViewDataSource, NSTableViewDe
                         str = "\(String(light)) lux"
                     }
                 }
+                else if tableColumn.identifier.rawValue == "graph" {
+                    str = "●"
+                    color = NSColor.graphYellow
+                    if let flag = self.synapseGraphHiddens[self.synapseCrystalInfo.ill.key], flag {
+                        alpha = 0.2
+                    }
+                }
             }
-            else if row == self.airpressureRowNo {
+            else if self.tableRows[row] == "airpressure" {
                 if tableColumn.identifier.rawValue == "title" {
                     str = "Air Pressure"
                 }
@@ -169,8 +220,15 @@ class DataViewController: NSViewController, NSTableViewDataSource, NSTableViewDe
                         str = "\(String(format:"%.2f", pressure)) hPa"
                     }
                 }
+                else if tableColumn.identifier.rawValue == "graph" {
+                    str = "●"
+                    color = NSColor.graphPurple
+                    if let flag = self.synapseGraphHiddens[self.synapseCrystalInfo.press.key], flag {
+                        alpha = 0.2
+                    }
+                }
             }
-            else if row == self.soundRowNo {
+            else if self.tableRows[row] == "sound" {
                 if tableColumn.identifier.rawValue == "title" {
                     str = "Sound"
                 }
@@ -179,28 +237,96 @@ class DataViewController: NSViewController, NSTableViewDataSource, NSTableViewDe
                         str = "\(String(sound))"
                     }
                 }
-            }
-            else if row == self.angleRowNo {
-                if tableColumn.identifier.rawValue == "title" {
-                    str = "Angle"
-                }
-                else if tableColumn.identifier.rawValue == "value" {
-                    if let synapseValues = self.synapseValues, let ax = synapseValues.ax, let ay = synapseValues.ay, let az = synapseValues.az {
-                        str = "\(String(format:"%.3f", Float(ax) * self.aScale))/\(String(format:"%.3f", Float(ay) * self.aScale))/\(String(format:"%.3f", Float(az) * self.aScale)) rad/s"
+                else if tableColumn.identifier.rawValue == "graph" {
+                    str = "●"
+                    color = NSColor.graphBlue
+                    if let flag = self.synapseGraphHiddens[self.synapseCrystalInfo.sound.key], flag {
+                        alpha = 0.2
                     }
                 }
             }
-            else if row == self.gyroRowNo {
+            else if self.tableRows[row] == "accelx" {
                 if tableColumn.identifier.rawValue == "title" {
-                    str = "Gyro"
+                    str = "Accel x"
                 }
                 else if tableColumn.identifier.rawValue == "value" {
-                    if let synapseValues = self.synapseValues, let gx = synapseValues.gx, let gy = synapseValues.gy, let gz = synapseValues.gz {
-                        str = "\(String(format:"%.3f", Float(gx) * self.gScale * Float(Double.pi / 180.0)))/\(String(format:"%.3f", Float(gy) * self.gScale * Float(Double.pi / 180.0)))/\(String(format:"%.3f", Float(gz) * self.gScale * Float(Double.pi / 180.0))) m/s2"
+                    if let synapseValues = self.synapseValues, let ax = synapseValues.ax {
+                        str = String(format:"%.3f", CommonFunction.makeAccelerationValue(Float(ax)))
+                    }
+                }
+                else if tableColumn.identifier.rawValue == "graph" {
+                    str = "●"
+                    color = NSColor.graphOrange
+                    if let flag = self.synapseGraphHiddens[self.synapseCrystalInfo.ax.key], flag {
+                        alpha = 0.2
                     }
                 }
             }
-            else if row == self.voltRowNo {
+            else if self.tableRows[row] == "accely" {
+                if tableColumn.identifier.rawValue == "title" {
+                    str = "Accel y"
+                }
+                else if tableColumn.identifier.rawValue == "value" {
+                    if let synapseValues = self.synapseValues, let ay = synapseValues.ay {
+                        str = String(format:"%.3f", CommonFunction.makeAccelerationValue(Float(ay)))
+                    }
+                }
+                else if tableColumn.identifier.rawValue == "graph" {
+                    str = "●"
+                    color = NSColor.graphBrown
+                    if let flag = self.synapseGraphHiddens[self.synapseCrystalInfo.ay.key], flag {
+                        alpha = 0.2
+                    }
+                }
+            }
+            else if self.tableRows[row] == "accelz" {
+                if tableColumn.identifier.rawValue == "title" {
+                    str = "Accel z"
+                }
+                else if tableColumn.identifier.rawValue == "value" {
+                    if let synapseValues = self.synapseValues, let az = synapseValues.az {
+                        str = String(format:"%.3f", CommonFunction.makeAccelerationValue(Float(az)))
+                    }
+                }
+                else if tableColumn.identifier.rawValue == "graph" {
+                    str = "●"
+                    color = NSColor.graphPink
+                    if let flag = self.synapseGraphHiddens[self.synapseCrystalInfo.az.key], flag {
+                        alpha = 0.2
+                    }
+                }
+            }
+            else if self.tableRows[row] == "gyrox" {
+                if tableColumn.identifier.rawValue == "title" {
+                    str = "Gyro x"
+                }
+                else if tableColumn.identifier.rawValue == "value" {
+                    if let synapseValues = self.synapseValues, let gx = synapseValues.gx {
+                        str = String(format:"%.3f", CommonFunction.makeGyroscopeValue(Float(gx)))
+                    }
+                }
+            }
+            else if self.tableRows[row] == "gyroy" {
+                if tableColumn.identifier.rawValue == "title" {
+                    str = "Gyro y"
+                }
+                else if tableColumn.identifier.rawValue == "value" {
+                    if let synapseValues = self.synapseValues, let gy = synapseValues.gy {
+                        str = String(format:"%.3f", CommonFunction.makeGyroscopeValue(Float(gy)))
+                    }
+                }
+            }
+            else if self.tableRows[row] == "gyroz" {
+                if tableColumn.identifier.rawValue == "title" {
+                    str = "Gyro z"
+                }
+                else if tableColumn.identifier.rawValue == "value" {
+                    if let synapseValues = self.synapseValues, let gz = synapseValues.gz {
+                        str = String(format:"%.3f", CommonFunction.makeGyroscopeValue(Float(gz)))
+                    }
+                }
+            }
+            else if self.tableRows[row] == "volt" {
                 if tableColumn.identifier.rawValue == "title" {
                     str = "Volt"
                 }
@@ -210,7 +336,7 @@ class DataViewController: NSViewController, NSTableViewDataSource, NSTableViewDe
                     }
                 }
             }
-            else if row == self.tvocRowNo {
+            else if self.tableRows[row] == "tvoc" {
                 if tableColumn.identifier.rawValue == "title" {
                     str = "tVOC"
                 }
@@ -220,7 +346,7 @@ class DataViewController: NSViewController, NSTableViewDataSource, NSTableViewDe
                     }
                 }
             }
-            else if row == self.batteryRowNo {
+            else if self.tableRows[row] == "battery" {
                 if tableColumn.identifier.rawValue == "title" {
                     str = "Battery"
                 }
@@ -233,9 +359,59 @@ class DataViewController: NSViewController, NSTableViewDataSource, NSTableViewDe
 
             let cell = tableView.makeView(withIdentifier: tableColumn.identifier, owner: self) as! NSTableCellView
             cell.textField?.stringValue = str
+            cell.textField?.textColor = color.withAlphaComponent(alpha)
             return cell
         }
         return nil
+    }
+
+    // MARK: mark - Action methods
+
+    @objc private func onItemClicked() {
+
+        //print("onItemClicked: row \(tableView.clickedRow), col \(tableView.clickedColumn)")
+        if self.tableView.clickedColumn == 0, self.tableView.clickedRow >= 0, self.tableView.clickedRow < self.tableRows.count {
+            let tableRow: String = self.tableRows[self.tableView.clickedRow]
+            var key: String = ""
+            if tableRow == "co2" {
+                key = self.synapseCrystalInfo.co2.key
+            }
+            else if tableRow == "temperature" {
+                key = self.synapseCrystalInfo.temp.key
+            }
+            else if tableRow == "humidity" {
+                key = self.synapseCrystalInfo.hum.key
+            }
+            else if tableRow == "light" {
+                key = self.synapseCrystalInfo.ill.key
+            }
+            else if tableRow == "airpressure" {
+                key = self.synapseCrystalInfo.press.key
+            }
+            else if tableRow == "sound" {
+                key = self.synapseCrystalInfo.sound.key
+            }
+            else if tableRow == "accelx" {
+                key = self.synapseCrystalInfo.ax.key
+            }
+            else if tableRow == "accely" {
+                key = self.synapseCrystalInfo.ay.key
+            }
+            else if tableRow == "accelz" {
+                key = self.synapseCrystalInfo.az.key
+            }
+            if key.count > 0 {
+                if let flag = self.synapseGraphHiddens[key] {
+                    self.synapseGraphHiddens[key] = !flag
+                }
+                else {
+                    self.synapseGraphHiddens[key] = true
+                }
+                self.tableView.reloadData(forRowIndexes: IndexSet(integer: self.tableView.clickedRow),
+                                          columnIndexes: IndexSet(integer: self.tableView.clickedColumn))
+                self.setGraphHiddensScript()
+            }
+        }
     }
 
     // MARK: mark - Graph methods
@@ -288,12 +464,30 @@ class DataViewController: NSViewController, NSTableViewDataSource, NSTableViewDe
             self.graphLabels = String(data: labelsData, encoding: .utf8)
             let valuesData: Data = try JSONSerialization.data(withJSONObject: self.synapseGraphValues, options: [])
             self.graphValues = String(data: valuesData, encoding: .utf8)
+            let scalesData: Data = try JSONSerialization.data(withJSONObject: self.synapseGraphScales, options: [])
+            self.graphScales = String(data: scalesData, encoding: .utf8)
+            let hiddensData: Data = try JSONSerialization.data(withJSONObject: self.makeGraphHidddens(), options: [])
+            self.graphHiddens = String(data: hiddensData, encoding: .utf8)
         }
         catch {
             print("JSON Encode Error: \(error.localizedDescription)")
             res = false
         }
         return res
+    }
+
+    func makeGraphHidddens() -> [Bool] {
+
+        var hiddens: [Bool] = []
+        for key in self.synapseGraphKeys {
+            if let flag = self.synapseGraphHiddens[key] {
+                hiddens.append(flag)
+            }
+            else {
+                hiddens.append(false)
+            }
+        }
+        return hiddens
     }
 
     func setGraph() {
@@ -309,9 +503,9 @@ class DataViewController: NSViewController, NSTableViewDataSource, NSTableViewDe
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
 
-        if let labels = self.graphLabels, let values = self.graphValues, let color = self.graphColor {
+        if let labels = self.graphLabels, let values = self.graphValues, let color = self.graphColor, let scales = self.graphScales, let hiddens = self.graphHiddens {
             let type: String = "line"
-            let execJsFunc: String = "graph(\"\(type)\", \(labels), \(values), \(color));"
+            let execJsFunc: String = "graph(\"\(type)\", \(labels), \(values), \(hiddens), \(color), \(scales));"
             //print("execJsFunc: \(execJsFunc)")
             self.webView.evaluateJavaScript(execJsFunc, completionHandler: { (object, error) -> Void in
                 if let error = error {
@@ -328,8 +522,25 @@ class DataViewController: NSViewController, NSTableViewDataSource, NSTableViewDe
             return
         }
 
-        if self.makeGraphParameter(), let labels = self.graphLabels, let values = self.graphValues {
-            let execJsFunc: String = "updateGraph(\(labels), \(values));"
+        if self.makeGraphParameter(), let labels = self.graphLabels, let values = self.graphValues, let scales = self.graphScales {
+            let execJsFunc: String = "updateGraph(\(labels), \(values), \(scales));"
+            //print("execJsFunc: \(execJsFunc)")
+            self.webView.evaluateJavaScript(execJsFunc, completionHandler: { (object, error) -> Void in
+                if let error = error {
+                    print("JS Error: \(error.localizedDescription)")
+                }
+            })
+        }
+    }
+
+    func setGraphHiddensScript() {
+
+        if !self.synapseGraphFirstFlag {
+            return
+        }
+
+        if self.makeGraphParameter(), let hiddens = self.graphHiddens {
+            let execJsFunc: String = "setGraphHiddens(\(hiddens));"
             //print("execJsFunc: \(execJsFunc)")
             self.webView.evaluateJavaScript(execJsFunc, completionHandler: { (object, error) -> Void in
                 if let error = error {

@@ -7,6 +7,18 @@
 
 class CommonFunction {
 
+    static func makeAccelerationValue(_ value: Float) -> Float {
+
+        let aScale: Float = 2.0 / 32768.0
+        return value * aScale
+    }
+
+    static func makeGyroscopeValue(_ value: Float) -> Float {
+
+        let gScale: Float = 250.0 / 32768.0
+        return value * gScale * Float(Double.pi / 180.0)
+    }
+
     static func log(_ msg: String) {
 
         let formatter: DateFormatter = DateFormatter()

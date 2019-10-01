@@ -30,6 +30,9 @@ struct SynapseCrystalStruct {
     var press: CrystalStruct = CrystalStruct(key: "press", name: "air pressure")
     var sound: CrystalStruct = CrystalStruct(key: "sound", name: "environmental sound")
     var move: CrystalStruct = CrystalStruct(key: "move", name: "movement")
+    var ax: CrystalStruct = CrystalStruct(key: "ax", name: "ax")
+    var ay: CrystalStruct = CrystalStruct(key: "ay", name: "ay")
+    var az: CrystalStruct = CrystalStruct(key: "az", name: "az")
     var angle: CrystalStruct = CrystalStruct(key: "angle", name: "angle")
     var volt: CrystalStruct = CrystalStruct(key: "volt", name: "voltage")
     var led: CrystalStruct = CrystalStruct(key: "led", name: "LED")
@@ -299,11 +302,13 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
                 if self.dataViewController == nil {
                     self.dataViewController = storyboard?.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "DataViewController")) as? DataViewController
                     self.dataViewController?.synapseNo = tableView.clickedRow
+                    self.dataViewController?.synapseGraphKeys = self.synapses[tableView.clickedRow].synapseGraphKeys
                     self.dataViewController?.synapseValues = self.synapses[tableView.clickedRow].synapseValues
                     self.dataViewController?.mainViewController = self
                     self.dataViewController?.synapseGraphLabels = self.synapses[tableView.clickedRow].synapseGraphLabels
                     self.dataViewController?.synapseGraphValues = self.synapses[tableView.clickedRow].synapseGraphValues
                     self.dataViewController?.synapseGraphColors = self.synapses[tableView.clickedRow].synapseGraphColors
+                    self.dataViewController?.synapseGraphScales = self.synapses[tableView.clickedRow].getSynapseGraphScales()
                     if let dataViewController = self.dataViewController {
                         self.presentViewControllerAsModalWindow(dataViewController)
                     }
@@ -1275,6 +1280,7 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
                         dataViewController.synapseGraphLabels = self.synapses[index].synapseGraphLabels
                         dataViewController.synapseGraphValues = self.synapses[index].synapseGraphValues
                         dataViewController.synapseGraphColors = self.synapses[index].synapseGraphColors
+                        dataViewController.synapseGraphScales = self.synapses[index].getSynapseGraphScales()
                         //print("synapseGraphValues: \(self.synapses[index].synapseGraphValues)")
                         dataViewController.checkGraph()
                     }
@@ -1776,6 +1782,7 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
     var synapseGraphTimes: [TimeInterval] = []
     var synapseGraphLabels: [String] = []
     var synapseGraphValues: [[[String: Any]]] = []
+    var synapseGraphMaxAndMinValues: [String: [String: Double]] = [:]
     var synapseGraphColors: [String] = []
 
     override init() {
@@ -2262,6 +2269,9 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
             self.synapseCrystalInfo.ill.key,
             self.synapseCrystalInfo.press.key,
             self.synapseCrystalInfo.sound.key,
+            self.synapseCrystalInfo.ax.key,
+            self.synapseCrystalInfo.ay.key,
+            self.synapseCrystalInfo.az.key,
         ]
         self.synapseGraphColors = [
             "white",
@@ -2270,6 +2280,9 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
             "yellow",
             "purple",
             "blue",
+            "orange",
+            "brown",
+            "pink",
         ]
 
         self.resetSynapseGraphData()
@@ -2279,8 +2292,10 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
     func resetSynapseGraphData() {
 
         self.synapseGraphValues = []
-        for _ in 0..<self.synapseGraphKeys.count {
+        self.synapseGraphMaxAndMinValues = [:]
+        for _ in self.synapseGraphKeys {
             self.synapseGraphValues.append([])
+            //self.synapseGraphMaxAndMinValues[key] = [:]
         }
         self.synapseGraphTimes = []
         self.synapseGraphLabels = []
@@ -2486,6 +2501,75 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
                 }
                 graphData[synapseCrystalInfo.sound.key] = soundGraph
             }
+            if let ax = self.synapseValues.ax {
+                let axValue: Float = CommonFunction.makeAccelerationValue(Float(ax))
+                var axGraph: [String: Any] = [:]
+                if let data = graphData[synapseCrystalInfo.ax.key] as? [String: Any] {
+                    axGraph = data
+                }
+                if let values = axGraph[key] as? [String: Any], let count = values["count"] as? Int, let value = values["value"] as? Double  {
+                    axGraph[key] = [
+                        "count": count + 1,
+                        "value": (value * Double(count) + Double(axValue)) / Double(count + 1),
+                    ]
+                }
+                else {
+                    axGraph[key] = [
+                        "count": 1,
+                        "value": Double(axValue),
+                    ]
+                }
+                if let values = axGraph[key] as? [String: Any] {
+                    self.setSynapseGraphData(synapseCrystalInfo.ax.key, time: floor(time), label: label, data: values)
+                }
+                graphData[synapseCrystalInfo.ax.key] = axGraph
+            }
+            if let ay = self.synapseValues.ay {
+                let ayValue: Float = CommonFunction.makeAccelerationValue(Float(ay))
+                var ayGraph: [String: Any] = [:]
+                if let data = graphData[synapseCrystalInfo.ay.key] as? [String: Any] {
+                    ayGraph = data
+                }
+                if let values = ayGraph[key] as? [String: Any], let count = values["count"] as? Int, let value = values["value"] as? Double  {
+                    ayGraph[key] = [
+                        "count": count + 1,
+                        "value": (value * Double(count) + Double(ayValue)) / Double(count + 1),
+                    ]
+                }
+                else {
+                    ayGraph[key] = [
+                        "count": 1,
+                        "value": Double(ayValue),
+                    ]
+                }
+                if let values = ayGraph[key] as? [String: Any] {
+                    self.setSynapseGraphData(synapseCrystalInfo.ay.key, time: floor(time), label: label, data: values)
+                }
+                graphData[synapseCrystalInfo.ay.key] = ayGraph
+            }
+            if let az = self.synapseValues.az {
+                let azValue: Float = CommonFunction.makeAccelerationValue(Float(az))
+                var azGraph: [String: Any] = [:]
+                if let data = graphData[synapseCrystalInfo.az.key] as? [String: Any] {
+                    azGraph = data
+                }
+                if let values = azGraph[key] as? [String: Any], let count = values["count"] as? Int, let value = values["value"] as? Double  {
+                    azGraph[key] = [
+                        "count": count + 1,
+                        "value": (value * Double(count) + Double(azValue)) / Double(count + 1),
+                    ]
+                }
+                else {
+                    azGraph[key] = [
+                        "count": 1,
+                        "value": Double(azValue),
+                    ]
+                }
+                if let values = azGraph[key] as? [String: Any] {
+                    self.setSynapseGraphData(synapseCrystalInfo.az.key, time: floor(time), label: label, data: values)
+                }
+                graphData[synapseCrystalInfo.az.key] = azGraph
+            }
             self.synapseGraphData = graphData
             //print("setSynapseGraphData: \(self.synapseGraphData)")
         }
@@ -2533,10 +2617,79 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
                 else {
                     values.append(addData)
                 }
-            }
 
+                if let value = value as? Double {
+                    //print("key: \(key), value: \(value)")
+                    if key == self.synapseCrystalInfo.ax.key || key == self.synapseCrystalInfo.ay.key || key == self.synapseCrystalInfo.az.key {
+                        self.setSynapseGraphMaxAndMinValue(self.synapseCrystalInfo.ax.key, value: value)
+                        self.setSynapseGraphMaxAndMinValue(self.synapseCrystalInfo.ay.key, value: value)
+                        self.setSynapseGraphMaxAndMinValue(self.synapseCrystalInfo.az.key, value: value)
+                    }
+                    else {
+                        self.setSynapseGraphMaxAndMinValue(key, value: value)
+                    }
+                }
+                //print("synapseGraphMaxAndMinValues: \(self.synapseGraphMaxAndMinValues)")
+            }
             self.synapseGraphValues[index] = values
         }
+    }
+
+    func setSynapseGraphMaxAndMinValue(_ key: String, value: Double) {
+
+        var graphMaxAndMinValue: [String: Double] = [:]
+        if let data = self.synapseGraphMaxAndMinValues[key] {
+            graphMaxAndMinValue = data
+        }
+        else {
+            if key == self.synapseCrystalInfo.co2.key {
+                graphMaxAndMinValue = [
+                    "max": 400.0,
+                    "min": 400.0,
+                ]
+            }
+            else if key == self.synapseCrystalInfo.ax.key || key == self.synapseCrystalInfo.ay.key || key == self.synapseCrystalInfo.az.key {
+                graphMaxAndMinValue = [
+                    "max": 1.0,
+                    "min": -1.0,
+                ]
+            }
+            else {
+                graphMaxAndMinValue = [
+                    "max": value + 1.0,
+                    "min": value - 1.0,
+                ]
+            }
+            /*if key == self.synapseCrystalInfo.co2.key {
+                if graphMaxAndMinValue["max"]! < 400.0 {
+                    graphMaxAndMinValue["max"] = 400.0
+                }
+                if graphMaxAndMinValue["min"]! < 400.0 {
+                    graphMaxAndMinValue["min"] = 400.0
+                }
+            }*/
+        }
+        if let max = graphMaxAndMinValue["max"], max < value {
+            graphMaxAndMinValue["max"] = value
+        }
+        if let min = graphMaxAndMinValue["min"], min > value {
+            graphMaxAndMinValue["min"] = value
+        }
+        self.synapseGraphMaxAndMinValues[key] = graphMaxAndMinValue
+    }
+
+    func getSynapseGraphScales() -> [[String: Double]] {
+
+        var scales: [[String: Double]] = []
+        for key in self.synapseGraphKeys {
+            if let data = self.synapseGraphMaxAndMinValues[key] {
+                scales.append(data)
+            }
+            else {
+                scales.append([:])
+            }
+        }
+        return scales
     }
 
     func removeSynapseGraphData(_ time: TimeInterval) {
