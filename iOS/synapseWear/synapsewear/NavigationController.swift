@@ -104,6 +104,11 @@ class NavigationController: UINavigationController, CommonFunctionProtocol {
         self.headerView.frame = CGRect(x: x, y: y, width: w, height: h)
         self.headerView.backgroundColor = UIColor.clear
         self.view.addSubview(self.headerView)
+        if self.isDebug {
+            let tapGesture: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.tapHeaderAction(_:)))
+            tapGesture.numberOfTapsRequired = 2
+            self.headerView.addGestureRecognizer(tapGesture)
+        }
 
         x = 44.0
         y = 20.0
@@ -277,6 +282,11 @@ class NavigationController: UINavigationController, CommonFunctionProtocol {
         self.headerBackForTopBtn.isHidden = true
     }
 
+    @objc func tapHeaderAction(_ sender: UITapGestureRecognizer) {
+
+        self.popToRootViewController(animated: true)
+    }
+
     // MARK: mark - ViewControllers methods
 
     func setMainViewController() {
@@ -321,6 +331,10 @@ class NavigationController: UINavigationController, CommonFunctionProtocol {
 
             if debug == "Files" {
                 let vc: FilesViewController = FilesViewController()
+                self.pushViewController(vc, animated: true)
+            }
+            else if debug == "Debug" {
+                let vc: DebugViewController = DebugViewController()
                 self.pushViewController(vc, animated: true)
             }
         }

@@ -8,6 +8,8 @@
 	<string>https://firmware.synapsewear.com/</string>
 	<key>postdata_url</key>
 	<string>https://firmware.synapsewear.com/postdata.php</string>
+	<key>is_save_data</key>
+	<true/>
 	<key>use_osc_recv</key>
 	<false/>
 	<key>is_debug</key>
@@ -15,6 +17,7 @@
 	<key>debugs</key>
 	<array>
 		<string>Files</string>
+		<string>Debug</string>
 	</array>
 </dict>
 </plist>

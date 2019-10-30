@@ -7,13 +7,11 @@
 
 import UIKit
 
-class FilesViewController: BaseViewController, UITableViewDataSource, UITableViewDelegate {
+class FilesViewController: BaseViewController, UITableViewDataSource, UITableViewDelegate, FileManagerExtension {
 
-    public var filepath: String = ""
+    var filepath: String = ""
     var files: [String] = []
-    let fileManager: FileManager = FileManager()
     var filesView: UITableView!
-
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -35,13 +33,12 @@ class FilesViewController: BaseViewController, UITableViewDataSource, UITableVie
         // Dispose of any resources that can be recreated.
     }
 
-
     override func setParam() {
         super.setParam()
 
         if self.filepath.count > 0 {
             do {
-                try self.files = fileManager.contentsOfDirectory(atPath: self.filepath)
+                try self.files = FileManager.default.contentsOfDirectory(atPath: self.filepath)
                 self.files.sort { $1 < $0 }
             }
             catch {
@@ -56,14 +53,9 @@ class FilesViewController: BaseViewController, UITableViewDataSource, UITableVie
     override func setView() {
         super.setView()
 
-        self.view.backgroundColor = UIColor.lightGray
+        self.view.backgroundColor = UIColor.white
 
-        let x:CGFloat = 0
-        let y:CGFloat = 20.0 + 60.0
-        let w:CGFloat = self.view.frame.width
-        let h:CGFloat = self.view.frame.height - y
         self.filesView = UITableView()
-        self.filesView.frame = CGRect(x: x, y: y, width: w, height: h)
         self.filesView.backgroundColor = UIColor.clear
         //self.tableView.contentInset = UIEdgeInsets(top: -20, left: 0, bottom: 0, right: 0)
         self.filesView.delegate = self
@@ -71,12 +63,27 @@ class FilesViewController: BaseViewController, UITableViewDataSource, UITableVie
         self.view.addSubview(self.filesView)
     }
 
+    override func resizeView() {
+        super.resizeView()
+
+        var baseY: CGFloat = 20.0
+        if #available(iOS 11.0, *) {
+            baseY = self.view.safeAreaInsets.top
+        }
+        let x: CGFloat = 0
+        let y: CGFloat = baseY + 60.0
+        let w: CGFloat = self.view.frame.width
+        let h: CGFloat = self.view.frame.height - y
+        self.filesView.frame = CGRect(x: x, y: y, width: w, height: h)
+    }
+
     func isDirectory(_ directory: String) -> Bool {
 
         var isDir: ObjCBool = false
         if self.filepath.count > 0 {
             if directory.count > 0 {
-                let exists: Bool = fileManager.fileExists(atPath: "\(self.filepath)/\(directory)", isDirectory: &isDir)
+                let path: String = "\(self.filepath)/\(directory)"
+                let exists: Bool = FileManager.default.fileExists(atPath: path, isDirectory: &isDir)
                 if !exists {
                     isDir = false
                 }
@@ -86,6 +93,28 @@ class FilesViewController: BaseViewController, UITableViewDataSource, UITableVie
             isDir = true
         }
         return isDir.boolValue
+    }
+
+    func getFileSize(_ directory: String) -> String {
+
+        do {
+            let path: String = "\(self.filepath)/\(directory)"
+            let size: UInt64 = try self.findSize(path: path)
+            return self.sizeToPrettyString(size: size)
+            /*
+            let attr: NSDictionary = try FileManager.default.attributesOfItem(atPath: path) as NSDictionary
+            //print("fileSize: \(attr.fileSize())")
+
+            let formatter: NumberFormatter = NumberFormatter()
+            formatter.numberStyle = .decimal
+            if let value: String = formatter.string(from: attr.fileSize() as NSNumber) {
+                return "\(value) byte"
+            }
+             */
+        }
+        catch {
+        }
+        return ""
     }
 
     // MARK: mark - UITableViewDataSource methods
@@ -102,21 +131,26 @@ class FilesViewController: BaseViewController, UITableViewDataSource, UITableVie
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
-        let cell: UITableViewCell = UITableViewCell(style: .value1, reuseIdentifier: "Cell")
+        let cell: UITableViewCell = UITableViewCell(style: .subtitle, reuseIdentifier: "Cell")
         cell.backgroundColor = UIColor.clear
-        //cell.selectionStyle = UITableViewCellSelectionStyle.none
 
         cell.textLabel?.text = ""
-        cell.textLabel?.font = UIFont(name: "HelveticaNeue", size: 14)
+        cell.textLabel?.font = UIFont(name: "HelveticaNeue", size: 14.0)
         cell.textLabel?.numberOfLines = 0
         if indexPath.row < self.files.count {
             cell.textLabel?.text = self.files[indexPath.row]
         }
+        /*
+        cell.detailTextLabel?.text = ""
+        cell.detailTextLabel?.font = UIFont(name: "HelveticaNeue", size: 12.0)
+        cell.detailTextLabel?.numberOfLines = 1
+        if let text = cell.textLabel?.text, self.filepath.count > 0 {
+            cell.detailTextLabel?.text = self.getFileSize(text)
+        }
+         */
         cell.accessoryType = .none
-        if let text = cell.textLabel?.text {
-            if self.isDirectory(text) {
-                cell.accessoryType = .disclosureIndicator
-            }
+        if let text = cell.textLabel?.text, self.isDirectory(text) {
+            cell.accessoryType = .disclosureIndicator
         }
         return cell
     }
@@ -125,10 +159,10 @@ class FilesViewController: BaseViewController, UITableViewDataSource, UITableVie
 
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
 
-        let x:CGFloat = 10.0
-        let y:CGFloat = 0
-        let w:CGFloat = tableView.frame.width - x * 2
-        let h:CGFloat = 0
+        let x: CGFloat = 10.0
+        let y: CGFloat = 0
+        let w: CGFloat = tableView.frame.width - x * 2
+        var h: CGFloat = 0
         let label: UILabel = UILabel()
         label.frame = CGRect(x: x, y: y, width: w, height: h)
         label.text = self.filepath
@@ -136,21 +170,22 @@ class FilesViewController: BaseViewController, UITableViewDataSource, UITableVie
         label.numberOfLines = 0
         label.sizeToFit()
 
-        if label.frame.size.height + 10.0 * 2 > 44.0 {
-            return label.frame.size.height + 10.0 * 2
+        h = label.frame.size.height + 10.0 * 2
+        if h > 44.0 {
+            return h
         }
         return 44.0
     }
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
 
-        var x:CGFloat = 0
-        var y:CGFloat = 0
-        var w:CGFloat = tableView.frame.width
-        var h:CGFloat = self.tableView(tableView, heightForHeaderInSection: section)
+        var x: CGFloat = 0
+        var y: CGFloat = 0
+        var w: CGFloat = tableView.frame.width
+        var h: CGFloat = self.tableView(tableView, heightForHeaderInSection: section)
         let view: UIView = UIView()
         view.frame = CGRect(x: x, y: y, width: w, height: h)
-        view.backgroundColor = UIColor.white
+        view.backgroundColor = #colorLiteral(red: 0.8196078431, green: 0.8196078431, blue: 0.8392156863, alpha: 1)
 
         x = 10.0
         w = tableView.frame.width - x * 2
@@ -176,10 +211,12 @@ class FilesViewController: BaseViewController, UITableViewDataSource, UITableVie
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
 
-        let x:CGFloat = 10.0
-        let y:CGFloat = 0
-        let w:CGFloat = tableView.frame.width - x * 2
-        let h:CGFloat = 0
+        let x: CGFloat = 10.0
+        let y: CGFloat = 0
+        let w: CGFloat = tableView.frame.width - (x + 40.0)
+        var h: CGFloat = 0
+        let subH: CGFloat = 0
+        //let subH: CGFloat = 12.0
         let label: UILabel = UILabel()
         label.frame = CGRect(x: x, y: y, width: w, height: h)
         label.font = UIFont(name: "HelveticaNeue", size: 14.0)
@@ -190,7 +227,8 @@ class FilesViewController: BaseViewController, UITableViewDataSource, UITableVie
         }
         label.sizeToFit()
 
-        return label.frame.size.height + 10.0 * 2
+        h = label.frame.size.height + 5.0 * 2 + subH
+        return h
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -222,5 +260,59 @@ class FilesViewController: BaseViewController, UITableViewDataSource, UITableVie
             vc.filepath = filepathNext
             self.navigationController?.pushViewController(vc, animated: true)
         }
+    }
+
+}
+
+enum FileErrors: Error {
+
+    case BadEnumeration
+    case BadResource
+}
+
+protocol FileManagerExtension {
+}
+extension FileManagerExtension {
+
+    func findSize(path: String) throws -> UInt64 {
+
+        let fullPath: String = (path as NSString).expandingTildeInPath
+        let fileAttributes: NSDictionary = try FileManager.default.attributesOfItem(atPath: fullPath) as NSDictionary
+
+        if fileAttributes.fileType() == "NSFileTypeRegular" {
+            return fileAttributes.fileSize()
+        }
+
+        let url: URL = URL(fileURLWithPath: fullPath)
+        guard let directoryEnumerator = FileManager.default.enumerator(at: url, includingPropertiesForKeys: [URLResourceKey.fileSizeKey], options: [.skipsHiddenFiles], errorHandler: nil) else { throw FileErrors.BadEnumeration }
+
+        var total: UInt64 = 0
+        for (index, object) in directoryEnumerator.enumerated() {
+            guard let fileURL = object as? NSURL else { throw FileErrors.BadResource }
+            var fileSizeResource: AnyObject?
+            try fileURL.getResourceValue(&fileSizeResource, forKey: URLResourceKey.fileSizeKey)
+            guard let fileSize = fileSizeResource as? NSNumber else { continue }
+            total += fileSize.uint64Value
+            if index % 1000 == 0 {
+                print(".", terminator: "")
+            }
+        }
+
+        /*if total < 1048576 {
+            total = 1
+        }
+        else {
+            total = UInt64(total / 1048576)
+        }*/
+
+        return total
+    }
+
+    func sizeToPrettyString(size: UInt64) -> String {
+
+        let byteCountFormatter: ByteCountFormatter = ByteCountFormatter()
+        byteCountFormatter.allowedUnits = .useBytes
+        byteCountFormatter.countStyle = .file
+        return byteCountFormatter.string(fromByteCount: Int64(size))
     }
 }

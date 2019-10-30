@@ -136,3 +136,16 @@ extension CommonFunctionProtocol {
         print("\(formatter.string(from: Date())) \(msg)")
     }
 }
+
+extension String {
+
+    func substring(from: Int, to: Int) -> String {
+        let start: Index = index(self.startIndex, offsetBy: from)
+        let end: Index = index(start, offsetBy: to - from)
+        return String(self[start ..< end])
+    }
+
+    func substring(range: NSRange) -> String {
+        return substring(from: range.lowerBound, to: range.upperBound)
+    }
+}

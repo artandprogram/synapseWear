@@ -29,7 +29,7 @@ class SynapseRecordFileManager: BaseFileManager {
         if synapseId.count > 0 {
             self.baseDirPath = "\(self.baseDirPath)/\(synapseId)"
 
-            let fileManager: FileManager = FileManager()
+            let fileManager: FileManager = FileManager.default
             var isDir: ObjCBool = false
             let exists: Bool = fileManager.fileExists(atPath: self.baseDirPath, isDirectory: &isDir)
             if !exists || !isDir.boolValue {
@@ -58,7 +58,7 @@ class SynapseRecordFileManager: BaseFileManager {
                 }
             }
         }
-        let fileManager: FileManager = FileManager()
+        let fileManager: FileManager = FileManager.default
         do {
             try res = fileManager.contentsOfDirectory(atPath: filePath)
         }
@@ -75,7 +75,7 @@ class SynapseRecordFileManager: BaseFileManager {
 
         var filePath: String = "\(self.baseDirPath)/\(day)"
         //print("save synapse -> \(filePath)" )
-        let fileManager: FileManager = FileManager()
+        let fileManager: FileManager = FileManager.default
         var isDir: ObjCBool = false
         var exists: Bool = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
         if !exists || !isDir.boolValue {
@@ -163,7 +163,7 @@ class SynapseRecordFileManager: BaseFileManager {
         }
 
         if filePath.count > 0 {
-            let fileManager: FileManager = FileManager()
+            let fileManager: FileManager = FileManager.default
             var isDir: ObjCBool = false
             let exists: Bool = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
             if exists && isDir.boolValue {
@@ -191,7 +191,7 @@ class SynapseRecordFileManager: BaseFileManager {
         }
 
         if filePath.count > 0 {
-            let fileManager: FileManager = FileManager()
+            let fileManager: FileManager = FileManager.default
             var isDir: ObjCBool = false
             let exists: Bool = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
             if exists && isDir.boolValue {
@@ -225,7 +225,7 @@ class SynapseRecordFileManager: BaseFileManager {
         }
 
         var filePath: String = "\(self.baseDirPath)/\(day)"
-        let fileManager: FileManager = FileManager()
+        let fileManager: FileManager = FileManager.default
         var isDir: ObjCBool = false
         var exists: Bool = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
         if !exists || !isDir.boolValue {
@@ -396,7 +396,7 @@ class SynapseRecordFileManager: BaseFileManager {
         }
 
         var filePath: String = "\(self.baseDirPath)/\(day)"
-        let fileManager: FileManager = FileManager()
+        let fileManager: FileManager = FileManager.default
         var isDir: ObjCBool = false
         var exists: Bool = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
         if !exists || !isDir.boolValue {
@@ -519,7 +519,7 @@ class SynapseRecordFileManager: BaseFileManager {
         }
 
         var filePath: String = "\(self.baseDirPath)/\(day)"
-        let fileManager: FileManager = FileManager()
+        let fileManager: FileManager = FileManager.default
         var isDir: ObjCBool = false
         var exists: Bool = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
         if !exists || !isDir.boolValue {
@@ -621,7 +621,7 @@ class SynapseRecordFileManager: BaseFileManager {
             startM = minFormatter.string(from: start)
         }
 
-        let fileManager: FileManager = FileManager()
+        let fileManager: FileManager = FileManager.default
         var files: [String] = []
         do {
             try files = fileManager.contentsOfDirectory(atPath: self.baseDirPath)
@@ -660,7 +660,7 @@ class SynapseRecordFileManager: BaseFileManager {
 
         let filePath: String = "\(self.baseDirPath)/\(day)/\(type)/\(valueType)/\(hour)/\(min)"
         if filePath.count > 0 {
-            let fileManager: FileManager = FileManager()
+            let fileManager: FileManager = FileManager.default
             var isDir: ObjCBool = false
             let exists: Bool = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
             if exists && isDir.boolValue {
@@ -686,7 +686,7 @@ class SynapseRecordFileManager: BaseFileManager {
 
         let filePath: String = "\(self.baseDirPath)/\(day)/\(type)/\(valueType)/\(hour)/10min/\(min)"
         if filePath.count > 0 {
-            let fileManager: FileManager = FileManager()
+            let fileManager: FileManager = FileManager.default
             var isDir: ObjCBool = false
             let exists: Bool = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
             if exists && isDir.boolValue {
@@ -712,7 +712,7 @@ class SynapseRecordFileManager: BaseFileManager {
 
         let filePath: String = "\(self.baseDirPath)/\(day)/\(type)/\(valueType)/\(hour)/1hour"
         if filePath.count > 0 {
-            let fileManager: FileManager = FileManager()
+            let fileManager: FileManager = FileManager.default
             var isDir: ObjCBool = false
             let exists: Bool = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
             if exists && isDir.boolValue {
@@ -737,7 +737,7 @@ class SynapseRecordFileManager: BaseFileManager {
         }
 
         var filePath: String = "\(self.baseDirPath)/\(day)"
-        let fileManager: FileManager = FileManager()
+        let fileManager: FileManager = FileManager.default
         var isDir: ObjCBool = false
         var exists: Bool = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
         if !exists || !isDir.boolValue {
@@ -861,7 +861,7 @@ class SynapseRecordFileManager: BaseFileManager {
         }
 
         var filePath: String = "\(self.baseDirPath)/\(day)"
-        let fileManager: FileManager = FileManager()
+        let fileManager: FileManager = FileManager.default
         var isDir: ObjCBool = false
         var exists: Bool = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
         if !exists || !isDir.boolValue {
@@ -1004,7 +1004,7 @@ class SynapseRecordFileManager: BaseFileManager {
         }
 
         var filePath: String = "\(self.baseDirPath)/\(day)"
-        let fileManager: FileManager = FileManager()
+        let fileManager: FileManager = FileManager.default
         var isDir: ObjCBool = false
         var exists: Bool = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
         if !exists || !isDir.boolValue {
@@ -1124,7 +1124,7 @@ class SynapseRecordFileManager: BaseFileManager {
     func getDayDirectories() -> [String] {
 
         var res: [String] = []
-        let fileManager: FileManager = FileManager()
+        let fileManager: FileManager = FileManager.default
         do {
             try res = fileManager.contentsOfDirectory(atPath: self.baseDirPath)
         }
@@ -1138,7 +1138,7 @@ class SynapseRecordFileManager: BaseFileManager {
         var res: [String] = []
         if let day = day, day.count > 0 {
             let filePath: String = "\(self.baseDirPath)/\(day)/\(self.connectLogDir)"
-            let fileManager: FileManager = FileManager()
+            let fileManager: FileManager = FileManager.default
             do {
                 try res = fileManager.contentsOfDirectory(atPath: filePath)
             }
@@ -1168,6 +1168,32 @@ class SynapseRecordFileManager: BaseFileManager {
         return connectDate
     }
 
+    func getConnectLogsData(day: String?) -> [[String: Date]] {
+
+        var res: [[String: Date]] = []
+        var value: [String: Date]? = nil
+        for log in self.getConnectLogs(day: day) {
+            let parts: [String] = log.components(separatedBy: "_")
+            if parts.count >= 2, let time = Double(parts[0]) {
+                let date: Date = Date(timeIntervalSince1970: time)
+                if value == nil {
+                    value = [:]
+                }
+                if parts[1] == "0S" {
+                    value?["S"] = date
+                    if let value = value {
+                        res.append(value)
+                    }
+                    value = nil
+                }
+                else if parts[1] == "1E" {
+                    value?["E"] = date
+                }
+            }
+        }
+        return res
+    }
+
     func setConnectLog(_ type: String, date: Date = Date()) -> Bool {
 
         if type.count <= 0 {
@@ -1180,7 +1206,7 @@ class SynapseRecordFileManager: BaseFileManager {
         let day: String = formatter.string(from: date)
 
         var filePath: String = "\(self.baseDirPath)/\(day)"
-        let fileManager: FileManager = FileManager()
+        let fileManager: FileManager = FileManager.default
         var isDir: ObjCBool = false
         var exists: Bool = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
         if !exists || !isDir.boolValue {
@@ -1278,7 +1304,7 @@ class SynapseRecordFileManager: BaseFileManager {
         let sec: String = secFormatter.string(from: date)
 
         var filePath: String = "\(self.baseDirPath)/\(day)"
-        let fileManager: FileManager = FileManager()
+        let fileManager: FileManager = FileManager.default
         var isDir: ObjCBool = false
         var exists: Bool = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
         if !exists || !isDir.boolValue {
@@ -1399,7 +1425,7 @@ class SynapseRecordFileManager: BaseFileManager {
         }
 
         let filePath: String = "\(self.baseDirPath)/\(day)/\(self.sendDir)/\(hour)"
-        let fileManager: FileManager = FileManager()
+        let fileManager: FileManager = FileManager.default
         return fileManager.fileExists(atPath: filePath)
         /*var isDir: ObjCBool = false
         var exists: Bool = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
@@ -1421,7 +1447,7 @@ class SynapseRecordFileManager: BaseFileManager {
         }
 
         var filePath: String = "\(self.baseDirPath)/\(day)"
-        let fileManager: FileManager = FileManager()
+        let fileManager: FileManager = FileManager.default
         var isDir: ObjCBool = false
         var exists: Bool = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
         if !exists || !isDir.boolValue {
@@ -1481,7 +1507,7 @@ class SynapseRecordFileManager: BaseFileManager {
 
         self.setBaseDir()
         var synapseIds: [String] = []
-        let fileManager: FileManager = FileManager()
+        let fileManager: FileManager = FileManager.default
         do {
             try synapseIds = fileManager.contentsOfDirectory(atPath: self.baseDirPath)
         }

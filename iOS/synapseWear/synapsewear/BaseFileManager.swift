@@ -28,7 +28,7 @@ class BaseFileManager: NSObject {
         if self.baseDirPath.count > 0 && self.baseDirName.count > 0 {
             self.baseDirPath = "\(self.baseDirPath)/\(self.baseDirName)"
 
-            let fileManager: FileManager = FileManager()
+            let fileManager: FileManager = FileManager.default
             var isDir: ObjCBool = false
             let exists: Bool = fileManager.fileExists(atPath: self.baseDirPath, isDirectory: &isDir)
             if !exists || !isDir.boolValue {
@@ -45,7 +45,7 @@ class BaseFileManager: NSObject {
     func getData(fileName: String) -> Data? {
 
         let filePath: String = "\(self.baseDirPath)/\(fileName)"
-        let fileManager: FileManager = FileManager()
+        let fileManager: FileManager = FileManager.default
         var isDir: ObjCBool = false
         let exists: Bool = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
         if exists && !isDir.boolValue {
@@ -63,7 +63,7 @@ class BaseFileManager: NSObject {
     func setData(fileName: String, data: Data) -> Bool {
 
         let filePath: String = "\(self.baseDirPath)/\(fileName)"
-        let fileManager: FileManager = FileManager()
+        let fileManager: FileManager = FileManager.default
         var isDir: ObjCBool = false
         let exists: Bool = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
         if !exists || isDir.boolValue {

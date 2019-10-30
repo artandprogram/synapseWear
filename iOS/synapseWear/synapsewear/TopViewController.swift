@@ -2234,7 +2234,10 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         }
         //print("setSynapseData: \(synapseObject.synapseData)")
         synapseObject.setSynapseValues()
-        //self.setSynapseValueFile(synapseObject: synapseObject, values: Data(bytes: synapseObject.receiveData), date: now, timeInterval: self.synapseTimeInterval)
+
+        if let flag = self.getAppinfoValue("is_save_data") as? Bool, flag {
+            self.setSynapseValueFile(synapseObject: synapseObject, values: Data(bytes: synapseObject.receiveData), date: now, timeInterval: self.synapseTimeInterval)
+        }
 
         if synapseObject.synapseValues.isConnected {
             synapseObject.setSynapseMaxAndMinValues()

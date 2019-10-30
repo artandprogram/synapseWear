@@ -120,6 +120,8 @@
 		DD5164A2233A1DBB000CC3BC /* graphsetting_s_w@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = DD516499233A1DBA000CC3BC /* graphsetting_s_w@3x.png */; };
 		DD5164A5233A1DBB000CC3BC /* graphsetting_s_w.png in Resources */ = {isa = PBXBuildFile; fileRef = DD51649C233A1DBA000CC3BC /* graphsetting_s_w.png */; };
 		DD5164A6233A1DBB000CC3BC /* graphsetting_s_w@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = DD51649D233A1DBA000CC3BC /* graphsetting_s_w@2x.png */; };
+		DD584D2F235D4C3A002FCCE5 /* DebugViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD584D2E235D4C3A002FCCE5 /* DebugViewController.swift */; };
+		DD584D33235D7D55002FCCE5 /* DebugDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD584D32235D7D55002FCCE5 /* DebugDetailViewController.swift */; };
 		DD5C07992334AA6900CF10BF /* defaultImages.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD5C07982334AA6900CF10BF /* defaultImages.swift */; };
 		DD5C08182334ACD500CF10BF /* status_s_w.png in Resources */ = {isa = PBXBuildFile; fileRef = DD5C079A2334ACCC00CF10BF /* status_s_w.png */; };
 		DD5C08192334ACD500CF10BF /* illumination_l.png in Resources */ = {isa = PBXBuildFile; fileRef = DD5C079B2334ACCC00CF10BF /* illumination_l.png */; };
@@ -248,6 +250,8 @@
 		DD5C08942334ACD500CF10BF /* co2_s.png in Resources */ = {isa = PBXBuildFile; fileRef = DD5C08162334ACD500CF10BF /* co2_s.png */; };
 		DD5C08952334ACD500CF10BF /* temperature_l_w.png in Resources */ = {isa = PBXBuildFile; fileRef = DD5C08172334ACD500CF10BF /* temperature_l_w.png */; };
 		DD7985AF233B554200AA9BF4 /* SettingBaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD7985AE233B554200AA9BF4 /* SettingBaseViewController.swift */; };
+		DD9B2A492367FA7B0078BE7C /* DebugBaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD9B2A482367FA7B0078BE7C /* DebugBaseViewController.swift */; };
+		DDA2E1C22366D5E600A6B669 /* DebugDetailSubViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDA2E1C12366D5E600A6B669 /* DebugDetailSubViewController.swift */; };
 		DDDBE6CF233A30F800A9A850 /* playmusic_s_w@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = DDDBE6CA233A30F700A9A850 /* playmusic_s_w@3x.png */; };
 		DDDBE6D0233A30F800A9A850 /* playmusic_s.png in Resources */ = {isa = PBXBuildFile; fileRef = DDDBE6CB233A30F700A9A850 /* playmusic_s.png */; };
 		DDDBE6D1233A30F800A9A850 /* playmusic_s@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = DDDBE6CC233A30F700A9A850 /* playmusic_s@3x.png */; };
@@ -453,6 +457,8 @@
 		DD51649C233A1DBA000CC3BC /* graphsetting_s_w.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = graphsetting_s_w.png; path = images/graphsetting_s_w.png; sourceTree = "<group>"; };
 		DD51649D233A1DBA000CC3BC /* graphsetting_s_w@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "graphsetting_s_w@2x.png"; path = "images/graphsetting_s_w@2x.png"; sourceTree = "<group>"; };
 		DD51649E233A1DBB000CC3BC /* playmusic_s_w.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = playmusic_s_w.png; path = images/playmusic_s_w.png; sourceTree = "<group>"; };
+		DD584D2E235D4C3A002FCCE5 /* DebugViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugViewController.swift; sourceTree = "<group>"; };
+		DD584D32235D7D55002FCCE5 /* DebugDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugDetailViewController.swift; sourceTree = "<group>"; };
 		DD5C07982334AA6900CF10BF /* defaultImages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = defaultImages.swift; sourceTree = "<group>"; };
 		DD5C079A2334ACCC00CF10BF /* status_s_w.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = status_s_w.png; path = images/status_s_w.png; sourceTree = "<group>"; };
 		DD5C079B2334ACCC00CF10BF /* illumination_l.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = illumination_l.png; path = images/illumination_l.png; sourceTree = "<group>"; };
@@ -583,6 +589,8 @@
 		DD7957342303F1A400EAC24C /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
 		DD7957362303F1AD00EAC24C /* UserNotificationsUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotificationsUI.framework; path = System/Library/Frameworks/UserNotificationsUI.framework; sourceTree = SDKROOT; };
 		DD7985AE233B554200AA9BF4 /* SettingBaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingBaseViewController.swift; sourceTree = "<group>"; };
+		DD9B2A482367FA7B0078BE7C /* DebugBaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugBaseViewController.swift; sourceTree = "<group>"; };
+		DDA2E1C12366D5E600A6B669 /* DebugDetailSubViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugDetailSubViewController.swift; sourceTree = "<group>"; };
 		DDDBE6C8233A305000A9A850 /* playmusic_s_w.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = playmusic_s_w.png; path = images/playmusic_s_w.png; sourceTree = "<group>"; };
 		DDDBE6CA233A30F700A9A850 /* playmusic_s_w@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "playmusic_s_w@3x.png"; path = "images/playmusic_s_w@3x.png"; sourceTree = "<group>"; };
 		DDDBE6CB233A30F700A9A850 /* playmusic_s.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = playmusic_s.png; path = images/playmusic_s.png; sourceTree = "<group>"; };
@@ -746,6 +754,10 @@
 			isa = PBXGroup;
 			children = (
 				875BB0A81EDC1EE800FB4D98 /* FilesViewController.swift */,
+				DD9B2A482367FA7B0078BE7C /* DebugBaseViewController.swift */,
+				DD584D2E235D4C3A002FCCE5 /* DebugViewController.swift */,
+				DD584D32235D7D55002FCCE5 /* DebugDetailViewController.swift */,
+				DDA2E1C12366D5E600A6B669 /* DebugDetailSubViewController.swift */,
 				872A246F1F55362A008B50E1 /* NotificationViewController.swift */,
 			);
 			path = debug;
@@ -1597,9 +1609,11 @@
 				8713416C2069E2470037CCB2 /* AccessFileSystem.m in Sources */,
 				8701EC20207F477000352315 /* GraphDataTableViewCell.swift in Sources */,
 				87B5F0631EAF26040030BCD6 /* MainViewController.swift in Sources */,
+				DD584D33235D7D55002FCCE5 /* DebugDetailViewController.swift in Sources */,
 				8713417A2069E2470037CCB2 /* SSZipArchive.m in Sources */,
 				87B5F08B1EAF3B810030BCD6 /* RfduinoManager.m in Sources */,
 				876DCC2E20D7B7730095ADC7 /* HamburgerMenuView.swift in Sources */,
+				DDA2E1C22366D5E600A6B669 /* DebugDetailSubViewController.swift in Sources */,
 				87B5F0671EAF27F40030BCD6 /* MenuViewController.swift in Sources */,
 				873BC56D20B276BA000FEA69 /* SynapseSound.swift in Sources */,
 				87E66D831EB0747200434949 /* ApiManager.swift in Sources */,
@@ -1617,6 +1631,7 @@
 				871341682069E2470037CCB2 /* DFUHelper.m in Sources */,
 				873666711F3044C400EE8079 /* CrystalGeometries.swift in Sources */,
 				876DCC2C20D7A4560095ADC7 /* CrossView.swift in Sources */,
+				DD9B2A492367FA7B0078BE7C /* DebugBaseViewController.swift in Sources */,
 				872F2EF22056486500E8E5FA /* SettingViewController.swift in Sources */,
 				8714B7072058C11200DB101D /* CheckmarkView.swift in Sources */,
 				872A24701F55362A008B50E1 /* NotificationViewController.swift in Sources */,
@@ -1641,6 +1656,7 @@
 				8729BA7520C77E9400CE3DBF /* SynapseDevicesViewController.swift in Sources */,
 				87B5F06C1EAF31B40030BCD6 /* TopViewController.swift in Sources */,
 				DD4F114D230FD2E500FCAA8B /* TodayExtensionData.swift in Sources */,
+				DD584D2F235D4C3A002FCCE5 /* DebugViewController.swift in Sources */,
 				DD5C07992334AA6900CF10BF /* defaultImages.swift in Sources */,
 				8713417B2069E2470037CCB2 /* UnzipFirmware.m in Sources */,
 				87B5F08A1EAF3B810030BCD6 /* RFduino.m in Sources */,

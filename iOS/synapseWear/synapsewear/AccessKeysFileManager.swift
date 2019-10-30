@@ -64,6 +64,19 @@ class AccessKeysFileManager: BaseFileManager {
         return uuidNow
     }
 
+    func getUUIDList() -> [UUID] {
+
+        var res: [UUID] = []
+        if let accessKeys = self.getAccessKeysData() {
+            for accessKey in accessKeys {
+                if let accessKey = accessKey as? [String: Any], let uuid = accessKey[self.uuidKey] as? UUID {
+                    res.append(uuid)
+                }
+            }
+        }
+        return res
+    }
+
     func getAccessKey(_ uuid: UUID) -> Data? {
 
         var res: Data? = nil
