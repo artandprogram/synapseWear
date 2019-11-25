@@ -7,7 +7,7 @@
 
 import UIKit
 
-class DebugViewController: DebugBaseViewController {
+class DebugViewController: DebugBaseViewController, UsageFunction {
 
     var uuid: UUID?
     var uuids: [UUID] = []
@@ -39,7 +39,7 @@ class DebugViewController: DebugBaseViewController {
             self.topLabel.text = uuid.uuidString
         }
         else {
-            self.topLabel.text = "Devices"
+            self.topLabel.text = self.makeUsageString()
         }
     }
 
@@ -175,5 +175,18 @@ class DebugViewController: DebugBaseViewController {
                 self.tableView.reloadData()
             }
         }
+    }
+
+    func makeUsageString() -> String {
+
+        var str: String = ""
+        str = "\(str)\(String(format: "CPU : %.01f %%", self.getCPUUsage()))"
+        if let mem = self.getMemoryUsed() {
+            str = "\(str), "
+            str = "\(str)Memory : \(ByteCountFormatter.string(fromByteCount: Int64(mem), countStyle: ByteCountFormatter.CountStyle.binary))"
+        }
+        str = "\(str), "
+        str = "\(str)Space : \(self.getDiskSpace(.free))"
+        return str
     }
 }

@@ -7,12 +7,13 @@
 
 import UIKit
 
-class SynapseRecordFileManager: BaseFileManager {
+class SynapseRecordFileManager: BaseFileManager, UsageFunction {
 
     // const variables
     let connectLogDir: String = "connect_log"
     let valuesDir: String = "values"
     let sendDir: String = "send"
+    let limitSpace: Int64 = 2 * 1024 * 1024 * 1024
 
     override init() {
         super.init()
@@ -1191,6 +1192,10 @@ class SynapseRecordFileManager: BaseFileManager {
                 }
             }
         }
+        if let value = value {
+            res.append(value)
+        }
+
         return res
     }
 
@@ -1507,6 +1512,7 @@ class SynapseRecordFileManager: BaseFileManager {
 
         self.setBaseDir()
         var synapseIds: [String] = []
+        var dayList: [String] = []
         let fileManager: FileManager = FileManager.default
         do {
             try synapseIds = fileManager.contentsOfDirectory(atPath: self.baseDirPath)
@@ -1539,6 +1545,37 @@ class SynapseRecordFileManager: BaseFileManager {
                     }
                     catch {
                         //print("removeSynapseRecords error")
+                    }
+                }
+
+                if dayList.index(of: day) == nil {
+                    dayList.append(day)
+                }
+            }
+        }
+
+        if dayList.count > 0 {
+            var res: Bool = false
+            dayList.sort { $1 > $0 }
+            for day in dayList {
+                if res {
+                    break
+                }
+
+                for synapseId in synapseIds {
+                    if self.freeSpace >= self.limitSpace {
+                        res = true
+                        break
+                    }
+
+                    let filePath: String = "\(self.baseDirPath)/\(synapseId)/\(day)/\(self.valuesDir)"
+                    if fileManager.fileExists(atPath: filePath) {
+                        do {
+                            try fileManager.removeItem(atPath: filePath)
+                            print("removeSynapseRecords: \(filePath)")
+                        }
+                        catch {
+                        }
                     }
                 }
             }

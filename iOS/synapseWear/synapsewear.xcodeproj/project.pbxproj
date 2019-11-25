@@ -112,6 +112,7 @@
 		9CE12C7921AD2E1B000BE4B9 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9CE12C7721AD2E1B000BE4B9 /* MainInterface.storyboard */; };
 		9CE12C7D21AD2E1C000BE4B9 /* todayExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 9CE12C7121AD2E1B000BE4B9 /* todayExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		C2C4D108CC50E625C36C983D /* Pods_synapsewearTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 74720B7F850E3E2F11F3D87B /* Pods_synapsewearTests.framework */; };
+		DD256C602369854100D8577A /* UsageFunction.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD256C5F2369854100D8577A /* UsageFunction.swift */; };
 		DD4F114D230FD2E500FCAA8B /* TodayExtensionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD4F114C230FD2E500FCAA8B /* TodayExtensionData.swift */; };
 		DD4F114E230FD2E500FCAA8B /* TodayExtensionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD4F114C230FD2E500FCAA8B /* TodayExtensionData.swift */; };
 		DD51649F233A1DBB000CC3BC /* graphsetting_s@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = DD516496233A1DB9000CC3BC /* graphsetting_s@2x.png */; };
@@ -449,6 +450,7 @@
 		9CE12C7821AD2E1B000BE4B9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
 		9CE12C7A21AD2E1C000BE4B9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9CE12C8221AD3A7F000BE4B9 /* todayExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = todayExtension.entitlements; sourceTree = "<group>"; };
+		DD256C5F2369854100D8577A /* UsageFunction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UsageFunction.swift; sourceTree = "<group>"; };
 		DD4F114C230FD2E500FCAA8B /* TodayExtensionData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayExtensionData.swift; sourceTree = "<group>"; };
 		DD516496233A1DB9000CC3BC /* graphsetting_s@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "graphsetting_s@2x.png"; path = "images/graphsetting_s@2x.png"; sourceTree = "<group>"; };
 		DD516497233A1DBA000CC3BC /* graphsetting_s@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "graphsetting_s@3x.png"; path = "images/graphsetting_s@3x.png"; sourceTree = "<group>"; };
@@ -758,6 +760,7 @@
 				DD584D2E235D4C3A002FCCE5 /* DebugViewController.swift */,
 				DD584D32235D7D55002FCCE5 /* DebugDetailViewController.swift */,
 				DDA2E1C12366D5E600A6B669 /* DebugDetailSubViewController.swift */,
+				DD256C5F2369854100D8577A /* UsageFunction.swift */,
 				872A246F1F55362A008B50E1 /* NotificationViewController.swift */,
 			);
 			path = debug;
@@ -1654,6 +1657,7 @@
 				871341782069E2470037CCB2 /* unzip.c in Sources */,
 				875BB0A91EDC1EE800FB4D98 /* FilesViewController.swift in Sources */,
 				8729BA7520C77E9400CE3DBF /* SynapseDevicesViewController.swift in Sources */,
+				DD256C602369854100D8577A /* UsageFunction.swift in Sources */,
 				87B5F06C1EAF31B40030BCD6 /* TopViewController.swift in Sources */,
 				DD4F114D230FD2E500FCAA8B /* TodayExtensionData.swift in Sources */,
 				DD584D2F235D4C3A002FCCE5 /* DebugViewController.swift in Sources */,
