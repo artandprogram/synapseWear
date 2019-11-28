@@ -7,6 +7,15 @@
 
 class CommonFunction {
 
+    static func getAppinfoValue(_ key: String) -> Any? {
+
+        if let path = Bundle.main.path(forResource: "appinfo", ofType: "plist"), let dic = NSDictionary(contentsOfFile: path) as? [String: Any], let value = dic[key] {
+            //print("getAppinfoValue: \(key) -> \(value)")
+            return value
+        }
+        return nil
+    }
+
     static func makeAccelerationValue(_ value: Float) -> Float {
 
         let aScale: Float = 2.0 / 32768.0

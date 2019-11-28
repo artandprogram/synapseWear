@@ -36,7 +36,7 @@ class DataViewController: NSViewController, NSTableViewDataSource, NSTableViewDe
         "battery",
     ]
     let synapseCrystalInfo: SynapseCrystalStruct = SynapseCrystalStruct()
-    var synapseNo: Int?
+    var synapseUUID: String?
     var synapseValues: SynapseValues?
     var mainViewController: ViewController?
     // For Graph Data
@@ -56,20 +56,24 @@ class DataViewController: NSViewController, NSTableViewDataSource, NSTableViewDe
     var graphScales: String?
     var graphHiddens: String?
     var synapseGraphUpdateDate: Date?
+    var isViewSetting: Bool = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         self.viewSetting()
-
         self.checkGraph()
+        self.isViewSetting = true
     }
 
     override func viewWillDisappear() {
         super.viewWillDisappear()
 
-        self.mainViewController?.dataViewController = nil
-        //print("DataViewController viewWillDisappear: \(self.parentViewController)")
+        if let uuid = self.synapseUUID {
+            self.mainViewController?.closeSynapseDataWindow(uuid)
+        }
+        self.mainViewController = nil
+        //print("DataViewController viewWillDisappear")
     }
 
     override var representedObject: Any? {
@@ -80,23 +84,21 @@ class DataViewController: NSViewController, NSTableViewDataSource, NSTableViewDe
 
     func viewSetting() {
 
-        self.title = ""
-        if let synapseValues = self.synapseValues, let uuid = synapseValues.uuid {
-            self.title = uuid
-        }
-
         self.tableView.delegate = self
         self.tableView.allowsTypeSelect = false
         self.tableView.action = #selector(onItemClicked)
         //self.webView.uiDelegate = self
         self.webView.navigationDelegate = self
 
-        NotificationCenter.default.addObserver(self, selector: #selector(self.resized), name: NSWindow.didResizeNotification, object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(self.resized),
+                                               name: NSWindow.didResizeNotification,
+                                               object: nil)
     }
 
     @objc func resized() {
 
-        if let window = NSApp.windows.last {
+        if let window = self.view.window/*NSApp.windows.last*/ {
             let headerH: CGFloat = 21.0
             let spaceH: CGFloat = 20.0
             let tableBaseH: CGFloat = CGFloat(self.tableRows.count) * self.tableViewRowH
@@ -443,7 +445,8 @@ class DataViewController: NSViewController, NSTableViewDataSource, NSTableViewDe
 
     func updateGraph() {
 
-        let now: Date = Date()
+        self.updateGraphScript()
+        /*let now: Date = Date()
         var canUpdate: Bool = true
         if let synapseGraphLastUpdate = self.synapseGraphLastUpdate, now.timeIntervalSince(synapseGraphLastUpdate) < self.synapseGraphUpdateInterval {
             canUpdate = false
@@ -451,7 +454,7 @@ class DataViewController: NSViewController, NSTableViewDataSource, NSTableViewDe
         if canUpdate {
             self.synapseGraphLastUpdate = now
             self.updateGraphScript()
-        }
+        }*/
     }
 
     func makeGraphParameter() -> Bool {

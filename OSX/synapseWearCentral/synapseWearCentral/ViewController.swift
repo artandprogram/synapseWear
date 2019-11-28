@@ -8,7 +8,7 @@
 import Cocoa
 import Alamofire
 import SwiftyJSON
-
+import Foundation
 struct CrystalStruct {
 
     var key: String = ""
@@ -107,13 +107,12 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
     var firmwares: [[String: Any]] = []
     var checkScanningTimer: Timer?
     var loadingView: LoadingView!
-    var dataViewController: DataViewController?
+    var windowControllers: [String: NSWindowController] = [:]
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view..s
-
         self.viewSetting()
 
         self.setRFduinoManager()
@@ -128,7 +127,6 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
     func viewSetting() {
 
         self.loadingView = LoadingView()
-        self.loadingView.frame = NSRect(x: 0, y: 0, width: self.view.frame.size.width, height: self.view.frame.size.height)
         self.loadingView.isHidden = true
         self.view.addSubview(self.loadingView)
         /*
@@ -144,7 +142,6 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         self.tableView.delegate = self
 
         self.resetButton.action = #selector(resetButtonAction)
-
         self.directoryButton.action = #selector(directoryButtonAction)
 
         // For Firmware Update
@@ -166,113 +163,125 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         self.timeIntervalComboBox.delegate = self
 
         self.sendButton.action = #selector(sendButtonAction)
-
         self.oscSendButton.action = #selector(oscSendButtonAction)
-        NotificationCenter.default.addObserver(self, selector: #selector(type(of: self).textDidChange(notification:)), name: NSControl.textDidChangeNotification, object: nil)
 
         self.setDetailAreaLabels()
 
-        NotificationCenter.default.addObserver(self, selector: #selector(self.resized), name: NSWindow.didResizeNotification, object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(type(of: self).textDidChange(notification:)),
+                                               name: NSControl.textDidChangeNotification,
+                                               object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(self.resized),
+                                               name: NSWindow.didResizeNotification,
+                                               object: nil)
     }
 
     func setSizeUUIDViews() {
 
+        var x: CGFloat = self.uuidLabel.frame.origin.x
+        var y: CGFloat = self.uuidLabel.frame.origin.y
         var w: CGFloat = self.uuidLabel.frame.size.width
-        let h: CGFloat = self.uuidLabel.frame.size.height
+        var h: CGFloat = self.uuidLabel.frame.size.height
         self.uuidLabel.sizeToFit()
         w = self.uuidLabel.frame.size.width
-        if self.uuidLabel.frame.origin.x + w + self.resetButton.frame.size.width > NSApp.windows.first!.frame.size.width {
-            w = NSApp.windows.first!.frame.size.width - (self.uuidLabel.frame.origin.x + self.resetButton.frame.size.width)
+        if let window = self.view.window, self.uuidLabel.frame.origin.x + w + self.resetButton.frame.size.width > window.frame.size.width {
+            w = window.frame.size.width - (self.uuidLabel.frame.origin.x + self.resetButton.frame.size.width)
         }
-        self.uuidLabel.frame = NSRect(x: self.uuidLabel.frame.origin.x,
-                                      y: self.uuidLabel.frame.origin.y,
-                                      width: w,
-                                      height: h)
-        self.resetButton.frame = NSRect(x: self.uuidLabel.frame.origin.x + self.uuidLabel.frame.size.width,
-                                        y: self.resetButton.frame.origin.y,
-                                        width: self.resetButton.frame.size.width,
-                                        height: self.resetButton.frame.size.height)
+        self.uuidLabel.frame = NSRect(x: x, y: y, width: w, height: h)
+
+        x = self.uuidLabel.frame.origin.x + self.uuidLabel.frame.size.width
+        y = self.resetButton.frame.origin.y
+        w = self.resetButton.frame.size.width
+        h = self.resetButton.frame.size.height
+        self.resetButton.frame = NSRect(x: x, y: y, width: w, height: h)
     }
 
     func setSizeDirectoryViews() {
 
         self.directoryLabel.sizeToFit()
+        var x: CGFloat = self.directoryLabel.frame.origin.x
+        var y: CGFloat = self.directoryLabel.frame.origin.y
         var w: CGFloat = self.directoryLabel.frame.size.width
-        let h: CGFloat = 20.0
-        if self.directoryLabel.frame.origin.x + self.directoryLabel.frame.size.width + self.directoryButton.frame.size.width > NSApp.windows.first!.frame.size.width {
-            w = NSApp.windows.first!.frame.size.width - (self.directoryLabel.frame.origin.x + self.directoryButton.frame.size.width)
-            
+        var h: CGFloat = 20.0
+        if let window = self.view.window, self.directoryLabel.frame.origin.x + self.directoryLabel.frame.size.width + self.directoryButton.frame.size.width > window.frame.size.width {
+            w = window.frame.size.width - (self.directoryLabel.frame.origin.x + self.directoryButton.frame.size.width)
         }
-        self.directoryLabel.frame = NSRect(x: self.directoryLabel.frame.origin.x,
-                                           y: self.directoryLabel.frame.origin.y,
-                                           width: w,
-                                           height: h)
-        self.directoryButton.frame = NSRect(x: self.directoryLabel.frame.origin.x + self.directoryLabel.frame.size.width,
-                                           y: self.directoryButton.frame.origin.y,
-                                           width: self.directoryButton.frame.size.width,
-                                           height: self.directoryButton.frame.size.height)
+        self.directoryLabel.frame = NSRect(x: x, y: y, width: w, height: h)
+
+        x = self.directoryLabel.frame.origin.x + self.directoryLabel.frame.size.width
+        y = self.directoryButton.frame.origin.y
+        w = self.directoryButton.frame.size.width
+        h = self.directoryButton.frame.size.height
+        self.directoryButton.frame = NSRect(x: x, y: y, width: w, height: h)
     }
 
     // For Firmware Update
     func setSizeFirmwareViews() {
 
-        self.firmwareLabel.frame = NSRect(x: self.firmwareLabel.frame.origin.x,
-                                          y: self.firmwareLabel.frame.origin.y,
-                                          width: self.detailAreaView.frame.size.width - self.firmwareLabel.frame.origin.x * 2,
-                                          height: self.firmwareLabel.frame.size.height)
-        if let path = Bundle.main.path(forResource: "appinfo", ofType: "plist"), let dict = NSDictionary(contentsOfFile: path) as? [String: Any], let enableFirmwearUpdate = dict["enable_firmwear_update"] as? Bool, enableFirmwearUpdate {
+        var x: CGFloat = self.firmwareLabel.frame.origin.x
+        var y: CGFloat = self.firmwareLabel.frame.origin.y
+        var w: CGFloat = self.detailAreaView.frame.size.width - x * 2
+        var h: CGFloat = self.firmwareLabel.frame.size.height
+        if let enableFirmwearUpdate = CommonFunction.getAppinfoValue("enable_firmwear_update") as? Bool, enableFirmwearUpdate {
             self.firmwareLabel.sizeToFit()
-            self.firmwareLabel.frame = NSRect(x: self.firmwareLabel.frame.origin.x,
-                                              y: self.firmwareLabel.frame.origin.y,
-                                              width: self.firmwareLabel.frame.size.width,
-                                              height: 20.0)
+            w = self.firmwareLabel.frame.size.width
+            h = 20.0
         }
+        self.firmwareLabel.frame = NSRect(x: x, y: y, width: w, height: h)
 
-        self.firmwareComboBox.frame = NSRect(x: self.firmwareLabel.frame.origin.x + self.firmwareLabel.frame.size.width,
-                                             y: self.firmwareComboBox.frame.origin.y,
-                                             width: self.firmwareComboBox.frame.size.width,
-                                             height: self.firmwareComboBox.frame.size.height)
+        x = self.firmwareLabel.frame.origin.x + self.firmwareLabel.frame.size.width
+        y = self.firmwareComboBox.frame.origin.y
+        w = self.firmwareComboBox.frame.size.width
+        h = self.firmwareComboBox.frame.size.height
+        self.firmwareComboBox.frame = NSRect(x: x, y: y, width: w, height: h)
+
+        x = self.firmwareComboBox.frame.origin.x + self.firmwareComboBox.frame.size.width
+        y = self.firmwareUpdateButton.frame.origin.y
+        w = self.firmwareUpdateButton.frame.size.width
+        h = self.firmwareUpdateButton.frame.size.height
         if self.firmwareComboBox.isHidden {
-            self.firmwareUpdateButton.frame = NSRect(x: self.firmwareLabel.frame.origin.x + self.firmwareLabel.frame.size.width,
-                                                     y: self.firmwareUpdateButton.frame.origin.y,
-                                                     width: self.firmwareUpdateButton.frame.size.width,
-                                                     height: self.firmwareUpdateButton.frame.size.height)
+            x = self.firmwareLabel.frame.origin.x + self.firmwareLabel.frame.size.width
         }
-        else {
-            self.firmwareUpdateButton.frame = NSRect(x: self.firmwareComboBox.frame.origin.x + self.firmwareComboBox.frame.size.width,
-                                                     y: self.firmwareUpdateButton.frame.origin.y,
-                                                     width: self.firmwareUpdateButton.frame.size.width,
-                                                     height: self.firmwareUpdateButton.frame.size.height)
-        }
+        self.firmwareUpdateButton.frame = NSRect(x: x, y: y, width: w, height: h)
+
+        x = self.firmwareUpdateButton.frame.origin.x + self.firmwareUpdateButton.frame.size.width - 5.0
+        y = self.firmwareCancelButton.frame.origin.y
+        w = self.firmwareCancelButton.frame.size.width
+        h = self.firmwareCancelButton.frame.size.height
         if self.firmwareUpdateButton.isHidden {
-            self.firmwareCancelButton.frame = NSRect(x: self.firmwareUpdateButton.frame.origin.x,
-                                                     y: self.firmwareCancelButton.frame.origin.y,
-                                                     width: self.firmwareCancelButton.frame.size.width,
-                                                     height: self.firmwareCancelButton.frame.size.height)
+            x = self.firmwareUpdateButton.frame.origin.x
         }
-        else {
-            self.firmwareCancelButton.frame = NSRect(x: self.firmwareUpdateButton.frame.origin.x + self.firmwareUpdateButton.frame.size.width - 5.0,
-                                                     y: self.firmwareCancelButton.frame.origin.y,
-                                                     width: self.firmwareCancelButton.frame.size.width,
-                                                     height: self.firmwareCancelButton.frame.size.height)
-        }
+        self.firmwareCancelButton.frame = NSRect(x: x, y: y, width: w, height: h)
     }
 
     @objc func resized() {
 
         //print("resized: \(NSApp.windows.first!.frame.size.width)")
-        self.detailAreaView.frame = NSRect(x: self.detailAreaView.frame.origin.x,
-                                           y: 0,
-                                           width: NSApp.windows.first!.frame.size.width,
-                                           height: self.detailAreaView.frame.size.height)
-        self.scrollView.frame = NSRect(x: self.scrollView.frame.origin.x,
-                                       y: self.detailAreaView.frame.size.height,
-                                       width: NSApp.windows.first!.frame.size.width,
-                                       height: NSApp.windows.first!.frame.size.height - self.detailAreaView.frame.size.height - 21.0)
-        self.uuidLabel.frame = NSRect(x: self.uuidLabel.frame.origin.x,
-                                      y: self.uuidLabel.frame.origin.y,
-                                      width: self.detailAreaView.frame.size.width - self.uuidLabel.frame.origin.x * 2,
-                                      height: self.uuidLabel.frame.size.height)
+        var x: CGFloat = 0
+        var y: CGFloat = 0
+        var w: CGFloat = 0
+        var h: CGFloat = 0
+        if let window = self.view.window {
+            x = self.detailAreaView.frame.origin.x
+            y = 0
+            w = window.frame.size.width
+            h = self.detailAreaView.frame.size.height
+            self.detailAreaView.frame = NSRect(x: x, y: y, width: w, height: h)
+
+            x = self.scrollView.frame.origin.x
+            y = self.detailAreaView.frame.size.height
+            w = window.frame.size.width
+            h = window.frame.size.height - self.detailAreaView.frame.size.height - 21.0
+            self.scrollView.frame = NSRect(x: x, y: y, width: w, height: h)
+        }
+
+        x = self.uuidLabel.frame.origin.x
+        y = self.uuidLabel.frame.origin.y
+        w = self.detailAreaView.frame.size.width - x * 2
+        h = self.uuidLabel.frame.size.height
+        self.uuidLabel.frame = NSRect(x: x, y: y, width: w, height: h)
+
         /*self.valueLabel.frame = NSRect(x: self.valueLabel.frame.origin.x,
                                        y: self.valueLabel.frame.origin.y,
                                        width: self.detailAreaView.frame.size.width - self.valueLabel.frame.origin.x * 2,
@@ -281,18 +290,85 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
                                             y: self.valueLabelLower.frame.origin.y,
                                             width: self.detailAreaView.frame.size.width - self.valueLabel.frame.origin.x * 2,
                                             height: self.valueLabelLower.frame.size.height)*/
-        self.timeIntervalComboBox.frame = NSRect(x: self.timeIntervalComboBox.frame.origin.x,
-                                                 y: self.timeIntervalComboBox.frame.origin.y,
-                                                 width: self.timeIntervalComboBox.frame.size.width,
-                                                 height: self.timeIntervalComboBox.frame.size.height)
-        self.loadingView.frame = NSRect(x: 0,
-                                        y: 0,
-                                        width: self.view.frame.size.width,
-                                        height: self.view.frame.size.height)
+
+        x = self.timeIntervalComboBox.frame.origin.x
+        y = self.timeIntervalComboBox.frame.origin.y
+        w = self.timeIntervalComboBox.frame.size.width
+        h = self.timeIntervalComboBox.frame.size.height
+        self.timeIntervalComboBox.frame = NSRect(x: x, y: y, width: w, height: h)
+
+        x = 0
+        y = 0
+        w = self.view.frame.size.width
+        h = self.view.frame.size.height
+        self.loadingView.frame = NSRect(x: x, y: y, width: w, height: h)
 
         self.setSizeUUIDViews()
         self.setSizeDirectoryViews()
         self.setSizeFirmwareViews()
+    }
+
+    func showSynapseDataWindow(_ synapseObject: SynapseObject) {
+
+        if let synapse = synapseObject.synapse {
+            let uuid: String = synapse.peripheral.identifier.uuidString
+            if self.windowControllers[uuid] == nil {
+                let dataViewController: DataViewController? = storyboard?.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "DataViewController")) as? DataViewController
+                dataViewController?.synapseUUID = uuid
+                dataViewController?.synapseGraphKeys = synapseObject.synapseGraphKeys
+                dataViewController?.synapseValues = synapseObject.synapseValues
+                dataViewController?.synapseGraphLabels = synapseObject.synapseGraphLabels
+                dataViewController?.synapseGraphValues = synapseObject.synapseGraphValues
+                dataViewController?.synapseGraphColors = synapseObject.synapseGraphColors
+                dataViewController?.synapseGraphScales = synapseObject.getSynapseGraphScales()
+                dataViewController?.mainViewController = self
+
+                var x: CGFloat = 0
+                var y: CGFloat = 0
+                let w: CGFloat = 450.0
+                let h: CGFloat = 200.0
+                if let window = self.view.window {
+                    //print("showSynapseDataWindow: \(window.frame.origin.y), \(window.frame.size.height)")
+                    x = window.frame.origin.x
+                    y = window.frame.origin.y - (h + 20.0)
+                }
+                let dataWindow: NSWindow = NSWindow(contentRect: NSMakeRect(x, y, w, h),
+                                                    styleMask: [.titled, .resizable, .miniaturizable, .closable],
+                                                    backing: .buffered,
+                                                    defer: false)
+                dataWindow.center()
+                dataWindow.title = uuid
+                dataWindow.isOpaque = false
+                dataWindow.isMovableByWindowBackground = true
+                dataWindow.backgroundColor = NSColor.white
+                dataWindow.makeKeyAndOrderFront(nil)
+                dataWindow.contentViewController = dataViewController
+                self.windowControllers[uuid] = NSWindowController(window: dataWindow)
+            }
+        }
+    }
+
+    func updateSynapseDataWindow(_ synapseObject: SynapseObject) {
+
+        if let synapse = synapseObject.synapse {
+            let uuid: String = synapse.peripheral.identifier.uuidString
+            if let windowController = self.windowControllers[uuid], let window = windowController.window, let dataViewController = window.contentViewController as? DataViewController, dataViewController.isViewSetting {
+                dataViewController.synapseValues = synapseObject.synapseValues
+                dataViewController.tableView.reloadData()
+
+                dataViewController.synapseGraphLabels = synapseObject.synapseGraphLabels
+                dataViewController.synapseGraphValues = synapseObject.synapseGraphValues
+                dataViewController.synapseGraphColors = synapseObject.synapseGraphColors
+                dataViewController.synapseGraphScales = synapseObject.getSynapseGraphScales()
+                //print("synapseGraphValues: \(synapseObject.synapseGraphValues)")
+                dataViewController.checkGraph()
+            }
+        }
+    }
+
+    func closeSynapseDataWindow(_ uuid: String) {
+
+        self.windowControllers[uuid] = nil
     }
 
     // MARK: mark - Action methods
@@ -323,20 +399,7 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         //print("onItemDoubleClicked: row \(tableView.clickedRow), col \(tableView.clickedColumn)")
         if tableView.clickedRow >= 0, tableView.clickedRow < self.synapses.count, let synapse = self.synapses[tableView.clickedRow].synapse {
             if tableView.clickedColumn == 0 {
-                if self.dataViewController == nil {
-                    self.dataViewController = storyboard?.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "DataViewController")) as? DataViewController
-                    self.dataViewController?.synapseNo = tableView.clickedRow
-                    self.dataViewController?.synapseGraphKeys = self.synapses[tableView.clickedRow].synapseGraphKeys
-                    self.dataViewController?.synapseValues = self.synapses[tableView.clickedRow].synapseValues
-                    self.dataViewController?.mainViewController = self
-                    self.dataViewController?.synapseGraphLabels = self.synapses[tableView.clickedRow].synapseGraphLabels
-                    self.dataViewController?.synapseGraphValues = self.synapses[tableView.clickedRow].synapseGraphValues
-                    self.dataViewController?.synapseGraphColors = self.synapses[tableView.clickedRow].synapseGraphColors
-                    self.dataViewController?.synapseGraphScales = self.synapses[tableView.clickedRow].getSynapseGraphScales()
-                    if let dataViewController = self.dataViewController {
-                        self.presentViewControllerAsModalWindow(dataViewController)
-                    }
-                }
+                self.showSynapseDataWindow(self.synapses[tableView.clickedRow])
             }
             else if tableView.clickedColumn == 1 {
                 if self.synapses[tableView.clickedRow].synapseValues.isConnected {
@@ -365,7 +428,6 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
 
     @objc private func resetButtonAction() {
 
-        //print("resetButtonAction")
         if tableView.selectedRow >= 0 && tableView.selectedRow < self.synapses.count {
             self.sendRebootToDevice(self.synapses[tableView.selectedRow])
         }
@@ -396,7 +458,6 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
 
     @objc private func sendButtonAction() {
 
-        //print("sendButtonAction")
         if tableView.selectedRow >= 0 && tableView.selectedRow < self.synapses.count {
             if self.timeIntervalComboBox.indexOfSelectedItem >= 0 && self.timeIntervalComboBox.indexOfSelectedItem < self.synapseTimeIntervals.count {
                 self.synapses[tableView.selectedRow].synapseTimeInterval = self.synapseTimeIntervals[self.timeIntervalComboBox.indexOfSelectedItem]
@@ -606,8 +667,8 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
             self.valueLabel.stringValue = self.synapses[tableView.selectedRow].getSynapseValues()
             self.valueLabelLower.stringValue = self.synapses[tableView.selectedRow].getSynapseValuesLower()
         }
-    }
-     */
+    }*/
+
     func setDetailAreaSettings() {
 
         self.resetButton.isEnabled = false
@@ -724,10 +785,9 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
             else {
                 if self.synapses[tableView.selectedRow].synapseValues.isConnected {
                     self.firmwareUpdateButton.isHidden = true
-                    // For Firmware Update
-                    /*if let path = Bundle.main.path(forResource: "appinfo", ofType: "plist"), let dict = NSDictionary(contentsOfFile: path) as? [String: Any], let enableFirmwearUpdate = dict["enable_firmwear_update"] as? Bool, enableFirmwearUpdate {
+                    if let enableFirmwearUpdate = CommonFunction.getAppinfoValue("enable_firmwear_update") as? Bool, enableFirmwearUpdate {
                         self.firmwareUpdateButton.isHidden = false
-                    }*/
+                    }
 
                     if !self.firmwareComboBox.isHidden {
                         self.firmwareCancelButton.isHidden = false
@@ -833,7 +893,7 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
 
         if self.tableView.selectedRow >= 0 && self.tableView.selectedRow < self.synapses.count {
             if self.firmwareComboBox.indexOfSelectedItem >= 0 && self.firmwareComboBox.indexOfSelectedItem < self.firmwares.count {
-                if let path = Bundle.main.path(forResource: "appinfo", ofType: "plist"), let dict = NSDictionary(contentsOfFile: path) as? [String: Any], let host = dict["firmware_domain"] as? String, let hexFile = self.firmwares[self.firmwareComboBox.indexOfSelectedItem]["hex_file"] as? String, let url = URL(string: "\(host)\(hexFile)") {
+                if let host = CommonFunction.getAppinfoValue("firmware_domain") as? String, let hexFile = self.firmwares[self.firmwareComboBox.indexOfSelectedItem]["hex_file"] as? String, let url = URL(string: "\(host)\(hexFile)") {
                     self.sendDataToDevice(self.synapses[self.tableView.selectedRow], url: url, firmwareInfo: self.firmwares[self.firmwareComboBox.indexOfSelectedItem])
                 }
             }
@@ -846,8 +906,8 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
 
         return synapses.count
     }
-
-    /*func tableView(_ tableView: NSTableView, objectValueFor tableColumn: NSTableColumn?, row: Int) -> Any? {
+    /*
+    func tableView(_ tableView: NSTableView, objectValueFor tableColumn: NSTableColumn?, row: Int) -> Any? {
 
         //print("tableColumn: \(String(describing: tableColumn?.title))")
         var str: String = ""
@@ -870,9 +930,9 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         }
         return str
     }*/
+
     func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
 
-        //print("tableView viewFor")
         if let tableColumn = tableColumn {
             /*
             if tableColumn.identifier.rawValue == "Firmwear" {
@@ -1035,8 +1095,8 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
     func tableView(_ tableView: NSTableView, heightOfRow row: Int) -> CGFloat {
 
         return 26.0
-    }
-     */
+    }*/
+
     func tableView(_ tableView: NSTableView, didAdd rowView: NSTableRowView, forRow row: Int) {
 
         rowView.backgroundColor = NSColor.white
@@ -1079,7 +1139,7 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
 
     func setRFduinoManager() {
 
-        if let path = Bundle.main.path(forResource: "appinfo", ofType: "plist"), let dict = NSDictionary(contentsOfFile: path) as? [String: Any], let name = dict["device_name"] as? String {
+        if let name = CommonFunction.getAppinfoValue("device_name") as? String {
             self.synapseDeviceName = name
         }
 
@@ -1348,17 +1408,7 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
                         self.tableView.reloadData(forRowIndexes: IndexSet(integer: index), columnIndexes: IndexSet(integer: 2))
                     }*/
 
-                    if let dataViewController = self.dataViewController, let synapseNo = dataViewController.synapseNo, synapseNo == index {
-                        dataViewController.synapseValues = self.synapses[index].synapseValues
-                        dataViewController.tableView.reloadData()
-
-                        dataViewController.synapseGraphLabels = self.synapses[index].synapseGraphLabels
-                        dataViewController.synapseGraphValues = self.synapses[index].synapseGraphValues
-                        dataViewController.synapseGraphColors = self.synapses[index].synapseGraphColors
-                        dataViewController.synapseGraphScales = self.synapses[index].getSynapseGraphScales()
-                        //print("synapseGraphValues: \(self.synapses[index].synapseGraphValues)")
-                        dataViewController.checkGraph()
-                    }
+                    self.updateSynapseDataWindow(synapseObject)
                 }
             }
 
@@ -2389,12 +2439,15 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
     func setSynapseGraphTimes() {
 
         if let synapseValues = self.synapseValues, let connectedDate = synapseValues.connectedDate {
-            let now: Date = Date(timeIntervalSince1970: floor(Date().timeIntervalSince1970))
-            var start: Date = Date(timeIntervalSince1970: floor(connectedDate.timeIntervalSince1970))
-            if now.timeIntervalSince(start) > self.synapseGraphDataLimit {
-                start = Date(timeInterval: -self.synapseGraphDataLimit, since: now)
+            let graphCount: TimeInterval = self.synapseGraphDataLimit * self.synapseTimeInterval
+            let now: Date = Date()
+            //let now: Date = Date(timeIntervalSince1970: floor(Date().timeIntervalSince1970))
+            var start: Date = connectedDate
+            //var start: Date = Date(timeIntervalSince1970: floor(connectedDate.timeIntervalSince1970))
+            if now.timeIntervalSince(start) > graphCount {
+                start = Date(timeInterval: -graphCount, since: now)
             }
-            let end: Date = Date(timeInterval: self.synapseGraphDataLimit, since: start)
+            let end: Date = Date(timeInterval: graphCount, since: start)
             if self.synapseGraphTimes.count > 0 {
                 if self.synapseGraphTimes[self.synapseGraphTimes.count - 1] <= start.timeIntervalSince1970 {
                     self.resetSynapseGraphData()
@@ -2420,36 +2473,57 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
                         }
                     }
                     if self.synapseGraphTimes.count > 0 && self.synapseGraphTimes[self.synapseGraphTimes.count - 1] >= start.timeIntervalSince1970 {
-                        start = Date(timeIntervalSince1970: self.synapseGraphTimes[self.synapseGraphTimes.count - 1] + 1)
+                        start = Date(timeIntervalSince1970: self.synapseGraphTimes[self.synapseGraphTimes.count - 1] + self.synapseTimeInterval)
                     }
                 }
             }
 
-            var count: Date = start
-            while end.timeIntervalSince(count) >= 0.0 {
-                self.synapseGraphTimes.append(floor(count.timeIntervalSince1970))
-                self.synapseGraphLabels.append(self.makeSynapseGraphLabel(count.timeIntervalSince1970, connectedDate: connectedDate))
-                count = Date(timeInterval: 1.0, since: count)
+            var count: TimeInterval = start.timeIntervalSince1970
+            while end.timeIntervalSince1970 - count > -self.synapseTimeInterval {
+                let label: String = self.makeSynapseGraphLabel(count, connectedDate: connectedDate)
+                self.synapseGraphTimes.append(count)
+                self.synapseGraphLabels.append(label)
+                count += self.synapseTimeInterval
             }
+            //print("setSynapseGraphTimes: \(self.synapseGraphLabels)")
+            //print("setSynapseGraphData Last: \(count.timeIntervalSince1970 - self.synapseTimeInterval), \(self.synapseGraphLabels.last)")
         }
     }
 
     func makeSynapseGraphLabel(_ time: TimeInterval, connectedDate: Date) -> String {
 
-        return String(format:"%.0f sec", floor(time) - floor(connectedDate.timeIntervalSince1970))
+        let diff: TimeInterval = round((time - connectedDate.timeIntervalSince1970) / self.synapseTimeInterval) * self.synapseTimeInterval
+        let format: String = "\(self.getSynapseGraphLabelFormat()) sec"
+        //print("makeSynapseGraphLabel: \(String(format: format, diff)), \(diff)")
+        return String(format: format, diff)
+    }
+
+    func getSynapseGraphLabelFormat() -> String {
+
+        var format: String = "%.0f"
+        if self.synapseTimeInterval < 0.01 {
+            format = "%.3f"
+        }
+        else if self.synapseTimeInterval < 0.1 {
+            format = "%.2f"
+        }
+        else if self.synapseTimeInterval < 1.0 {
+            format = "%.1f"
+        }
+        return format
     }
 
     func setSynapseGraphData() {
 
-        self.setSynapseGraphTimes()
-
         if let time = self.synapseValues.time {
-            let key: String = String(format:"%.0f", floor(time))
-            //print("setSynapseGraphData: \(key)")
+            let graphTime: TimeInterval = floor(time / self.synapseTimeInterval) * self.synapseTimeInterval
+            //let graphTime: TimeInterval = floor(time)
+            let key: String = String(format: self.getSynapseGraphLabelFormat(), graphTime)
             var label: String = ""
             if let connectedDate = self.synapseValues.connectedDate {
                 label = self.makeSynapseGraphLabel(time, connectedDate: connectedDate)
             }
+            //print("setSynapseGraphData: \(time), \(label)")
 
             var graphData: [String: Any] = self.synapseGraphData
             if let co2 = self.synapseValues.co2 {
@@ -2471,10 +2545,14 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
                     ]
                 }
                 if let values = co2Graph[key] as? [String: Any] {
-                    self.setSynapseGraphData(synapseCrystalInfo.co2.key, time: floor(time), label: label, data: values)
+                    self.setSynapseGraphData(synapseCrystalInfo.co2.key, time: graphTime, label: label, data: values)
                 }
                 graphData[synapseCrystalInfo.co2.key] = co2Graph
             }
+            else {
+                self.setSynapseGraphData(synapseCrystalInfo.co2.key, time: graphTime, label: "", data: [:])
+            }
+
             if let temp = self.synapseValues.temp {
                 var tempGraph: [String: Any] = [:]
                 if let data = graphData[synapseCrystalInfo.temp.key] as? [String: Any] {
@@ -2493,10 +2571,14 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
                     ]
                 }
                 if let values = tempGraph[key] as? [String: Any] {
-                    self.setSynapseGraphData(synapseCrystalInfo.temp.key, time: floor(time), label: label, data: values)
+                    self.setSynapseGraphData(synapseCrystalInfo.temp.key, time: graphTime, label: label, data: values)
                 }
                 graphData[synapseCrystalInfo.temp.key] = tempGraph
             }
+            else {
+                self.setSynapseGraphData(synapseCrystalInfo.temp.key, time: graphTime, label: "", data: [:])
+            }
+
             if let humidity = self.synapseValues.humidity {
                 var humidityGraph: [String: Any] = [:]
                 if let data = graphData[synapseCrystalInfo.hum.key] as? [String: Any] {
@@ -2515,10 +2597,14 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
                     ]
                 }
                 if let values = humidityGraph[key] as? [String: Any] {
-                    self.setSynapseGraphData(synapseCrystalInfo.hum.key, time: floor(time), label: label, data: values)
+                    self.setSynapseGraphData(synapseCrystalInfo.hum.key, time: graphTime, label: label, data: values)
                 }
                 graphData[synapseCrystalInfo.hum.key] = humidityGraph
             }
+            else {
+                self.setSynapseGraphData(synapseCrystalInfo.hum.key, time: graphTime, label: "", data: [:])
+            }
+
             if let light = self.synapseValues.light {
                 var lightGraph: [String: Any] = [:]
                 if let data = graphData[synapseCrystalInfo.ill.key] as? [String: Any] {
@@ -2537,10 +2623,14 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
                     ]
                 }
                 if let values = lightGraph[key] as? [String: Any] {
-                    self.setSynapseGraphData(synapseCrystalInfo.ill.key, time: floor(time), label: label, data: values)
+                    self.setSynapseGraphData(synapseCrystalInfo.ill.key, time: graphTime, label: label, data: values)
                 }
                 graphData[synapseCrystalInfo.ill.key] = lightGraph
             }
+            else {
+                self.setSynapseGraphData(synapseCrystalInfo.ill.key, time: graphTime, label: "", data: [:])
+            }
+
             if let pressure = self.synapseValues.pressure {
                 var pressureGraph: [String: Any] = [:]
                 if let data = graphData[synapseCrystalInfo.press.key] as? [String: Any] {
@@ -2559,10 +2649,14 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
                     ]
                 }
                 if let values = pressureGraph[key] as? [String: Any] {
-                    self.setSynapseGraphData(synapseCrystalInfo.press.key, time: floor(time), label: label, data: values)
+                    self.setSynapseGraphData(synapseCrystalInfo.press.key, time: graphTime, label: label, data: values)
                 }
                 graphData[synapseCrystalInfo.press.key] = pressureGraph
             }
+            else {
+                self.setSynapseGraphData(synapseCrystalInfo.press.key, time: graphTime, label: "", data: [:])
+            }
+
             if let sound = self.synapseValues.sound {
                 var soundGraph: [String: Any] = [:]
                 if let data = graphData[synapseCrystalInfo.sound.key] as? [String: Any] {
@@ -2581,10 +2675,14 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
                     ]
                 }
                 if let values = soundGraph[key] as? [String: Any] {
-                    self.setSynapseGraphData(synapseCrystalInfo.sound.key, time: floor(time), label: label, data: values)
+                    self.setSynapseGraphData(synapseCrystalInfo.sound.key, time: graphTime, label: label, data: values)
                 }
                 graphData[synapseCrystalInfo.sound.key] = soundGraph
             }
+            else {
+                self.setSynapseGraphData(synapseCrystalInfo.sound.key, time: graphTime, label: "", data: [:])
+            }
+
             if let ax = self.synapseValues.ax {
                 let axValue: Float = CommonFunction.makeAccelerationValue(Float(ax))
                 var axGraph: [String: Any] = [:]
@@ -2604,10 +2702,14 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
                     ]
                 }
                 if let values = axGraph[key] as? [String: Any] {
-                    self.setSynapseGraphData(synapseCrystalInfo.ax.key, time: floor(time), label: label, data: values)
+                    self.setSynapseGraphData(synapseCrystalInfo.ax.key, time: graphTime, label: label, data: values)
                 }
                 graphData[synapseCrystalInfo.ax.key] = axGraph
             }
+            else {
+                self.setSynapseGraphData(synapseCrystalInfo.ax.key, time: graphTime, label: "", data: [:])
+            }
+
             if let ay = self.synapseValues.ay {
                 let ayValue: Float = CommonFunction.makeAccelerationValue(Float(ay))
                 var ayGraph: [String: Any] = [:]
@@ -2627,10 +2729,14 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
                     ]
                 }
                 if let values = ayGraph[key] as? [String: Any] {
-                    self.setSynapseGraphData(synapseCrystalInfo.ay.key, time: floor(time), label: label, data: values)
+                    self.setSynapseGraphData(synapseCrystalInfo.ay.key, time: graphTime, label: label, data: values)
                 }
                 graphData[synapseCrystalInfo.ay.key] = ayGraph
             }
+            else {
+                self.setSynapseGraphData(synapseCrystalInfo.ay.key, time: graphTime, label: "", data: [:])
+            }
+
             if let az = self.synapseValues.az {
                 let azValue: Float = CommonFunction.makeAccelerationValue(Float(az))
                 var azGraph: [String: Any] = [:]
@@ -2650,13 +2756,19 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
                     ]
                 }
                 if let values = azGraph[key] as? [String: Any] {
-                    self.setSynapseGraphData(synapseCrystalInfo.az.key, time: floor(time), label: label, data: values)
+                    self.setSynapseGraphData(synapseCrystalInfo.az.key, time: graphTime, label: label, data: values)
                 }
                 graphData[synapseCrystalInfo.az.key] = azGraph
             }
+            else {
+                self.setSynapseGraphData(synapseCrystalInfo.az.key, time: graphTime, label: "", data: [:])
+            }
+
             self.synapseGraphData = graphData
             //print("setSynapseGraphData: \(self.synapseGraphData)")
         }
+
+        self.setSynapseGraphTimes()
     }
 
     func setSynapseGraphData(_ key: String, time: TimeInterval, label: String, data: [String: Any]) {
@@ -2778,7 +2890,8 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
 
     func removeSynapseGraphData(_ time: TimeInterval) {
 
-        let removeKey: String = String(format:"%.0f", floor(time))
+        let removeKey: String = String(format: self.getSynapseGraphLabelFormat(), time)
+        //let removeKey: String = String(format: self.getSynapseGraphLabelFormat(), floor(time))
         for key in self.synapseGraphKeys {
             if var data = self.synapseGraphData[key] as? [String: Any], let _ = data.keys.index(of: removeKey) {
                 data[removeKey] = nil
@@ -3179,4 +3292,42 @@ class SynapseValues {
         str = "\(str)\n"
         return str
     }
+}
+
+class MyCustomSwiftAnimator: NSObject, NSViewControllerPresentationAnimator {
+    
+    func  animatePresentation(of viewController: NSViewController, from fromViewController: NSViewController) {
+        let bottomVC = fromViewController
+        let topVC = viewController
+        topVC.view.wantsLayer = true
+        topVC.view.layerContentsRedrawPolicy = .onSetNeedsDisplay
+        topVC.view.alphaValue = 0
+        bottomVC.view.addSubview(topVC.view)
+        var frame : CGRect = NSRectToCGRect(bottomVC.view.frame)
+        frame = frame.insetBy(dx: 40, dy: 40)
+        topVC.view.frame = NSRectFromCGRect(frame)
+        let color: CGColor = NSColor.gray.cgColor
+        topVC.view.layer?.backgroundColor = color
+        NSAnimationContext.runAnimationGroup({ (context) -> Void in
+            context.duration = 0.5
+            topVC.view.animator().alphaValue = 0.8
+
+        }, completionHandler: nil)
+        
+    }
+    
+    
+    func  animateDismissal(of viewController: NSViewController, from fromViewController: NSViewController) {
+        let topVC = viewController
+        topVC.view.wantsLayer = true
+        topVC.view.layerContentsRedrawPolicy = .onSetNeedsDisplay
+        
+        NSAnimationContext.runAnimationGroup({ (context) -> Void in
+            context.duration = 0.5
+            topVC.view.animator().alphaValue = 0
+            }, completionHandler: {
+                topVC.view.removeFromSuperview()
+        })
+    }
+
 }

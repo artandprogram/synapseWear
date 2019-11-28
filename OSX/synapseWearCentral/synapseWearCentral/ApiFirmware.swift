@@ -18,7 +18,7 @@ class ApiFirmware: ApiManager {
             self.url = url
         }
         else {
-            if let path = Bundle.main.path(forResource: "appinfo", ofType: "plist"), let dict = NSDictionary(contentsOfFile: path) as? [String: Any], let host = dict["firmware_domain"] as? String {
+            if let host = CommonFunction.getAppinfoValue("firmware_domain") as? String {
                 self.host = host
             }
             self.url = self.host + "list.php"
@@ -35,7 +35,7 @@ class ApiFirmware: ApiManager {
 
         super.init()
 
-        if let path = Bundle.main.path(forResource: "appinfo", ofType: "plist"), let dict = NSDictionary(contentsOfFile: path) as? [String: Any], let host = dict["firmware_domain"] as? String {
+        if let host = CommonFunction.getAppinfoValue("firmware_domain") as? String {
             self.host = host
         }
         self.url = self.host + "list.php"
