@@ -2,7 +2,6 @@
 //  defaultColors.swift
 //  synapseWearCentral
 //
-//  Created by nakaguchi on 2019/09/27.
 //  Copyright © 2019 art and program, Inc. For license and other information refer to https://github.com/artandprogram/synapseWear. All rights reserved.
 //
 

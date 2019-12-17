@@ -8,7 +8,5 @@
 	<string>https://firmware.synapsewear.com/</string>
 	<key>postdata_url</key>
 	<string>https://firmware.synapsewear.com/postdata.php</string>
-	<key>enable_firmwear_update</key>
-	<false/>
 </dict>
 </plist>

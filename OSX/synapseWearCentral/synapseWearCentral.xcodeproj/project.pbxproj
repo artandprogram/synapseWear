@@ -69,6 +69,7 @@
 		DD589B0E22FA6FB800C1261A /* graph.js in Resources */ = {isa = PBXBuildFile; fileRef = DD589AFB22FA6FB700C1261A /* graph.js */; };
 		DD589B0F22FA6FB800C1261A /* Chart.min.js in Resources */ = {isa = PBXBuildFile; fileRef = DD589AFC22FA6FB700C1261A /* Chart.min.js */; };
 		DD589B1022FA6FB800C1261A /* graph.html in Resources */ = {isa = PBXBuildFile; fileRef = DD589AFD22FA6FB700C1261A /* graph.html */; };
+		DD96C7DB23A0D5CA00312697 /* FirmwearUpdateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD96C7DA23A0D5CA00312697 /* FirmwearUpdateViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -293,6 +294,7 @@
 		DD589AFB22FA6FB700C1261A /* graph.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = graph.js; sourceTree = "<group>"; };
 		DD589AFC22FA6FB700C1261A /* Chart.min.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = Chart.min.js; sourceTree = "<group>"; };
 		DD589AFD22FA6FB700C1261A /* graph.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = graph.html; sourceTree = "<group>"; };
+		DD96C7DA23A0D5CA00312697 /* FirmwearUpdateViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirmwearUpdateViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -403,6 +405,7 @@
 				87426A18211832CB00D9EDA3 /* AppDelegate.swift */,
 				87426A1A211832CB00D9EDA3 /* ViewController.swift */,
 				DD5333D922A65B0C0007532E /* DataViewController.swift */,
+				DD96C7DA23A0D5CA00312697 /* FirmwearUpdateViewController.swift */,
 				87591C1E212D3549004DE8AB /* LoadingView.swift */,
 				87280AF3212C11180030963A /* FirmwearView.swift */,
 				878F7C1A2122B1F3002C940B /* SynapseFileManager.swift */,
@@ -785,6 +788,7 @@
 				871C7433213CDFE700DEA18F /* NSData+F53OSCBlob.m in Sources */,
 				DD587D5D233DAEE4008613EF /* DefaultColors.swift in Sources */,
 				871C7432213CDFE700DEA18F /* F53OSCTimeTag.m in Sources */,
+				DD96C7DB23A0D5CA00312697 /* FirmwearUpdateViewController.swift in Sources */,
 				87E6EF3E214132D7008AD17D /* CommonFunction.swift in Sources */,
 				874F3913212AB05000BD9F3B /* SSZipArchive.m in Sources */,
 				874F390C212AB05000BD9F3B /* SimbleeManager.m in Sources */,

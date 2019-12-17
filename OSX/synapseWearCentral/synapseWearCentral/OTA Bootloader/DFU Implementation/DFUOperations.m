@@ -177,6 +177,7 @@ NSDate *startTime, *finishTime;
     self.dfuFirmwareType = firmwareType;
     [fileRequests openFile:firmwareURL];
     [dfuRequests enableNotification];
+    [NSThread sleepForTimeInterval:1.0];
     [dfuRequests startDFU:firmwareType];
     [dfuRequests writeFileSize:(uint32_t)fileRequests.binFileSize];
     if (isVersionCharacteristicExist) {
@@ -387,7 +388,7 @@ NSDate *startTime, *finishTime;
         NSLog(@"succesfully received notification for ValidateFirmware");
         [dfuRequests activateAndReset];
         [self calculateDFUTime];
-        [dfuDelegate onSuccessfulFileTranferred];
+        [dfuDelegate onSuccessfulFileTransferred];
     }
     else {
         NSLog(@"Firmware validate failed, Error Status: %@",[self responseErrorMessage:dfuResponse.responseStatus]);

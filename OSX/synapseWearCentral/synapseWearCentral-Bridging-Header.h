@@ -2,7 +2,7 @@
 //  synapseWearCentral-Bridging-Header.h
 //  synapseWearCentral
 //
-//  Copyright © 2018年 art and program, Inc. For license and other information refer to https://github.com/artandprogram/synapseWear. All rights reserved.
+//  Copyright © 2018 art and program, Inc. For license and other information refer to https://github.com/artandprogram/synapseWear. All rights reserved.
 //
 
 #ifndef Bridging_Header_h

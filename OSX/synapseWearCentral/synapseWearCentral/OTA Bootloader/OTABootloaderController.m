@@ -2,7 +2,7 @@
 //  OTABootloaderController.m
 //  synapseWearCentral
 //
-//  Copyright © 2018年 art and program, Inc. For license and other information refer to https://github.com/artandprogram/synapseWear. All rights reserved.
+//  Copyright © 2018 art and program, Inc. For license and other information refer to https://github.com/artandprogram/synapseWear. All rights reserved.
 //
 
 #import "SimbleeManager.h"
@@ -48,7 +48,7 @@ NSString *otaBootloaderServiceUUID = @"00001530-1212-efde-1523-785feabcd123";
     return nil;
 }
 
-- (id)init
+/*- (id)init
 {
     self = [super init];
     if (self) {
@@ -56,10 +56,13 @@ NSString *otaBootloaderServiceUUID = @"00001530-1212-efde-1523-785feabcd123";
         _dfuHelper = [[DFUHelper alloc] initWithData:_dfuOperations];
     }
     return self;
-}
+}*/
 
 - (void)start
 {
+    _dfuOperations = [[DFUOperations alloc] initWithDelegate:self];
+    _dfuHelper = [[DFUHelper alloc] initWithData:_dfuOperations];
+
     [self startScan];
 }
 
@@ -75,8 +78,9 @@ NSString *otaBootloaderServiceUUID = @"00001530-1212-efde-1523-785feabcd123";
     NSError *error = nil;
     [fileManager removeItemAtURL:self.fileURL
                            error:&error];
+    NSLog(@"remove file: %@", self.fileURL);
     if (error) {
-        NSLog(@"remove file error: %@", error.localizedDescription);
+        NSLog(@"error: %@", error.localizedDescription);
     }
 }
 
@@ -109,6 +113,13 @@ NSString *otaBootloaderServiceUUID = @"00001530-1212-efde-1523-785feabcd123";
     [simbleeManager stopScan];
     simbleeManager.delegate = nil;
     simbleeManager = nil;
+}
+
+- (void)cancel
+{
+    if (self.isTransferring) {
+        [_dfuOperations cancelDFU];
+    }
 }
 
 #pragma mark - SimbleeManagerDelegate methods
@@ -157,7 +168,6 @@ NSString *otaBootloaderServiceUUID = @"00001530-1212-efde-1523-785feabcd123";
 - (void)blePoweredOff
 {
     NSLog(@"OTABootloaderViewController BLE Powered Off");
-    //NSLog(@"BLE Powered Off.\n\nOpen Settings, and switch Bluetooth On.");
 }
 
 - (void)blePoweredOn
@@ -175,7 +185,6 @@ NSString *otaBootloaderServiceUUID = @"00001530-1212-efde-1523-785feabcd123";
     [_dfuOperations setCentralManager:_simblee.simbleeManager.central];
 
     self.dfuHelper.applicationURL = _fileURL;
-    //self.dfuHelper.applicationURL = [OTABootloaderViewController hexFileURL];
     [self performDFU];
 }
 
@@ -229,7 +238,7 @@ NSString *otaBootloaderServiceUUID = @"00001530-1212-efde-1523-785feabcd123";
 
 - (void)onDeviceDisconnected:(CBPeripheral *)peripheral
 {
-    NSLog(@"OTABootloaderViewController onDeviceDisconnected: %@", peripheral.identifier.UUIDString);
+    NSLog(@"OTABootloaderViewController onDeviceDisconnected: %@ -> isTransfered:%d, isTransferCancelled:%d, isErrorKnown:%d", peripheral.identifier.UUIDString, self.isTransfered, self.isTransferCancelled, self.isErrorKnown);
     self.isTransferring = NO;
     self.isConnected = NO;
 
@@ -327,9 +336,9 @@ NSString *otaBootloaderServiceUUID = @"00001530-1212-efde-1523-785feabcd123";
     }
 }
 
-- (void)onSuccessfulFileTranferred
+- (void)onSuccessfulFileTransferred
 {
-    NSLog(@"OTABootloaderViewController onSuccessfulFileTranferred");
+    NSLog(@"OTABootloaderViewController onSuccessfulFileTransferred");
     // once a DFU is started:
     // [_dfuOperations canceDFU] should be called to abort
     // [_dfuOperations.dfuRequests activateAndReset] should be called to complete (the dual mode swap)
@@ -343,8 +352,11 @@ NSString *otaBootloaderServiceUUID = @"00001530-1212-efde-1523-785feabcd123";
     self.isTransferring = NO;
     self.isTransfered = YES;
 
-    if ([_delegate respondsToSelector:@selector(onSuccessfulFileTranferred)]) {
-        [_delegate onSuccessfulFileTranferred];
+    NSString *message = [NSString stringWithFormat:@"%lu bytes transfered in %lu seconds",
+                         (unsigned long)_dfuOperations.binFileSize,
+                         (unsigned long)_dfuOperations.uploadTimeInSeconds];
+    if ([_delegate respondsToSelector:@selector(onSuccessfulFileTransferred:)]) {
+        [_delegate onSuccessfulFileTransferred:message];
     }
 }
 

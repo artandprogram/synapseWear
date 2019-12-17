@@ -45,7 +45,7 @@
 -(void)onSoftDeviceUploadCompleted;
 -(void)onBootloaderUploadCompleted;
 -(void)onTransferPercentage:(int)percentage;
--(void)onSuccessfulFileTranferred;
+-(void)onSuccessfulFileTransferred;
 -(void)onError:(NSString *)errorMessage;
 
 @end

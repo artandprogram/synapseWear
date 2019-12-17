@@ -28,7 +28,6 @@
 
 @implementation DFUOperationsDetails
 
-
 -(void)enableNotification
 {
     NSLog(@"DFUOperationsdetails enableNotification");
@@ -38,9 +37,9 @@
 
 -(void)startDFU:(DfuFirmwareTypes)firmwareType
 {
-    NSLog(@"DFUOperationsdetails startDFU");
     self.dfuFirmwareType = firmwareType;
     uint8_t value[] = {START_DFU_REQUEST, firmwareType};
+    NSLog(@"DFUOperationsdetails startDFU: %s", value);
     [self.bluetoothPeripheral writeValue:[NSData dataWithBytes:&value length:sizeof(value)]
                        forCharacteristic:self.dfuControlPointCharacteristic
                                     type:CBCharacteristicWriteWithResponse];
@@ -48,8 +47,8 @@
 
 -(void)startOldDFU
 {
-    NSLog(@"DFUOperationsdetails startOldDFU");
     uint8_t value[] = {START_DFU_REQUEST};
+    NSLog(@"DFUOperationsdetails startOldDFU: %s", value);
     [self.bluetoothPeripheral writeValue:[NSData dataWithBytes:&value length:sizeof(value)]
                        forCharacteristic:self.dfuControlPointCharacteristic
                                     type:CBCharacteristicWriteWithResponse];
@@ -79,6 +78,7 @@
         default:
             break;
     }
+
     [self.bluetoothPeripheral writeValue:[NSData dataWithBytes:&fileSizeCollection length:sizeof(fileSizeCollection)]
                        forCharacteristic:self.dfuPacketCharacteristic
                                     type:CBCharacteristicWriteWithoutResponse];
@@ -92,6 +92,7 @@
     fileSizeCollection[0] = softdeviceSize;
     fileSizeCollection[1] = bootloaderSize;
     fileSizeCollection[2] = 0;
+
     [self.bluetoothPeripheral writeValue:[NSData dataWithBytes:&fileSizeCollection length:sizeof(fileSizeCollection)]
                        forCharacteristic:self.dfuPacketCharacteristic
                                     type:CBCharacteristicWriteWithoutResponse];
@@ -99,6 +100,7 @@
 
 -(void)writeFileSizeForOldDFU:(uint32_t)firmwareSize
 {
+    NSLog(@"DFUOperationsdetails writeFileSizeForOldDFU");
     [self.bluetoothPeripheral writeValue:[NSData dataWithBytes:&firmwareSize length:sizeof(firmwareSize)]
                        forCharacteristic:self.dfuPacketCharacteristic
                                     type:CBCharacteristicWriteWithoutResponse];
@@ -115,12 +117,10 @@
     [self.bluetoothPeripheral writeValue:[NSData dataWithBytes:&initPacketStart length:sizeof(initPacketStart)]
                        forCharacteristic:self.dfuControlPointCharacteristic
                                     type:CBCharacteristicWriteWithResponse];
-
     //send init Packet data to dfu Packet Characteristic
     [self.bluetoothPeripheral writeValue:fileData
                        forCharacteristic:self.dfuPacketCharacteristic
                                     type:CBCharacteristicWriteWithoutResponse];
-
     //send initPacket with parameter value set to Init Packet Complete [1] to dfu Control Point Characteristic
     uint8_t initPacketEnd[] = {INITIALIZE_DFU_PARAMETERS_REQUEST, END_INIT_PACKET};
     [self.bluetoothPeripheral writeValue:[NSData dataWithBytes:&initPacketEnd length:sizeof(initPacketEnd)]
@@ -130,6 +130,7 @@
 
 -(void)buildAndSendInitPacket:(uint16_t)crc16BinFileData
 {
+    NSLog(@"DFUOperationsdetails buildAndSendInitPacket: %u", crc16BinFileData);
     // see /nRF51_SDK_8.0.0_5fc2c3a/documentation/s110/html/a00093.html
     uint16_t initPacket[] =
     {
@@ -147,12 +148,10 @@
     [self.bluetoothPeripheral writeValue:[NSData dataWithBytes:&initPacketStart length:sizeof(initPacketStart)]
                        forCharacteristic:self.dfuControlPointCharacteristic
                                     type:CBCharacteristicWriteWithResponse];
-
     //send init Packet data to dfu Packet Characteristic
     [self.bluetoothPeripheral writeValue:[NSData dataWithBytes:&initPacket length:sizeof(initPacket)]
                        forCharacteristic:self.dfuPacketCharacteristic
                                     type:CBCharacteristicWriteWithoutResponse];
-
     //send initPacket with parameter value set to Init Packet Complete [1] to dfu Control Point Characteristic
     uint8_t initPacketEnd[] = {INITIALIZE_DFU_PARAMETERS_REQUEST, END_INIT_PACKET};
     [self.bluetoothPeripheral writeValue:[NSData dataWithBytes:&initPacketEnd length:sizeof(initPacketEnd)]
@@ -162,8 +161,10 @@
 
 -(void)resetAppToDFUMode
 {
-    [self.bluetoothPeripheral setNotifyValue:YES forCharacteristic:self.dfuControlPointCharacteristic];
+    [self.bluetoothPeripheral setNotifyValue:YES
+                           forCharacteristic:self.dfuControlPointCharacteristic];
     uint8_t value[] = {START_DFU_REQUEST, APPLICATION};
+    NSLog(@"DFUOperationsdetails resetAppToDFUMode: %s", value);
     [self.bluetoothPeripheral writeValue:[NSData dataWithBytes:&value length:sizeof(value)]
                        forCharacteristic:self.dfuControlPointCharacteristic
                                     type:CBCharacteristicWriteWithResponse];
@@ -178,17 +179,18 @@
 
 -(void)enablePacketNotification
 {
-    NSLog(@"DFUOperationsdetails enablePacketNotification");
-    uint8_t value[] = {PACKET_RECEIPT_NOTIFICATION_REQUEST, PACKETS_NOTIFICATION_INTERVAL,0};
+    uint8_t value[] = {PACKET_RECEIPT_NOTIFICATION_REQUEST, PACKETS_NOTIFICATION_INTERVAL, 0};
+    NSLog(@"DFUOperationsdetails enablePacketNotification: %s", value);
     [self.bluetoothPeripheral writeValue:[NSData dataWithBytes:&value length:sizeof(value)]
                        forCharacteristic:self.dfuControlPointCharacteristic
                                     type:CBCharacteristicWriteWithResponse];
 }
 
+
 -(void)receiveFirmwareImage
 {
-    NSLog(@"DFUOperationsdetails receiveFirmwareImage");
     uint8_t value = RECEIVE_FIRMWARE_IMAGE_REQUEST;
+    NSLog(@"DFUOperationsdetails receiveFirmwareImage: %u", value);
     [self.bluetoothPeripheral writeValue:[NSData dataWithBytes:&value length:sizeof(value)]
                        forCharacteristic:self.dfuControlPointCharacteristic
                                     type:CBCharacteristicWriteWithResponse];
@@ -196,8 +198,8 @@
 
 -(void) validateFirmware
 {
-    NSLog(@"DFUOperationsdetails validateFirmwareImage");
     uint8_t value = VALIDATE_FIRMWARE_REQUEST;
+    NSLog(@"DFUOperationsdetails validateFirmwareImage: %u", value);
     [self.bluetoothPeripheral writeValue:[NSData dataWithBytes:&value length:sizeof(value)]
                        forCharacteristic:self.dfuControlPointCharacteristic
                                     type:CBCharacteristicWriteWithResponse];
@@ -205,8 +207,8 @@
 
 -(void)activateAndReset
 {
-    NSLog(@"DFUOperationsdetails activateAndReset");
     uint8_t value = ACTIVATE_AND_RESET_REQUEST;
+    NSLog(@"DFUOperationsdetails activateAndReset: %u", value);
     [self.bluetoothPeripheral writeValue:[NSData dataWithBytes:&value length:sizeof(value)]
                        forCharacteristic:self.dfuControlPointCharacteristic
                                     type:CBCharacteristicWriteWithResponse];
@@ -214,8 +216,8 @@
 
 -(void)resetSystem
 {
-    NSLog(@"DFUOperationsDetails resetSystem");
     uint8_t value = RESET_SYSTEM;
+    NSLog(@"DFUOperationsdetails resetSystem: %u", value);
     [self.bluetoothPeripheral writeValue:[NSData dataWithBytes:&value length:sizeof(value)]
                        forCharacteristic:self.dfuControlPointCharacteristic
                                     type:CBCharacteristicWriteWithResponse];
@@ -242,7 +244,6 @@
     self.dfuPacketCharacteristic = packetCharacteristic;
     self.dfuVersionCharacteristic = versionCharacteristic;
 }
-
 /*
 -(void)MQDumpNSData:(NSData *)data
 {
