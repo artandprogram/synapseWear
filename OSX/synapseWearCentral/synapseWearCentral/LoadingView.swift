@@ -13,7 +13,6 @@ class LoadingView: NSView {
 
     init() {
         super.init(frame: CGRect.zero)
-        //print("init")
 
         self.wantsLayer = true
         self.layer?.backgroundColor = NSColor(calibratedRed: 0, green: 0, blue: 0, alpha: 0.2).cgColor
@@ -51,5 +50,4 @@ class LoadingView: NSView {
     override func viewDidEndLiveResize() {
         //print("viewDidEndLiveResize")
     }*/
-
 }

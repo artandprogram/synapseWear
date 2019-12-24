@@ -9,6 +9,7 @@ import Cocoa
 import Alamofire
 import SwiftyJSON
 import Foundation
+
 struct CrystalStruct {
 
     var key: String = ""
@@ -23,19 +24,19 @@ struct CrystalStruct {
 
 struct SynapseCrystalStruct {
 
-    var co2: CrystalStruct = CrystalStruct(key: "co2", name: "CO2")
-    var temp: CrystalStruct = CrystalStruct(key: "temp", name: "temperature")
-    var hum: CrystalStruct = CrystalStruct(key: "hum", name: "humidity")
-    var ill: CrystalStruct = CrystalStruct(key: "ill", name: "illumination")
+    var co2: CrystalStruct   = CrystalStruct(key: "co2",   name: "CO2")
+    var temp: CrystalStruct  = CrystalStruct(key: "temp",  name: "temperature")
+    var hum: CrystalStruct   = CrystalStruct(key: "hum",   name: "humidity")
+    var ill: CrystalStruct   = CrystalStruct(key: "ill",   name: "illumination")
     var press: CrystalStruct = CrystalStruct(key: "press", name: "air pressure")
     var sound: CrystalStruct = CrystalStruct(key: "sound", name: "environmental sound")
-    var move: CrystalStruct = CrystalStruct(key: "move", name: "movement")
-    var ax: CrystalStruct = CrystalStruct(key: "ax", name: "ax")
-    var ay: CrystalStruct = CrystalStruct(key: "ay", name: "ay")
-    var az: CrystalStruct = CrystalStruct(key: "az", name: "az")
+    var move: CrystalStruct  = CrystalStruct(key: "move",  name: "movement")
+    var ax: CrystalStruct    = CrystalStruct(key: "ax",    name: "ax")
+    var ay: CrystalStruct    = CrystalStruct(key: "ay",    name: "ay")
+    var az: CrystalStruct    = CrystalStruct(key: "az",    name: "az")
     var angle: CrystalStruct = CrystalStruct(key: "angle", name: "angle")
-    var volt: CrystalStruct = CrystalStruct(key: "volt", name: "voltage")
-    var led: CrystalStruct = CrystalStruct(key: "led", name: "LED")
+    var volt: CrystalStruct  = CrystalStruct(key: "volt",  name: "voltage")
+    var led: CrystalStruct   = CrystalStruct(key: "led",   name: "LED")
 }
 
 enum SendMode {
@@ -55,7 +56,37 @@ enum SendMode {
     case I3_4
 }
 
-class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelegate, NSComboBoxDataSource, NSComboBoxDelegate, RFduinoManagerDelegate, RFduinoDelegate, FirmwearUpdateDelegate {
+enum SynapseValueTableColumn: Int {
+
+    case uuid         = 0
+    case connect      = 1
+    case battery      = 2
+    case count        = 3
+    case co2          = 4
+    case temperature  = 5
+    case humidity     = 6
+    case illumination = 7
+    case airpressure  = 8
+    case sound        = 9
+    case ax           = 10
+    case ay           = 11
+    case az           = 12
+    case gx           = 13
+    case gy           = 14
+    case gz           = 15
+    case firmware     = 16
+    case total        = 17
+}
+
+enum FirmwareUpdateStatus {
+
+    case off
+    case on
+    case standby
+    case running
+}
+
+class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelegate, NSComboBoxDataSource, NSComboBoxDelegate, RFduinoManagerDelegate, RFduinoDelegate/*, FirmwearUpdateDelegate*/ {
 
     @IBOutlet var scrollView: NSScrollView!
     @IBOutlet var tableView: NSTableView!
@@ -64,8 +95,6 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
     @IBOutlet var resetButton: NSButton!
     @IBOutlet var directoryLabel: NSTextField!
     @IBOutlet var directoryButton: NSButton!
-    //@IBOutlet var valueLabel: NSTextField!
-    //@IBOutlet var valueLabelLower: NSTextField!
     @IBOutlet var firmwareLabel: NSTextField!
     @IBOutlet var firmwareComboBox: NSComboBox!
     @IBOutlet var firmwareUpdateButton: NSButton!
@@ -84,6 +113,7 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
     @IBOutlet var oscSendButton: NSButton!
     @IBOutlet var oscIPAddressTextField: NSTextField!
     @IBOutlet var oscPortTextField: NSTextField!
+    var loadingView: LoadingView!
 
     let synapseDataMax: Int = 10 * 60
     let synapseScanLimitTimeInterval: TimeInterval = 5.0
@@ -105,10 +135,11 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
     var synapses: [SynapseObject] = []
     var synapseDeviceName: String = ""
     var firmwares: [[String: Any]] = []
+    var firmwareSelectIndex: Int = -1
+    var firmwareUpdateLocked: Bool = false
     var checkScanningTimer: Timer?
-    var loadingView: LoadingView!
     var windowControllers: [String: NSWindowController] = [:]
-    var firmwearUpdateViewController: FirmwearUpdateViewController?
+    //var firmwearUpdateViewController: FirmwearUpdateViewController?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -280,15 +311,6 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         h = self.uuidLabel.frame.size.height
         self.uuidLabel.frame = NSRect(x: x, y: y, width: w, height: h)
 
-        /*self.valueLabel.frame = NSRect(x: self.valueLabel.frame.origin.x,
-                                       y: self.valueLabel.frame.origin.y,
-                                       width: self.detailAreaView.frame.size.width - self.valueLabel.frame.origin.x * 2,
-                                       height: self.valueLabel.frame.size.height)
-        self.valueLabelLower.frame = NSRect(x: self.valueLabelLower.frame.origin.x,
-                                            y: self.valueLabelLower.frame.origin.y,
-                                            width: self.detailAreaView.frame.size.width - self.valueLabel.frame.origin.x * 2,
-                                            height: self.valueLabelLower.frame.size.height)*/
-
         x = self.timeIntervalComboBox.frame.origin.x
         y = self.timeIntervalComboBox.frame.origin.y
         w = self.timeIntervalComboBox.frame.size.width
@@ -376,20 +398,6 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         //print("onItemClicked: row \(tableView.clickedRow), col \(tableView.clickedColumn)")
         self.setDetailAreaLabels()
         self.setSizeDirectoryViews()
-
-        /*if tableView.clickedRow >= 0 && tableView.clickedColumn >= 0 {
-            let rowRect = tableView.rect(ofRow: tableView.clickedRow)
-            let columnRect = tableView.rect(ofColumn: tableView.clickedColumn)
-            //print("onItemClicked ofRow: \(rowRect) ofColumn: \(columnRect)")
-            self.testView.frame = NSRect(x: columnRect.origin.x, y: rowRect.origin.y+23, width: columnRect.size.width, height: rowRect.size.height)
-            self.testView.isHidden = false
-        }
-        if tableView.clickedRow >= 0 && tableView.clickedColumn >= 0 {
-            let v = self.tableView.view(atColumn: tableView.clickedColumn, row: tableView.clickedRow, makeIfNecessary: false)
-            if let v = v as? FirmwearView {
-                print("onItemClicked: \(v)")
-            }
-        }*/
     }
 
     @objc private func onItemDoubleClicked() {
@@ -411,8 +419,8 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
                     }
 
                     self.rfduinoManager.connect(synapse)
-                    /*
-                    if self.synapses[tableView.clickedRow].synapseDataSaveDir == nil && !self.synapses[tableView.clickedRow].synapseDataSaveDirChecked {
+
+                    /*if self.synapses[tableView.clickedRow].synapseDataSaveDir == nil && !self.synapses[tableView.clickedRow].synapseDataSaveDirChecked {
                         self.setSynapseDataSaveDir(tableView.clickedRow)
                     }*/
                     self.synapses[tableView.clickedRow].synapseDataSaveDirChecked = true
@@ -448,9 +456,13 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
 
     @objc private func firmwareCancelButtonAction() {
 
+        self.firmwareSelectIndex = -1
         if !self.firmwareComboBox.isHidden {
             self.firmwareComboBox.isHidden = true
             self.setFirmwareSettingArea()
+        }
+        else {
+            self.updateFirmwareCancel()
         }
     }
 
@@ -760,45 +772,52 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         }
     }
 
-    func setFirmwareSettingArea(disableComboBox: Bool = true) {
+    func setFirmwareSettingArea() {
 
         self.firmwareLabel.stringValue = ""
         self.firmwareUpdateButton.isHidden = true
         self.firmwareCancelButton.isHidden = true
         self.firmwareLabel.stringValue = "Firmware Version : "
         if tableView.selectedRow >= 0 && tableView.selectedRow < self.synapses.count {
-            if self.synapses[tableView.selectedRow].synapseFirmwareIsUpdate {
+            if self.synapses[tableView.selectedRow].synapseFirmwareUpdateStatus != .off {
                 self.firmwareComboBox.isHidden = true
                 self.firmwareUpdateButton.isHidden = true
                 self.firmwareCancelButton.isHidden = false
-
-                if let synapseFirmwareInfo = self.synapses[tableView.selectedRow].synapseUpdateFirmwareInfo, let version = synapseFirmwareInfo["device_version"] as? String {
-                    self.firmwareLabel.stringValue = "\(self.firmwareLabel.stringValue)\(version)"
-                    if let date = synapseFirmwareInfo["date"] as? String {
-                        self.firmwareLabel.stringValue = "\(self.firmwareLabel.stringValue) (\(date)) "
-                    }
-                }
-                self.firmwareLabel.stringValue = "\(self.firmwareLabel.stringValue)\(self.synapses[tableView.selectedRow].synapseFirmwareUpdateMessage)"
+                self.firmwareLabel.stringValue = self.synapses[tableView.selectedRow].synapseFirmwareUpdateMessage
             }
             else {
-                self.firmwareComboBox.isHidden = disableComboBox
-
                 if self.synapses[tableView.selectedRow].synapseValues.isConnected {
                     self.firmwareUpdateButton.isHidden = false
+                    self.firmwareUpdateButton.isEnabled = true
+                    if self.firmwareUpdateLocked {
+                        self.firmwareUpdateButton.isEnabled = false
+                    }
 
                     if !self.firmwareComboBox.isHidden {
                         self.firmwareCancelButton.isHidden = false
                     }
                 }
-                /*else {
+                else {
                     self.firmwareComboBox.isHidden = true
-                }*/
+                }
 
                 if self.firmwareComboBox.isHidden {
                     if let version = self.synapses[tableView.selectedRow].synapseFirmwareInfo["device_version"] as? String {
                         self.firmwareLabel.stringValue = "\(self.firmwareLabel.stringValue)\(version)"
                         if let date = self.synapses[tableView.selectedRow].synapseFirmwareInfo["date"] as? String {
                             self.firmwareLabel.stringValue = "\(self.firmwareLabel.stringValue) (\(date))"
+                        }
+                    }
+                }
+                else {
+                    if let version = self.synapses[self.tableView.selectedRow].synapseFirmwareInfo["device_version"] as? String, let date = self.synapses[self.tableView.selectedRow].synapseFirmwareInfo["date"] as? String {
+                        for (index, data) in self.firmwares.enumerated() {
+                            if let firmwareVersion = data["device_version"] as? String, let firmwareDate = data["date"] as? String {
+                                if firmwareVersion == version && firmwareDate == date {
+                                    self.firmwareComboBox.selectItem(at: index)
+                                    break
+                                }
+                            }
                         }
                     }
                 }
@@ -859,21 +878,9 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
                 }
             }
 
-            //self.firmwareComboBox.isHidden = false
+            self.firmwareComboBox.isHidden = false
             self.firmwareComboBox.reloadData()
-            if self.tableView.selectedRow >= 0 && self.tableView.selectedRow < self.synapses.count {
-                if let version = self.synapses[self.tableView.selectedRow].synapseFirmwareInfo["device_version"] as? String, let date = self.synapses[self.tableView.selectedRow].synapseFirmwareInfo["date"] as? String {
-                    for (index, data) in self.firmwares.enumerated() {
-                        if let firmwareVersion = data["device_version"] as? String, let firmwareDate = data["date"] as? String {
-                            if firmwareVersion == version && firmwareDate == date {
-                                self.firmwareComboBox.selectItem(at: index)
-                                break
-                            }
-                        }
-                    }
-                }
-            }
-            self.setFirmwareSettingArea(disableComboBox: false)
+            self.setFirmwareSettingArea()
 
             self.loadingView.indicator.stopAnimation(nil)
             self.loadingView.isHidden = true
@@ -889,16 +896,27 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
     func updateFirmwareData() {
 
         if self.tableView.selectedRow >= 0 && self.tableView.selectedRow < self.synapses.count {
-            if self.firmwareComboBox.indexOfSelectedItem >= 0 && self.firmwareComboBox.indexOfSelectedItem < self.firmwares.count {
-                if let hexFile = self.firmwares[self.firmwareComboBox.indexOfSelectedItem]["hex_file"] as? String {
-                    if let vc = storyboard?.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "FirmwearUpdateViewController")) as? FirmwearUpdateViewController {
+            //print("updateFirmwareData: \(self.firmwareSelectIndex)")
+            if self.firmwareSelectIndex >= 0 && self.firmwareSelectIndex < self.firmwares.count {
+                if let hexFile = self.firmwares[self.firmwareSelectIndex]["hex_file"] as? String {
+                    self.synapses[self.tableView.selectedRow].startFirmwareUpdate(hexFile: hexFile)
+                    /*if let vc = storyboard?.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "FirmwearUpdateViewController")) as? FirmwearUpdateViewController {
                         self.firmwearUpdateViewController = vc
                         self.firmwearUpdateViewController?.synapseObject = self.synapses[self.tableView.selectedRow]
                         self.firmwearUpdateViewController?.hexFileName = hexFile
                         self.firmwearUpdateViewController?.delegate = self
                         self.presentViewControllerAsModalWindow(self.firmwearUpdateViewController!)
-                    }
+                    }*/
                 }
+            }
+        }
+    }
+
+    func updateFirmwareCancel() {
+
+        if self.tableView.selectedRow >= 0 && self.tableView.selectedRow < self.synapses.count {
+            if self.synapses[self.tableView.selectedRow].synapseFirmwareUpdateStatus != .off {
+                self.synapses[self.tableView.selectedRow].cancelFirmwareUpdate()
             }
         }
     }
@@ -908,11 +926,37 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         self.sendDataToDevice(synapseObject)
     }
 
-    func updateFirmwearCheck(_ uuid: UUID) {
+    func updateFirmwareCheck(_ uuid: UUID) {
 
-        if let _ = self.firmwearUpdateViewController {
+        for synapseObject in synapses {
+            if let synapse = synapseObject.synapse, synapse.peripheral.identifier == uuid {
+                if synapseObject.synapseFirmwareUpdateStatus == .on {
+                    synapseObject.readyFirmwareUpdate()
+                }
+                break
+            }
+        }
+        /*if let _ = self.firmwearUpdateViewController {
             if let synapseObject = self.firmwearUpdateViewController!.synapseObject, let synapse = synapseObject.synapse, synapse.peripheral.identifier == uuid {
                 self.firmwearUpdateViewController?.updateFirmwearStart()
+            }
+        }*/
+    }
+
+    func checkFirmwareSettingArea(uuid: UUID, isForced: Bool = false) {
+
+        var pt: Int = -1
+        for (index, synapseObject) in synapses.enumerated() {
+            if let synapse = synapseObject.synapse, synapse.peripheral.identifier == uuid {
+                pt = index
+                break
+            }
+        }
+        if pt >= 0 {
+            self.tableView.reloadData(forRowIndexes: IndexSet(integer: pt),
+                                      columnIndexes: IndexSet(integer: SynapseValueTableColumn.firmware.rawValue))
+            if isForced || pt == self.tableView.selectedRow {
+                self.setFirmwareSettingArea()
             }
         }
     }
@@ -951,38 +995,6 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
     func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
 
         if let tableColumn = tableColumn {
-            /*
-            if tableColumn.identifier.rawValue == "Firmwear" {
-                let cell: FirmwearView? = tableView.makeView(withIdentifier: tableColumn.identifier, owner: self) as? FirmwearView
-                /*if let view = tableView.makeView(withIdentifier: tableColumn.identifier, owner: self) as? FirmwearView {
-                    print("viewFor: \(view)")
-                    cell = view
-                }
-                else {
-                    cell = FirmwearView()
-                }*/
-                if self.synapses[row].synapseFirmwareIsUpdate {
-                    cell?.nowVersionLabel.isHidden = false
-                    cell?.firmwearComboBox.isHidden = false
-                    cell?.updateButton.isHidden = false
-                }
-                else {
-                    cell?.nowVersionLabel.isHidden = false
-                    cell?.firmwearComboBox.isHidden = true
-                    cell?.updateButton.isHidden = true
-
-                    var str: String = ""
-                    if let version = self.synapses[row].synapseFirmwareInfo["device_version"] as? String {
-                        str = "\(str)\(version)"
-                        if let date = self.synapses[row].synapseFirmwareInfo["date"] as? String {
-                            str = "\(str) (\(date))"
-                        }
-                    }
-                    cell?.nowVersionLabel.stringValue = str
-                }
-                return cell
-            }*/
-
             var str: String = ""
             if tableColumn.identifier.rawValue == "UUID" {
                 if let synapse = self.synapses[row].synapse {
@@ -1079,6 +1091,20 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
                     str = String(format:"%.3f", CommonFunction.makeGyroscopeValue(Float(gz)))
                 }
             }
+            else if tableColumn.identifier.rawValue == "Firmware" {
+                if self.synapses[row].synapseFirmwareUpdateStatus == .off {
+                    //print("str: \(self.synapses[row].synapseFirmwareInfo)")
+                    if let version = self.synapses[row].synapseFirmwareInfo["device_version"] as? String {
+                        str = version
+                        if let date = self.synapses[row].synapseFirmwareInfo["date"] as? String {
+                            str = "\(str) (\(date))"
+                        }
+                    }
+                }
+                else {
+                    str = self.synapses[row].synapseFirmwareUpdateStatusText
+                }
+            }
             /*else if tableColumn.identifier.rawValue == "Received" {
                 str = "\(self.synapses[row].synapseReceivedCount)"
             }
@@ -1089,7 +1115,7 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
             }*/
 
             //print("viewFor: \(str)")
-            let cell = tableView.makeView(withIdentifier: tableColumn.identifier, owner: self) as! NSTableCellView
+            let cell: NSTableCellView = tableView.makeView(withIdentifier: tableColumn.identifier, owner: self) as! NSTableCellView
             if tableColumn.identifier.rawValue == "Battery" {
                 for subview in cell.subviews {
                     if let levelIndicator = subview as? NSLevelIndicator {
@@ -1097,8 +1123,23 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
                         if let battery = self.synapses[row].synapseValues.battery {
                             levelIndicator.doubleValue = Double(ceil(battery / 20.0))
                         }
+                        break
                     }
                 }
+            }
+            else if tableColumn.identifier.rawValue == "Firmware" {
+                for subview in cell.subviews {
+                    if let progressIndicator = subview as? NSProgressIndicator {
+                        progressIndicator.isHidden = true
+                        if str.count <= 0, self.synapses[row].synapseFirmwareUpdateStatus == .running {
+                            progressIndicator.isHidden = false
+                            progressIndicator.doubleValue = self.synapses[row].synapseFirmwareUpdatePercentage
+                            progressIndicator.controlTint = .graphiteControlTint
+                        }
+                        break
+                    }
+                }
+                cell.textField?.stringValue = str
             }
             else {
                 cell.textField?.stringValue = str
@@ -1152,6 +1193,15 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         return nil
     }
 
+    func comboBoxSelectionDidChange(_ notification: Notification) {
+
+        //print("comboBoxSelectionDidChange")
+        if !self.firmwareComboBox.isHidden, let comboBox = notification.object as? NSComboBox, comboBox == self.firmwareComboBox {
+            //print("firmwareComboBox: \(comboBox.indexOfSelectedItem)")
+            self.firmwareSelectIndex = comboBox.indexOfSelectedItem
+        }
+    }
+
     // MARK: mark - Synapse Device methods
 
     func setRFduinoManager() {
@@ -1163,14 +1213,19 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         self.rfduinoManager = RFduinoManager()
         self.rfduinoManager.delegate = self
 
-        self.checkScanningTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(self.checkScanning), userInfo: nil, repeats: true)
+        self.checkScanningTimer = Timer.scheduledTimer(timeInterval: 1.0,
+                                                       target: self,
+                                                       selector: #selector(self.checkScanning),
+                                                       userInfo: nil,
+                                                       repeats: true)
         self.checkScanningTimer?.fire()
     }
 
     @objc func checkScanning() {
 
         for i in 0..<self.synapses.count {
-            self.tableView.reloadData(forRowIndexes: IndexSet(integer: i), columnIndexes: IndexSet(integersIn: 1..<16))
+            self.tableView.reloadData(forRowIndexes: IndexSet(integer: i),
+                                      columnIndexes: IndexSet(integersIn: SynapseValueTableColumn.connect.rawValue..<SynapseValueTableColumn.total.rawValue))
         }
     }
 
@@ -1241,7 +1296,11 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         if let synapse = synapseObject.synapse {
             let now: Date = Date()
             let data: [UInt8] = synapseObject.receiveData
-            synapseObject.synapseData.insert(["time": now.timeIntervalSince1970, "data": data, "uuid": synapse.peripheral.identifier.uuidString], at: 0)
+            synapseObject.synapseData.insert([
+                "time": now.timeIntervalSince1970,
+                "data": data,
+                "uuid": synapse.peripheral.identifier.uuidString
+            ], at: 0)
             if synapseObject.synapseData.count > self.synapseDataMax {
                 synapseObject.synapseData.removeLast()
             }
@@ -1255,15 +1314,32 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
                 /*
                 DispatchQueue.global(qos: .background).async {
                     _ = self.synapseFileManager.setValues(baseURL: baseURL, uuid: synapse.peripheral.identifier.uuidString, bytes: data, date: connectedDate)
-                }
-                 */
+                }*/
+
                 //print("setSynapseData: \(synapseObject.synapseValues.makeSynapseFileRecord())")
                 let data: Data? = synapseObject.synapseValues.makeSynapseFileRecord().data(using: .utf8)
                 if let data = data {
                     DispatchQueue.global(qos: .background).async {
-                        _ = self.synapseFileManager.setValues(baseURL: baseURL, uuid: synapse.peripheral.identifier.uuidString, data: data, date: connectedDate)
+                        _ = self.synapseFileManager.setValues(baseURL: baseURL,
+                                                              uuid: synapse.peripheral.identifier.uuidString,
+                                                              data: data,
+                                                              date: connectedDate)
                     }
                 }
+            }
+        }
+    }
+
+    func connectSynapseObjectAction(_ uuid: UUID) {
+        for synapseObject in self.synapses {
+            if let synapse = synapseObject.synapse, synapse.peripheral.identifier == uuid {
+                synapseObject.initFirmwareUpdateValue()
+
+                if let url = synapseObject.synapseDataSaveDir, let synapse = synapseObject.synapse {
+                    let _ = self.synapseFileManager.dirCheck(baseURL: url, uuid: synapse.peripheral.identifier.uuidString)
+                }
+
+                break
             }
         }
     }
@@ -1274,14 +1350,13 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
             if let synapse = synapseObject.synapse, synapse.peripheral.identifier == uuid {
                 synapseObject.disconnectSynapse()
 
-                //self.tableView.reloadData(forRowIndexes: IndexSet(integer: index), columnIndexes: IndexSet(integer: 1))
                 self.tableView.reloadData(forRowIndexes: IndexSet(integer: index),
-                                          columnIndexes: IndexSet(integersIn: 1..<3))
+                                          columnIndexes: IndexSet(integersIn: SynapseValueTableColumn.connect.rawValue..<SynapseValueTableColumn.count.rawValue))
                 if index == tableView.selectedRow {
                     self.setDetailAreaLabels()
                 }
 
-                self.updateFirmwearCheck(uuid)
+                self.updateFirmwareCheck(uuid)
 
                 break
             }
@@ -1305,6 +1380,7 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
     func didConnect(_ rfduino: RFduino!) -> Void {
 
         //print("didConnectRFduino: \(rfduino)")
+        self.connectSynapseObjectAction(rfduino.peripheral.identifier)
         //self.rfduinoManager.stopScan()
     }
 
@@ -1412,15 +1488,12 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
                 if Int(synapseObject.receiveData[3]) == 2 {
                     self.setSynapseData(synapseObject: synapseObject)
 
-                    self.tableView.reloadData(forRowIndexes: IndexSet(integer: index), columnIndexes: IndexSet(integersIn: 1..<16))
+                    self.tableView.reloadData(forRowIndexes: IndexSet(integer: index),
+                                              columnIndexes: IndexSet(integersIn: SynapseValueTableColumn.connect.rawValue..<SynapseValueTableColumn.firmware.rawValue))
                     //print("setReceiveData: \(index) - \(tableView.selectedRow)")
                     /*if index == tableView.selectedRow {
                         //print("setReceiveData: \(index)")
                         self.setValueLabel()
-                    }*/
-                    /*if index >= 0 {
-                        //print("setReceiveData: \(index)")
-                        self.tableView.reloadData(forRowIndexes: IndexSet(integer: index), columnIndexes: IndexSet(integer: 2))
                     }*/
 
                     self.updateSynapseDataWindow(synapseObject)
@@ -1440,7 +1513,7 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
 
     func sendAccessKeyToDevice(_ synapseObject: SynapseObject) {
 
-        if let synapse = synapseObject.synapse, /*synapseObject.synapseUUID != nil,*/ let accessKey = synapseObject.synapseAccessKey {
+        if let synapse = synapseObject.synapse, let accessKey = synapseObject.synapseAccessKey {
             synapseObject.synapseSendMode = SendMode.I1
             var data: Data = Data(bytes: [0x02])
             if accessKey.count > 8 {
@@ -1471,7 +1544,8 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
                 synapseObject.initSynapseGraphData()
 
                 if index >= 0 {
-                    self.tableView.reloadData(forRowIndexes: IndexSet(integer: index), columnIndexes: IndexSet(integer: 1))
+                    self.tableView.reloadData(forRowIndexes: IndexSet(integer: index),
+                                              columnIndexes: IndexSet(integer: SynapseValueTableColumn.connect.rawValue))
                     if index == tableView.selectedRow {
                         self.setDetailAreaLabels()
                     }
@@ -1488,7 +1562,7 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
 
     func sendStopToDevice(_ synapseObject: SynapseObject) {
 
-        if let synapse = synapseObject.synapse, /*synapseObject.synapseUUID != nil,*/ let accessKey = synapseObject.synapseAccessKey {
+        if let synapse = synapseObject.synapse, let accessKey = synapseObject.synapseAccessKey {
             synapseObject.synapseSendModeSuspension = true
             synapseObject.synapseSendMode = SendMode.I2
             var data: Data = Data(bytes: [0x03])
@@ -1775,7 +1849,8 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
                 print("receiveFirmwareVersionToDevice Error")
             }
 
-            //self.tableView.reloadData(forRowIndexes: IndexSet(integer: index), columnIndexes: IndexSet(integer: 3))
+            self.tableView.reloadData(forRowIndexes: IndexSet(integer: index),
+                                      columnIndexes: IndexSet(integer: SynapseValueTableColumn.firmware.rawValue))
 
             if synapseObject.synapseSendModeNext == SendMode.I5_3_4 {
                 //synapseObject.synapseSendModeNext = SendMode.I4
@@ -1886,19 +1961,13 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
     }
 }
 
-class SynapseObject: NSObject {
+class SynapseObject: NSObject, OTABootloaderControllerDelegate {
 
     let aScale: Float = 2.0 / 32768.0
     let gScale: Float = 250.0 / 32768.0
     let settingDataManager: SettingDataManager = SettingDataManager()
-    //var synapseUUID: UUID?
     var synapse: RFduino?
     var synapseAccessKey: Data?
-    var synapseFirmwareInfo: [String: Any] = [:]
-    var synapseFirmwareIsUpdate: Bool = false
-    var synapseFirmwareUpdateMessage: String = ""
-    var synapseFirmwareUpdatePercentage: Int = 0
-    var synapseUpdateFirmwareInfo: [String: Any]?
     var synapseSendMode: SendMode!
     var synapseSendModeNext: SendMode?
     var synapseSendModeSuspension: Bool = false
@@ -1918,6 +1987,16 @@ class SynapseObject: NSObject {
     var oscIPAddress: String = ""
     var oscPort: String = ""
     var vc: ViewController?
+    // For Firmware Update
+    var synapseFirmwareInfo: [String: Any] = [:]
+    var synapseFirmwareUpdateStatus: FirmwareUpdateStatus = .off
+    var synapseFirmwareUpdateStatusText: String = ""
+    var synapseFirmwareUpdateMessage: String = ""
+    var synapseFirmwareUpdatePercentage: Double = 0
+    var synapseFirmwareUpdateHexFileName: String?
+    var synapseFirmwareUpdateFileUrl: URL?
+    var synapseFirmwareUpdateDownloadRequest: DownloadRequest?
+    var otaBootloaderController: OTABootloaderController?
     // For Graph Data
     let synapseCrystalInfo: SynapseCrystalStruct = SynapseCrystalStruct()
     let synapseGraphDataLimit: TimeInterval = 1 * 60.0 + 1.0
@@ -1928,9 +2007,6 @@ class SynapseObject: NSObject {
     var synapseGraphValues: [[[String: Any]]] = []
     var synapseGraphMaxAndMinValues: [String: [String: Double]] = [:]
     var synapseGraphColors: [String] = []
-
-    override init() {
-    }
 
     init(_ synapse: RFduino, name: String? = nil) {
 
@@ -2910,6 +2986,233 @@ class SynapseObject: NSObject {
             }
         }
     }
+    
+    // MARK: mark - DFU methods
+
+    func startFirmwareUpdate(hexFile: String) {
+
+        if self.synapseFirmwareUpdateStatus == .off, let host = CommonFunction.getAppinfoValue("firmware_domain") as? String, let url = URL(string: "\(host)\(hexFile)") {
+            self.vc?.firmwareUpdateLocked = true
+
+            self.synapseFirmwareUpdateStatus = .on
+            self.synapseFirmwareUpdateHexFileName = hexFile
+            self.startFirmwareFileDownload(hexUrl: url.absoluteString)
+        }
+    }
+
+    func startFirmwareFileDownload(hexUrl: String) {
+
+        self.synapseFirmwareUpdateFileUrl = self.getFirmwareFileTemporaryUrl(fileName: hexUrl)
+        if self.synapseFirmwareUpdateFileUrl == nil {
+            self.resetFirmwareUpdate()
+            return
+        }
+        let destination: DownloadRequest.DownloadFileDestination = { _, _ in
+            return (self.synapseFirmwareUpdateFileUrl!, [.removePreviousFile, .createIntermediateDirectories])
+        }
+        print("startFirmwareFileDownload: \(self.synapseFirmwareUpdateFileUrl!.absoluteString)")
+
+        self.setFirmwareSettingArea(statusText: "Download...",
+                                    message: "Firmwear File Download...")
+
+        self.synapseFirmwareUpdateDownloadRequest = Alamofire.download(hexUrl, to: destination)
+            .downloadProgress { (progress) in
+            }
+            .responseData { (data) in
+                self.synapseFirmwareUpdateDownloadRequest = nil
+                if self.vc != nil {
+                    self.setFirmwareSettingArea(statusText: "Ready",
+                                                message: "Device Will Enter OTA Mode")
+                    self.vc?.updateFirmwearPreStart(self)
+                }
+                else {
+                    self.resetFirmwareUpdate()
+                }
+        }
+    }
+
+    func getFirmwareFileTemporaryUrl(fileName: String) -> URL? {
+
+        guard let nameUrl = URL(string: fileName) else { return nil }
+        var fileName: String = nameUrl.lastPathComponent
+        if let synapse = self.synapse {
+            fileName = "\(synapse.peripheral.identifier.uuidString)-\(fileName)"
+        }
+        //print("getSaveFileUrl fileName: \(fileName)")
+        let documentsUrl: URL = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+        let fileUrl: URL = documentsUrl.appendingPathComponent(fileName)
+        //print("getSaveFileUrl fileUrl: \(fileUrl.absoluteString)")
+        return fileUrl
+    }
+
+    func readyFirmwareUpdate() {
+
+        if let url = self.synapseFirmwareUpdateFileUrl {
+            self.setFirmwareSettingArea(statusText: "Ready",
+                                        message: "OTA Bootloader Start")
+
+            self.otaBootloaderController = OTABootloaderController()
+            self.otaBootloaderController?.delegate = self
+            self.otaBootloaderController?.fileURL = url
+            self.otaBootloaderController?.start()
+        }
+        else {
+            self.resetFirmwareUpdate()
+        }
+    }
+
+    func cancelFirmwareUpdate() {
+
+        if self.synapseFirmwareUpdateStatus == .running {
+            self.otaBootloaderController?.cancel()
+        }
+        else {
+            self.resetFirmwareUpdate()
+        }
+    }
+
+    func initFirmwareUpdateValue() {
+
+        self.synapseFirmwareUpdateStatus = .off
+        self.synapseFirmwareUpdateStatusText = ""
+        self.synapseFirmwareUpdateMessage = ""
+        self.synapseFirmwareUpdatePercentage = 0
+        self.synapseFirmwareUpdateHexFileName = nil
+        self.synapseFirmwareUpdateFileUrl = nil
+        self.synapseFirmwareUpdateDownloadRequest = nil
+        self.otaBootloaderController?.delegate = nil
+        self.otaBootloaderController = nil
+    }
+
+    func resetFirmwareUpdate() {
+
+        self.synapseFirmwareUpdateDownloadRequest?.cancel()
+        self.synapseFirmwareUpdateDownloadRequest = nil
+
+        self.otaBootloaderController?.stop()
+
+        self.synapseFirmwareUpdateStatus = .off
+        self.synapseFirmwareInfo = [:]
+
+        //var isForced: Bool = false
+        if let vc = self.vc, vc.firmwareUpdateLocked {
+            //isForced = true
+            self.vc?.firmwareUpdateLocked = false
+        }
+        /*if let synapse = self.synapse {
+            self.vc?.checkFirmwareSettingArea(uuid: synapse.peripheral.identifier, isForced: isForced)
+        }*/
+    }
+
+    func setFirmwareSettingArea(statusText: String, message: String, isForced: Bool = false) {
+
+        self.synapseFirmwareUpdateStatusText = statusText
+        if let fileName = self.synapseFirmwareUpdateHexFileName {
+            self.synapseFirmwareUpdateMessage = "Firmware Update -> \(fileName) : \(message)"
+        }
+        if let synapse = self.synapse {
+            self.vc?.checkFirmwareSettingArea(uuid: synapse.peripheral.identifier, isForced: isForced)
+        }
+    }
+
+    func onConnectDevice() {
+
+        self.setFirmwareSettingArea(statusText: "Connecting...",
+                                    message: "Device Connecting...")
+    }
+
+    func onPerformDFUOnFile() {
+
+        self.setFirmwareSettingArea(statusText: "Starting...",
+                                    message: "DFU Starting...")
+    }
+
+    func onDeviceConnected() {
+
+        self.setFirmwareSettingArea(statusText: "Connected",
+                                    message: "Device Connected")
+    }
+
+    func onDeviceConnectedWithVersion() {
+
+        self.setFirmwareSettingArea(statusText: "Connected",
+                                    message: "Device Connected With Version")
+    }
+
+    func onDeviceDisconnected() {
+
+        self.setFirmwareSettingArea(statusText: "Disconnected",
+                                    message: "Device Disconnected")
+        self.resetFirmwareUpdate()
+    }
+
+    func onReadDFUVersion() {
+
+        self.vc?.firmwareUpdateLocked = false
+
+        self.synapseFirmwareUpdateStatus = .standby
+        self.setFirmwareSettingArea(statusText: "Standby",
+                                    message: "DFU Version Reading...",
+                                    isForced: true)
+    }
+
+    func onDFUStarted(_ uploadStatusMessage: String!) {
+
+        self.synapseFirmwareUpdateStatus = .running
+        self.synapseFirmwareUpdatePercentage = 0
+        self.setFirmwareSettingArea(statusText: "",
+                                    message: uploadStatusMessage)
+    }
+
+    func onDFUCancelled() {
+
+        self.setFirmwareSettingArea(statusText: "Cancelled",
+                                    message: "DFU Cancelled")
+    }
+
+    func onDFUCancelFinish() {
+
+        self.vc?.firmwareCancelButton.isHidden = true
+        self.resetFirmwareUpdate()
+    }
+
+    func onBootloaderUploadStarted() {
+
+        self.setFirmwareSettingArea(statusText: "",
+                                    message: "Bootloader Uploading...")
+    }
+
+    func onTransferPercentage(_ percentage: Int32) {
+
+        self.synapseFirmwareUpdatePercentage = Double(percentage)
+        self.setFirmwareSettingArea(statusText: "",
+                                    message: "File Transferring \(Int(percentage)) %")
+    }
+
+    func onSuccessfulFileTransferred(_ message: String!) {
+
+        self.synapseFirmwareUpdatePercentage = 100
+        self.setFirmwareSettingArea(statusText: "",
+                                    message: message)
+    }
+
+    func onDFUEnded() {
+
+        self.setFirmwareSettingArea(statusText: "Finish",
+                                    message: "DFU Ended")
+        self.resetFirmwareUpdate()
+    }
+
+    func onError(_ errorMessage: String!) {
+
+        var message: String = "DFU Error"
+        if let errorMessage = errorMessage {
+            message = "\(message) : \(errorMessage)"
+        }
+        self.setFirmwareSettingArea(statusText: "Error",
+                                    message: message)
+        self.resetFirmwareUpdate()
+    }
 
     // MARK: mark - OSC methods
 
@@ -3189,11 +3492,14 @@ class MyCustomSwiftAnimator: NSObject, NSViewControllerPresentationAnimator {
         topVC.view.layerContentsRedrawPolicy = .onSetNeedsDisplay
         topVC.view.alphaValue = 0
         bottomVC.view.addSubview(topVC.view)
+
         var frame: CGRect = NSRectToCGRect(bottomVC.view.frame)
         frame = frame.insetBy(dx: 40, dy: 40)
         topVC.view.frame = NSRectFromCGRect(frame)
+
         let color: CGColor = NSColor.gray.cgColor
         topVC.view.layer?.backgroundColor = color
+
         NSAnimationContext.runAnimationGroup({ (context) -> Void in
             context.duration = 0.5
             topVC.view.animator().alphaValue = 0.8

@@ -19,10 +19,6 @@ class SettingDataManager: NSObject {
     let synapseOSCPortKey: String = "synapse_osc_port"
     let userDefaults: UserDefaults = UserDefaults.standard
 
-    override init() {
-        super.init()
-    }
-
     func getSynapseSettingData(_ synapseId: String) -> [String: Any]? {
 
         var res: [String: Any]? = nil

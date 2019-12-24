@@ -31,6 +31,8 @@
 - (void)onBootloaderUploadCompleted;
 - (void)onTransferPercentage:(int)percentage;
 - (void)onSuccessfulFileTransferred:(NSString *)message;
+- (void)onDFUEnded;
+- (void)onDFUCancelFinish;
 - (void)onError:(NSString *)errorMessage;
 
 @end

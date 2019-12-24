@@ -405,14 +405,11 @@
 				87426A18211832CB00D9EDA3 /* AppDelegate.swift */,
 				87426A1A211832CB00D9EDA3 /* ViewController.swift */,
 				DD5333D922A65B0C0007532E /* DataViewController.swift */,
-				DD96C7DA23A0D5CA00312697 /* FirmwearUpdateViewController.swift */,
 				87591C1E212D3549004DE8AB /* LoadingView.swift */,
-				87280AF3212C11180030963A /* FirmwearView.swift */,
 				878F7C1A2122B1F3002C940B /* SynapseFileManager.swift */,
 				87F4968F211AE5FB008FC4FF /* SettingDataManager.swift */,
 				87591C16212D0F9C004DE8AB /* ApiManager.swift */,
 				87591C17212D0F9D004DE8AB /* ApiFirmware.swift */,
-				87591C18212D0F9D004DE8AB /* ApiPostdata.swift */,
 				87E6EF3D214132D7008AD17D /* CommonFunction.swift */,
 				DD587D5C233DAEE4008613EF /* DefaultColors.swift */,
 				87591C1C212D0FC1004DE8AB /* appinfo.plist */,
@@ -425,6 +422,7 @@
 				871C73E3213CDFE700DEA18F /* F53OSC */,
 				87F4962A211AA064008FC4FF /* RFduino */,
 				874F38D2212AB05000BD9F3B /* OTA Bootloader */,
+				DD0333DF23B0C75500006356 /* _unnecessary */,
 			);
 			path = synapseWearCentral;
 			sourceTree = "<group>";
@@ -562,6 +560,16 @@
 				87F49687211AA2FD008FC4FF /* IOBluetooth.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		DD0333DF23B0C75500006356 /* _unnecessary */ = {
+			isa = PBXGroup;
+			children = (
+				DD96C7DA23A0D5CA00312697 /* FirmwearUpdateViewController.swift */,
+				87280AF3212C11180030963A /* FirmwearView.swift */,
+				87591C18212D0F9D004DE8AB /* ApiPostdata.swift */,
+			);
+			path = _unnecessary;
 			sourceTree = "<group>";
 		};
 		DD589AFA22FA6FB700C1261A /* html */ = {

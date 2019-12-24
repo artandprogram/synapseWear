@@ -63,14 +63,14 @@ class SynapseFileManager: NSObject {
         if !exists || !isDir.boolValue {
             if exists && !isDir.boolValue {
                 do {
-                    try fileManager.removeItem(atPath: filePath.path)
+                    try self.fileManager.removeItem(atPath: filePath.path)
                 }
                 catch {
                     return false
                 }
             }
             do {
-                try fileManager.createDirectory(atPath: filePath.path, withIntermediateDirectories: true, attributes: nil)
+                try self.fileManager.createDirectory(atPath: filePath.path, withIntermediateDirectories: true, attributes: nil)
             }
             catch {
                 return false
@@ -81,7 +81,7 @@ class SynapseFileManager: NSObject {
         filePath = filePath.appendingPathComponent(filename)
         //print("setValues: \(date) \(filename)" )
         //print("setValues: \([UInt8](values))" )
-        let output = OutputStream(toFileAtPath: filePath.path, append: true)
+        let output: OutputStream? = OutputStream(toFileAtPath: filePath.path, append: true)
         output?.open()
         let _ = data.withUnsafeBytes { output?.write($0, maxLength: data.count) }
         output?.close()
@@ -114,14 +114,14 @@ class SynapseFileManager: NSObject {
         if !exists || !isDir.boolValue {
             if exists && !isDir.boolValue {
                 do {
-                    try fileManager.removeItem(atPath: filePath.path)
+                    try self.fileManager.removeItem(atPath: filePath.path)
                 }
                 catch {
                     return false
                 }
             }
             do {
-                try fileManager.createDirectory(atPath: filePath.path, withIntermediateDirectories: true, attributes: nil)
+                try self.fileManager.createDirectory(atPath: filePath.path, withIntermediateDirectories: true, attributes: nil)
             }
             catch {
                 return false
@@ -130,7 +130,7 @@ class SynapseFileManager: NSObject {
 
         let filename: String = "\(date.timeIntervalSince1970)"
         filePath = filePath.appendingPathComponent(filename)
-        let output = OutputStream(toFileAtPath: filePath.path, append: true)
+        let output: OutputStream? = OutputStream(toFileAtPath: filePath.path, append: true)
         output?.open()
         output?.write(bytes, maxLength: bytes.count)
         output?.close()

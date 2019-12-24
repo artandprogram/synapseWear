@@ -72,7 +72,6 @@ class DataViewController: NSViewController, NSTableViewDataSource, NSTableViewDe
             self.mainViewController?.closeSynapseDataWindow(uuid)
         }
         self.mainViewController = nil
-        //print("DataViewController viewWillDisappear")
     }
 
     override var representedObject: Any? {
@@ -97,7 +96,7 @@ class DataViewController: NSViewController, NSTableViewDataSource, NSTableViewDe
 
     @objc func resized() {
 
-        if let window = self.view.window/*NSApp.windows.last*/ {
+        if let window = self.view.window {
             let headerH: CGFloat = 21.0
             let spaceH: CGFloat = 20.0
             let tableBaseH: CGFloat = CGFloat(self.tableRows.count) * self.tableViewRowH
@@ -358,7 +357,7 @@ class DataViewController: NSViewController, NSTableViewDataSource, NSTableViewDe
                 }
             }
 
-            let cell = tableView.makeView(withIdentifier: tableColumn.identifier, owner: self) as! NSTableCellView
+            let cell: NSTableCellView = tableView.makeView(withIdentifier: tableColumn.identifier, owner: self) as! NSTableCellView
             cell.textField?.stringValue = str
             cell.textField?.textColor = color.withAlphaComponent(alpha)
             return cell

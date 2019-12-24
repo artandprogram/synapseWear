@@ -84,6 +84,13 @@ NSString *otaBootloaderServiceUUID = @"00001530-1212-efde-1523-785feabcd123";
     }
 }
 
+- (void)cancel
+{
+    if (self.isTransferring) {
+        [_dfuOperations cancelDFU];
+    }
+}
+
 - (void)startScan
 {
     NSLog(@"OTABootloaderViewController startScan");
@@ -113,13 +120,6 @@ NSString *otaBootloaderServiceUUID = @"00001530-1212-efde-1523-785feabcd123";
     [simbleeManager stopScan];
     simbleeManager.delegate = nil;
     simbleeManager = nil;
-}
-
-- (void)cancel
-{
-    if (self.isTransferring) {
-        [_dfuOperations cancelDFU];
-    }
 }
 
 #pragma mark - SimbleeManagerDelegate methods
@@ -246,6 +246,16 @@ NSString *otaBootloaderServiceUUID = @"00001530-1212-efde-1523-785feabcd123";
         if (!self.isTransfered && !self.isTransferCancelled && !self.isErrorKnown) {
             if ([self->_delegate respondsToSelector:@selector(onDeviceDisconnected)]) {
                 [self->_delegate onDeviceDisconnected];
+            }
+        }
+        else if (self.isTransfered && !self.isTransferCancelled && !self.isErrorKnown) {
+            if ([self->_delegate respondsToSelector:@selector(onDFUEnded)]) {
+                [self->_delegate onDFUEnded];
+            }
+        }
+        else if (!self.isTransfered && self.isTransferCancelled && !self.isErrorKnown) {
+            if ([self->_delegate respondsToSelector:@selector(onDFUCancelFinish)]) {
+                [self->_delegate onDFUCancelFinish];
             }
         }
         self.isTransferCancelled = NO;

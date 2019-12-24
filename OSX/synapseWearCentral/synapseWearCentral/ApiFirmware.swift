@@ -1,6 +1,6 @@
 //
 //  ApiFirmware.swift
-//  synapsewear
+//  synapseWearCentral
 //
 //  Copyright © 2018 art and program, Inc. For license and other information refer to https://github.com/artandprogram/synapseWear. All rights reserved.
 //

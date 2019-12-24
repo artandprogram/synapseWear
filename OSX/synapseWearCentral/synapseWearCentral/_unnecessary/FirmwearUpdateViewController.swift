@@ -57,6 +57,8 @@ class FirmwearUpdateViewController: NSViewController, OTABootloaderControllerDel
 
     func viewSetting() {
 
+        self.view.window?.title = "Firmwear Update"
+        
         self.label1.stringValue = "None"
         if let synapseObject = self.synapseObject, let synapse = synapseObject.synapse {
             self.label1.stringValue = synapse.peripheral.identifier.uuidString
@@ -218,12 +220,12 @@ class FirmwearUpdateViewController: NSViewController, OTABootloaderControllerDel
 
     func onConnectDevice() {
 
-        self.label3.stringValue = "Connecting..."
+        self.label3.stringValue = "Device Connecting..."
     }
 
     func onPerformDFUOnFile() {
 
-        self.label3.stringValue = "Starting..."
+        self.label3.stringValue = "DFU Starting..."
     }
 
     func onDeviceConnected() {
@@ -244,7 +246,7 @@ class FirmwearUpdateViewController: NSViewController, OTABootloaderControllerDel
 
     func onReadDFUVersion() {
 
-        self.label3.stringValue = "Read DFU Version"
+        self.label3.stringValue = "DFU Version Reading..."
     }
 
     func onDFUStarted(_ uploadStatusMessage: String!) {
@@ -261,20 +263,19 @@ class FirmwearUpdateViewController: NSViewController, OTABootloaderControllerDel
 
     func onDFUCancelled() {
 
-        self.label3.stringValue = "Update Firmwear Cancelled"
+        self.label3.stringValue = "DFU Cancelled"
         self.cancelButton.isHidden = true
         self.closeButton.isHidden = false
     }
 
     func onBootloaderUploadStarted() {
 
-        self.label3.stringValue = "Uploading Bootloader..."
+        self.label3.stringValue = "Bootloader Uploading..."
     }
 
     func onTransferPercentage(_ percentage: Int32) {
 
-        self.label3.stringValue = "File Transferring..."
-        //self.label3.stringValue = "File Transferring \(Int(percentage)) %"
+        self.label3.stringValue = "File Transferring : \(Int(percentage)) %"
         self.fileTransferringProgress.doubleValue = Double(percentage)
     }
 
@@ -288,9 +289,9 @@ class FirmwearUpdateViewController: NSViewController, OTABootloaderControllerDel
 
     func onError(_ errorMessage: String!) {
 
-        self.label3.stringValue = "Update Firmwear Error"
+        self.label3.stringValue = "DFU Error"
         if let message = errorMessage {
-            self.label3.stringValue = "\(self.label3.stringValue): \(message)"
+            self.label3.stringValue = "\(self.label3.stringValue) : \(message)"
         }
         self.cancelButton.isHidden = true
         self.closeButton.isHidden = false

@@ -1,6 +1,6 @@
 //
 //  ApiManager.swift
-//  synapsewear
+//  synapseWearCentral
 //
 //  Copyright © 2017 art and program, Inc. For license and other information refer to https://github.com/artandprogram/synapseWear. All rights reserved.
 //
@@ -10,15 +10,11 @@ import SwiftyJSON
 
 class ApiManager {
 
-    public var host: String = ""
-    public var url: String = ""
+    var host: String = ""
+    var url: String = ""
 
-    init() {
+    func request(_ url: String, method: HTTPMethod, parameters: Parameters, success: @escaping (_ json: JSON?) -> Void, fail: @escaping (_ error: Error?) -> Void) {
 
-        self.host = "https://purple.artandprogram.com"
-    }
-
-    public func request(_ url: String, method: HTTPMethod, parameters: Parameters, success: @escaping (_ json: JSON?) -> Void, fail: @escaping (_ error: Error?) -> Void) {
         Alamofire.request(url, method: method, parameters: parameters).responseJSON { response in
             if response.result.isSuccess {
                 if let object = response.result.value {
