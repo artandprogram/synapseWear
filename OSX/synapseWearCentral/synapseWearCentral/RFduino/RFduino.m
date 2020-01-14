@@ -118,6 +118,9 @@ static void incrementUuid16(CBUUID *uuid, unsigned char amount)
 didDiscoverServices:(NSError *)error
 {
     //NSLog(@"RFduino didDiscoverServices");
+    if (error) {
+        NSLog(@"RFduino didDiscoverServices Error: %@", error.localizedDescription);
+    }
 
     for (CBService *service in peripheral.services) {
         NSLog(@"RFduino didDiscoverServices: %@", service.UUID);
@@ -137,7 +140,11 @@ didDiscoverServices:(NSError *)error
 didDiscoverCharacteristicsForService:(CBService *)service
              error:(NSError *)error
 {
-    //NSLog(@"RFduino didDiscoverCharacteristicsForService");
+    NSLog(@"RFduino didDiscoverCharacteristicsForService");
+    if (error) {
+        NSLog(@"RFduino didDiscoverCharacteristicsForService Error: %@", error.localizedDescription);
+    }
+
     for (CBService *service in peripheral.services) {
         //NSLog(@"service.UUID: %@", service.UUID);
         if ([service.UUID isEqual:service_uuid]) {
@@ -164,7 +171,10 @@ didDiscoverCharacteristicsForService:(CBService *)service
 didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic
              error:(NSError *)error
 {
-    //NSLog(@"RFduino didUpdateValueForCharacteristic");
+    //NSLog(@"RFduino didUpdateValueForCharacteristic: %@", aPeripheral.identifier.UUIDString);
+    if (error) {
+        NSLog(@"RFduino didUpdateValueForCharacteristic Error: %@", error.localizedDescription);
+    }
     /*NSLog(@"RFduino didUpdateValueForCharacteristic: %d", (int)aPeripheral.services.count);
     for (CBService *service in aPeripheral.services) {
         NSLog(@"service.UUID: %@", service.UUID);
@@ -178,6 +188,10 @@ didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic
                advertisementRSSI:self.advertisementRSSI];
         }
     }
+
+    aPeripheral = nil;
+    characteristic = nil;
+    error = nil;
 }
 
 #pragma mark - RFduino methods

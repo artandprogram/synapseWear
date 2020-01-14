@@ -459,16 +459,22 @@ class DataViewController: NSViewController, NSTableViewDataSource, NSTableViewDe
 
         var res: Bool = true
         do {
-            let colorsData: Data = try JSONSerialization.data(withJSONObject: self.synapseGraphColors, options: [])
-            self.graphColor = String(data: colorsData, encoding: .utf8)
-            let labelsData: Data = try JSONSerialization.data(withJSONObject: self.synapseGraphLabels, options: [])
-            self.graphLabels = String(data: labelsData, encoding: .utf8)
-            let valuesData: Data = try JSONSerialization.data(withJSONObject: self.synapseGraphValues, options: [])
-            self.graphValues = String(data: valuesData, encoding: .utf8)
-            let scalesData: Data = try JSONSerialization.data(withJSONObject: self.synapseGraphScales, options: [])
-            self.graphScales = String(data: scalesData, encoding: .utf8)
-            let hiddensData: Data = try JSONSerialization.data(withJSONObject: self.makeGraphHidddens(), options: [])
-            self.graphHiddens = String(data: hiddensData, encoding: .utf8)
+            var colorsData: Data? = try JSONSerialization.data(withJSONObject: self.synapseGraphColors, options: [])
+            self.graphColor = String(data: colorsData!, encoding: .utf8)
+            var labelsData: Data? = try JSONSerialization.data(withJSONObject: self.synapseGraphLabels, options: [])
+            self.graphLabels = String(data: labelsData!, encoding: .utf8)
+            var valuesData: Data? = try JSONSerialization.data(withJSONObject: self.synapseGraphValues, options: [])
+            self.graphValues = String(data: valuesData!, encoding: .utf8)
+            var scalesData: Data? = try JSONSerialization.data(withJSONObject: self.synapseGraphScales, options: [])
+            self.graphScales = String(data: scalesData!, encoding: .utf8)
+            var hiddensData: Data? = try JSONSerialization.data(withJSONObject: self.makeGraphHidddens(), options: [])
+            self.graphHiddens = String(data: hiddensData!, encoding: .utf8)
+
+            colorsData = nil
+            labelsData = nil
+            valuesData = nil
+            scalesData = nil
+            hiddensData = nil
         }
         catch {
             print("JSON Encode Error: \(error.localizedDescription)")
@@ -506,14 +512,15 @@ class DataViewController: NSViewController, NSTableViewDataSource, NSTableViewDe
 
         if let labels = self.graphLabels, let values = self.graphValues, let color = self.graphColor, let scales = self.graphScales, let hiddens = self.graphHiddens {
             let type: String = "line"
-            let execJsFunc: String = "graph(\"\(type)\", \(labels), \(values), \(hiddens), \(color), \(scales));"
+            var execJsFunc: String? = "graph(\"\(type)\", \(labels), \(values), \(hiddens), \(color), \(scales));"
             //print("execJsFunc: \(execJsFunc)")
-            self.webView.evaluateJavaScript(execJsFunc, completionHandler: { (object, error) -> Void in
+            self.webView.evaluateJavaScript(execJsFunc!, completionHandler: { (object, error) -> Void in
                 if let error = error {
                     print("JS Error: \(error.localizedDescription)")
                 }
                 self.synapseGraphFirstFlag = true
             })
+            execJsFunc = nil
         }
     }
 
@@ -524,13 +531,14 @@ class DataViewController: NSViewController, NSTableViewDataSource, NSTableViewDe
         }
 
         if self.makeGraphParameter(), let labels = self.graphLabels, let values = self.graphValues, let scales = self.graphScales {
-            let execJsFunc: String = "updateGraph(\(labels), \(values), \(scales));"
+            var execJsFunc: String? = "updateGraph(\(labels), \(values), \(scales));"
             //print("execJsFunc: \(execJsFunc)")
-            self.webView.evaluateJavaScript(execJsFunc, completionHandler: { (object, error) -> Void in
+            self.webView.evaluateJavaScript(execJsFunc!, completionHandler: { (object, error) -> Void in
                 if let error = error {
                     print("JS Error: \(error.localizedDescription)")
                 }
             })
+            execJsFunc = nil
         }
     }
 
@@ -541,13 +549,14 @@ class DataViewController: NSViewController, NSTableViewDataSource, NSTableViewDe
         }
 
         if self.makeGraphParameter(), let hiddens = self.graphHiddens {
-            let execJsFunc: String = "setGraphHiddens(\(hiddens));"
+            var execJsFunc: String? = "setGraphHiddens(\(hiddens));"
             //print("execJsFunc: \(execJsFunc)")
-            self.webView.evaluateJavaScript(execJsFunc, completionHandler: { (object, error) -> Void in
+            self.webView.evaluateJavaScript(execJsFunc!, completionHandler: { (object, error) -> Void in
                 if let error = error {
                     print("JS Error: \(error.localizedDescription)")
                 }
             })
+            execJsFunc = nil
         }
     }
 }

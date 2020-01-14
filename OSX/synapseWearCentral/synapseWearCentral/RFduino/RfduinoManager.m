@@ -161,13 +161,10 @@ static CBUUID *service_uuid;
 - (void)startScan
 {
     NSLog(@"startScan");
-
     isScanning = true;
 
     NSDictionary *options = nil;
-
     didUpdateDiscoveredRFduinoFlag = [delegate respondsToSelector:@selector(didUpdateDiscoveredRFduino:)];
-
     if (didUpdateDiscoveredRFduinoFlag) {
         options = [NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES]
                                               forKey:CBCentralManagerScanOptionAllowDuplicatesKey];
@@ -213,7 +210,7 @@ static CBUUID *service_uuid;
     [rangeTimer invalidate];
 }
 
-- (void) rangeTick:(NSTimer*)timer
+- (void) rangeTick:(NSTimer *)timer
 {
     bool update = false;
 
@@ -223,9 +220,8 @@ static CBUUID *service_uuid;
 
         [central stopScan];
 
-        NSDictionary *options = nil;
-        options = [NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES]
-                                              forKey:CBCentralManagerScanOptionAllowDuplicatesKey];
+        NSDictionary *options = [NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES]
+                                                            forKey:CBCentralManagerScanOptionAllowDuplicatesKey];
         [central scanForPeripheralsWithServices:services
                                         options:options];
     }
@@ -240,6 +236,7 @@ static CBUUID *service_uuid;
             update = true;
         }
     }
+    date = nil;
 
     if (update) {
         if (didUpdateDiscoveredRFduinoFlag) {
@@ -250,8 +247,7 @@ static CBUUID *service_uuid;
 
 - (RFduino *)rfduinoForPeripheral:(CBPeripheral *)peripheral
 {
-    //NSLog(@"rfduinoForPeripheral");
-
+    NSLog(@"rfduinoForPeripheral: %@", peripheral.identifier.UUIDString);
     for (RFduino *rfduino in rfduinos) {
         if ([peripheral isEqual:rfduino.peripheral]) {
             return rfduino;
@@ -338,7 +334,7 @@ didDisconnectPeripheral:(CBPeripheral *)peripheral
      advertisementData:(NSDictionary *)advertisementData
                   RSSI:(NSNumber *)RSSI
 {
-    //NSLog(@"connectSynapse didDiscoverPeripheral: %@", peripheral);
+    NSLog(@"connectSynapse didDiscoverPeripheral: %@", peripheral.identifier.UUIDString);
     //NSLog(@"didDiscoverPeripheral.services: %@", peripheral.services);
     //NSLog(@"didDiscoverPeripheral.name: %@", peripheral.name);
     //NSLog(@"advertisementData: %@", advertisementData);
@@ -348,20 +344,15 @@ didDisconnectPeripheral:(CBPeripheral *)peripheral
     RFduino *rfduino = [self rfduinoForPeripheral:peripheral];
     if (!rfduino) {
         rfduino = [[RFduino alloc] init];
-        
         rfduino.rfduinoManager = self;
-
         rfduino.name = peripheral.name;
-        
         rfduino.peripheral = peripheral;
-        
+
         added = true;
-        
         [rfduinos addObject:rfduino];
     }
-    
     rfduino.advertisementData = nil;
-    
+
     id manufacturerData = [advertisementData objectForKey:CBAdvertisementDataManufacturerDataKey];
     if (manufacturerData) {
         const uint8_t *bytes = [manufacturerData bytes];
@@ -372,7 +363,7 @@ didDisconnectPeripheral:(CBPeripheral *)peripheral
         rfduino.advertisementData = data;
         //NSLog(@"manufacturerData: %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
     }
-    
+
     rfduino.advertisementRSSI = RSSI;
     rfduino.advertisementPackets++;
     rfduino.lastAdvertisement = [NSDate date];

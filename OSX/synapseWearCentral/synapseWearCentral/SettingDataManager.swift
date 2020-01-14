@@ -12,6 +12,7 @@ class SettingDataManager: NSObject {
     //let settingDataKey: String = "setting"
     let settingSynapsesKey: String = "setting_synapses"
     //let synapseAccessKeyKey: String = "synapse_access_key"
+    let synapseDirectoryEnableKey: String = "synapse_directory_enable"
     let synapseDirectoryKey: String = "synapse_directory"
     let synapseTimeIntervalKey: String = "synapse_time_interval"
     let synapseValidSensorsKey: String = "synapse_valid_sensors"

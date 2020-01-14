@@ -95,6 +95,7 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
     @IBOutlet var resetButton: NSButton!
     @IBOutlet var directoryLabel: NSTextField!
     @IBOutlet var directoryButton: NSButton!
+    @IBOutlet var directoryEnableButton: NSButton!
     @IBOutlet var firmwareLabel: NSTextField!
     @IBOutlet var firmwareComboBox: NSComboBox!
     @IBOutlet var firmwareUpdateButton: NSButton!
@@ -137,7 +138,8 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
     var firmwares: [[String: Any]] = []
     var firmwareSelectIndex: Int = -1
     var firmwareUpdateLocked: Bool = false
-    var checkScanningTimer: Timer?
+    //var checkScanningTimer: Timer?
+    var synapseSaveTimeInterval: TimeInterval = 1.0
     var windowControllers: [String: NSWindowController] = [:]
     //var firmwearUpdateViewController: FirmwearUpdateViewController?
 
@@ -195,6 +197,7 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         self.timeIntervalComboBox.delegate = self
 
         self.sendButton.action = #selector(sendButtonAction)
+        self.directoryEnableButton.action = #selector(directoryEnableButtonAction)
         self.oscSendButton.action = #selector(oscSendButtonAction)
 
         self.setDetailAreaLabels()
@@ -246,6 +249,12 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         w = self.directoryButton.frame.size.width
         h = self.directoryButton.frame.size.height
         self.directoryButton.frame = NSRect(x: x, y: y, width: w, height: h)
+
+        x = self.directoryButton.frame.origin.x + self.directoryButton.frame.size.width - 7.0
+        y = self.directoryEnableButton.frame.origin.y
+        w = self.directoryEnableButton.frame.size.width
+        h = self.directoryEnableButton.frame.size.height
+        self.directoryEnableButton.frame = NSRect(x: x, y: y, width: w, height: h)
     }
 
     func setSizeFirmwareViews() {
@@ -409,14 +418,19 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
             }
             else if tableView.clickedColumn == 1 {
                 if self.synapses[tableView.clickedRow].synapseValues.isConnected {
+                    self.saveSynapseData(synapseObject: self.synapses[tableView.clickedRow])
+
                     self.synapses[tableView.clickedRow].synapseScanLatestDate = Date()
                     self.synapses[tableView.clickedRow].synapseValues.isDisconnected = true
                     synapse.disconnect()
+
+                    self.countConnectedSynapse()
                 }
                 else {
-                    if let date = self.synapses[tableView.clickedRow].synapseScanLatestDate, date.timeIntervalSinceNow < -self.synapseScanLimitTimeInterval {
+                    /*if let date = self.synapses[tableView.clickedRow].synapseScanLatestDate, date.timeIntervalSinceNow < -self.synapseScanLimitTimeInterval {
+                        print("onItemDoubleClicked not connect: \(date.timeIntervalSinceNow)")
                         return
-                    }
+                    }*/
 
                     self.rfduinoManager.connect(synapse)
 
@@ -426,9 +440,6 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
                     self.synapses[tableView.clickedRow].synapseDataSaveDirChecked = true
                 }
             }
-            /*else if tableView.clickedColumn == 3 {
-                self.setSynapseDataSaveDir(tableView.clickedRow)
-            }*/
         }
     }
 
@@ -442,6 +453,20 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
     @objc private func directoryButtonAction() {
 
         self.setSynapseDataSaveDir(tableView.selectedRow)
+    }
+    
+    @objc private func directoryEnableButtonAction() {
+
+        if self.tableView.selectedRow >= 0 && self.tableView.selectedRow < self.synapses.count {
+            if self.synapses[self.tableView.selectedRow].synapseDataSaveEnable {
+                self.saveSynapseData(synapseObject: self.synapses[self.tableView.selectedRow])
+            }
+
+            self.synapses[self.tableView.selectedRow].synapseDataSaveEnable = !self.synapses[self.tableView.selectedRow].synapseDataSaveEnable
+            self.synapses[tableView.selectedRow].saveSynapseSettingData(isSaveDir: true, isSaveSendData: false, isSaveOSCData: false)
+
+            self.setDataSaveEnableButton()
+        }
     }
 
     @objc private func firmwareUpdateButtonAction() {
@@ -517,7 +542,7 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
 
     @objc private func oscSendButtonAction() {
         
-        self.oscSendButton.title = "Send Off"
+        self.oscSendButton.title = "Off"
         self.oscIPAddressTextField.isEnabled = false
         //self.oscIPAddressTextField.isEditable = false
         self.oscIPAddressTextField.stringValue = ""
@@ -530,7 +555,7 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
             }
 
             if self.oscSendButton.state == .on {
-                self.oscSendButton.title = "Send On"
+                self.oscSendButton.title = "On"
                 //self.oscIPAddressTextField.currentEditor()?.selectedRange = NSMakeRange(0, 0)
 
                 if self.tableView.selectedRow >= 0 && self.tableView.selectedRow < self.synapses.count {
@@ -618,6 +643,7 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         //self.setDataCountLabel()
         //self.setValueLabel()
         self.setDetailAreaSettings()
+        self.setDataSaveEnableButton()
         self.setFirmwareSettingArea()
         self.setOSCSettingArea()
     }
@@ -768,6 +794,21 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
                 self.angleCheckButton.isEnabled = true
                 self.ledCheckButton.isEnabled = true
                 self.sendButton.isEnabled = true
+            }
+        }
+    }
+
+    func setDataSaveEnableButton() {
+
+        self.directoryEnableButton.isEnabled = false
+        if tableView.selectedRow >= 0 && tableView.selectedRow < self.synapses.count {
+            self.directoryEnableButton.isEnabled = true
+
+            self.directoryEnableButton.title = "Off"
+            self.directoryEnableButton.state = .off
+            if self.synapses[tableView.selectedRow].synapseDataSaveEnable {
+                self.directoryEnableButton.title = "On"
+                self.directoryEnableButton.state = .on
             }
         }
     }
@@ -1213,21 +1254,21 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         self.rfduinoManager = RFduinoManager()
         self.rfduinoManager.delegate = self
 
-        self.checkScanningTimer = Timer.scheduledTimer(timeInterval: 1.0,
+        /*self.checkScanningTimer = Timer.scheduledTimer(timeInterval: 1.0,
                                                        target: self,
                                                        selector: #selector(self.checkScanning),
                                                        userInfo: nil,
                                                        repeats: true)
-        self.checkScanningTimer?.fire()
+        self.checkScanningTimer?.fire()*/
     }
 
-    @objc func checkScanning() {
+    /*@objc func checkScanning() {
 
         for i in 0..<self.synapses.count {
             self.tableView.reloadData(forRowIndexes: IndexSet(integer: i),
                                       columnIndexes: IndexSet(integersIn: SynapseValueTableColumn.connect.rawValue..<SynapseValueTableColumn.total.rawValue))
         }
-    }
+    }*/
 
     func setRFduinos() {
 
@@ -1262,6 +1303,7 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
                 synapseObject.synapse = rfduino
                 synapseObject.synapse?.delegate = self
                 synapseObject.synapseScanLatestDate = Date()
+                synapseObject.resetSynapseSaveValues()
                 self.synapses[synapseIndex] = synapseObject
             }
             else {
@@ -1294,11 +1336,11 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
     func setSynapseData(synapseObject: SynapseObject) {
 
         if let synapse = synapseObject.synapse {
-            let now: Date = Date()
-            let data: [UInt8] = synapseObject.receiveData
+            var now: Date? = Date()
+            var data: [UInt8]? = synapseObject.receiveData
             synapseObject.synapseData.insert([
-                "time": now.timeIntervalSince1970,
-                "data": data,
+                "time": now!.timeIntervalSince1970,
+                "data": data!,
                 "uuid": synapse.peripheral.identifier.uuidString
             ], at: 0)
             if synapseObject.synapseData.count > self.synapseDataMax {
@@ -1308,29 +1350,92 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
             synapseObject.setSynapseValues()
             synapseObject.synapseReceivedCount += 1
 
+            now = nil
+            data = nil
+
             //self.setDataCountLabel()
 
-            if let baseURL = synapseObject.synapseDataSaveDir, let connectedDate = synapseObject.synapseValues.connectedDate {
-                /*
-                DispatchQueue.global(qos: .background).async {
-                    _ = self.synapseFileManager.setValues(baseURL: baseURL, uuid: synapse.peripheral.identifier.uuidString, bytes: data, date: connectedDate)
-                }*/
+            self.saveCheckSynapseData(synapseObject: synapseObject)
+        }
+    }
 
-                //print("setSynapseData: \(synapseObject.synapseValues.makeSynapseFileRecord())")
-                let data: Data? = synapseObject.synapseValues.makeSynapseFileRecord().data(using: .utf8)
-                if let data = data {
-                    DispatchQueue.global(qos: .background).async {
-                        _ = self.synapseFileManager.setValues(baseURL: baseURL,
-                                                              uuid: synapse.peripheral.identifier.uuidString,
-                                                              data: data,
-                                                              date: connectedDate)
+    func saveCheckSynapseData(synapseObject: SynapseObject) {
+
+        if synapseObject.synapseDataSaveEnable, synapseObject.synapseDataSaveDir != nil {
+            if let time = synapseObject.synapseValues.time {
+                let fileRecord: String = synapseObject.synapseValues.makeSynapseFileRecord()
+                if synapseObject.synapseDataSaveRunning {
+                    if let synapseDataSaveValueAlt = synapseObject.synapseDataSaveValueAlt {
+                        synapseObject.synapseDataSaveValueAlt = "\(synapseDataSaveValueAlt)\(fileRecord)"
+                    }
+                    else {
+                        synapseObject.synapseDataSaveValueAlt = fileRecord
+                        synapseObject.synapseDataSaveDateAlt = time
                     }
                 }
+                else {
+                    if let synapseDataSaveValue = synapseObject.synapseDataSaveValue {
+                        synapseObject.synapseDataSaveValue = "\(synapseDataSaveValue)\(fileRecord)"
+                    }
+                    else {
+                        synapseObject.synapseDataSaveValue = fileRecord
+                        synapseObject.synapseDataSaveDate = time
+                    }
+                }
+
+                var flag: Bool = false
+                if !synapseObject.synapseDataSaveRunning {
+                    if synapseObject.synapseTimeInterval >= self.synapseSaveTimeInterval {
+                        flag = true
+                    }
+                    else if let synapseDataSaveDate = synapseObject.synapseDataSaveDate, Date().timeIntervalSince1970 - synapseDataSaveDate >= self.synapseSaveTimeInterval {
+                        flag = true
+                    }
+                }
+                if flag {
+                    self.saveSynapseData(synapseObject: synapseObject)
+                }
             }
+            /*let data: Data? = synapseObject.synapseValues.makeSynapseFileRecord().data(using: .utf8)
+            if let data = data {
+                DispatchQueue.global(qos: .background).async {
+                    _ = self.synapseFileManager.setValues(baseURL: baseURL,
+                                                          uuid: synapse.peripheral.identifier.uuidString,
+                                                          data: data,
+                                                          date: connectedDate)
+                }
+            }*/
+        }
+    }
+
+    func saveSynapseData(synapseObject: SynapseObject) {
+
+        if synapseObject.synapseDataSaveEnable, let baseURL = synapseObject.synapseDataSaveDir, let connectedDate = synapseObject.synapseValues.connectedDate, let synapse = synapseObject.synapse {
+            synapseObject.synapseDataSaveRunning = true
+
+            if let synapseDataSaveValue = synapseObject.synapseDataSaveValue {
+                DispatchQueue.global(qos: .background).async {
+                    var data: Data? = synapseDataSaveValue.data(using: .utf8)
+                    if data != nil {
+                        _ = self.synapseFileManager.setValues(baseURL: baseURL,
+                                                              uuid: synapse.peripheral.identifier.uuidString,
+                                                              data: data!,
+                                                              date: connectedDate)
+                    }
+                    data = nil
+                }
+            }
+
+            synapseObject.synapseDataSaveValue = synapseObject.synapseDataSaveValueAlt
+            synapseObject.synapseDataSaveDate = synapseObject.synapseDataSaveDateAlt
+            synapseObject.synapseDataSaveValueAlt = nil
+            synapseObject.synapseDataSaveDateAlt = nil
+            synapseObject.synapseDataSaveRunning = false
         }
     }
 
     func connectSynapseObjectAction(_ uuid: UUID) {
+
         for synapseObject in self.synapses {
             if let synapse = synapseObject.synapse, synapse.peripheral.identifier == uuid {
                 synapseObject.initFirmwareUpdateValue()
@@ -1348,6 +1453,8 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
 
         for (index, synapseObject) in self.synapses.enumerated() {
             if let synapse = synapseObject.synapse, synapse.peripheral.identifier == uuid {
+                self.saveSynapseData(synapseObject: synapseObject)
+
                 synapseObject.disconnectSynapse()
 
                 self.tableView.reloadData(forRowIndexes: IndexSet(integer: index),
@@ -1360,6 +1467,23 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
 
                 break
             }
+        }
+
+        self.countConnectedSynapse()
+    }
+
+    func countConnectedSynapse() {
+
+        var count: Int = 0
+        for synapseObject in self.synapses {
+            if synapseObject.synapseValues.isConnected {
+                count += 1
+            }
+        }
+
+        self.synapseSaveTimeInterval = 10.0
+        if count > 1 {
+            self.synapseSaveTimeInterval = self.synapseSaveTimeInterval * Double(count)
         }
     }
 
@@ -1460,25 +1584,25 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
     func setReceiveData(_ synapseObject: SynapseObject, data: Data, index: Int = -1) {
 
         let minLength: Int = 6
-        let bytes: [UInt8] = [UInt8](data)
+        var bytes: [UInt8]? = [UInt8](data)
         var restBytes: [UInt8]? = nil
         var cnt: Int = 0
         if synapseObject.receiveData.count > 2 {
             cnt = Int(synapseObject.receiveData[2])
         }
-        else if bytes.count > 2 && Int(bytes[0]) == 0 && Int(bytes[1]) == 255 {
-            cnt = Int(bytes[2])
+        else if bytes!.count > 2 && Int(bytes![0]) == 0 && Int(bytes![1]) == 255 {
+            cnt = Int(bytes![2])
         }
         if cnt >= minLength {
-            for i in 0..<bytes.count {
+            for i in 0..<bytes!.count {
                 if synapseObject.receiveData.count < cnt {
-                    synapseObject.receiveData.append(bytes[i])
+                    synapseObject.receiveData.append(bytes![i])
                 }
                 else {
                     if restBytes == nil {
                         restBytes = []
                     }
-                    restBytes?.append(bytes[i])
+                    restBytes?.append(bytes![i])
                 }
             }
         }
@@ -1505,6 +1629,7 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
                 synapseObject.receiveData = bytes
             }
         }
+        bytes = nil
         restBytes = nil
         //print("receiveData: \(self.receiveData)")
     }
@@ -1542,6 +1667,8 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
                 synapseObject.synapseSendMode = SendMode.I0
 
                 synapseObject.initSynapseGraphData()
+
+                self.countConnectedSynapse()
 
                 if index >= 0 {
                     self.tableView.reloadData(forRowIndexes: IndexSet(integer: index),
@@ -1975,9 +2102,15 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
     var synapseData: [[String: Any]]!
     var synapseValues: SynapseValues!
     var synapseNowDate: String!
+    var synapseDataSaveEnable: Bool = false
     var synapseDataSaveDir: URL?
     var synapseDataSaveDirDefault: URL?
     var synapseDataSaveDirChecked: Bool = false
+    var synapseDataSaveRunning: Bool = false
+    var synapseDataSaveValue: String?
+    var synapseDataSaveDate: TimeInterval?
+    var synapseDataSaveValueAlt: String?
+    var synapseDataSaveDateAlt: TimeInterval?
     var synapseTimeInterval: TimeInterval = 1.0
     var synapseValidSensors: [String: Bool] = [:]
     var synapseScanLatestDate: Date?
@@ -2019,6 +2152,9 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
 
         if let setting = self.settingDataManager.getSynapseSettingData(synapse.peripheral.identifier.uuidString) {
             //print("setting: \(setting)")
+            if let synapseDataSaveEnable = setting[self.settingDataManager.synapseDirectoryEnableKey] as? Bool {
+                self.synapseDataSaveEnable = synapseDataSaveEnable
+            }
             if let synapseDataSaveDir = setting[self.settingDataManager.synapseDirectoryKey] as? String {
                 self.synapseDataSaveDirDefault = URL(fileURLWithPath: synapseDataSaveDir)
             }
@@ -2047,6 +2183,15 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
         self.setOffOSC()
     }
 
+    func resetSynapseSaveValues() {
+
+        self.synapseDataSaveRunning = false
+        self.synapseDataSaveValue = nil
+        self.synapseDataSaveDate = nil
+        self.synapseDataSaveValueAlt = nil
+        self.synapseDataSaveDateAlt = nil
+    }
+
     // MARK: mark - Synapse Setting methods
 
     func saveSynapseSettingData(isSaveDir: Bool, isSaveSendData: Bool, isSaveOSCData: Bool) {
@@ -2057,6 +2202,7 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
                 settingData = setting
             }
             if isSaveDir {
+                settingData[self.settingDataManager.synapseDirectoryEnableKey] = self.synapseDataSaveEnable
                 if let synapseDataSaveDir = self.synapseDataSaveDir {
                     //print("settingData: \(synapseDataSaveDir)")
                     settingData[self.settingDataManager.synapseDirectoryKey] = synapseDataSaveDir.path
@@ -2080,9 +2226,9 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
     func setSynapseValues() {
 
         if self.synapseData.count > 0 {
-            let synapse = self.synapseData[0]
+            var synapse: [String: Any]? = self.synapseData[0]
             //print("setSynapseValues: \(synapse)")
-            if let time = synapse["time"] as? TimeInterval, let data = synapse["data"] as? [UInt8], let uuid = synapse["uuid"] as? String {
+            if let time = synapse!["time"] as? TimeInterval, let data = synapse!["data"] as? [UInt8], let uuid = synapse!["uuid"] as? String {
                 let formatter: DateFormatter = DateFormatter()
                 formatter.locale = Locale(identifier: "en_US_POSIX")
                 formatter.dateFormat = "yyyyMMddHHmmss"
@@ -2112,61 +2258,68 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
                 self.synapseValues.tvoc = nil
                 self.synapseValues.power = nil
                 self.synapseValues.battery = nil
-                let values: [String: Any] = self.makeSynapseData(data)
+                var values: [String: Any]? = self.makeSynapseData(data)
                 //print("setSynapseValues: \(self.synapseNowDate)\n\(values)")
-                if let co2 = values["co2"] as? Int, co2 >= 400 {
+                if let co2 = values!["co2"] as? Int, co2 >= 400 {
                     self.synapseValues.co2 = co2
                 }
-                if let ax = values["ax"] as? Int {
+                if let ax = values!["ax"] as? Int {
                     self.synapseValues.ax = ax
                 }
-                if let ay = values["ay"] as? Int {
+                if let ay = values!["ay"] as? Int {
                     self.synapseValues.ay = ay
                 }
-                if let az = values["az"] as? Int {
+                if let az = values!["az"] as? Int {
                     self.synapseValues.az = az
                 }
-                if let light = values["light"] as? Int {
+                if let light = values!["light"] as? Int {
                     self.synapseValues.light = light
                 }
-                if let gx = values["gx"] as? Int {
+                if let gx = values!["gx"] as? Int {
                     self.synapseValues.gx = gx
                 }
-                if let gy = values["gy"] as? Int {
+                if let gy = values!["gy"] as? Int {
                     self.synapseValues.gy = gy
                 }
-                if let gz = values["gz"] as? Int {
+                if let gz = values!["gz"] as? Int {
                     self.synapseValues.gz = gz
                 }
-                if let pressure = values["pressure"] as? Float {
+                if let pressure = values!["pressure"] as? Float {
                     self.synapseValues.pressure = pressure
                 }
-                if let temp = values["temp"] as? Float {
+                if let temp = values!["temp"] as? Float {
                     self.synapseValues.temp = temp
                 }
-                if let humidity = values["humidity"] as? Int {
+                if let humidity = values!["humidity"] as? Int {
                     self.synapseValues.humidity = humidity
                 }
-                if let sound = values["sound"] as? Int {
+                if let sound = values!["sound"] as? Int {
                     self.synapseValues.sound = sound
                 }
-                if let tvoc = values["tvoc"] as? Int {
+                if let tvoc = values!["tvoc"] as? Int {
                     self.synapseValues.tvoc = tvoc
                 }
-                if let volt = values["volt"] as? Float {
+                if let volt = values!["volt"] as? Float {
                     self.synapseValues.power = volt
                 }
-                if let pow = values["pow"] as? Float {
+                if let pow = values!["pow"] as? Float {
                     self.synapseValues.battery = pow
                 }
+                values = nil
 
                 self.setSynapseGraphData()
 
                 self.sendOSC()
                 if self.synapseTimeInterval <= 1.0 {
-                    self.checkAccelerateSound(x: self.synapseValues.ax, y: self.synapseValues.ay, z: self.synapseValues.az, xBak: axBak, yBak: ayBak, zBak: azBak)
+                    self.checkAccelerateSound(x: self.synapseValues.ax,
+                                              y: self.synapseValues.ay,
+                                              z: self.synapseValues.az,
+                                              xBak: axBak,
+                                              yBak: ayBak,
+                                              zBak: azBak)
                 }
             }
+            synapse = nil
         }
     }
 
@@ -2526,28 +2679,30 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
     func setSynapseGraphTimes() {
 
         if let synapseValues = self.synapseValues, let connectedDate = synapseValues.connectedDate {
-            let graphCount: TimeInterval = self.synapseGraphDataLimit * self.synapseTimeInterval
-            let now: Date = Date()
+            var graphCount: TimeInterval? = self.synapseGraphDataLimit * self.synapseTimeInterval
+            var now: Date? = Date()
             //let now: Date = Date(timeIntervalSince1970: floor(Date().timeIntervalSince1970))
-            var start: Date = connectedDate
+            var start: Date? = connectedDate
             //var start: Date = Date(timeIntervalSince1970: floor(connectedDate.timeIntervalSince1970))
-            if now.timeIntervalSince(start) > graphCount {
-                start = Date(timeInterval: -graphCount, since: now)
+            if now!.timeIntervalSince(start!) > graphCount! {
+                start = Date(timeInterval: -graphCount!, since: now!)
             }
-            let end: Date = Date(timeInterval: graphCount, since: start)
+            now = nil
+            var end: Date? = Date(timeInterval: graphCount!, since: start!)
+
             if self.synapseGraphTimes.count > 0 {
-                if self.synapseGraphTimes[self.synapseGraphTimes.count - 1] <= start.timeIntervalSince1970 {
+                if self.synapseGraphTimes[self.synapseGraphTimes.count - 1] <= start!.timeIntervalSince1970 {
                     self.resetSynapseGraphData()
                 }
                 else {
-                    let count: Int = self.synapseGraphTimes.count
-                    for _ in 0..<count {
+                    var count: Int? = self.synapseGraphTimes.count
+                    for _ in 0..<count! {
                         if self.synapseGraphTimes.count <= 0 {
                             break
                         }
 
                         let time: TimeInterval = self.synapseGraphTimes[0]
-                        if time < start.timeIntervalSince1970 {
+                        if time < start!.timeIntervalSince1970 {
                             //print("remove label: \(self.makeSynapseGraphLabel(time, connectedDate: connectedDate))")
                             if let labelIndex = self.synapseGraphLabels.index(of: self.makeSynapseGraphLabel(time, connectedDate: connectedDate)) {
                                 self.synapseGraphLabels.remove(at: labelIndex)
@@ -2559,30 +2714,42 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
                            break
                         }
                     }
-                    if self.synapseGraphTimes.count > 0 && self.synapseGraphTimes[self.synapseGraphTimes.count - 1] >= start.timeIntervalSince1970 {
+                    count = nil
+
+                    if self.synapseGraphTimes.count > 0 && self.synapseGraphTimes[self.synapseGraphTimes.count - 1] >= start!.timeIntervalSince1970 {
                         start = Date(timeIntervalSince1970: self.synapseGraphTimes[self.synapseGraphTimes.count - 1] + self.synapseTimeInterval)
                     }
                 }
             }
 
-            var count: TimeInterval = start.timeIntervalSince1970
-            while end.timeIntervalSince1970 - count > -self.synapseTimeInterval {
-                let label: String = self.makeSynapseGraphLabel(count, connectedDate: connectedDate)
-                self.synapseGraphTimes.append(count)
-                self.synapseGraphLabels.append(label)
-                count += self.synapseTimeInterval
+            var count: TimeInterval? = start!.timeIntervalSince1970
+            while end!.timeIntervalSince1970 - count! > -self.synapseTimeInterval {
+                var label: String? = self.makeSynapseGraphLabel(count!, connectedDate: connectedDate)
+                self.synapseGraphTimes.append(count!)
+                self.synapseGraphLabels.append(label!)
+                count! += self.synapseTimeInterval
+                label = nil
             }
+            count = nil
             //print("setSynapseGraphTimes: \(self.synapseGraphLabels)")
             //print("setSynapseGraphData Last: \(count.timeIntervalSince1970 - self.synapseTimeInterval), \(self.synapseGraphLabels.last)")
+
+            graphCount = nil
+            start = nil
+            end = nil
         }
     }
 
     func makeSynapseGraphLabel(_ time: TimeInterval, connectedDate: Date) -> String {
 
-        let diff: TimeInterval = round((time - connectedDate.timeIntervalSince1970) / self.synapseTimeInterval) * self.synapseTimeInterval
-        let format: String = "\(self.getSynapseGraphLabelFormat()) sec"
+        var diff: TimeInterval? = round((time - connectedDate.timeIntervalSince1970) / self.synapseTimeInterval) * self.synapseTimeInterval
+        var format: String? = "\(self.getSynapseGraphLabelFormat()) sec"
         //print("makeSynapseGraphLabel: \(String(format: format, diff)), \(diff)")
-        return String(format: format, diff)
+
+        let label: String = String(format: format!, diff!)
+        diff = nil
+        format = nil
+        return label
     }
 
     func getSynapseGraphLabelFormat() -> String {
@@ -2603,303 +2770,230 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
     func setSynapseGraphData() {
 
         if let time = self.synapseValues.time {
-            let graphTime: TimeInterval = floor(time / self.synapseTimeInterval) * self.synapseTimeInterval
+            var graphTime: TimeInterval? = floor(time / self.synapseTimeInterval) * self.synapseTimeInterval
             //let graphTime: TimeInterval = floor(time)
-            let key: String = String(format: self.getSynapseGraphLabelFormat(), graphTime)
-            var label: String = ""
+            var key: String? = String(format: self.getSynapseGraphLabelFormat(), graphTime!)
+            var label: String? = ""
             if let connectedDate = self.synapseValues.connectedDate {
                 label = self.makeSynapseGraphLabel(time, connectedDate: connectedDate)
             }
             //print("setSynapseGraphData: \(time), \(label)")
 
-            var graphData: [String: Any] = self.synapseGraphData
+            var value: Double? = nil
             if let co2 = self.synapseValues.co2 {
-                var co2Graph: [String: Any] = [:]
-                if let data = graphData[synapseCrystalInfo.co2.key] as? [String: Any] {
-                    co2Graph = data
-                }
-                if let values = co2Graph[key] as? [String: Any], let count = values["count"] as? Int, let value = values["value"] as? Double {
-                    //print("setSynapseGraphData: \(values)")
-                    co2Graph[key] = [
-                        "count": count + Int(1),
-                        "value": (value * Double(count) + Double(co2)) / Double(count + 1),
-                    ]
-                }
-                else {
-                    co2Graph[key] = [
-                        "count": Int(1),
-                        "value": Double(co2),
-                    ]
-                }
-                if let values = co2Graph[key] as? [String: Any] {
-                    self.setSynapseGraphData(synapseCrystalInfo.co2.key, time: graphTime, label: label, data: values)
-                }
-                graphData[synapseCrystalInfo.co2.key] = co2Graph
+                value = Double(co2)
             }
-            else {
-                self.setSynapseGraphData(synapseCrystalInfo.co2.key, time: graphTime, label: "", data: [:])
-            }
+            self.setSynapseGraphValue(synapseValue: value,
+                                      synapseKey: synapseCrystalInfo.co2.key,
+                                      graphTime: graphTime!,
+                                      key: key!,
+                                      label: label!)
 
+            value = nil
             if let temp = self.synapseValues.temp {
-                var tempGraph: [String: Any] = [:]
-                if let data = graphData[synapseCrystalInfo.temp.key] as? [String: Any] {
-                    tempGraph = data
-                }
-                if let values = tempGraph[key] as? [String: Any], let count = values["count"] as? Int, let value = values["value"] as? Double  {
-                    tempGraph[key] = [
-                        "count": count + 1,
-                        "value": (value * Double(count) + Double(temp)) / Double(count + 1),
-                    ]
-                }
-                else {
-                    tempGraph[key] = [
-                        "count": 1,
-                        "value": Double(temp),
-                    ]
-                }
-                if let values = tempGraph[key] as? [String: Any] {
-                    self.setSynapseGraphData(synapseCrystalInfo.temp.key, time: graphTime, label: label, data: values)
-                }
-                graphData[synapseCrystalInfo.temp.key] = tempGraph
+                value = Double(temp)
             }
-            else {
-                self.setSynapseGraphData(synapseCrystalInfo.temp.key, time: graphTime, label: "", data: [:])
-            }
+            self.setSynapseGraphValue(synapseValue: value,
+                                      synapseKey: synapseCrystalInfo.temp.key,
+                                      graphTime: graphTime!,
+                                      key: key!,
+                                      label: label!)
 
+            value = nil
             if let humidity = self.synapseValues.humidity {
-                var humidityGraph: [String: Any] = [:]
-                if let data = graphData[synapseCrystalInfo.hum.key] as? [String: Any] {
-                    humidityGraph = data
-                }
-                if let values = humidityGraph[key] as? [String: Any], let count = values["count"] as? Int, let value = values["value"] as? Double  {
-                    humidityGraph[key] = [
-                        "count": count + 1,
-                        "value": (value * Double(count) + Double(humidity)) / Double(count + 1),
-                    ]
-                }
-                else {
-                    humidityGraph[key] = [
-                        "count": 1,
-                        "value": Double(humidity),
-                    ]
-                }
-                if let values = humidityGraph[key] as? [String: Any] {
-                    self.setSynapseGraphData(synapseCrystalInfo.hum.key, time: graphTime, label: label, data: values)
-                }
-                graphData[synapseCrystalInfo.hum.key] = humidityGraph
+                value = Double(humidity)
             }
-            else {
-                self.setSynapseGraphData(synapseCrystalInfo.hum.key, time: graphTime, label: "", data: [:])
-            }
+            self.setSynapseGraphValue(synapseValue: value,
+                                      synapseKey: synapseCrystalInfo.hum.key,
+                                      graphTime: graphTime!,
+                                      key: key!,
+                                      label: label!)
 
+            value = nil
             if let light = self.synapseValues.light {
-                var lightGraph: [String: Any] = [:]
-                if let data = graphData[synapseCrystalInfo.ill.key] as? [String: Any] {
-                    lightGraph = data
-                }
-                if let values = lightGraph[key] as? [String: Any], let count = values["count"] as? Int, let value = values["value"] as? Double  {
-                    lightGraph[key] = [
-                        "count": count + 1,
-                        "value": (value * Double(count) + Double(light)) / Double(count + 1),
-                    ]
-                }
-                else {
-                    lightGraph[key] = [
-                        "count": 1,
-                        "value": Double(light),
-                    ]
-                }
-                if let values = lightGraph[key] as? [String: Any] {
-                    self.setSynapseGraphData(synapseCrystalInfo.ill.key, time: graphTime, label: label, data: values)
-                }
-                graphData[synapseCrystalInfo.ill.key] = lightGraph
+                value = Double(light)
             }
-            else {
-                self.setSynapseGraphData(synapseCrystalInfo.ill.key, time: graphTime, label: "", data: [:])
-            }
+            self.setSynapseGraphValue(synapseValue: value,
+                                      synapseKey: synapseCrystalInfo.ill.key,
+                                      graphTime: graphTime!,
+                                      key: key!,
+                                      label: label!)
 
+            value = nil
             if let pressure = self.synapseValues.pressure {
-                var pressureGraph: [String: Any] = [:]
-                if let data = graphData[synapseCrystalInfo.press.key] as? [String: Any] {
-                    pressureGraph = data
-                }
-                if let values = pressureGraph[key] as? [String: Any], let count = values["count"] as? Int, let value = values["value"] as? Double  {
-                    pressureGraph[key] = [
-                        "count": count + 1,
-                        "value": (value * Double(count) + Double(pressure)) / Double(count + 1),
-                    ]
-                }
-                else {
-                    pressureGraph[key] = [
-                        "count": 1,
-                        "value": Double(pressure),
-                    ]
-                }
-                if let values = pressureGraph[key] as? [String: Any] {
-                    self.setSynapseGraphData(synapseCrystalInfo.press.key, time: graphTime, label: label, data: values)
-                }
-                graphData[synapseCrystalInfo.press.key] = pressureGraph
+                value = Double(pressure)
             }
-            else {
-                self.setSynapseGraphData(synapseCrystalInfo.press.key, time: graphTime, label: "", data: [:])
-            }
+            self.setSynapseGraphValue(synapseValue: value,
+                                      synapseKey: synapseCrystalInfo.press.key,
+                                      graphTime: graphTime!,
+                                      key: key!,
+                                      label: label!)
 
+            value = nil
             if let sound = self.synapseValues.sound {
-                var soundGraph: [String: Any] = [:]
-                if let data = graphData[synapseCrystalInfo.sound.key] as? [String: Any] {
-                    soundGraph = data
-                }
-                if let values = soundGraph[key] as? [String: Any], let count = values["count"] as? Int, let value = values["value"] as? Double  {
-                    soundGraph[key] = [
-                        "count": count + 1,
-                        "value": (value * Double(count) + Double(sound)) / Double(count + 1),
-                    ]
-                }
-                else {
-                    soundGraph[key] = [
-                        "count": 1,
-                        "value": Double(sound),
-                    ]
-                }
-                if let values = soundGraph[key] as? [String: Any] {
-                    self.setSynapseGraphData(synapseCrystalInfo.sound.key, time: graphTime, label: label, data: values)
-                }
-                graphData[synapseCrystalInfo.sound.key] = soundGraph
+                value = Double(sound)
             }
-            else {
-                self.setSynapseGraphData(synapseCrystalInfo.sound.key, time: graphTime, label: "", data: [:])
-            }
+            self.setSynapseGraphValue(synapseValue: value,
+                                      synapseKey: synapseCrystalInfo.sound.key,
+                                      graphTime: graphTime!,
+                                      key: key!,
+                                      label: label!)
 
+            value = nil
             if let ax = self.synapseValues.ax {
-                let axValue: Float = CommonFunction.makeAccelerationValue(Float(ax))
-                var axGraph: [String: Any] = [:]
-                if let data = graphData[synapseCrystalInfo.ax.key] as? [String: Any] {
-                    axGraph = data
-                }
-                if let values = axGraph[key] as? [String: Any], let count = values["count"] as? Int, let value = values["value"] as? Double  {
-                    axGraph[key] = [
-                        "count": count + 1,
-                        "value": (value * Double(count) + Double(axValue)) / Double(count + 1),
-                    ]
-                }
-                else {
-                    axGraph[key] = [
-                        "count": 1,
-                        "value": Double(axValue),
-                    ]
-                }
-                if let values = axGraph[key] as? [String: Any] {
-                    self.setSynapseGraphData(synapseCrystalInfo.ax.key, time: graphTime, label: label, data: values)
-                }
-                graphData[synapseCrystalInfo.ax.key] = axGraph
+                var axValue: Float? = CommonFunction.makeAccelerationValue(Float(ax))
+                value = Double(axValue!)
+                axValue = nil
             }
-            else {
-                self.setSynapseGraphData(synapseCrystalInfo.ax.key, time: graphTime, label: "", data: [:])
-            }
+            self.setSynapseGraphValue(synapseValue: value,
+                                      synapseKey: synapseCrystalInfo.ax.key,
+                                      graphTime: graphTime!,
+                                      key: key!,
+                                      label: label!)
 
+            value = nil
             if let ay = self.synapseValues.ay {
-                let ayValue: Float = CommonFunction.makeAccelerationValue(Float(ay))
-                var ayGraph: [String: Any] = [:]
-                if let data = graphData[synapseCrystalInfo.ay.key] as? [String: Any] {
-                    ayGraph = data
-                }
-                if let values = ayGraph[key] as? [String: Any], let count = values["count"] as? Int, let value = values["value"] as? Double  {
-                    ayGraph[key] = [
-                        "count": count + 1,
-                        "value": (value * Double(count) + Double(ayValue)) / Double(count + 1),
-                    ]
-                }
-                else {
-                    ayGraph[key] = [
-                        "count": 1,
-                        "value": Double(ayValue),
-                    ]
-                }
-                if let values = ayGraph[key] as? [String: Any] {
-                    self.setSynapseGraphData(synapseCrystalInfo.ay.key, time: graphTime, label: label, data: values)
-                }
-                graphData[synapseCrystalInfo.ay.key] = ayGraph
+                var ayValue: Float? = CommonFunction.makeAccelerationValue(Float(ay))
+                value = Double(ayValue!)
+                ayValue = nil
             }
-            else {
-                self.setSynapseGraphData(synapseCrystalInfo.ay.key, time: graphTime, label: "", data: [:])
-            }
+            self.setSynapseGraphValue(synapseValue: value,
+                                      synapseKey: synapseCrystalInfo.ay.key,
+                                      graphTime: graphTime!,
+                                      key: key!,
+                                      label: label!)
 
+            value = nil
+            if let ay = self.synapseValues.ay {
+                var ayValue: Float? = CommonFunction.makeAccelerationValue(Float(ay))
+                value = Double(ayValue!)
+                ayValue = nil
+            }
+            self.setSynapseGraphValue(synapseValue: value,
+                                      synapseKey: synapseCrystalInfo.ay.key,
+                                      graphTime: graphTime!,
+                                      key: key!,
+                                      label: label!)
+
+            value = nil
             if let az = self.synapseValues.az {
-                let azValue: Float = CommonFunction.makeAccelerationValue(Float(az))
-                var azGraph: [String: Any] = [:]
-                if let data = graphData[synapseCrystalInfo.az.key] as? [String: Any] {
-                    azGraph = data
-                }
-                if let values = azGraph[key] as? [String: Any], let count = values["count"] as? Int, let value = values["value"] as? Double  {
-                    azGraph[key] = [
-                        "count": count + 1,
-                        "value": (value * Double(count) + Double(azValue)) / Double(count + 1),
-                    ]
-                }
-                else {
-                    azGraph[key] = [
-                        "count": 1,
-                        "value": Double(azValue),
-                    ]
-                }
-                if let values = azGraph[key] as? [String: Any] {
-                    self.setSynapseGraphData(synapseCrystalInfo.az.key, time: graphTime, label: label, data: values)
-                }
-                graphData[synapseCrystalInfo.az.key] = azGraph
+                var azValue: Float? = CommonFunction.makeAccelerationValue(Float(az))
+                value = Double(azValue!)
+                azValue = nil
             }
-            else {
-                self.setSynapseGraphData(synapseCrystalInfo.az.key, time: graphTime, label: "", data: [:])
-            }
+            self.setSynapseGraphValue(synapseValue: value,
+                                      synapseKey: synapseCrystalInfo.az.key,
+                                      graphTime: graphTime!,
+                                      key: key!,
+                                      label: label!)
 
-            self.synapseGraphData = graphData
             //print("setSynapseGraphData: \(self.synapseGraphData)")
+
+            value = nil
+            graphTime = nil
+            key = nil
+            label = nil
         }
 
         self.setSynapseGraphTimes()
     }
 
-    func setSynapseGraphData(_ key: String, time: TimeInterval, label: String, data: [String: Any]) {
+    func setSynapseGraphValue(synapseValue: Double?, synapseKey: String, graphTime: TimeInterval, key: String, label: String) {
 
+        if let synapseValue = synapseValue {
+            var graphData: [String: Any]? = [:]
+            if let data = self.synapseGraphData[synapseKey] as? [String: Any] {
+                graphData = data
+            }
+
+            if let values = graphData![key] as? [String: Any], let count = values["count"] as? Int, let value = values["value"] as? Double {
+                //print("setSynapseGraphData: \(values)")
+                graphData![key] = [
+                    "count": count + Int(1),
+                    "value": (value * Double(count) + synapseValue) / Double(count + 1),
+                ]
+            }
+            else {
+                graphData![key] = [
+                    "count": Int(1),
+                    "value": synapseValue,
+                ]
+            }
+
+            var removeKey: String? = self.setSynapseGraphData(synapseKey, time: graphTime, label: label, data: graphData![key] as! [String : Any])
+            if let removeKey = removeKey {
+                var graphDataKeys: [String]? = [String](graphData!.keys)
+                graphDataKeys!.sort { $1 > $0 }
+                for graphDataKey in graphDataKeys! {
+                    if graphDataKey > removeKey {
+                        //print("break key: \(graphDataKey)")
+                        break
+                    }
+                    graphData!.removeValue(forKey: graphDataKey)
+                }
+                graphDataKeys = nil
+            }
+            self.synapseGraphData[synapseKey] = graphData
+            //print("synapseGraphData count: \(synapseKey), \(String(describing: removeKey)), \(graphData!.keys.count)")
+            //print("synapseGraphData key: \(key)")
+
+            removeKey = nil
+            graphData = nil
+        }
+        else {
+            _ = self.setSynapseGraphData(synapseKey, time: graphTime, label: "", data: [:])
+        }
+    }
+
+    func setSynapseGraphData(_ key: String, time: TimeInterval, label: String, data: [String: Any]) -> String? {
+
+        var removeKey: String? = nil
         if let index = self.synapseGraphKeys.index(of: key), index < self.synapseGraphValues.count {
-            var values: [[String: Any]] = self.synapseGraphValues[index]
+            var values: [[String: Any]]? = self.synapseGraphValues[index]
             //print("setSynapseGraphData: \(key), \(values)")
 
             if self.synapseGraphTimes.count > 0 {
-                let startTime: TimeInterval = self.synapseGraphTimes[0]
-                let count: Int = values.count
-                for _ in 0..<count {
-                    if values.count <= 0 {
+                var startTime: TimeInterval? = self.synapseGraphTimes.first
+                var count: Int? = values!.count
+                for _ in 0..<count! {
+                    if values!.count <= 0 {
                         break
                     }
 
-                    let data: [String: Any] = values[0]
-                    if let dataTime = data["time"] as? Double {
-                        if dataTime < startTime {
-                            values.removeFirst()
+                    var data: [String: Any]? = values!.first
+                    if let dataTime = data!["time"] as? Double {
+                        if dataTime < startTime! {
+                            values!.removeFirst()
+                            removeKey = String(format: self.getSynapseGraphLabelFormat(), dataTime)
+                            //print("removeKey: \(removeKey!)")
                         }
                         else {
                             break
                         }
                     }
                     else {
-                        values.removeFirst()
+                        values!.removeFirst()
                     }
+                    data = nil
                 }
+                startTime = nil
+                count = nil
             }
 
             if label.count > 0, let value = data["value"] {
-                let addData: [String: Any] = ["time": time, "x": label, "y": value]
-                if values.count > 0 {
-                    if let lastTime = values[values.count - 1]["time"] as? Double, lastTime != time {
-                        values.append(addData)
+                var addData: [String: Any]? = ["time": time, "x": label, "y": value]
+                if values!.count > 0 {
+                    if let lastTime = values![values!.count - 1]["time"] as? Double, lastTime != time {
+                        values!.append(addData!)
                     }
                     else {
-                        values[values.count - 1] = addData
+                        values![values!.count - 1] = addData!
                     }
                 }
                 else {
-                    values.append(addData)
+                    values!.append(addData!)
                 }
+                addData = nil
 
                 if let value = value as? Double {
                     //print("key: \(key), value: \(value)")
@@ -2914,13 +3008,16 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
                 }
                 //print("synapseGraphMaxAndMinValues: \(self.synapseGraphMaxAndMinValues)")
             }
-            self.synapseGraphValues[index] = values
+            self.synapseGraphValues[index] = values!
+
+            values = nil
         }
+        return removeKey
     }
 
     func setSynapseGraphMaxAndMinValue(_ key: String, value: Double) {
 
-        var graphMaxAndMinValue: [String: Double] = [:]
+        var graphMaxAndMinValue: [String: Double]? = [:]
         if let data = self.synapseGraphMaxAndMinValues[key] {
             graphMaxAndMinValue = data
         }
@@ -2952,13 +3049,15 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
                 }
             }*/
         }
-        if let max = graphMaxAndMinValue["max"], max < value {
-            graphMaxAndMinValue["max"] = value
+        if let max = graphMaxAndMinValue!["max"], max < value {
+            graphMaxAndMinValue!["max"] = value
         }
-        if let min = graphMaxAndMinValue["min"], min > value {
-            graphMaxAndMinValue["min"] = value
+        if let min = graphMaxAndMinValue!["min"], min > value {
+            graphMaxAndMinValue!["min"] = value
         }
-        self.synapseGraphMaxAndMinValues[key] = graphMaxAndMinValue
+        self.synapseGraphMaxAndMinValues[key] = graphMaxAndMinValue!
+
+        graphMaxAndMinValue = nil
     }
 
     func getSynapseGraphScales() -> [[String: Double]] {
@@ -2977,14 +3076,17 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
 
     func removeSynapseGraphData(_ time: TimeInterval) {
 
-        let removeKey: String = String(format: self.getSynapseGraphLabelFormat(), time)
+        var removeKey: String? = String(format: self.getSynapseGraphLabelFormat(), time)
         //let removeKey: String = String(format: self.getSynapseGraphLabelFormat(), floor(time))
+
         for key in self.synapseGraphKeys {
-            if var data = self.synapseGraphData[key] as? [String: Any], let _ = data.keys.index(of: removeKey) {
-                data[removeKey] = nil
+            if var data = self.synapseGraphData[key] as? [String: Any], let _ = data.keys.index(of: removeKey!) {
+                data[removeKey!] = nil
                 self.synapseGraphData[key] = data
             }
         }
+
+        removeKey = nil
     }
     
     // MARK: mark - DFU methods
@@ -3237,7 +3339,7 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
     func sendOSC() {
 
         if self.oscSending, let oscClient = self.oscClient {
-            var arguments: [Any] = [
+            var arguments: [Any]? = [
                 0, // time
                 0, // co2
                 0, // ax
@@ -3259,64 +3361,68 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
                 0, // uuid
             ]
             if let time = self.synapseValues.time {
-                arguments[0] = time
+                arguments![0] = time
             }
             if let co2 = self.synapseValues.co2 {
-                arguments[1] = co2
+                arguments![1] = co2
             }
             if let ax = self.synapseValues.ax {
-                arguments[2] = ax
+                arguments![2] = ax
             }
             if let ay = self.synapseValues.ay {
-                arguments[3] = ay
+                arguments![3] = ay
             }
             if let az = self.synapseValues.az {
-                arguments[4] = az
+                arguments![4] = az
             }
             if let light = self.synapseValues.light {
-                arguments[5] = light
+                arguments![5] = light
             }
             if let gx = self.synapseValues.gx {
-                arguments[6] = gx
+                arguments![6] = gx
             }
             if let gy = self.synapseValues.gy {
-                arguments[7] = gy
+                arguments![7] = gy
             }
             if let gz = self.synapseValues.gz {
-                arguments[8] = gz
+                arguments![8] = gz
             }
             if let pressure = self.synapseValues.pressure {
-                arguments[9] = pressure
+                arguments![9] = pressure
             }
             if let temp = self.synapseValues.temp {
-                arguments[10] = temp
+                arguments![10] = temp
             }
             if let humidity = self.synapseValues.humidity {
-                arguments[11] = humidity
+                arguments![11] = humidity
             }
             if let sound = self.synapseValues.sound {
-                arguments[12] = sound
+                arguments![12] = sound
             }
             if let tvoc = self.synapseValues.tvoc {
-                arguments[13] = tvoc
+                arguments![13] = tvoc
             }
             if let volt = self.synapseValues.power {
-                arguments[14] = volt
+                arguments![14] = volt
             }
             if let pow = self.synapseValues.battery {
-                arguments[15] = pow
+                arguments![15] = pow
             }
             if let timeSec = self.synapseValues.timeSec {
-                arguments[16] = timeSec
+                arguments![16] = timeSec
             }
             if let timeMillis = self.synapseValues.timeMillis {
-                arguments[17] = timeMillis
+                arguments![17] = timeMillis
             }
             if let uuid = self.synapseValues.uuid {
-                arguments[18] = uuid
+                arguments![18] = uuid
             }
-            //print("sendOSC: \(arguments)")
-            self.sendMessage(client: oscClient, addressPattern: "/synapseWear", arguments: arguments)
+            //print("sendOSC: \(arguments!)")
+            self.sendMessage(client: oscClient,
+                             addressPattern: "/synapseWear",
+                             arguments: arguments!)
+
+            arguments = nil
         }
     }
 
@@ -3337,23 +3443,29 @@ class SynapseObject: NSObject, OTABootloaderControllerDelegate {
     func sendKickOSC() {
 
         if self.oscSending, let oscClient = self.oscClient {
-            var arguments: [Any] = [
+            var arguments: [Any]? = [
                 0, // time
                 true, // kick
             ]
             if let time = self.synapseValues.time {
-                arguments[0] = time
+                arguments![0] = time
             }
             //print("sendKickOSC")
-            self.sendMessage(client: oscClient, addressPattern: "/synapseWearKick", arguments: arguments)
+            self.sendMessage(client: oscClient,
+                             addressPattern: "/synapseWearKick",
+                             arguments: arguments!)
+
+            arguments = nil
         }
     }
 
     func sendMessage(client: F53OSCClient, addressPattern: String, arguments: [Any]) {
 
-        let message: F53OSCMessage = F53OSCMessage(addressPattern: addressPattern, arguments: arguments)
+        var message: F53OSCMessage? = F53OSCMessage(addressPattern: addressPattern, arguments: arguments)
         client.send(message)
         //print("Send OSC: '\(String(describing: message))' To: \(client.host):\(client.port)")
+
+        message = nil
     }
 }
 
