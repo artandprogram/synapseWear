@@ -2,7 +2,7 @@
 //  NavigationController.swift
 //  synapsewear
 //
-//  Copyright © 2017年 art and program, Inc. For license and other information refer to https://github.com/artandprogram/synapseWear. All rights reserved.
+//  Copyright © 2017 art and program, Inc. For license and other information refer to https://github.com/artandprogram/synapseWear. All rights reserved.
 //
 
 import UIKit
@@ -85,8 +85,7 @@ class NavigationController: UINavigationController, CommonFunctionProtocol {
             }
         }
         //print("menuList : \(self.menuList)")
-    }
-     */
+    }*/
 
     // MARK: mark - Set Views methods
 
@@ -105,7 +104,8 @@ class NavigationController: UINavigationController, CommonFunctionProtocol {
         self.headerView.backgroundColor = UIColor.clear
         self.view.addSubview(self.headerView)
         if self.isDebug {
-            let tapGesture: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.tapHeaderAction(_:)))
+            let tapGesture: UITapGestureRecognizer = UITapGestureRecognizer(target: self,
+                                                                            action: #selector(self.tapHeaderAction(_:)))
             tapGesture.numberOfTapsRequired = 2
             self.headerView.addGestureRecognizer(tapGesture)
         }
@@ -128,7 +128,9 @@ class NavigationController: UINavigationController, CommonFunctionProtocol {
         self.headerMenuBtn = UIButton()
         self.headerMenuBtn.frame = CGRect(x: x, y: y, width: w, height: h)
         self.headerMenuBtn.backgroundColor = UIColor.clear
-        self.headerMenuBtn.addTarget(self, action: #selector(NavigationController.menuAction), for: .touchUpInside)
+        self.headerMenuBtn.addTarget(self,
+                                     action: #selector(NavigationController.menuAction),
+                                     for: .touchUpInside)
         self.headerView.addSubview(self.headerMenuBtn)
 
         w = 20.0
@@ -149,7 +151,9 @@ class NavigationController: UINavigationController, CommonFunctionProtocol {
         self.headerBackBtn = UIButton()
         self.headerBackBtn.frame = CGRect(x: x, y: y, width: w, height: h)
         self.headerBackBtn.backgroundColor = UIColor.clear
-        self.headerBackBtn.addTarget(self, action: #selector(self.backViewController), for: .touchUpInside)
+        self.headerBackBtn.addTarget(self,
+                                     action: #selector(self.backViewController),
+                                     for: .touchUpInside)
         self.headerView.addSubview(self.headerBackBtn)
 
         self.setHeaderBackIcon()
@@ -157,7 +161,9 @@ class NavigationController: UINavigationController, CommonFunctionProtocol {
         self.headerBackForTopBtn = UIButton()
         self.headerBackForTopBtn.frame = self.headerBackBtn.frame
         self.headerBackForTopBtn.backgroundColor = UIColor.clear
-        self.headerBackForTopBtn.addTarget(self, action: #selector(self.backForTopAction), for: .touchUpInside)
+        self.headerBackForTopBtn.addTarget(self,
+                                           action: #selector(self.backForTopAction),
+                                           for: .touchUpInside)
         self.headerView.addSubview(self.headerBackForTopBtn)
 
         self.headerBackForTopIcon = BackView()
@@ -174,7 +180,9 @@ class NavigationController: UINavigationController, CommonFunctionProtocol {
         self.headerSettingBtn = UIButton()
         self.headerSettingBtn.frame = CGRect(x: x, y: y, width: w, height: h)
         self.headerSettingBtn.backgroundColor = UIColor.clear
-        self.headerSettingBtn.addTarget(self, action: #selector(self.settingAction), for: .touchUpInside)
+        self.headerSettingBtn.addTarget(self,
+                                        action: #selector(self.settingAction),
+                                        for: .touchUpInside)
         self.headerView.addSubview(self.headerSettingBtn)
 
         w = 24.0

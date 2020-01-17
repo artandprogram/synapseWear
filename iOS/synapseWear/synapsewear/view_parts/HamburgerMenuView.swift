@@ -2,7 +2,7 @@
 //  HamburgerMenuView.swift
 //  synapsewear
 //
-//  Copyright © 2018年 art and program, Inc. For license and other information refer to https://github.com/artandprogram/synapseWear. All rights reserved.
+//  Copyright © 2018 art and program, Inc. For license and other information refer to https://github.com/artandprogram/synapseWear. All rights reserved.
 //
 
 import UIKit
@@ -33,5 +33,4 @@ class HamburgerMenuView: UIView {
         path.lineWidth = 2.0
         path.stroke()
     }
-
 }

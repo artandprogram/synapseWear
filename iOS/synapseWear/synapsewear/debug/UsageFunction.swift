@@ -1,9 +1,8 @@
 //
 //  UsageFunction.swift
-//  UsageTest
+//  synapsewear
 //
-//  Created by nakaguchi on 2019/10/30.
-//  Copyright © 2019 sis. All rights reserved.
+//  Copyright © 2019 art and program, Inc. For license and other information refer to https://github.com/artandprogram/synapseWear. All rights reserved.
 //
 
 import Foundation

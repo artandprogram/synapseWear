@@ -2,7 +2,7 @@
 //  AnalyzeViewController.swift
 //  synapsewear
 //
-//  Copyright © 2017年 art and program, Inc. For license and other information refer to https://github.com/artandprogram/synapseWear. All rights reserved.
+//  Copyright © 2017 art and program, Inc. For license and other information refer to https://github.com/artandprogram/synapseWear. All rights reserved.
 //
 
 import UIKit
@@ -815,7 +815,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
         //print("setGraphData: date -> \(day)\(hour)\(min)\(sec) timeRange -> \(self.timeRange) isRealtime -> \(isRealtime)")
         for (_, element) in self.graphCategories.enumerated() {
             let key: String = element.key
-            var values: [String: Double?] = [:]
+            var values: [String: Double?]? = [:]
             if isRealtime {
                 values = self.getRealtimeGraphValues(key: key)
                 //print(" isRealtime -> \(values)")
@@ -825,15 +825,15 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                 //print(" notRealtime -> \(values)")
             }
             var value: Double? = nil
-            if let val = values["value"] {
+            if let val = values!["value"] {
                 value = val
             }
             var minVal: Double? = nil
-            if let val = values["minVal"] {
+            if let val = values!["minVal"] {
                 minVal = val
             }
             var maxVal: Double? = nil
-            if let val = values["maxVal"] {
+            if let val = values!["maxVal"] {
                 maxVal = val
             }
             //print("setGraphData: \(key) -> \(value), \(minVal), \(maxVal)")
@@ -896,6 +896,11 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                     self.graphMaxValues[key] = maxVal
                 }
             }
+
+            values = nil
+            value = nil
+            minVal = nil
+            maxVal = nil
         }
     }
 
@@ -924,6 +929,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                     maxVal = val
                 }
             }
+            records = nil
         }
         else if timeRange == 60.0 {
             let values: [Double] = self.synapseRecordFileManager!.getSynapseRecordTotal(day: day, hour: hour, min: min, sec: nil, type: key)
@@ -945,6 +951,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                     maxVal = val
                 }
             }
+            records = nil
         }
         else if timeRange == 600.0 {
             value = self.synapseRecordFileManager!.getSynapseRecordTotalIn10min(day: day, hour: hour, min: Int(min)! / 10, type: key, isSave: false)
@@ -963,6 +970,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                     maxVal = val
                 }
             }
+            records = nil
         }
         else if timeRange == 3600.0 {
             var cnt: Int = 0
@@ -1014,6 +1022,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                         }
                     }
                 }
+                records = nil
             }
             if value != nil && cnt > 0 {
                 value = value! / Double(cnt)
@@ -1094,6 +1103,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                                 }
                             }
                         }
+                        records = nil
                     }
                 }
                 date = Date(timeInterval: TimeInterval(60 * 60), since: date)

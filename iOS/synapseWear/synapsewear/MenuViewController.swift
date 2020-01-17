@@ -2,7 +2,7 @@
 //  MenuViewController.swift
 //  synapsewear
 //
-//  Copyright © 2017年 art and program, Inc. For license and other information refer to https://github.com/artandprogram/synapseWear. All rights reserved.
+//  Copyright © 2017 art and program, Inc. For license and other information refer to https://github.com/artandprogram/synapseWear. All rights reserved.
 //
 
 import UIKit
@@ -39,8 +39,7 @@ class MenuViewController: UIViewController, UITableViewDataSource, UITableViewDe
                     self.menuList.append(dic)
                 }
             }
-        }
-         */
+        }*/
         if let isDebug = self.getAppinfoValue("is_debug") as? Bool {
             self.isDebug = isDebug
             if let debugs = self.getAppinfoValue("debugs") as? [Any] {

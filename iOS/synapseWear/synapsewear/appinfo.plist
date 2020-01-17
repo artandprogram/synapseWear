@@ -11,9 +11,9 @@
 	<key>is_save_data</key>
 	<true/>
 	<key>use_osc_recv</key>
-	<false/>
+	<true/>
 	<key>is_debug</key>
-	<false/>
+	<true/>
 	<key>debugs</key>
 	<array>
 		<string>Files</string>

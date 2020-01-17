@@ -2,8 +2,7 @@
 //  LabelNode.swift
 //  synapsewear
 //
-//  Created by 中口大雅 on 2018/06/28.
-//  Copyright © 2018年 art and program, Inc. For license and other information refer to https://github.com/artandprogram/synapseWear. All rights reserved.
+//  Copyright © 2018 art and program, Inc. For license and other information refer to https://github.com/artandprogram/synapseWear. All rights reserved.
 //
 
 import UIKit

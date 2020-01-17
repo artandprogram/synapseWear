@@ -1,9 +1,8 @@
 //
 //  TodayViewController.swift
-//  todayExtension
+//  synapsewear
 //
-//  Created by toru on 2018/11/27.
-//  Copyright © 2018年 art and program, Inc. For license and other information refer to https://github.com/artandprogram/synapseWear. All rights reserved.
+//  Copyright © 2018 art and program, Inc. For license and other information refer to https://github.com/artandprogram/synapseWear. All rights reserved.
 //
 
 import UIKit

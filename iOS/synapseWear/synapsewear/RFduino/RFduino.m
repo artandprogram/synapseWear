@@ -178,6 +178,10 @@ didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic
                advertisementRSSI:self.advertisementRSSI];
         }
     }
+
+    aPeripheral = nil;
+    characteristic = nil;
+    error = nil;
 }
 
 #pragma mark - RFduino methods

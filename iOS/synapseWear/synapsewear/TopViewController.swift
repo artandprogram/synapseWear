@@ -2,7 +2,7 @@
 //  TopViewController.swift
 //  synapsewear
 //
-//  Copyright © 2017年 art and program, Inc. For license and other information refer to https://github.com/artandprogram/synapseWear. All rights reserved.
+//  Copyright © 2017 art and program, Inc. For license and other information refer to https://github.com/artandprogram/synapseWear. All rights reserved.
 //
 
 import UIKit
@@ -10,7 +10,6 @@ import SceneKit
 import UserNotifications
 import Alamofire
 import SwiftyJSON
-
 
 // MARK: structs
 
@@ -148,7 +147,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
     let checkSynapseTime: TimeInterval = 0.1
     let updateSynapseViewTime: TimeInterval = 0.4
     let updateSynapseValuesViewTime: TimeInterval = 1.0
-    let synapseDataMax: Int = 1 * 60 * 60 * 10
+    let synapseDataMax: Int = 1 * 60 * 60
     let synapseDataKeepTime: TimeInterval = TimeInterval(30 * 24 * 60 * 60)
     let synapseOffColorTime: TimeInterval = TimeInterval(12 * 60 * 60)
     let scnPixelScale: Float = 0.002
@@ -394,7 +393,9 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                                                    width: nav.headerTitle.frame.size.width,
                                                    height: nav.headerTitle.frame.size.height)
             self.cameraResetButton?.backgroundColor = UIColor.clear
-            self.cameraResetButton?.addTarget(self, action: #selector(self.resetCameraNodePosition), for: .touchUpInside)
+            self.cameraResetButton?.addTarget(self,
+                                              action: #selector(self.resetCameraNodePosition),
+                                              for: .touchUpInside)
             nav.headerView.addSubview(self.cameraResetButton!)
         }
     }
@@ -540,7 +541,9 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         self.swipeModeButton?.setTitleColor(UIColor.black, for: .normal)
         self.swipeModeButton?.titleLabel?.font = UIFont(name: "HelveticaNeue", size: 16.0)
         self.swipeModeButton?.backgroundColor = UIColor.clear
-        self.swipeModeButton?.addTarget(self, action: #selector(self.changeSwipeMode), for: .touchUpInside)
+        self.swipeModeButton?.addTarget(self,
+                                        action: #selector(self.changeSwipeMode),
+                                        for: .touchUpInside)
         self.view.addSubview(self.swipeModeButton!)
 
         w = 80.0
@@ -561,7 +564,8 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         self.swipeModeButton?.isHidden = true
         self.swipeModeLabel?.isHidden = true
 
-        self.scnView.addGestureRecognizer(UIPinchGestureRecognizer(target: self, action: #selector(self.sceneViewPinchAction(_:))))
+        self.scnView.addGestureRecognizer(UIPinchGestureRecognizer(target: self,
+                                                                   action: #selector(self.sceneViewPinchAction(_:))))
 
         //self.lineNodeViewForSceneViewDebug()
     }
@@ -656,8 +660,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         else if (self.swipeMode == 0 && self.touchesCount > 1) || self.swipeMode == 2 {
             self.touchesMultiAction(touchEvent)
             self.checkDisplaySynapseNodes()
-        }
-         */
+        }*/
     }
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -666,8 +669,8 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         self.canUpdateCrystalView = true
         /*
         let touchEvent = touches.first!
-        print("touchesEnded x:\(touchEvent.location(in: self.scnView).x) y:\(touchEvent.location(in: self.scnView).y)")
-         */
+        print("touchesEnded x:\(touchEvent.location(in: self.scnView).x) y:\(touchEvent.location(in: self.scnView).y)")*/
+
         if let firstTouch = self.firstTouch, let endTouch = touches.first {
             let locationF: CGPoint = firstTouch.location(in: self.scnView)
             let locationE: CGPoint = endTouch.location(in: self.scnView)
@@ -681,8 +684,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                     let key: String = names[0]
                     if key == self.mainSynapseObject.synapseCrystalNode.name {
                         self.sendLEDFlashToDevice(self.mainSynapseObject)
-                    }
-                     */
+                    }*/
                 }
             }
         }
@@ -1211,9 +1213,11 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         w = self.min4Label.frame.size.width
         self.min4Label.frame = CGRect(x: x, y: y, width: w, height: h)
 
-        let swipeGesture: UISwipeGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(self.swipeSynapseValuesViewGestureAction(_:)))
+        let swipeGesture: UISwipeGestureRecognizer = UISwipeGestureRecognizer(target: self,
+                                                                              action: #selector(self.swipeSynapseValuesViewGestureAction(_:)))
         self.synapseValuesView.addGestureRecognizer(swipeGesture)
-        let swipeGestureLeft: UISwipeGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(self.swipeSynapseValuesViewGestureAction(_:)))
+        let swipeGestureLeft: UISwipeGestureRecognizer = UISwipeGestureRecognizer(target: self,
+                                                                                  action: #selector(self.swipeSynapseValuesViewGestureAction(_:)))
         swipeGestureLeft.direction = .left
         self.synapseValuesView.addGestureRecognizer(swipeGestureLeft)
 
@@ -1232,7 +1236,9 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         self.synapseValuesAnalyzeButton.clipsToBounds = true
         self.synapseValuesAnalyzeButton.layer.borderColor = UIColor(red: 255/255.0, green: 255/255.0, blue: 255/255.0, alpha: 0.3).cgColor
         self.synapseValuesAnalyzeButton.layer.borderWidth = 1.0
-        self.synapseValuesAnalyzeButton.addTarget(self, action: #selector(self.pushAnalyzeViewAction(_:)), for: .touchUpInside)
+        self.synapseValuesAnalyzeButton.addTarget(self,
+                                                  action: #selector(self.pushAnalyzeViewAction(_:)),
+                                                  for: .touchUpInside)
         self.synapseValuesView.addSubview(self.synapseValuesAnalyzeButton)
         let bgView: UIView = UIView()
         bgView.frame = CGRect(x: 0, y: 0, width: w, height: h)
@@ -2232,8 +2238,17 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         if synapseObject.synapseData.count > self.synapseDataMax {
             synapseObject.synapseData.removeLast()
         }
-        //print("setSynapseData: \(synapseObject.synapseData)")
         synapseObject.setSynapseValues()
+
+        /*do {
+            var data: Data? = try JSONSerialization.data(withJSONObject: synapseObject.synapseData,
+                                                        options: .prettyPrinted)
+            if let data = data {
+                log("setSynapseData: \([UInt8](data).count)")
+            }
+            data = nil
+        }
+        catch {}*/
 
         if let flag = self.getAppinfoValue("is_save_data") as? Bool, flag {
             self.setSynapseValueFile(synapseObject: synapseObject, values: Data(bytes: synapseObject.receiveData), date: now, timeInterval: self.synapseTimeInterval)
@@ -2512,8 +2527,12 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             }
         }
         else {
-            let alert: UIAlertController = UIAlertController(title: title, message: messageBody, preferredStyle: UIAlertControllerStyle.alert)
-            let defaultAction: UIAlertAction = UIAlertAction(title: "OK", style: .default, handler: {
+            let alert: UIAlertController = UIAlertController(title: title,
+                                                             message: messageBody,
+                                                             preferredStyle: UIAlertControllerStyle.alert)
+            let defaultAction: UIAlertAction = UIAlertAction(title: "OK",
+                                                             style: .default,
+                                                             handler: {
                 (action:UIAlertAction!) -> Void in
             })
             alert.addAction(defaultAction)
@@ -2558,25 +2577,25 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
     func setReceiveData(_ synapseObject: SynapseObject, data: Data) {
 
         let minLength: Int = 6
-        let bytes: [UInt8] = [UInt8](data)
+        var bytes: [UInt8]? = [UInt8](data)
         var restBytes: [UInt8]? = nil
         var cnt: Int = 0
         if synapseObject.receiveData.count > 2 {
             cnt = Int(synapseObject.receiveData[2])
         }
-        else if bytes.count > 2 && Int(bytes[0]) == 0 && Int(bytes[1]) == 255 {
-            cnt = Int(bytes[2])
+        else if bytes!.count > 2 && Int(bytes![0]) == 0 && Int(bytes![1]) == 255 {
+            cnt = Int(bytes![2])
         }
         if cnt >= minLength {
-            for i in 0..<bytes.count {
+            for i in 0..<bytes!.count {
                 if synapseObject.receiveData.count < cnt {
-                    synapseObject.receiveData.append(bytes[i])
+                    synapseObject.receiveData.append(bytes![i])
                 }
                 else {
                     if restBytes == nil {
                         restBytes = []
                     }
-                    restBytes?.append(bytes[i])
+                    restBytes?.append(bytes![i])
                 }
             }
         }
@@ -2593,8 +2612,10 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 synapseObject.receiveData = bytes
             }
         }
-        restBytes = nil
         //print("receiveData: \(self.receiveData)")
+
+        bytes = nil
+        restBytes = nil
     }
 
     // MARK: mark - Send Data To synapseWear methods
@@ -3933,16 +3954,16 @@ class SynapseObject {
     func setSynapseValues() {
 
         if self.synapseData.count > 0 {
-            let synapse: [String: Any] = self.synapseData[0]
+            var synapse: [String: Any]? = self.synapseData[0]
             //print("setSynapseValues: \(synapse)")
-            if let time = synapse["time"] as? TimeInterval, let data = synapse["data"] as? [UInt8] {
+            if let time = synapse!["time"] as? TimeInterval, let data = synapse!["data"] as? [UInt8] {
                 let formatter: DateFormatter = DateFormatter()
                 formatter.locale = Locale(identifier: "en_US_POSIX")
                 formatter.dateFormat = "yyyyMMddHHmmss"
                 self.synapseNowDate = formatter.string(from: Date(timeIntervalSince1970: time))
                 //print("setSynapseNowDate: \(self.synapseNowDate)")
 
-                let values: SynapseValues = self.makeSynapseData(data)
+                var values: SynapseValues? = self.makeSynapseData(data)
                 self.synapseValues.time = time
                 self.synapseValues.axBak = self.synapseValues.ax
                 self.synapseValues.ayBak = self.synapseValues.ay
@@ -3950,28 +3971,30 @@ class SynapseObject {
                 self.synapseValues.gxBak = self.synapseValues.gx
                 self.synapseValues.gyBak = self.synapseValues.gy
                 self.synapseValues.gzBak = self.synapseValues.gz
-                self.synapseValues.co2 = values.co2
-                self.synapseValues.ax = values.ax
-                self.synapseValues.ay = values.ay
-                self.synapseValues.az = values.az
-                self.synapseValues.light = values.light
-                self.synapseValues.gx = values.gx
-                self.synapseValues.gy = values.gy
-                self.synapseValues.gz = values.gz
-                self.synapseValues.pressure = values.pressure
-                self.synapseValues.temp = values.temp
-                self.synapseValues.humidity = values.humidity
-                self.synapseValues.sound = values.sound
-                self.synapseValues.tvoc = values.tvoc
-                self.synapseValues.power = values.power
-                self.synapseValues.battery = values.battery
+                self.synapseValues.co2 = values!.co2
+                self.synapseValues.ax = values!.ax
+                self.synapseValues.ay = values!.ay
+                self.synapseValues.az = values!.az
+                self.synapseValues.light = values!.light
+                self.synapseValues.gx = values!.gx
+                self.synapseValues.gy = values!.gy
+                self.synapseValues.gz = values!.gz
+                self.synapseValues.pressure = values!.pressure
+                self.synapseValues.temp = values!.temp
+                self.synapseValues.humidity = values!.humidity
+                self.synapseValues.sound = values!.sound
+                self.synapseValues.tvoc = values!.tvoc
+                self.synapseValues.power = values!.power
+                self.synapseValues.battery = values!.battery
                 /*self.synapseValues.mx = values.mx
                 self.synapseValues.my = values.my
                 self.synapseValues.mz = values.mz*/
                 //self.synapseValues.debug()
+                values = nil
 
                 self.setSynapseConnectLastDate(time)
             }
+            synapse = nil
         }
     }
 
@@ -5792,6 +5815,7 @@ class SynapseDataMaxAndMin {
                         }
                     }
                 }
+                records = nil
             }
         }
         return res
