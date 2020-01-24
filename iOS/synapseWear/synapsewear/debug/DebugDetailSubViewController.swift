@@ -85,7 +85,10 @@ class DebugDetailSubViewController: DebugBaseViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
         if indexPath.row < self.values.count {
-            let cell: DebugSubTableViewCell = DebugSubTableViewCell(style: .default, reuseIdentifier: "DebugCell")
+            var cell: DebugSubTableViewCell = DebugSubTableViewCell(style: .default, reuseIdentifier: "DebugCell")
+            if let reusableCell = tableView.dequeueReusableCell(withIdentifier: "DebugCell") as? DebugSubTableViewCell {
+                cell = reusableCell
+            }
             cell.backgroundColor = UIColor.clear
             cell.selectionStyle = UITableViewCellSelectionStyle.none
             cell.clipsToBounds = true

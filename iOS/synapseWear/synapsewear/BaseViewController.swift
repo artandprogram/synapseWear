@@ -10,7 +10,7 @@ import UIKit
 class BaseViewController: UIViewController {
 
     // variables
-    var vcData: [String: Any] = [:]
+    var vcData: [String: Any]?
     // views
     var loadingView: UIView?
     var indicator: UIActivityIndicatorView?

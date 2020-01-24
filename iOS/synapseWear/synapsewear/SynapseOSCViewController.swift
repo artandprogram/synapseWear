@@ -183,10 +183,10 @@ class SynapseOSCViewController: SettingBaseViewController, UITextFieldDelegate {
 
         if indexPath.section == 0 {
             if indexPath.row == 0 || indexPath.row == 4 {
-                return self.getLineCell()
+                return self.getLineCell(tableView: tableView)
             }
             else if indexPath.row == 1 {
-                let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "send_mode_cell")
+                let cell: SettingTableViewCell = self.getSettingTableViewCell(tableView: tableView, identifier: "send_mode_cell")
                 cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
                 cell.selectionStyle = .none
                 cell.iconImageView.isHidden = true
@@ -203,7 +203,7 @@ class SynapseOSCViewController: SettingBaseViewController, UITextFieldDelegate {
                 return cell
             }
             else if indexPath.row == 2 {
-                let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "send_ip_cell")
+                let cell: SettingTableViewCell = self.getSettingTableViewCell(tableView: tableView, identifier: "send_ip_cell")
                 cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
                 cell.selectionStyle = .none
                 cell.iconImageView.isHidden = true
@@ -219,7 +219,7 @@ class SynapseOSCViewController: SettingBaseViewController, UITextFieldDelegate {
                 return cell
             }
             else if indexPath.row == 3 {
-                let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "send_port_cell")
+                let cell: SettingTableViewCell = self.getSettingTableViewCell(tableView: tableView, identifier: "send_port_cell")
                 cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
                 cell.selectionStyle = .none
                 cell.iconImageView.isHidden = true
@@ -238,10 +238,10 @@ class SynapseOSCViewController: SettingBaseViewController, UITextFieldDelegate {
         }
         else if indexPath.section == 1 {
             if indexPath.row == 0 || indexPath.row == 4 {
-                return self.getLineCell()
+                return self.getLineCell(tableView: tableView)
             }
             else if indexPath.row == 1 {
-                let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "recv_mode_cell")
+                let cell: SettingTableViewCell = self.getSettingTableViewCell(tableView: tableView, identifier: "recv_mode_cell")
                 cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
                 cell.selectionStyle = .none
                 cell.iconImageView.isHidden = true
@@ -258,7 +258,7 @@ class SynapseOSCViewController: SettingBaseViewController, UITextFieldDelegate {
                 return cell
             }
             else if indexPath.row == 2 {
-                let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "recv_ip_cell")
+                let cell: SettingTableViewCell = self.getSettingTableViewCell(tableView: tableView, identifier: "recv_ip_cell")
                 cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
                 cell.selectionStyle = .none
                 cell.iconImageView.isHidden = true
@@ -273,7 +273,7 @@ class SynapseOSCViewController: SettingBaseViewController, UITextFieldDelegate {
                 return cell
             }
             else if indexPath.row == 3 {
-                let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "recv_port_cell")
+                let cell: SettingTableViewCell = self.getSettingTableViewCell(tableView: tableView, identifier: "recv_port_cell")
                 cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
                 cell.selectionStyle = .none
                 cell.iconImageView.isHidden = true
@@ -324,19 +324,19 @@ class SynapseOSCViewController: SettingBaseViewController, UITextFieldDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
 
         var height: CGFloat = 0
-        let cell: SettingTableViewCell = SettingTableViewCell()
+        var cell: SettingTableViewCell? = SettingTableViewCell()
         if indexPath.section == 0 {
             if indexPath.row == 0 || indexPath.row == 4 {
                 height = self.getLineCellHeight()
             }
             else if indexPath.row == 1 {
-                height = cell.cellH
+                height = cell!.cellH
             }
             else if indexPath.row == 2 {
-                height = cell.cellH
+                height = cell!.cellH
             }
             else if indexPath.row == 3 {
-                height = cell.cellH
+                height = cell!.cellH
             }
         }
         else if indexPath.section == 1 {
@@ -344,15 +344,16 @@ class SynapseOSCViewController: SettingBaseViewController, UITextFieldDelegate {
                 height = self.getLineCellHeight()
             }
             else if indexPath.row == 1 {
-                height = cell.cellH
+                height = cell!.cellH
             }
             else if indexPath.row == 2 {
-                height = cell.cellH
+                height = cell!.cellH
             }
             else if indexPath.row == 3 {
-                height = cell.cellH
+                height = cell!.cellH
             }
         }
+        cell = nil
         return height
     }
 

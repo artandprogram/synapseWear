@@ -2973,14 +2973,10 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
-        let cell: UITableViewCell = UITableViewCell(style: .default, reuseIdentifier: "Cell")
-        cell.backgroundColor = UIColor.clear
-        cell.selectionStyle = .none
-
         if indexPath.section < self.graphValues.count {
             let crystal: CrystalStruct = self.graphValues[indexPath.section]
             if indexPath.row == 0 {
-                let cell: GraphDataTableViewCell = GraphDataTableViewCell(style: .default, reuseIdentifier: "top_cell")
+                let cell: GraphDataTableViewCell = self.getGraphDataTableViewCell(tableView: tableView, identifier: "top_cell")
                 cell.backgroundColor = UIColor.clear
                 cell.selectionStyle = .none
 
@@ -3017,7 +3013,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                 return cell
             }
             else if indexPath.row == 1 {
-                let cell: GraphDataTableViewCell = GraphDataTableViewCell(style: .default, reuseIdentifier: "value_cell")
+                let cell: GraphDataTableViewCell = self.getGraphDataTableViewCell(tableView: tableView, identifier: "value_cell")
                 cell.backgroundColor = UIColor.clear
                 cell.selectionStyle = .none
 
@@ -3065,12 +3061,28 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                 return cell
             }
             else if indexPath.row == 2 {
-                let cell: GraphDataTableViewCell = GraphDataTableViewCell(style: .default, reuseIdentifier: "bottom_cell")
+                let cell: GraphDataTableViewCell = self.getGraphDataTableViewCell(tableView: tableView, identifier: "bottom_cell")
                 cell.backgroundColor = UIColor.clear
                 cell.selectionStyle = .none
                 cell.type = 2
                 return cell
             }
+        }
+
+        var cell: UITableViewCell = UITableViewCell(style: .default, reuseIdentifier: "Cell")
+        if let reusableCell = tableView.dequeueReusableCell(withIdentifier: "Cell") {
+            cell = reusableCell
+        }
+        cell.backgroundColor = UIColor.clear
+        cell.selectionStyle = .none
+        return cell
+    }
+
+    func getGraphDataTableViewCell(tableView: UITableView, identifier: String) -> GraphDataTableViewCell {
+
+        var cell: GraphDataTableViewCell = GraphDataTableViewCell(style: .default, reuseIdentifier: identifier)
+        if let reusableCell = tableView.dequeueReusableCell(withIdentifier: identifier) as? GraphDataTableViewCell {
+            cell = reusableCell
         }
         return cell
     }
@@ -3081,18 +3093,19 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
 
         var height: CGFloat = 0
         if indexPath.section < self.graphValues.count {
-            let cell: GraphDataTableViewCell = GraphDataTableViewCell()
-            cell.type = -1
+            var cell: GraphDataTableViewCell? = GraphDataTableViewCell()
+            cell!.type = -1
             if indexPath.row == 0 {
-                cell.type = 1
+                cell!.type = 1
             }
             else if indexPath.row == 1 {
-                cell.type = 0
+                cell!.type = 0
             }
             else if indexPath.row == 2 {
-                cell.type = 2
+                cell!.type = 2
             }
-            height = cell.getCellHeight()
+            height = cell!.getCellHeight()
+            cell = nil
         }
         return height
     }

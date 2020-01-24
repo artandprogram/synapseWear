@@ -217,10 +217,10 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
         if indexPath.section < self.settings.count {
             if self.settings[indexPath.section] == "synapse_wear_id" {
                 if indexPath.row == 0 || indexPath.row == 4 {
-                    return self.getLineCell()
+                    return self.getLineCell(tableView: tableView)
                 }
                 else if indexPath.row == 1 {
-                    let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "id_cell")
+                    let cell: SettingTableViewCell = self.getSettingTableViewCell(tableView: tableView, identifier: "id_cell")
                     cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
                     cell.iconImageView.isHidden = true
                     cell.titleLabel.text = "synapseWear"
@@ -243,7 +243,7 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
                     return cell
                 }
                 else if indexPath.row == 2 {
-                    let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "osc_cell")
+                    let cell: SettingTableViewCell = self.getSettingTableViewCell(tableView: tableView, identifier: "osc_cell")
                     cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
                     cell.iconImageView.isHidden = true
                     cell.titleLabel.text = "OSC Settings"
@@ -262,7 +262,7 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
                     return cell
                 }
                 else if indexPath.row == 3 {
-                    let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "send_data_cell")
+                    let cell: SettingTableViewCell = self.getSettingTableViewCell(tableView: tableView, identifier: "send_data_cell")
                     cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
                     cell.iconImageView.isHidden = true
                     cell.titleLabel.text = "Upload Settings"
@@ -280,10 +280,10 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
             }
             else if self.settings[indexPath.section] == "interval_time" {
                 if indexPath.row == 0 || indexPath.row == 3 {
-                    return self.getLineCell()
+                    return self.getLineCell(tableView: tableView)
                 }
                 else if indexPath.row == 1 {
-                    let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "interval_cell")
+                    let cell: SettingTableViewCell = self.getSettingTableViewCell(tableView: tableView, identifier: "interval_cell")
                     cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
                     cell.iconImageView.isHidden = true
                     cell.titleLabel.text = "Interval Time"
@@ -295,7 +295,7 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
                     return cell
                 }
                 else if indexPath.row == 2 {
-                    let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "sound_cell")
+                    let cell: SettingTableViewCell = self.getSettingTableViewCell(tableView: tableView, identifier: "sound_cell")
                     cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
                     cell.iconImageView.isHidden = true
                     cell.titleLabel.text = "Sound"
@@ -315,10 +315,10 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
             }
             else if self.settings[indexPath.section] == "firmware_version" {
                 if indexPath.row == 0 || indexPath.row == 3 {
-                    return self.getLineCell()
+                    return self.getLineCell(tableView: tableView)
                 }
                 else if indexPath.row == 1 {
-                    let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "firmware_url_cell")
+                    let cell: SettingTableViewCell = self.getSettingTableViewCell(tableView: tableView, identifier: "firmware_url_cell")
                     cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
                     cell.selectionStyle = .none
                     cell.iconImageView.isHidden = true
@@ -337,7 +337,7 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
                     return cell
                 }
                 else if indexPath.row == 2 {
-                    let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "firmware_version_cell")
+                    let cell: SettingTableViewCell = self.getSettingTableViewCell(tableView: tableView, identifier: "firmware_version_cell")
                     cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
                     cell.iconImageView.isHidden = true
                     cell.titleLabel.text = "Firmware Version"
@@ -355,11 +355,11 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
             }
             else if self.settings[indexPath.section] == "sensors" {
                 if indexPath.row == 0 || indexPath.row == self.sensors.count + 1 {
-                    return self.getLineCell()
+                    return self.getLineCell(tableView: tableView)
                 }
                 else if indexPath.row <= self.sensors.count {
                     let crystal: CrystalStruct = self.sensors[indexPath.row - 1]
-                    let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "sensor_cell")
+                    let cell: SettingTableViewCell = self.getSettingTableViewCell(tableView: tableView, identifier: "sensor_cell")
                     cell.selectionStyle = .none
                     cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
                     self.setSensorIcon(cell, key: crystal.key)
@@ -382,10 +382,10 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
             }
             else if self.settings[indexPath.section] == "temperature_scale" {
                 if indexPath.row == 0 || indexPath.row == 2 {
-                    return self.getLineCell()
+                    return self.getLineCell(tableView: tableView)
                 }
                 else if indexPath.row == 1 {
-                    let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "temperature_scale_cell")
+                    let cell: SettingTableViewCell = self.getSettingTableViewCell(tableView: tableView, identifier: "temperature_scale_cell")
                     cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
                     cell.iconImageView.isHidden = true
                     cell.titleLabel.text = "Temperature Scale"
@@ -401,10 +401,10 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
             }
             else if self.settings[indexPath.section] == "flash_led" {
                 if indexPath.row == 0 || indexPath.row == 2 {
-                    return self.getLineCell()
+                    return self.getLineCell(tableView: tableView)
                 }
                 else if indexPath.row == 1 {
-                    let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "temperature_scale_cell")
+                    let cell: SettingTableViewCell = self.getSettingTableViewCell(tableView: tableView, identifier: "temperature_scale_cell")
                     cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
                     cell.iconImageView.isHidden = true
                     cell.titleLabel.text = "Flash LED"
@@ -487,19 +487,19 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
 
         var height: CGFloat = 0
         if indexPath.section < self.settings.count {
-            let cell: SettingTableViewCell = SettingTableViewCell()
+            var cell: SettingTableViewCell? = SettingTableViewCell()
             if self.settings[indexPath.section] == "synapse_wear_id" {
                 if indexPath.row == 0 || indexPath.row == 4 {
                     height = self.getLineCellHeight()
                 }
                 else if indexPath.row == 1 {
-                    height = cell.cellH
+                    height = cell!.cellH
                 }
                 else if indexPath.row == 2 {
-                    height = cell.cellH
+                    height = cell!.cellH
                 }
                 else if indexPath.row == 3 {
-                    height = cell.cellH
+                    height = cell!.cellH
                 }
             }
             else if self.settings[indexPath.section] == "interval_time" {
@@ -507,7 +507,7 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
                     height = self.getLineCellHeight()
                 }
                 else if indexPath.row == 1 || indexPath.row == 2 {
-                    height = cell.cellH
+                    height = cell!.cellH
                 }
             }
             else if self.settings[indexPath.section] == "firmware_version" {
@@ -515,7 +515,7 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
                     height = self.getLineCellHeight()
                 }
                 else if indexPath.row == 1 || indexPath.row == 2 {
-                    height = cell.cellH
+                    height = cell!.cellH
                 }
             }
             else if self.settings[indexPath.section] == "sensors" {
@@ -523,7 +523,7 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
                     height = self.getLineCellHeight()
                 }
                 else if indexPath.row <= self.sensors.count {
-                    height = cell.cellH
+                    height = cell!.cellH
                 }
             }
             else if self.settings[indexPath.section] == "temperature_scale" {
@@ -531,7 +531,7 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
                     height = self.getLineCellHeight()
                 }
                 else if indexPath.row == 1 {
-                    height = cell.cellH
+                    height = cell!.cellH
                 }
             }
             else if self.settings[indexPath.section] == "flash_led" {
@@ -539,9 +539,10 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
                     height = self.getLineCellHeight()
                 }
                 else if indexPath.row == 1 {
-                    height = cell.cellH
+                    height = cell!.cellH
                 }
             }
+            cell = nil
         }
         return height
     }

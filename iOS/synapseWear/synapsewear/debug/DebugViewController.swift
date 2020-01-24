@@ -62,10 +62,12 @@ class DebugViewController: DebugBaseViewController, UsageFunction {
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
-        let cell: UITableViewCell = UITableViewCell(style: .subtitle, reuseIdentifier: "Cell")
+        var cell: UITableViewCell = UITableViewCell(style: .subtitle, reuseIdentifier: "Cell")
+        if let reusableCell = tableView.dequeueReusableCell(withIdentifier: "Cell") {
+            cell = reusableCell
+        }
         cell.backgroundColor = UIColor.clear
         cell.accessoryType = .disclosureIndicator
-
         cell.textLabel?.text = self.makeCellString(indexPath.row)
         //cell.textLabel?.font = UIFont(name: "HiraKakuProN-W3", size: 14.0)
         if #available(iOS 8.2, *) {

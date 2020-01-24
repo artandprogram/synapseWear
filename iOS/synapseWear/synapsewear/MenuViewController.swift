@@ -93,10 +93,13 @@ class MenuViewController: UIViewController, UITableViewDataSource, UITableViewDe
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
-        let cell: UITableViewCell = UITableViewCell(style: .value1, reuseIdentifier: "Cell")
+        var cell: UITableViewCell = UITableViewCell(style: .value1, reuseIdentifier: "Cell")
+        if let reusableCell = tableView.dequeueReusableCell(withIdentifier: "Cell") {
+            cell = reusableCell
+        }
+
         cell.backgroundColor = UIColor.clear
         //cell.selectionStyle = .none
-
         cell.textLabel?.textColor = UIColor.black
         cell.textLabel?.font = UIFont(name: "HelveticaNeue", size: 16.0)
         cell.textLabel?.text = ""

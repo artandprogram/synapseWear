@@ -142,10 +142,10 @@ class SynapseUploadSettingsViewController: SettingBaseViewController, UITextFiel
 
         if indexPath.section == 0 {
             if indexPath.row == 0 || indexPath.row == 3 {
-                return self.getLineCell()
+                return self.getLineCell(tableView: tableView)
             }
             else if indexPath.row == 1 {
-                let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "send_flag_cell")
+                let cell: SettingTableViewCell = self.getSettingTableViewCell(tableView: tableView, identifier: "send_flag_cell")
                 cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
                 cell.selectionStyle = .none
                 cell.iconImageView.isHidden = true
@@ -159,7 +159,7 @@ class SynapseUploadSettingsViewController: SettingBaseViewController, UITextFiel
                 return cell
             }
             else if indexPath.row == 2 {
-                let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "send_url_cell")
+                let cell: SettingTableViewCell = self.getSettingTableViewCell(tableView: tableView, identifier: "send_url_cell")
                 cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
                 cell.selectionStyle = .none
                 cell.iconImageView.isHidden = true
@@ -220,21 +220,22 @@ class SynapseUploadSettingsViewController: SettingBaseViewController, UITextFiel
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
 
         var height: CGFloat = 0
-        let cell: SettingTableViewCell = SettingTableViewCell()
+        var cell: SettingTableViewCell? = SettingTableViewCell()
         if indexPath.section == 0 {
             if indexPath.row == 0 || indexPath.row == 3 {
                 height = self.getLineCellHeight()
             }
             else if indexPath.row == 1 {
-                height = cell.cellH
+                height = cell!.cellH
             }
             else if indexPath.row == 2 {
-                height = cell.cellH
+                height = cell!.cellH
             }
             else if indexPath.row == 4 {
                 height = 50.0
             }
         }
+        cell = nil
         return height
     }
 

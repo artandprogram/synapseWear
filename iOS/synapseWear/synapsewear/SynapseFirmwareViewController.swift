@@ -144,10 +144,10 @@ class SynapseFirmwareViewController: SettingBaseViewController {
 
         if indexPath.section == 0 {
             if indexPath.row == 0 || indexPath.row == self.firmwares.count + 1 {
-                return self.getLineCell()
+                return self.getLineCell(tableView: tableView)
             }
             else if indexPath.row <= self.firmwares.count {
-                let cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: "interval_cell")
+                let cell: SettingTableViewCell = self.getSettingTableViewCell(tableView: tableView, identifier: "interval_cell")
                 cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
                 cell.iconImageView.isHidden = true
                 cell.textField.isHidden = true
@@ -207,15 +207,16 @@ class SynapseFirmwareViewController: SettingBaseViewController {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
 
         var height: CGFloat = 0
-        let cell: SettingTableViewCell = SettingTableViewCell()
+        var cell: SettingTableViewCell? = SettingTableViewCell()
         if indexPath.section == 0 {
             if indexPath.row == 0 || indexPath.row == self.firmwares.count + 1 {
                 height = self.getLineCellHeight()
             }
             else if indexPath.row <= self.firmwares.count {
-                height = cell.cellH
+                height = cell!.cellH
             }
         }
+        cell = nil
         return height
     }
 

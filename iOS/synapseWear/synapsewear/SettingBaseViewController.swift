@@ -38,12 +38,27 @@ class SettingBaseViewController: BaseViewController, UITableViewDataSource, UITa
         self.settingTableView.frame = CGRect(x: x, y: y, width: w, height: h)
     }
 
-    func getLineCell() -> UITableViewCell {
+    func getSettingTableViewCell(tableView: UITableView, identifier: String) -> SettingTableViewCell {
 
-        let cell: UITableViewCell = UITableViewCell(style: .default, reuseIdentifier: "line_cell")
-        cell.backgroundColor = UIColor.dynamicColor(light: UIColor.black.withAlphaComponent(0.1), dark: UIColor.white.withAlphaComponent(0.2))
-        cell.selectionStyle = .none
+        var cell: SettingTableViewCell = SettingTableViewCell(style: .default, reuseIdentifier: identifier)
+        if let reusableCell = tableView.dequeueReusableCell(withIdentifier: identifier) as? SettingTableViewCell {
+            cell = reusableCell
+        }
         return cell
+    }
+
+    func getLineCell(tableView: UITableView) -> UITableViewCell {
+
+        let identifier: String = "line_cell"
+        if let cell = tableView.dequeueReusableCell(withIdentifier: identifier) {
+            return cell
+        }
+        else {
+            let cell: UITableViewCell = UITableViewCell(style: .default, reuseIdentifier: identifier)
+            cell.backgroundColor = UIColor.dynamicColor(light: UIColor.black.withAlphaComponent(0.1), dark: UIColor.white.withAlphaComponent(0.2))
+            cell.selectionStyle = .none
+            return cell
+        }
     }
 
     func getLineCellHeight() -> CGFloat {
@@ -58,7 +73,10 @@ class SettingBaseViewController: BaseViewController, UITableViewDataSource, UITa
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
-        let cell: UITableViewCell = UITableViewCell(style: .default, reuseIdentifier: "cell")
+        var cell: UITableViewCell = UITableViewCell(style: .default, reuseIdentifier: "Cell")
+        if let reusableCell = tableView.dequeueReusableCell(withIdentifier: "Cell") {
+            cell = reusableCell
+        }
         cell.backgroundColor = UIColor.clear
         cell.selectionStyle = .none
         return cell

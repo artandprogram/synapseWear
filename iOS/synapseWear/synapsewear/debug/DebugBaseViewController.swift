@@ -135,7 +135,10 @@ class DebugBaseViewController: BaseViewController, UITableViewDataSource, UITabl
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
-        let cell: UITableViewCell = UITableViewCell(style: .subtitle, reuseIdentifier: "Cell")
+        var cell: UITableViewCell = UITableViewCell(style: .subtitle, reuseIdentifier: "Cell")
+        if let reusableCell = tableView.dequeueReusableCell(withIdentifier: "Cell") {
+            cell = reusableCell
+        }
         cell.backgroundColor = UIColor.clear
         cell.selectionStyle = .none
         return cell

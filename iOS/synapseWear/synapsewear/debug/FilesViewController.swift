@@ -131,9 +131,11 @@ class FilesViewController: BaseViewController, UITableViewDataSource, UITableVie
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
-        let cell: UITableViewCell = UITableViewCell(style: .subtitle, reuseIdentifier: "Cell")
+        var cell: UITableViewCell = UITableViewCell(style: .subtitle, reuseIdentifier: "Cell")
+        if let reusableCell = tableView.dequeueReusableCell(withIdentifier: "Cell") {
+            cell = reusableCell
+        }
         cell.backgroundColor = UIColor.clear
-
         cell.textLabel?.text = ""
         cell.textLabel?.font = UIFont(name: "HelveticaNeue", size: 14.0)
         cell.textLabel?.numberOfLines = 0

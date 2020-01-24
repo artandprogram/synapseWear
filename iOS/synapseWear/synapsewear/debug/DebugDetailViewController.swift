@@ -152,7 +152,10 @@ class DebugDetailViewController: DebugBaseViewController, FileManagerExtension {
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
-        let cell: UITableViewCell = UITableViewCell(style: .default, reuseIdentifier: "Cell")
+        var cell: UITableViewCell = UITableViewCell(style: .default, reuseIdentifier: "Cell")
+        if let reusableCell = tableView.dequeueReusableCell(withIdentifier: "Cell") {
+            cell = reusableCell
+        }
         cell.backgroundColor = UIColor.clear
         cell.selectionStyle = .none
         cell.clipsToBounds = true
