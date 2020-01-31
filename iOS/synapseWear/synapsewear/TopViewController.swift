@@ -1407,10 +1407,10 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
     func setSynapseGraphData(synapseObject: SynapseObject) {
 
         self.synapseGraphNowDate = Date()
-        let formatter: DateFormatter = DateFormatter()
+        /*let formatter: DateFormatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.dateFormat = "yyyyMMddHHmmss"
-        let graphDateStr: String = formatter.string(from: self.synapseGraphNowDate)
+        formatter.dateFormat = "yyyyMMddHHmmss"*/
+        let graphDateStr: String = self.dateToString(date: self.synapseGraphNowDate, dateFormat: "yyyyMMddHHmmss")
         let sec: String = String(graphDateStr[graphDateStr.index(graphDateStr.startIndex, offsetBy: 12)..<graphDateStr.index(graphDateStr.startIndex, offsetBy: 14)])
         //print("setSynapseGraphData dateStr: \(sec)")
         var secBase: Int = 0
@@ -1505,10 +1505,10 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             }
         }
         else if let synapseRecordFileManager = synapseRecordFileManager {
-            let formatter: DateFormatter = DateFormatter()
+            /*let formatter: DateFormatter = DateFormatter()
             formatter.locale = Locale(identifier: "en_US_POSIX")
-            formatter.dateFormat = "yyyyMMddHHmmss"
-            let graphDateStr: String = formatter.string(from: graphDate)
+            formatter.dateFormat = "yyyyMMddHHmmss"*/
+            let graphDateStr: String = self.dateToString(date: graphDate, dateFormat: "yyyyMMddHHmmss")
             //print("setSynapseGraphData: \(graphDateStr)")
             let day: String = String(graphDateStr[graphDateStr.startIndex..<graphDateStr.index(graphDateStr.startIndex, offsetBy: 8)])
             let hour: String = String(graphDateStr[graphDateStr.index(graphDateStr.startIndex, offsetBy: 8)..<graphDateStr.index(graphDateStr.startIndex, offsetBy: 10)])
@@ -2320,10 +2320,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                     var totalData: [Double] = []
                     if let synapseRecordFileManager = synapseObject.synapseRecordFileManager {
                         let date: Date = Date(timeIntervalSince1970: graphTime)
-                        let formatter: DateFormatter = DateFormatter()
-                        formatter.locale = Locale(identifier: "en_US_POSIX")
-                        formatter.dateFormat = "yyyyMMddHHmmss"
-                        let graphDateStr: String = formatter.string(from: date)
+                        let graphDateStr: String = self.dateToString(date: date, dateFormat: "yyyyMMddHHmmss")
                         let day: String = String(graphDateStr[graphDateStr.startIndex..<graphDateStr.index(graphDateStr.startIndex, offsetBy: 8)])
                         let hour: String = String(graphDateStr[graphDateStr.index(graphDateStr.startIndex, offsetBy: 8)..<graphDateStr.index(graphDateStr.startIndex, offsetBy: 10)])
                         let min: String = String(graphDateStr[graphDateStr.index(graphDateStr.startIndex, offsetBy: 10)..<graphDateStr.index(graphDateStr.startIndex, offsetBy: 12)])
@@ -3593,10 +3590,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
 
             value = ""
             if let time = synapseObject.synapseValues.time {
-                let formatter: DateFormatter = DateFormatter()
-                formatter.locale = Locale(identifier: "en_US_POSIX")
-                formatter.dateFormat = "yyyy/MM/dd HH:mm:ss.SSS"
-                value = formatter.string(from: Date(timeIntervalSince1970: time))
+                value = self.dateToString(date: Date(timeIntervalSince1970: time), dateFormat: "yyyy/MM/dd HH:mm:ss.SSS")
             }
             self.updateStatusValueLabel(2, value: value)
 
@@ -3792,7 +3786,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
 
 // MARK: class - SynapseObject
 
-class SynapseObject {
+class SynapseObject: CommonFunctionProtocol {
 
     // const
     let synapseConnectLastDateKey: String = "synapseConnectLastDate"
@@ -3957,10 +3951,7 @@ class SynapseObject {
             var synapse: [String: Any]? = self.synapseData[0]
             //print("setSynapseValues: \(synapse)")
             if let time = synapse!["time"] as? TimeInterval, let data = synapse!["data"] as? [UInt8] {
-                let formatter: DateFormatter = DateFormatter()
-                formatter.locale = Locale(identifier: "en_US_POSIX")
-                formatter.dateFormat = "yyyyMMddHHmmss"
-                self.synapseNowDate = formatter.string(from: Date(timeIntervalSince1970: time))
+                self.synapseNowDate = self.dateToString(date: Date(timeIntervalSince1970: time), dateFormat: "yyyyMMddHHmmss")
                 //print("setSynapseNowDate: \(self.synapseNowDate)")
 
                 var values: SynapseValues? = self.makeSynapseData(data)
@@ -4296,10 +4287,7 @@ class SynapseObject {
         var res: Bool = false
         var dateStr: String = ""
         if let time = synapseValues.time {
-            let formatter: DateFormatter = DateFormatter()
-            formatter.locale = Locale(identifier: "en_US_POSIX")
-            formatter.dateFormat = "yyyyMMddHHmmss"
-            dateStr = formatter.string(from: Date(timeIntervalSince1970: time))
+            dateStr = self.dateToString(date: Date(timeIntervalSince1970: time), dateFormat: "yyyyMMddHHmmss")
         }
 
         if dateStr.count >= 14, let synapseRecordFileManager = self.synapseRecordFileManager {
@@ -4586,9 +4574,6 @@ class SynapseObject {
             let dateFormater: DateFormatter = DateFormatter()
             //dateFormater.locale = Locale.current
             dateFormater.dateFormat = "yyyyMMddHHmmss"
-            let strDateFormater: DateFormatter = DateFormatter()
-            strDateFormater.locale = Locale(identifier: "en_US_POSIX")
-            strDateFormater.dateFormat = "yyyy/MM/dd HH:mm:ss Z"
             for i in 0..<60 {
                 let min: String = String(format:"%02d", i)
                 if let date = dateFormater.date(from: "\(day)\(hour)\(min)00") {
@@ -4618,7 +4603,7 @@ class SynapseObject {
                         }
                     }
                     if minData.keys.count > 0 {
-                        minData["date"] = strDateFormater.string(from: date)
+                        minData["date"] = self.dateToString(date: date, dateFormat: "yyyy/MM/dd HH:mm:ss Z")
                         minData["dateunix"] = Int(date.timeIntervalSince1970)
                         data.append(minData)
                     }

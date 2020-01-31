@@ -17,10 +17,6 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
     let graphSpaceR: CGFloat = 20.0
     let graphCirclePointW: CGFloat = 3.0
     let synapseCrystalInfo: SynapseCrystalStruct = SynapseCrystalStruct()
-    let dayFormatter: DateFormatter = DateFormatter()
-    let hourFormatter: DateFormatter = DateFormatter()
-    let minFormatter: DateFormatter = DateFormatter()
-    let secFormatter: DateFormatter = DateFormatter()
     // variables
     var synapseRecordFileManager: SynapseRecordFileManager?
     var synapseUUID: UUID?
@@ -240,15 +236,6 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
                 "interval": 0.1,
             ],
         ]
-
-        self.dayFormatter.locale = Locale(identifier: "en_US_POSIX")
-        self.dayFormatter.dateFormat = "yyyyMMdd"
-        self.hourFormatter.locale = Locale(identifier: "en_US_POSIX")
-        self.hourFormatter.dateFormat = "HH"
-        self.minFormatter.locale = Locale(identifier: "en_US_POSIX")
-        self.minFormatter.dateFormat = "mm"
-        self.secFormatter.locale = Locale(identifier: "en_US_POSIX")
-        self.secFormatter.dateFormat = "ss"
 
         for key in self.realtimeGraphTimeIntervalKeys {
             if let values = self.realtimeGraphTimeIntervalValues[key], let interval = values["interval"], let nav = self.navigationController as? NavigationController {
@@ -665,11 +652,8 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
 
     func setDateLabels() {
 
-        let dateFormatter: DateFormatter = DateFormatter()
-        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-        dateFormatter.dateFormat = "yyyy.M.d HH:mm"
-        self.dateStartLabel.text = dateFormatter.string(from: self.startDate!)
-        self.dateEndLabel.text = dateFormatter.string(from: self.endDate!)
+        self.dateStartLabel.text = self.dateToString(date: self.startDate!, dateFormat: "yyyy.M.d HH:mm")
+        self.dateEndLabel.text = self.dateToString(date: self.endDate!, dateFormat: "yyyy.M.d HH:mm")
 
         self.dateStartLabel.sizeToFit()
         var w: CGFloat = self.dateStartButton.frame.size.width
@@ -808,10 +792,10 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
             self.graphDates.insert(date, at: 0)
         }
 
-        let day: String = self.dayFormatter.string(from: date)
-        let hour: String = self.hourFormatter.string(from: date)
-        let min: String = self.minFormatter.string(from: date)
-        let sec: String = self.secFormatter.string(from: date)
+        let day: String = self.dateToString(date: date, dateFormat: "yyyyMMdd")
+        let hour: String = self.dateToString(date: date, dateFormat: "HH")
+        let min: String = self.dateToString(date: date, dateFormat: "mm")
+        let sec: String = self.dateToString(date: date, dateFormat: "ss")
         //print("setGraphData: date -> \(day)\(hour)\(min)\(sec) timeRange -> \(self.timeRange) isRealtime -> \(isRealtime)")
         for (_, element) in self.graphCategories.enumerated() {
             let key: String = element.key
@@ -979,8 +963,8 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
             for i in 0..<hourCnt {
                 if i > 0 {
                     let dateAlt: Date = Date(timeInterval: timeRange * Double(i), since: date)
-                    dayAlt = self.dayFormatter.string(from: dateAlt)
-                    hourAlt = self.hourFormatter.string(from: dateAlt)
+                    dayAlt = self.dateToString(date: dateAlt, dateFormat: "yyyyMMdd")
+                    hourAlt = self.dateToString(date: dateAlt, dateFormat: "HH")
                     //print("setGraphData Alt: \(day)\(hour)\(min)\(sec)")
                 }
 
@@ -1058,8 +1042,9 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
             for _ in 0..<24 {
                 if date >= dateS && date <= dateE {
                     //print("setGraphDataPerDay In: \(date)")
-                    let day: String = self.dayFormatter.string(from: date)
-                    let hour: String = self.hourFormatter.string(from: date)
+                    let day: String = self.dateToString(date: date, dateFormat: "yyyyMMdd")
+                    let hour: String = self.dateToString(date: date, dateFormat: "HH")
+                    //print("setGraphDataPerDay: \(day)\(hour)")
                     for (_, element) in self.graphCategories.enumerated() {
                         let key: String = element.key
                         if let val = self.synapseRecordFileManager!.getSynapseRecordTotalInHour(day: day, hour: hour, type: key, isSave: false) {
@@ -2830,10 +2815,7 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
 
         self.graphDataSmallDateLabel.text = ""
         if self.graphDates.count > self.graphSelectpt {
-            let dateFormatter: DateFormatter = DateFormatter()
-            dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-            dateFormatter.dateFormat = "yyyy.M.d HH:mm:ss"
-            self.graphDataSmallDateLabel.text = dateFormatter.string(from: self.graphDates[self.graphSelectpt])
+            self.graphDataSmallDateLabel.text = self.dateToString(date: self.graphDates[self.graphSelectpt], dateFormat: "yyyy.M.d HH:mm:ss")
         }
         //print("setGraphData: \(self.graphSelectpt), \(self.graphDataSmallDateLabel.text)")
 

@@ -68,35 +68,36 @@ extension UsageFunction {
         let byteUnitStringConverted: (Int64) -> String = { size in
             ByteCountFormatter.string(fromByteCount: size, countStyle: ByteCountFormatter.CountStyle.binary)
         }
+
         switch type {
         case .total:
-            return byteUnitStringConverted(totalSpace)
+            return byteUnitStringConverted(self.totalSpace)
         case .free:
-            return byteUnitStringConverted(freeSpace)
+            return byteUnitStringConverted(self.freeSpace)
         case .used:
-            return byteUnitStringConverted(usedSpace)
+            return byteUnitStringConverted(self.usedSpace)
         }
     }
 
     var totalSpace: Int64 {
 
-        guard let attributes = systemAttributes,
-            let size = (attributes[FileAttributeKey.systemSize] as? NSNumber)?.int64Value
-            else { return 0 }
+        guard let attributes = self.systemAttributes, let size = (attributes[FileAttributeKey.systemSize] as? NSNumber)?.int64Value else {
+            return 0
+        }
         return size
     }
 
     var freeSpace: Int64 {
 
-        guard let attributes = systemAttributes,
-            let size = (attributes[FileAttributeKey.systemFreeSize] as? NSNumber)?.int64Value
-            else { return 0 }
+        guard let attributes = self.systemAttributes, let size = (attributes[FileAttributeKey.systemFreeSize] as? NSNumber)?.int64Value else {
+            return 0
+        }
         return size
     }
 
     var usedSpace: Int64 {
 
-        return totalSpace - freeSpace
+        return self.totalSpace - self.freeSpace
     }
 
     private var systemAttributes: [FileAttributeKey: Any]? {

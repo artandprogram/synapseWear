@@ -66,19 +66,21 @@ class DebugViewController: DebugBaseViewController, UsageFunction {
         if let reusableCell = tableView.dequeueReusableCell(withIdentifier: "Cell") {
             cell = reusableCell
         }
-        cell.backgroundColor = UIColor.clear
-        cell.accessoryType = .disclosureIndicator
-        cell.textLabel?.text = self.makeCellString(indexPath.row)
-        //cell.textLabel?.font = UIFont(name: "HiraKakuProN-W3", size: 14.0)
-        if #available(iOS 8.2, *) {
-            cell.textLabel?.font = UIFont.systemFont(ofSize: 14.0, weight: .regular)
-        }
         else {
-            cell.textLabel?.font = UIFont.systemFont(ofSize: 14.0)
+            cell.backgroundColor = UIColor.clear
+            cell.accessoryType = .disclosureIndicator
+            //cell.textLabel?.font = UIFont(name: "HiraKakuProN-W3", size: 14.0)
+            if #available(iOS 8.2, *) {
+                cell.textLabel?.font = UIFont.systemFont(ofSize: 14.0, weight: .regular)
+            }
+            else {
+                cell.textLabel?.font = UIFont.systemFont(ofSize: 14.0)
+            }
+            cell.textLabel?.textColor = #colorLiteral(red: 0.6823529412, green: 0.6823529412, blue: 0.6980392157, alpha: 1)
+            cell.textLabel?.numberOfLines = 0
         }
-        cell.textLabel?.textColor = #colorLiteral(red: 0.6823529412, green: 0.6823529412, blue: 0.6980392157, alpha: 1)
-        cell.textLabel?.numberOfLines = 0
 
+        cell.textLabel?.text = self.makeCellString(indexPath.row)
         return cell
     }
 

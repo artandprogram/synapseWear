@@ -133,7 +133,7 @@ class SynapseIntervalViewController: SettingBaseViewController {
 
         tableView.deselectRow(at: indexPath, animated: false)
 
-        if indexPath.row > 0 && indexPath.row <= SettingFileManager.shared.synapseTimeIntervals.count {
+        if indexPath.row > 0, indexPath.row <= SettingFileManager.shared.synapseTimeIntervals.count {
             let interval: String = SettingFileManager.shared.synapseTimeIntervals[indexPath.row - 1]
             if self.synapseInterval != interval {
                 self.synapseInterval = interval

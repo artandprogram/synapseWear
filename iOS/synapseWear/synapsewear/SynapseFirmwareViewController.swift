@@ -224,7 +224,7 @@ class SynapseFirmwareViewController: SettingBaseViewController {
 
         tableView.deselectRow(at: indexPath, animated: false)
 
-        if indexPath.row > 0 && indexPath.row <= self.firmwares.count {
+        if indexPath.row > 0, indexPath.row <= self.firmwares.count {
             let firmware: [String: Any] = self.firmwares[indexPath.row - 1]
             if let host = self.getAppinfoValue("firmware_domain") as? String, let filename = self.getAppinfoValue("hex_file") as? String, filename.count > 0 {
                 self.startDownload("\(host)\(filename)", firmwareInfo: firmware)

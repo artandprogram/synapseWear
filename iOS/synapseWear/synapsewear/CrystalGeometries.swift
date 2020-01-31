@@ -60,7 +60,7 @@ class CrystalGeometries: NSObject, CommonFunctionProtocol {
             6, 8, 7,
             9, 11, 10,
             ]
-        let texcoords = [
+        let texcoords: [float2] = [
             float2(1, 1),
             float2(1, 1),
             float2(0, 0),
@@ -77,12 +77,12 @@ class CrystalGeometries: NSObject, CommonFunctionProtocol {
             float2(1, 1),
             float2(0, 0),
             ]
-        let verticesSource = SCNGeometrySource(vertices: vertices)
-        let normalsSource = SCNGeometrySource(normals: normals)
+        let verticesSource: SCNGeometrySource = SCNGeometrySource(vertices: vertices)
+        let normalsSource: SCNGeometrySource = SCNGeometrySource(normals: normals)
         //let verticesSource = SCNGeometrySource(vertices: vertices, count: vertices.count)
         //let normalsSource = SCNGeometrySource(normals: normals, count: normals.count)
-        let texcoordSource = SCNGeometrySource(textureCoordinates: texcoords)
-        let faceSource = SCNGeometryElement(indices: indices, primitiveType: .triangles)
+        let texcoordSource: SCNGeometrySource = SCNGeometrySource(textureCoordinates: texcoords)
+        let faceSource: SCNGeometryElement = SCNGeometryElement(indices: indices, primitiveType: .triangles)
         return SCNGeometry(sources: [verticesSource, normalsSource, texcoordSource], elements: [faceSource])
     }
 
@@ -183,7 +183,7 @@ class CrystalGeometries: NSObject, CommonFunctionProtocol {
             24, 25, 26,
             27, 28, 29,
             ]
-        let texcoords = [
+        let texcoords: [float2] = [
             float2(1, 1),
             float2(1, 1),
             float2(0, 0),
@@ -224,12 +224,12 @@ class CrystalGeometries: NSObject, CommonFunctionProtocol {
             float2(1, 1),
             float2(1, 1),
             ]
-        let verticesSource = SCNGeometrySource(vertices: vertices)
-        let normalsSource = SCNGeometrySource(normals: normals)
+        let verticesSource: SCNGeometrySource = SCNGeometrySource(vertices: vertices)
+        let normalsSource: SCNGeometrySource = SCNGeometrySource(normals: normals)
         //let verticesSource = SCNGeometrySource(vertices: vertices, count: vertices.count)
         //let normalsSource = SCNGeometrySource(normals: normals, count: normals.count)
-        let texcoordSource = SCNGeometrySource(textureCoordinates: texcoords)
-        let faceSource = SCNGeometryElement(indices: indices, primitiveType: .triangles)
+        let texcoordSource: SCNGeometrySource = SCNGeometrySource(textureCoordinates: texcoords)
+        let faceSource: SCNGeometryElement = SCNGeometryElement(indices: indices, primitiveType: .triangles)
         return SCNGeometry(sources: [verticesSource, normalsSource, texcoordSource], elements: [faceSource])
     }
 
@@ -295,7 +295,7 @@ class CrystalGeometries: NSObject, CommonFunctionProtocol {
             14, 13, 12,
             15, 16, 17,
             ]
-        let texcoords = [
+        let texcoords: [float2] = [
             float2(1, 1),
             float2(1, 1),
             float2(0, 0),
@@ -320,12 +320,12 @@ class CrystalGeometries: NSObject, CommonFunctionProtocol {
             float2(1, 1),
             float2(0, 0),
             ]
-        let verticesSource = SCNGeometrySource(vertices: vertices)
-        let normalsSource = SCNGeometrySource(normals: normals)
+        let verticesSource: SCNGeometrySource = SCNGeometrySource(vertices: vertices)
+        let normalsSource: SCNGeometrySource = SCNGeometrySource(normals: normals)
         //let verticesSource = SCNGeometrySource(vertices: vertices, count: vertices.count)
         //let normalsSource = SCNGeometrySource(normals: normals, count: normals.count)
-        let texcoordSource = SCNGeometrySource(textureCoordinates: texcoords)
-        let faceSource = SCNGeometryElement(indices: indices, primitiveType: .triangles)
+        let texcoordSource: SCNGeometrySource = SCNGeometrySource(textureCoordinates: texcoords)
+        let faceSource: SCNGeometryElement = SCNGeometryElement(indices: indices, primitiveType: .triangles)
         return SCNGeometry(sources: [verticesSource, normalsSource, texcoordSource], elements: [faceSource])
     }
 
@@ -391,7 +391,7 @@ class CrystalGeometries: NSObject, CommonFunctionProtocol {
             14, 13,  12,
             16, 17,  15,
             ]
-        let texcoords = [
+        let texcoords: [float2] = [
             float2(1, 1),
             float2(1, 1),
             float2(0, 0),
@@ -416,12 +416,12 @@ class CrystalGeometries: NSObject, CommonFunctionProtocol {
             float2(1, 1),
             float2(0, 0),
             ]
-        let verticesSource = SCNGeometrySource(vertices: vertices)
-        let normalsSource = SCNGeometrySource(normals: normals)
+        let verticesSource: SCNGeometrySource = SCNGeometrySource(vertices: vertices)
+        let normalsSource: SCNGeometrySource = SCNGeometrySource(normals: normals)
         //let verticesSource = SCNGeometrySource(vertices: vertices, count: vertices.count)
         //let normalsSource = SCNGeometrySource(normals: normals, count: normals.count)
-        let texcoordSource = SCNGeometrySource(textureCoordinates: texcoords)
-        let faceSource = SCNGeometryElement(indices: indices, primitiveType: .triangles)
+        let texcoordSource: SCNGeometrySource = SCNGeometrySource(textureCoordinates: texcoords)
+        let faceSource: SCNGeometryElement = SCNGeometryElement(indices: indices, primitiveType: .triangles)
         return SCNGeometry(sources: [verticesSource, normalsSource, texcoordSource], elements: [faceSource])
     }
 
@@ -507,7 +507,7 @@ class CrystalGeometries: NSObject, CommonFunctionProtocol {
             19, 20,  18,
             21, 22,  23,
             ]
-        let texcoords = [
+        let texcoords: [float2] = [
             float2(1, 1),
             float2(1, 1),
             float2(0, 0),
@@ -540,12 +540,12 @@ class CrystalGeometries: NSObject, CommonFunctionProtocol {
             float2(1, 1),
             float2(0, 0),
             ]
-        let verticesSource = SCNGeometrySource(vertices: vertices)
-        let normalsSource = SCNGeometrySource(normals: normals)
+        let verticesSource: SCNGeometrySource = SCNGeometrySource(vertices: vertices)
+        let normalsSource: SCNGeometrySource = SCNGeometrySource(normals: normals)
         //let verticesSource = SCNGeometrySource(vertices: vertices, count: vertices.count)
         //let normalsSource = SCNGeometrySource(normals: normals, count: normals.count)
-        let texcoordSource = SCNGeometrySource(textureCoordinates: texcoords)
-        let faceSource = SCNGeometryElement(indices: indices, primitiveType: .triangles)
+        let texcoordSource: SCNGeometrySource = SCNGeometrySource(textureCoordinates: texcoords)
+        let faceSource: SCNGeometryElement = SCNGeometryElement(indices: indices, primitiveType: .triangles)
         return SCNGeometry(sources: [verticesSource, normalsSource, texcoordSource], elements: [faceSource])
     }
 
@@ -556,7 +556,7 @@ class CrystalGeometries: NSObject, CommonFunctionProtocol {
             SCNVector3(w / 2.0,  -h / 2.0, 0),
             SCNVector3(-w / 2.0, -h / 2.0, 0),
             ]
-        let normals = [
+        let normals: [SCNVector3] = [
             SCNVector3(0, 0, 1),
             SCNVector3(0, 0, 1),
             SCNVector3(0, 0, 1),
@@ -564,17 +564,17 @@ class CrystalGeometries: NSObject, CommonFunctionProtocol {
         let indices: [Int32] = [
             2, 1, 0,
             ]
-        let texcoords = [
+        let texcoords: [float2] = [
             float2(0, 0),
             float2(1, 1),
             float2(0, 0),
             ]
-        let verticesSource = SCNGeometrySource(vertices: vertices)
-        let normalsSource = SCNGeometrySource(normals: normals)
+        let verticesSource: SCNGeometrySource = SCNGeometrySource(vertices: vertices)
+        let normalsSource: SCNGeometrySource = SCNGeometrySource(normals: normals)
         //let verticesSource = SCNGeometrySource(vertices: vertices, count: vertices.count)
         //let normalsSource = SCNGeometrySource(normals: normals, count: normals.count)
-        let texcoordSource = SCNGeometrySource(textureCoordinates: texcoords)
-        let faceSource = SCNGeometryElement(indices: indices, primitiveType: .triangles)
+        let texcoordSource: SCNGeometrySource = SCNGeometrySource(textureCoordinates: texcoords)
+        let faceSource: SCNGeometryElement = SCNGeometryElement(indices: indices, primitiveType: .triangles)
         return SCNGeometry(sources: [verticesSource, normalsSource, texcoordSource], elements: [faceSource])
     }
 
@@ -590,18 +590,30 @@ class CrystalGeometries: NSObject, CommonFunctionProtocol {
         }
         //print("count: \(count)")
 
-        let colorS: UIColor = UIColor(red: self.colorSR / 255.0, green: self.colorSG / 255.0, blue: self.colorSB / 255.0, alpha: 1)
-        let colorE: UIColor = UIColor(red: self.colorER / 255.0, green: self.colorEG / 255.0, blue: self.colorEB / 255.0, alpha: 1)
+        let colorS: UIColor = UIColor(red: self.colorSR / 255.0,
+                                      green: self.colorSG / 255.0,
+                                      blue: self.colorSB / 255.0,
+                                      alpha: 1)
+        let colorE: UIColor = UIColor(red: self.colorER / 255.0,
+                                      green: self.colorEG / 255.0,
+                                      blue: self.colorEB / 255.0,
+                                      alpha: 1)
         let colorR: CGFloat = (self.colorER - self.colorSR) / 5.0
         let colorG: CGFloat = (self.colorEG - self.colorSG) / 5.0
         let colorB: CGFloat = (self.colorEB - self.colorSB) / 5.0
         //print("colorE: \(colorE)")
         if count <= 5 {
-            let color: UIColor = UIColor(red: (self.colorSR + colorR * CGFloat(count)) / 255.0, green: (self.colorSG + colorG * CGFloat(count)) / 255.0, blue: (self.colorSB + colorB * CGFloat(count)) / 255.0, alpha: 1)
+            let color: UIColor = UIColor(red: (self.colorSR + colorR * CGFloat(count)) / 255.0,
+                                         green: (self.colorSG + colorG * CGFloat(count)) / 255.0,
+                                         blue: (self.colorSB + colorB * CGFloat(count)) / 255.0,
+                                         alpha: 1)
             colors = [colorS.cgColor, color.cgColor]
         }
         else {
-            let color: UIColor = UIColor(red: (self.colorSR + colorR * CGFloat(count - 5)) / 255.0, green: (self.colorSG + colorG * CGFloat(count - 5)) / 255.0, blue: (self.colorSB + colorB * CGFloat(count - 5)) / 255.0, alpha: 1)
+            let color: UIColor = UIColor(red: (self.colorSR + colorR * CGFloat(count - 5)) / 255.0,
+                                         green: (self.colorSG + colorG * CGFloat(count - 5)) / 255.0,
+                                         blue: (self.colorSB + colorB * CGFloat(count - 5)) / 255.0,
+                                         alpha: 1)
             colors = [color.cgColor, colorE.cgColor]
         }
         //print("colors: \(colors)")

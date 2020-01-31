@@ -17,12 +17,12 @@ class HamburgerMenuView: UIView {
 
         self.lineColor?.setStroke()
 
-        let path = UIBezierPath()
+        let path: UIBezierPath = UIBezierPath()
         path.move(to: CGPoint(x: 0, y: 1.0))
         path.addLine(to: CGPoint(x: rect.size.width, y: 1.0))
         path.lineWidth = 2.0
         path.stroke()
-        
+
         path.move(to: CGPoint(x: 0, y: rect.size.height / 2))
         path.addLine(to: CGPoint(x: rect.size.width, y: rect.size.height / 2))
         path.lineWidth = 2.0

@@ -139,8 +139,10 @@ class DebugBaseViewController: BaseViewController, UITableViewDataSource, UITabl
         if let reusableCell = tableView.dequeueReusableCell(withIdentifier: "Cell") {
             cell = reusableCell
         }
-        cell.backgroundColor = UIColor.clear
-        cell.selectionStyle = .none
+        else {
+            cell.backgroundColor = UIColor.clear
+            cell.selectionStyle = .none
+        }
         return cell
     }
 }

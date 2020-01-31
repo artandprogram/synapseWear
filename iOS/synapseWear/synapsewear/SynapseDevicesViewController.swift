@@ -152,7 +152,7 @@ class SynapseDevicesViewController: SettingBaseViewController, DeviceScanningDel
 
         tableView.deselectRow(at: indexPath, animated: false)
 
-        if indexPath.row > 0 && indexPath.row <= self.devices.count {
+        if indexPath.row > 0, indexPath.row <= self.devices.count {
             if let nav = self.navigationController as? NavigationController {
                 nav.reconnectSynapse(uuid: self.devices[indexPath.row - 1].peripheral.identifier)
                 self.dismiss(animated: true, completion: nil)

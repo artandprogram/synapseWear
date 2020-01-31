@@ -29,29 +29,17 @@ class SynapseRecordFileManager: BaseFileManager, UsageFunction {
 
         if synapseId.count > 0 {
             self.baseDirPath = "\(self.baseDirPath)/\(synapseId)"
-
-            let fileManager: FileManager = FileManager.default
-            var isDir: ObjCBool = false
-            let exists: Bool = fileManager.fileExists(atPath: self.baseDirPath, isDirectory: &isDir)
-            if !exists || !isDir.boolValue {
-                do {
-                    try fileManager.createDirectory(atPath: self.baseDirPath ,withIntermediateDirectories: true, attributes: nil)
-                }
-                catch {
-                }
-            }
+            _ = self.self.createDirectory(self.baseDirPath)
         }
         //print("SynapseRecordFileManager setSynapseId: \(self.baseDirPath)")
     }
 
     func getSynapseRecords(day: String? = nil, type: String? = nil) -> [String] {
 
-        var res: [String] = []
         var filePath: String = self.baseDirPath
         if let dirName = day {
             if dirName.count > 0 {
                 filePath = "\(filePath)/\(dirName)"
-
                 if let dirName = type {
                     if dirName.count > 0 {
                         filePath = "\(filePath)/\(dirName)"
@@ -59,13 +47,12 @@ class SynapseRecordFileManager: BaseFileManager, UsageFunction {
                 }
             }
         }
-        let fileManager: FileManager = FileManager.default
         do {
-            try res = fileManager.contentsOfDirectory(atPath: filePath)
+            return try self.contentsOfDirectory(filePath)
         }
         catch {
+            return []
         }
-        return res.sorted { $1 < $0 }
     }
 
     func setSynapseRecord(day: String, time: String, fileName: String) -> Bool {
@@ -75,68 +62,16 @@ class SynapseRecordFileManager: BaseFileManager, UsageFunction {
         }
 
         var filePath: String = "\(self.baseDirPath)/\(day)"
-        //print("save synapse -> \(filePath)" )
-        let fileManager: FileManager = FileManager.default
-        var isDir: ObjCBool = false
-        var exists: Bool = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
-            //print("save synapse -> no exist \(exists) \(isDir)" )
-            if exists && !isDir.boolValue {
-                do {
-                    try fileManager.removeItem(atPath: filePath)
-                }
-                catch {
-                    //print("save synapse -> removeItem error" )
-                    return false
-                }
-            }
-            //print("save synapse -> make dir" )
-            do {
-                try fileManager.createDirectory(atPath: filePath, withIntermediateDirectories: true, attributes: nil)
-            }
-            catch {
-                //print("save synapse -> make dir error" )
-                return false
-            }
+        if !self.createDirectory(filePath) {
+            return false
         }
-
         filePath = "\(filePath)/\(time)"
-        //print("save synapse -> \(filePath)" )
-        exists = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
-            //print("save synapse -> no exist \(exists) \(isDir)" )
-            if exists && !isDir.boolValue {
-                do {
-                    try fileManager.removeItem(atPath: filePath)
-                }
-                catch {
-                    //print("save synapse -> removeItem error" )
-                    return false
-                }
-            }
-            //print("save synapse -> make dir" )
-            do {
-                try fileManager.createDirectory(atPath: filePath, withIntermediateDirectories: true, attributes: nil)
-            }
-            catch {
-                //print("save synapse -> make dir error" )
-                return false
-            }
+        if !self.createDirectory(filePath) {
+            return false
         }
-
         filePath = "\(filePath)/\(fileName)"
-        //print("save synapse -> \(filePath)" )
-        exists = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || isDir.boolValue {
-            if exists && isDir.boolValue {
-                do {
-                    try fileManager.removeItem(atPath: filePath)
-                }
-                catch {
-                    return false
-                }
-            }
-            return fileManager.createFile(atPath: filePath, contents: Data(), attributes: nil)
+        if !self.createFile(filePath) {
+            return false
         }
         return true
     }
@@ -162,16 +97,28 @@ class SynapseRecordFileManager: BaseFileManager, UsageFunction {
                 }
             }
         }
-
         if filePath.count > 0 {
-            let fileManager: FileManager = FileManager.default
-            var isDir: ObjCBool = false
-            let exists: Bool = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-            if exists && isDir.boolValue {
-                res = true
-            }
+            res = self.fileExists(filePath, isDirectory: true)
         }
         return res
+    }
+
+    func getTotalData(_ filePath: String) -> [String]? {
+
+        if filePath.count > 0 {
+            do {
+                let files: [String] = try self.contentsOfDirectory(filePath)
+                if let file = files.first {
+                    let arr: [String] = file.components(separatedBy: "_")
+                    if arr.count > 1 {
+                        return arr
+                    }
+                }
+            }
+            catch {
+            }
+        }
+        return nil
     }
 
     func getSynapseRecordTotal(day: String, hour: String, min: String, sec: String?, type: String) -> [Double] {
@@ -190,30 +137,9 @@ class SynapseRecordFileManager: BaseFileManager, UsageFunction {
                 filePath = ""
             }
         }
-
-        if filePath.count > 0 {
-            let fileManager: FileManager = FileManager.default
-            var isDir: ObjCBool = false
-            let exists: Bool = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-            if exists && isDir.boolValue {
-                var files: [String] = []
-                do {
-                    try files = fileManager.contentsOfDirectory(atPath: filePath)
-                }
-                catch {
-                    return res
-                }
-                files.sort { $1 < $0 }
-
-                if files.count > 0 {
-                    let file: String = files[0]
-                    let arr: [String] = file.components(separatedBy: "_")
-                    if arr.count > 1 {
-                        if let cnt = Double(arr[0]), let total = Double(arr[1]) {
-                            return [cnt, total]
-                        }
-                    }
-                }
+        if let arr = self.getTotalData(filePath) {
+            if let cnt = Double(arr[0]), let total = Double(arr[1]) {
+                return [cnt, total]
             }
         }
         return res
@@ -226,250 +152,101 @@ class SynapseRecordFileManager: BaseFileManager, UsageFunction {
         }
 
         var filePath: String = "\(self.baseDirPath)/\(day)"
-        let fileManager: FileManager = FileManager.default
-        var isDir: ObjCBool = false
-        var exists: Bool = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
-            //print("save synapse -> no exist \(exists) \(isDir)" )
-            if exists && !isDir.boolValue {
-                do {
-                    try fileManager.removeItem(atPath: filePath)
-                }
-                catch {
-                    //print("save synapse -> removeItem error" )
-                    return false
-                }
-            }
-            //print("save synapse -> make dir" )
-            do {
-                try fileManager.createDirectory(atPath: filePath, withIntermediateDirectories: true, attributes: nil)
-            }
-            catch {
-                //print("save synapse -> make dir error" )
-                return false
-            }
+        if !self.createDirectory(filePath) {
+            return false
         }
-
         filePath = "\(filePath)/\(type)"
-        exists = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
-            if exists && !isDir.boolValue {
-                do {
-                    try fileManager.removeItem(atPath: filePath)
-                }
-                catch {
-                    return false
-                }
-            }
-            do {
-                try fileManager.createDirectory(atPath: filePath, withIntermediateDirectories: true, attributes: nil)
-            }
-            catch {
-                return false
-            }
+        if !self.createDirectory(filePath) {
+            return false
         }
-
         filePath = "\(filePath)/\(hour)"
-        exists = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
-            if exists && !isDir.boolValue {
-                do {
-                    try fileManager.removeItem(atPath: filePath)
-                }
-                catch {
-                    return false
-                }
-            }
-            do {
-                try fileManager.createDirectory(atPath: filePath, withIntermediateDirectories: true, attributes: nil)
-            }
-            catch {
-                return false
-            }
+        if !self.createDirectory(filePath) {
+            return false
         }
 
         var cnt: Int = 0
         var total: Double = 0
         filePath = "\(filePath)/\(min)"
-        exists = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
-            if exists && !isDir.boolValue {
-                do {
-                    try fileManager.removeItem(atPath: filePath)
-                }
-                catch {
-                    return false
-                }
-            }
-            do {
-                try fileManager.createDirectory(atPath: filePath, withIntermediateDirectories: true, attributes: nil)
-            }
-            catch {
-                return false
-            }
+        if !self.createDirectory(filePath) {
+            return false
         }
-        else {
-            var files: [String] = []
-            do {
-                try files = fileManager.contentsOfDirectory(atPath: filePath)
-            }
-            catch {
-                return false
-            }
-            files.sort { $1 < $0 }
-
-            if files.count > 0 {
-                let file: String = files[0]
-                let arr: [String] = file.components(separatedBy: "_")
-                if arr.count > 1 {
-                    if let cntVal = Int(arr[0]), let totalVal = Double(arr[1]) {
-                        cnt = cntVal
-                        total = totalVal
-                    }
-                }
+        if let arr = self.getTotalData(filePath) {
+            if let cntVal = Int(arr[0]), let totalVal = Double(arr[1]) {
+                cnt = cntVal
+                total = totalVal
             }
         }
         cnt += 1
         total += value
 
         var totalFileName: String = "\(String(format:"%02d", cnt))_\(String(total))"
-        if !fileManager.createFile(atPath: "\(filePath)/\(totalFileName)", contents: Data(), attributes: nil) {
+        if !self.createFile("\(filePath)/\(totalFileName)") {
             return false
         }
 
         cnt = 0
         total = 0
         filePath = "\(filePath)/00_\(sec)"
-        exists = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
-            if exists && !isDir.boolValue {
-                do {
-                    try fileManager.removeItem(atPath: filePath)
-                }
-                catch {
-                    return false
-                }
-            }
-            do {
-                try fileManager.createDirectory(atPath: filePath, withIntermediateDirectories: true, attributes: nil)
-            }
-            catch {
-                return false
-            }
+        if !self.createDirectory(filePath) {
+            return false
         }
-        else {
-            var files: [String] = []
-            do {
-                try files = fileManager.contentsOfDirectory(atPath: filePath)
-            }
-            catch {
-                return false
-            }
-            if files.count > 0 {
-                files.sort { $1 < $0 }
-
-                let file: String = files[0]
-                let arr: [String] = file.components(separatedBy: "_")
-                if arr.count > 1 {
-                    if let cntVal = Int(arr[0]), let totalVal = Double(arr[1]) {
-                        cnt = cntVal
-                        total = totalVal
-                    }
-                }
+        if let arr = self.getTotalData(filePath) {
+            if let cntVal = Int(arr[0]), let totalVal = Double(arr[1]) {
+                cnt = cntVal
+                total = totalVal
             }
         }
         cnt += 1
         total += value
 
         totalFileName = "\(String(format:"%02d", cnt))_\(String(total))"
-        if !fileManager.createFile(atPath: "\(filePath)/\(totalFileName)", contents: Data(), attributes: nil) {
+        if !self.createFile("\(filePath)/\(totalFileName)") {
             return false
         }
+
         return true
     }
 
     func getSynapseRecordTotalIn10min(day: String, hour: String, min: Int, type: String, isSave: Bool) -> Double? {
 
         var res: Double? = nil
-        //var res: Double = 0
         if day.count <= 0 || hour.count <= 0 || type.count <= 0 {
             return res
         }
 
         var filePath: String = "\(self.baseDirPath)/\(day)"
-        let fileManager: FileManager = FileManager.default
-        var isDir: ObjCBool = false
-        var exists: Bool = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
+        if !self.fileExists(filePath, isDirectory: true) {
             return res
         }
-
         filePath = "\(filePath)/\(type)"
-        exists = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
+        if !self.fileExists(filePath, isDirectory: true) {
             return res
         }
-
         filePath = "\(filePath)/\(hour)"
-        exists = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
+        if !self.fileExists(filePath, isDirectory: true) {
             return res
         }
 
         var filePath10min: String = "\(filePath)/10min"
-        exists = fileManager.fileExists(atPath: filePath10min, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
-            if exists && !isDir.boolValue {
-                do {
-                    try fileManager.removeItem(atPath: filePath10min)
-                }
-                catch {
-                    return res
-                }
-            }
-            if isSave {
-                do {
-                    try fileManager.createDirectory(atPath: filePath10min, withIntermediateDirectories: true, attributes: nil)
-                }
-                catch {
-                    return res
-                }
-            }
+        if !self.createDirectory(filePath10min) {
+            return res
         }
-
         filePath10min = "\(filePath10min)/\(min)"
-        exists = fileManager.fileExists(atPath: filePath10min, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
-            if exists && !isDir.boolValue {
-                do {
-                    try fileManager.removeItem(atPath: filePath10min)
-                }
-                catch {
-                    return res
+        if self.fileExists(filePath10min, isDirectory: true) {
+            do {
+                let files: [String] = try self.contentsOfDirectory(filePath10min)
+                if let file = files.first {
+                    if let value = Double(file) {
+                        return value
+                    }
                 }
             }
-            if isSave {
-                do {
-                    try fileManager.createDirectory(atPath: filePath10min, withIntermediateDirectories: true, attributes: nil)
-                }
-                catch {
-                    return res
-                }
+            catch {
             }
         }
         else {
-            var files: [String] = []
-            do {
-                try files = fileManager.contentsOfDirectory(atPath: filePath10min)
-                //files.sort { $1 < $0 }
-            }
-            catch {
-                files = []
-            }
-            if files.count > 0 {
-                if let value = Double(files[0]) {
-                    return value
-                }
+            if isSave, !self.createDirectory(filePath10min) {
+                return res
             }
         }
 
@@ -478,23 +255,10 @@ class SynapseRecordFileManager: BaseFileManager, UsageFunction {
         for i in min * 10..<(min + 1) * 10 {
             let minStr: String = String(format:"%02d", i)
             let minPath: String = "\(filePath)/\(minStr)"
-            var files: [String] = []
-            do {
-                try files = fileManager.contentsOfDirectory(atPath: minPath)
-                files.sort { $1 < $0 }
-            }
-            catch {
-                files = []
-            }
-
-            if files.count > 0 {
-                let file: String = files[0]
-                let arr: [String] = file.components(separatedBy: "_")
-                if arr.count > 1 {
-                    if let cntVal = Int(arr[0]), let totalVal = Double(arr[1]) {
-                        cnt += cntVal
-                        total += totalVal
-                    }
+            if let arr = self.getTotalData(minPath) {
+                if let cntVal = Int(arr[0]), let totalVal = Double(arr[1]) {
+                    cnt += cntVal
+                    total += totalVal
                 }
             }
         }
@@ -502,9 +266,9 @@ class SynapseRecordFileManager: BaseFileManager, UsageFunction {
             res = total / Double(cnt)
         }
 
-        if isSave && res != nil {
+        if isSave, res != nil {
             let totalFileName: String = String(res!)
-            if fileManager.createFile(atPath: "\(filePath10min)/\(totalFileName)", contents: Data(), attributes: nil) {
+            if self.createFile("\(filePath10min)/\(totalFileName)") {
                 //print("make SynapseRecordTotalIn10min: \(filePath10min)/\(totalFileName)")
                 //return res
             }
@@ -520,58 +284,34 @@ class SynapseRecordFileManager: BaseFileManager, UsageFunction {
         }
 
         var filePath: String = "\(self.baseDirPath)/\(day)"
-        let fileManager: FileManager = FileManager.default
-        var isDir: ObjCBool = false
-        var exists: Bool = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
+        if !self.fileExists(filePath, isDirectory: true) {
             return res
         }
-
         filePath = "\(filePath)/\(type)"
-        exists = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
+        if !self.fileExists(filePath, isDirectory: true) {
             return res
         }
-
         filePath = "\(filePath)/\(hour)"
-        exists = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
+        if !self.fileExists(filePath, isDirectory: true) {
             return res
         }
 
         filePath = "\(filePath)/1hour"
-        exists = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
-            if exists && !isDir.boolValue {
-                do {
-                    try fileManager.removeItem(atPath: filePath)
-                }
-                catch {
-                    return res
+        if self.fileExists(filePath, isDirectory: true) {
+            do {
+                let files: [String] = try self.contentsOfDirectory(filePath)
+                if let file = files.first {
+                    if let value = Double(file) {
+                        return value
+                    }
                 }
             }
-            if isSave {
-                do {
-                    try fileManager.createDirectory(atPath: filePath, withIntermediateDirectories: true, attributes: nil)
-                }
-                catch {
-                    return res
-                }
+            catch {
             }
         }
         else {
-            var files: [String] = []
-            do {
-                try files = fileManager.contentsOfDirectory(atPath: filePath)
-                //files.sort { $1 < $0 }
-            }
-            catch {
-                files = []
-            }
-            if files.count > 0 {
-                if let value = Double(files[0]) {
-                    return value
-                }
+            if isSave, !self.createDirectory(filePath) {
+                return res
             }
         }
         
@@ -588,9 +328,9 @@ class SynapseRecordFileManager: BaseFileManager, UsageFunction {
             res = total / Double(cnt)
         }
 
-        if isSave && res != nil {
+        if isSave, res != nil {
             let totalFileName: String = String(res!)
-            if fileManager.createFile(atPath: "\(filePath)/\(totalFileName)", contents: Data(), attributes: nil) {
+            if self.createFile("\(filePath)/\(totalFileName)") {
                 //print("make SynapseRecordTotalInHour: \(filePath)/\(totalFileName)")
             }
         }
@@ -599,50 +339,41 @@ class SynapseRecordFileManager: BaseFileManager, UsageFunction {
 
     func setSynapseRecordTotalInHour(type: String, start: Date? = nil) {
 
-        let dayFormatter: DateFormatter = DateFormatter()
-        dayFormatter.locale = Locale(identifier: "en_US_POSIX")
-        dayFormatter.dateFormat = "yyyyMMdd"
-        let hourFormatter: DateFormatter = DateFormatter()
-        hourFormatter.locale = Locale(identifier: "en_US_POSIX")
-        hourFormatter.dateFormat = "HH"
-        let minFormatter: DateFormatter = DateFormatter()
-        minFormatter.locale = Locale(identifier: "en_US_POSIX")
-        minFormatter.dateFormat = "mm"
-
         let date: Date = Date()
-        let dateD: String = dayFormatter.string(from: date)
-        let dateH: String = hourFormatter.string(from: date)
-        let dateM: String = minFormatter.string(from: date)
+        let dateD: String = self.dateToString(date: date, dateFormat: "yyyyMMdd")
+        let dateH: String = self.dateToString(date: date, dateFormat: "HH")
+        let dateM: String = self.dateToString(date: date, dateFormat: "mm")
         var startD: String?
         var startH: String?
         var startM: String?
         if let start = start {
-            startD = dayFormatter.string(from: start)
-            startH = hourFormatter.string(from: start)
-            startM = minFormatter.string(from: start)
+            startD = self.dateToString(date: start, dateFormat: "yyyyMMdd")
+            startH = self.dateToString(date: start, dateFormat: "HH")
+            startM = self.dateToString(date: start, dateFormat: "mm")
         }
 
-        let fileManager: FileManager = FileManager.default
-        var files: [String] = []
         do {
-            try files = fileManager.contentsOfDirectory(atPath: self.baseDirPath)
-            files.sort { $1 > $0 }
-        }
-        catch {
-            files = []
-        }
-        //print("setSynapseRecordTotalInHour: \(type) -> \(startD):\(startH):\(startM) - \(dateD):\(dateH):\(dateM)")
-        for (_, element) in files.enumerated() {
-            if (startD == nil || element >= startD!) && element <= dateD {
-                for i in 0..<24 {
-                    if (startH == nil || element > startD! || i >= Int(startH!)!) && (element < dateD || i <= Int(dateH)!) {
-                        for j in 0..<6 {
-                            if (startM == nil || element > startD! || i > Int(startH!)! || (j + 1) * 10 >= Int(startM!)!) {
-                                if element < dateD || (element == dateD && i < Int(dateH)!) {
-                                    _ = self.getSynapseRecordTotalInHour(day: element, hour: String(format:"%02d", i), type: type, isSave: true)
-                                }
-                                else if element == dateD && i == Int(dateH)! && (j + 1) * 10 < Int(dateM)! {
-                                    _ = self.getSynapseRecordTotalIn10min(day: element, hour: String(format:"%02d", i), min: j, type: type, isSave: true)
+            let files: [String] = try self.contentsOfDirectory(self.baseDirPath)
+            //print("setSynapseRecordTotalInHour: \(type) -> \(startD):\(startH):\(startM) - \(dateD):\(dateH):\(dateM)")
+            for (_, element) in files.enumerated() {
+                if (startD == nil || element >= startD!) && element <= dateD {
+                    for i in 0..<24 {
+                        if (startH == nil || element > startD! || i >= Int(startH!)!) && (element < dateD || i <= Int(dateH)!) {
+                            for j in 0..<6 {
+                                if (startM == nil || element > startD! || i > Int(startH!)! || (j + 1) * 10 >= Int(startM!)!) {
+                                    if element < dateD || (element == dateD && i < Int(dateH)!) {
+                                        _ = self.getSynapseRecordTotalInHour(day: element,
+                                                                             hour: String(format:"%02d", i),
+                                                                             type: type,
+                                                                             isSave: true)
+                                    }
+                                    else if element == dateD && i == Int(dateH)! && (j + 1) * 10 < Int(dateM)! {
+                                        _ = self.getSynapseRecordTotalIn10min(day: element,
+                                                                              hour: String(format:"%02d", i),
+                                                                              min: j,
+                                                                              type: type,
+                                                                              isSave: true)
+                                    }
                                 }
                             }
                         }
@@ -650,33 +381,27 @@ class SynapseRecordFileManager: BaseFileManager, UsageFunction {
                 }
             }
         }
+        catch {
+        }
     }
 
     func getSynapseRecordValueType(day: String, hour: String, min: String, type: String, valueType: String) -> [String] {
 
-        let res: [String] = []
         if day.count <= 0 || hour.count <= 0 || min.count <= 0 || type.count <= 0 || valueType.count <= 0 {
-            return res
+            return []
         }
 
         let filePath: String = "\(self.baseDirPath)/\(day)/\(type)/\(valueType)/\(hour)/\(min)"
         if filePath.count > 0 {
-            let fileManager: FileManager = FileManager.default
-            var isDir: ObjCBool = false
-            let exists: Bool = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-            if exists && isDir.boolValue {
-                var files: [String] = []
+            if self.fileExists(filePath, isDirectory: true) {
                 do {
-                    try files = fileManager.contentsOfDirectory(atPath: filePath)
+                    return try self.contentsOfDirectory(filePath)
                 }
                 catch {
-                    return res
                 }
-                files.sort { $1 < $0 }
-                return files
             }
         }
-        return res
+        return []
     }
 
     func getSynapseRecordValueTypeIn10min(day: String, hour: String, min: Int, type: String, valueType: String) -> [String]? {
@@ -687,19 +412,12 @@ class SynapseRecordFileManager: BaseFileManager, UsageFunction {
 
         let filePath: String = "\(self.baseDirPath)/\(day)/\(type)/\(valueType)/\(hour)/10min/\(min)"
         if filePath.count > 0 {
-            let fileManager: FileManager = FileManager.default
-            var isDir: ObjCBool = false
-            let exists: Bool = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-            if exists && isDir.boolValue {
-                var files: [String] = []
+            if self.fileExists(filePath, isDirectory: true) {
                 do {
-                    try files = fileManager.contentsOfDirectory(atPath: filePath)
+                    return try self.contentsOfDirectory(filePath)
                 }
                 catch {
-                    return nil
                 }
-                files.sort { $1 < $0 }
-                return files
             }
         }
         return nil
@@ -713,19 +431,12 @@ class SynapseRecordFileManager: BaseFileManager, UsageFunction {
 
         let filePath: String = "\(self.baseDirPath)/\(day)/\(type)/\(valueType)/\(hour)/1hour"
         if filePath.count > 0 {
-            let fileManager: FileManager = FileManager.default
-            var isDir: ObjCBool = false
-            let exists: Bool = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-            if exists && isDir.boolValue {
-                var files: [String] = []
+            if self.fileExists(filePath, isDirectory: true) {
                 do {
-                    try files = fileManager.contentsOfDirectory(atPath: filePath)
+                    return try self.contentsOfDirectory(filePath)
                 }
                 catch {
-                    return nil
                 }
-                files.sort { $1 < $0 }
-                return files
             }
         }
         return nil
@@ -738,121 +449,28 @@ class SynapseRecordFileManager: BaseFileManager, UsageFunction {
         }
 
         var filePath: String = "\(self.baseDirPath)/\(day)"
-        let fileManager: FileManager = FileManager.default
-        var isDir: ObjCBool = false
-        var exists: Bool = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
-            //print("save synapse -> no exist \(exists) \(isDir)" )
-            if exists && !isDir.boolValue {
-                do {
-                    try fileManager.removeItem(atPath: filePath)
-                }
-                catch {
-                    //print("save synapse -> removeItem error" )
-                    return false
-                }
-            }
-            //print("save synapse -> make dir" )
-            do {
-                try fileManager.createDirectory(atPath: filePath, withIntermediateDirectories: true, attributes: nil)
-            }
-            catch {
-                //print("save synapse -> make dir error" )
-                return false
-            }
+        if !self.createDirectory(filePath) {
+            return false
         }
-
         filePath = "\(filePath)/\(type)"
-        exists = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
-            if exists && !isDir.boolValue {
-                do {
-                    try fileManager.removeItem(atPath: filePath)
-                }
-                catch {
-                    return false
-                }
-            }
-            do {
-                try fileManager.createDirectory(atPath: filePath, withIntermediateDirectories: true, attributes: nil)
-            }
-            catch {
-                return false
-            }
+        if !self.createDirectory(filePath) {
+            return false
         }
-
         filePath = "\(filePath)/\(valueType)"
-        exists = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
-            if exists && !isDir.boolValue {
-                do {
-                    try fileManager.removeItem(atPath: filePath)
-                }
-                catch {
-                    return false
-                }
-            }
-            do {
-                try fileManager.createDirectory(atPath: filePath, withIntermediateDirectories: true, attributes: nil)
-            }
-            catch {
-                return false
-            }
+        if !self.createDirectory(filePath) {
+            return false
         }
-
         filePath = "\(filePath)/\(hour)"
-        exists = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
-            if exists && !isDir.boolValue {
-                do {
-                    try fileManager.removeItem(atPath: filePath)
-                }
-                catch {
-                    return false
-                }
-            }
-            do {
-                try fileManager.createDirectory(atPath: filePath, withIntermediateDirectories: true, attributes: nil)
-            }
-            catch {
-                return false
-            }
+        if !self.createDirectory(filePath) {
+            return false
         }
-
         filePath = "\(filePath)/\(min)"
-        exists = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
-            if exists && !isDir.boolValue {
-                do {
-                    try fileManager.removeItem(atPath: filePath)
-                }
-                catch {
-                    return false
-                }
-            }
-            do {
-                try fileManager.createDirectory(atPath: filePath, withIntermediateDirectories: true, attributes: nil)
-            }
-            catch {
-                return false
-            }
+        if !self.createDirectory(filePath) {
+            return false
         }
-
         filePath = "\(filePath)/\(value)"
         //print("save synapse -> \(filePath)" )
-        exists = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || isDir.boolValue {
-            if exists && isDir.boolValue {
-                do {
-                    try fileManager.removeItem(atPath: filePath)
-                }
-                catch {
-                    return false
-                }
-            }
-            return fileManager.createFile(atPath: filePath, contents: Data(), attributes: nil)
-        }
-        return true
+        return self.createFile(filePath)
     }
 
     func setSynapseRecordValueTypeIn10min(_ value: String, day: String, hour: String, min: Int, type: String, valueType: String) -> Bool {
@@ -862,140 +480,32 @@ class SynapseRecordFileManager: BaseFileManager, UsageFunction {
         }
 
         var filePath: String = "\(self.baseDirPath)/\(day)"
-        let fileManager: FileManager = FileManager.default
-        var isDir: ObjCBool = false
-        var exists: Bool = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
-            //print("save synapse -> no exist \(exists) \(isDir)" )
-            if exists && !isDir.boolValue {
-                do {
-                    try fileManager.removeItem(atPath: filePath)
-                }
-                catch {
-                    //print("save synapse -> removeItem error" )
-                    return false
-                }
-            }
-            //print("save synapse -> make dir" )
-            do {
-                try fileManager.createDirectory(atPath: filePath, withIntermediateDirectories: true, attributes: nil)
-            }
-            catch {
-                //print("save synapse -> make dir error" )
-                return false
-            }
+        if !self.createDirectory(filePath) {
+            return false
         }
-
         filePath = "\(filePath)/\(type)"
-        exists = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
-            if exists && !isDir.boolValue {
-                do {
-                    try fileManager.removeItem(atPath: filePath)
-                }
-                catch {
-                    return false
-                }
-            }
-            do {
-                try fileManager.createDirectory(atPath: filePath, withIntermediateDirectories: true, attributes: nil)
-            }
-            catch {
-                return false
-            }
+        if !self.createDirectory(filePath) {
+            return false
         }
-
         filePath = "\(filePath)/\(valueType)"
-        exists = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
-            if exists && !isDir.boolValue {
-                do {
-                    try fileManager.removeItem(atPath: filePath)
-                }
-                catch {
-                    return false
-                }
-            }
-            do {
-                try fileManager.createDirectory(atPath: filePath, withIntermediateDirectories: true, attributes: nil)
-            }
-            catch {
-                return false
-            }
+        if !self.createDirectory(filePath) {
+            return false
         }
-
         filePath = "\(filePath)/\(hour)"
-        exists = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
-            if exists && !isDir.boolValue {
-                do {
-                    try fileManager.removeItem(atPath: filePath)
-                }
-                catch {
-                    return false
-                }
-            }
-            do {
-                try fileManager.createDirectory(atPath: filePath, withIntermediateDirectories: true, attributes: nil)
-            }
-            catch {
-                return false
-            }
+        if !self.createDirectory(filePath) {
+            return false
         }
-
         filePath = "\(filePath)/10min"
-        exists = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
-            if exists && !isDir.boolValue {
-                do {
-                    try fileManager.removeItem(atPath: filePath)
-                }
-                catch {
-                    return false
-                }
-            }
-            do {
-                try fileManager.createDirectory(atPath: filePath, withIntermediateDirectories: true, attributes: nil)
-            }
-            catch {
-                return false
-            }
+        if !self.createDirectory(filePath) {
+            return false
         }
-
         filePath = "\(filePath)/\(min)"
-        exists = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
-            if exists && !isDir.boolValue {
-                do {
-                    try fileManager.removeItem(atPath: filePath)
-                }
-                catch {
-                    return false
-                }
-            }
-            do {
-                try fileManager.createDirectory(atPath: filePath, withIntermediateDirectories: true, attributes: nil)
-            }
-            catch {
-                return false
-            }
+        if !self.createDirectory(filePath) {
+            return false
         }
-
         filePath = "\(filePath)/\(value)"
         //print("save synapse -> \(filePath)" )
-        exists = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || isDir.boolValue {
-            if exists && isDir.boolValue {
-                do {
-                    try fileManager.removeItem(atPath: filePath)
-                }
-                catch {
-                    return false
-                }
-            }
-            return fileManager.createFile(atPath: filePath, contents: Data(), attributes: nil)
-        }
-        return true
+        return self.createFile(filePath)
     }
 
     func setSynapseRecordValueTypeInHour(_ value: String, day: String, hour: String, type: String, valueType: String) -> Bool {
@@ -1005,148 +515,51 @@ class SynapseRecordFileManager: BaseFileManager, UsageFunction {
         }
 
         var filePath: String = "\(self.baseDirPath)/\(day)"
-        let fileManager: FileManager = FileManager.default
-        var isDir: ObjCBool = false
-        var exists: Bool = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
-            //print("save synapse -> no exist \(exists) \(isDir)" )
-            if exists && !isDir.boolValue {
-                do {
-                    try fileManager.removeItem(atPath: filePath)
-                }
-                catch {
-                    //print("save synapse -> removeItem error" )
-                    return false
-                }
-            }
-            //print("save synapse -> make dir" )
-            do {
-                try fileManager.createDirectory(atPath: filePath, withIntermediateDirectories: true, attributes: nil)
-            }
-            catch {
-                //print("save synapse -> make dir error" )
-                return false
-            }
+        if !self.createDirectory(filePath) {
+            return false
         }
-
         filePath = "\(filePath)/\(type)"
-        exists = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
-            if exists && !isDir.boolValue {
-                do {
-                    try fileManager.removeItem(atPath: filePath)
-                }
-                catch {
-                    return false
-                }
-            }
-            do {
-                try fileManager.createDirectory(atPath: filePath, withIntermediateDirectories: true, attributes: nil)
-            }
-            catch {
-                return false
-            }
+        if !self.createDirectory(filePath) {
+            return false
         }
-
         filePath = "\(filePath)/\(valueType)"
-        exists = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
-            if exists && !isDir.boolValue {
-                do {
-                    try fileManager.removeItem(atPath: filePath)
-                }
-                catch {
-                    return false
-                }
-            }
-            do {
-                try fileManager.createDirectory(atPath: filePath, withIntermediateDirectories: true, attributes: nil)
-            }
-            catch {
-                return false
-            }
+        if !self.createDirectory(filePath) {
+            return false
         }
-
         filePath = "\(filePath)/\(hour)"
-        exists = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
-            if exists && !isDir.boolValue {
-                do {
-                    try fileManager.removeItem(atPath: filePath)
-                }
-                catch {
-                    return false
-                }
-            }
-            do {
-                try fileManager.createDirectory(atPath: filePath, withIntermediateDirectories: true, attributes: nil)
-            }
-            catch {
-                return false
-            }
+        if !self.createDirectory(filePath) {
+            return false
         }
-
         filePath = "\(filePath)/1hour"
-        exists = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
-            if exists && !isDir.boolValue {
-                do {
-                    try fileManager.removeItem(atPath: filePath)
-                }
-                catch {
-                    return false
-                }
-            }
-            do {
-                try fileManager.createDirectory(atPath: filePath, withIntermediateDirectories: true, attributes: nil)
-            }
-            catch {
-                return false
-            }
+        if !self.createDirectory(filePath) {
+            return false
         }
-
         filePath = "\(filePath)/\(value)"
         //print("save synapse -> \(filePath)" )
-        exists = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || isDir.boolValue {
-            if exists && isDir.boolValue {
-                do {
-                    try fileManager.removeItem(atPath: filePath)
-                }
-                catch {
-                    return false
-                }
-            }
-            return fileManager.createFile(atPath: filePath, contents: Data(), attributes: nil)
-        }
-        return true
+        return self.createFile(filePath)
     }
 
     func getDayDirectories() -> [String] {
 
-        var res: [String] = []
-        let fileManager: FileManager = FileManager.default
         do {
-            try res = fileManager.contentsOfDirectory(atPath: self.baseDirPath)
+            return try self.contentsOfDirectory(self.baseDirPath)
         }
         catch {
         }
-        return res.sorted { $1 < $0 }
+        return []
     }
 
     func getConnectLogs(day: String?) -> [String] {
 
-        var res: [String] = []
         if let day = day, day.count > 0 {
             let filePath: String = "\(self.baseDirPath)/\(day)/\(self.connectLogDir)"
-            let fileManager: FileManager = FileManager.default
             do {
-                try res = fileManager.contentsOfDirectory(atPath: filePath)
+                return try self.contentsOfDirectory(filePath)
             }
             catch {
             }
-       }
-        return res.sorted { $1 < $0 }
+        }
+        return []
     }
 
     func getConnectLastDate(_ type: String? = nil) -> Date? {
@@ -1195,7 +608,6 @@ class SynapseRecordFileManager: BaseFileManager, UsageFunction {
         if let value = value {
             res.append(value)
         }
-
         return res
     }
 
@@ -1205,71 +617,20 @@ class SynapseRecordFileManager: BaseFileManager, UsageFunction {
             return false
         }
 
-        let formatter: DateFormatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.dateFormat = "yyyyMMdd"
-        let day: String = formatter.string(from: date)
-
+        let day: String = self.dateToString(date: date, dateFormat: "yyyyMMdd")
         var filePath: String = "\(self.baseDirPath)/\(day)"
-        let fileManager: FileManager = FileManager.default
-        var isDir: ObjCBool = false
-        var exists: Bool = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
-            //print("save synapse -> no exist \(exists) \(isDir)" )
-            if exists && !isDir.boolValue {
-                do {
-                    try fileManager.removeItem(atPath: filePath)
-                }
-                catch {
-                    //print("save synapse -> removeItem error" )
-                    return false
-                }
-            }
-            //print("save synapse -> make dir" )
-            do {
-                try fileManager.createDirectory(atPath: filePath, withIntermediateDirectories: true, attributes: nil)
-            }
-            catch {
-                //print("save synapse -> make dir error" )
-                return false
-            }
+        if !self.createDirectory(filePath) {
+            return false
         }
-
         filePath = "\(filePath)/\(self.connectLogDir)"
-        exists = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
-            if exists && !isDir.boolValue {
-                do {
-                    try fileManager.removeItem(atPath: filePath)
-                }
-                catch {
-                    return false
-                }
-            }
-            do {
-                try fileManager.createDirectory(atPath: filePath, withIntermediateDirectories: true, attributes: nil)
-            }
-            catch {
-                return false
-            }
+        if !self.createDirectory(filePath) {
+            return false
         }
 
         let filename: String = "\(floor(date.timeIntervalSince1970))_\(type)"
         filePath = "\(filePath)/\(filename)"
         //print("setConnectLog: \(filePath)" )
-        exists = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || isDir.boolValue {
-            if exists && isDir.boolValue {
-                do {
-                    try fileManager.removeItem(atPath: filePath)
-                }
-                catch {
-                    return false
-                }
-            }
-            return fileManager.createFile(atPath: filePath, contents: Data(), attributes: nil)
-        }
-        return true
+        return self.createFile(filePath)
     }
 
     func setStartConnectLog() -> Bool {
@@ -1291,122 +652,29 @@ class SynapseRecordFileManager: BaseFileManager, UsageFunction {
 
     func setValues(_ values: Data, date: Date, timeInterval: TimeInterval) -> Bool {
 
-        let dayFormatter: DateFormatter = DateFormatter()
-        dayFormatter.locale = Locale(identifier: "en_US_POSIX")
-        dayFormatter.dateFormat = "yyyyMMdd"
-        let hourFormatter: DateFormatter = DateFormatter()
-        hourFormatter.locale = Locale(identifier: "en_US_POSIX")
-        hourFormatter.dateFormat = "HH"
-        let minFormatter: DateFormatter = DateFormatter()
-        minFormatter.locale = Locale(identifier: "en_US_POSIX")
-        minFormatter.dateFormat = "mm"
-        let secFormatter: DateFormatter = DateFormatter()
-        secFormatter.locale = Locale(identifier: "en_US_POSIX")
-        secFormatter.dateFormat = "ss"
-        let day: String = dayFormatter.string(from: date)
-        let hour: String = hourFormatter.string(from: date)
-        let min: String = minFormatter.string(from: date)
-        let sec: String = secFormatter.string(from: date)
-
+        let day: String = self.dateToString(date: date, dateFormat: "yyyyMMdd")
+        let hour: String = self.dateToString(date: date, dateFormat: "HH")
+        let min: String = self.dateToString(date: date, dateFormat: "mm")
+        let sec: String = self.dateToString(date: date, dateFormat: "ss")
         var filePath: String = "\(self.baseDirPath)/\(day)"
-        let fileManager: FileManager = FileManager.default
-        var isDir: ObjCBool = false
-        var exists: Bool = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
-            //print("save synapse -> no exist \(exists) \(isDir)" )
-            if exists && !isDir.boolValue {
-                do {
-                    try fileManager.removeItem(atPath: filePath)
-                }
-                catch {
-                    //print("save synapse -> removeItem error" )
-                    return false
-                }
-            }
-            //print("save synapse -> make dir" )
-            do {
-                try fileManager.createDirectory(atPath: filePath, withIntermediateDirectories: true, attributes: nil)
-            }
-            catch {
-                //print("save synapse -> make dir error" )
-                return false
-            }
+        if !self.createDirectory(filePath) {
+            return false
         }
-
         filePath = "\(filePath)/\(self.valuesDir)"
-        exists = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
-            if exists && !isDir.boolValue {
-                do {
-                    try fileManager.removeItem(atPath: filePath)
-                }
-                catch {
-                    return false
-                }
-            }
-            do {
-                try fileManager.createDirectory(atPath: filePath, withIntermediateDirectories: true, attributes: nil)
-            }
-            catch {
-                return false
-            }
+        if !self.createDirectory(filePath) {
+            return false
         }
-
         filePath = "\(filePath)/\(hour)"
-        exists = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
-            if exists && !isDir.boolValue {
-                do {
-                    try fileManager.removeItem(atPath: filePath)
-                }
-                catch {
-                    return false
-                }
-            }
-            do {
-                try fileManager.createDirectory(atPath: filePath, withIntermediateDirectories: true, attributes: nil)
-            }
-            catch {
-                return false
-            }
+        if !self.createDirectory(filePath) {
+            return false
         }
-
         filePath = "\(filePath)/\(min)"
-        exists = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
-            if exists && !isDir.boolValue {
-                do {
-                    try fileManager.removeItem(atPath: filePath)
-                }
-                catch {
-                    return false
-                }
-            }
-            do {
-                try fileManager.createDirectory(atPath: filePath, withIntermediateDirectories: true, attributes: nil)
-            }
-            catch {
-                return false
-            }
+        if !self.createDirectory(filePath) {
+            return false
         }
-
         filePath = "\(filePath)/\(sec)"
-        exists = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
-            if exists && !isDir.boolValue {
-                do {
-                    try fileManager.removeItem(atPath: filePath)
-                }
-                catch {
-                    return false
-                }
-            }
-            do {
-                try fileManager.createDirectory(atPath: filePath, withIntermediateDirectories: true, attributes: nil)
-            }
-            catch {
-                return false
-            }
+        if !self.createDirectory(filePath) {
+            return false
         }
 
         let filename: String = "\(date.timeIntervalSince1970)_\(timeInterval)"
@@ -1430,19 +698,7 @@ class SynapseRecordFileManager: BaseFileManager, UsageFunction {
         }
 
         let filePath: String = "\(self.baseDirPath)/\(day)/\(self.sendDir)/\(hour)"
-        let fileManager: FileManager = FileManager.default
-        return fileManager.fileExists(atPath: filePath)
-        /*var isDir: ObjCBool = false
-        var exists: Bool = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists {
-            do {
-                try fileManager.createDirectory(atPath: filePath, withIntermediateDirectories: true, attributes: nil)
-            }
-            catch {
-                return false
-            }
-        }
-        return true*/
+        return FileManager.default.fileExists(atPath: filePath)
     }
 
     func setSynapseSendHistory(day: String, hour: String) -> Bool {
@@ -1452,95 +708,50 @@ class SynapseRecordFileManager: BaseFileManager, UsageFunction {
         }
 
         var filePath: String = "\(self.baseDirPath)/\(day)"
-        let fileManager: FileManager = FileManager.default
-        var isDir: ObjCBool = false
-        var exists: Bool = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
-            //print("save synapse -> no exist \(exists) \(isDir)" )
-            if exists && !isDir.boolValue {
-                do {
-                    try fileManager.removeItem(atPath: filePath)
-                }
-                catch {
-                    //print("save synapse -> removeItem error" )
-                    return false
-                }
-            }
-            //print("save synapse -> make dir" )
-            do {
-                try fileManager.createDirectory(atPath: filePath, withIntermediateDirectories: true, attributes: nil)
-            }
-            catch {
-                //print("save synapse -> make dir error" )
-                return false
-            }
+        if !self.createDirectory(filePath) {
+            return false
         }
-
         filePath = "\(filePath)/\(self.sendDir)"
-        exists = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists || !isDir.boolValue {
-            if exists && !isDir.boolValue {
-                do {
-                    try fileManager.removeItem(atPath: filePath)
-                }
-                catch {
-                    return false
-                }
-            }
-            do {
-                try fileManager.createDirectory(atPath: filePath, withIntermediateDirectories: true, attributes: nil)
-            }
-            catch {
-                return false
-            }
+        if !self.createDirectory(filePath) {
+            return false
         }
-
         filePath = "\(filePath)/\(hour)"
-        exists = fileManager.fileExists(atPath: filePath, isDirectory: &isDir)
-        if !exists {
-            do {
-                try fileManager.createDirectory(atPath: filePath, withIntermediateDirectories: true, attributes: nil)
-            }
-            catch {
-                return false
-            }
-        }
-        return true
+        return self.createDirectory(filePath)
     }
 
     func removeSynapseRecords(_ time: TimeInterval) {
 
         self.setBaseDir()
+
         var synapseIds: [String] = []
         var dayList: [String] = []
-        let fileManager: FileManager = FileManager.default
         do {
-            try synapseIds = fileManager.contentsOfDirectory(atPath: self.baseDirPath)
+            try synapseIds = FileManager.default.contentsOfDirectory(atPath: self.baseDirPath)
         }
         catch {
+            return
         }
+
+        let date: Date = Date(timeInterval: -time, since: Date())
+        let dateStr: String = self.dateToString(date: date, dateFormat: "yyyyMMdd")
         for synapseId in synapseIds {
             let dir: String = "\(self.baseDirPath)/\(synapseId)"
             //print("removeSynapseRecords: \(dir)")
             var days: [String] = []
             do {
-                try days = fileManager.contentsOfDirectory(atPath: dir)
+                try days = FileManager.default.contentsOfDirectory(atPath: dir)
             }
             catch {
+                days = []
             }
             //print("removeSynapseRecords days: \(days)")
 
-            let date: Date = Date(timeInterval: -time, since: Date())
-            let formatter = DateFormatter()
-            formatter.locale = Locale(identifier: "en_US_POSIX")
-            formatter.dateFormat = "yyyyMMdd"
-            let dateStr: String = formatter.string(from: date)
             for day in days {
                 if dateStr >= day {
                     let filePath: String = "\(dir)/\(day)"
                     //print("removeSynapseRecords filePath: \(filePath)")
                     do {
-                        try fileManager.removeItem(atPath: filePath)
+                        try FileManager.default.removeItem(atPath: filePath)
                         //print("removeSynapseRecords: \(dir) \(dateStr) -> \(day)")
                     }
                     catch {
@@ -1569,9 +780,9 @@ class SynapseRecordFileManager: BaseFileManager, UsageFunction {
                     }
 
                     let filePath: String = "\(self.baseDirPath)/\(synapseId)/\(day)/\(self.valuesDir)"
-                    if fileManager.fileExists(atPath: filePath) {
+                    if FileManager.default.fileExists(atPath: filePath) {
                         do {
-                            try fileManager.removeItem(atPath: filePath)
+                            try FileManager.default.removeItem(atPath: filePath)
                             print("removeSynapseRecords: \(filePath)")
                         }
                         catch {

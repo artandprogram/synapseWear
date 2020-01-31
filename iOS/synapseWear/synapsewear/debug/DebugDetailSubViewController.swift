@@ -89,21 +89,22 @@ class DebugDetailSubViewController: DebugBaseViewController {
             if let reusableCell = tableView.dequeueReusableCell(withIdentifier: "DebugCell") as? DebugSubTableViewCell {
                 cell = reusableCell
             }
-            cell.backgroundColor = UIColor.clear
-            cell.selectionStyle = UITableViewCellSelectionStyle.none
-            cell.clipsToBounds = true
+            else {
+                cell.backgroundColor = UIColor.clear
+                cell.selectionStyle = .none
+                cell.clipsToBounds = true
+                cell.leftLabel.textColor = #colorLiteral(red: 0.6823529412, green: 0.6823529412, blue: 0.6980392157, alpha: 1)
+                cell.leftLabel.backgroundColor = #colorLiteral(red: 0.2823529412, green: 0.2823529412, blue: 0.2901960784, alpha: 1)
+                cell.rightLabelMain.textColor = #colorLiteral(red: 0.6823529412, green: 0.6823529412, blue: 0.6980392157, alpha: 1)
+                cell.rightLabelSub.textColor = #colorLiteral(red: 0.6823529412, green: 0.6823529412, blue: 0.6980392157, alpha: 1)
+                cell.rightLabelSub2.textColor = #colorLiteral(red: 0.6823529412, green: 0.6823529412, blue: 0.6980392157, alpha: 1)
+                cell.lineView.backgroundColor = #colorLiteral(red: 0.2823529412, green: 0.2823529412, blue: 0.2901960784, alpha: 1)
+            }
 
             cell.leftLabel.text = String(format:"%02d", indexPath.row)
-            cell.leftLabel.textColor = #colorLiteral(red: 0.6823529412, green: 0.6823529412, blue: 0.6980392157, alpha: 1)
-            cell.leftLabel.backgroundColor = #colorLiteral(red: 0.2823529412, green: 0.2823529412, blue: 0.2901960784, alpha: 1)
             cell.rightLabelMain.text = "--"
-            cell.rightLabelMain.textColor = #colorLiteral(red: 0.6823529412, green: 0.6823529412, blue: 0.6980392157, alpha: 1)
             cell.rightLabelSub.text = "--"
-            cell.rightLabelSub.textColor = #colorLiteral(red: 0.6823529412, green: 0.6823529412, blue: 0.6980392157, alpha: 1)
             cell.rightLabelSub2.text = ""
-            cell.rightLabelSub2.textColor = #colorLiteral(red: 0.6823529412, green: 0.6823529412, blue: 0.6980392157, alpha: 1)
-            cell.lineView.backgroundColor = #colorLiteral(red: 0.2823529412, green: 0.2823529412, blue: 0.2901960784, alpha: 1)
-
             let value: [Double] = self.values[indexPath.row]
             if value.count >= 2 {
                 cell.rightLabelMain.text = "\(String(format:"%.2f", value[1] / value[0])) ( \(String(format: self.makeStringFormat(self.crystalKey!), value[1])) / \(String(format:"%.0f", value[0])) )"

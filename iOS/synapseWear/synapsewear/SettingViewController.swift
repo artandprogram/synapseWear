@@ -615,7 +615,7 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
 
     @objc func changeSensorSwicth(_ sender: UISwitch) {
 
-        if sender.tag > 0 && sender.tag <= self.sensors.count {
+        if sender.tag > 0, sender.tag <= self.sensors.count {
             let crystal: CrystalStruct = self.sensors[sender.tag - 1]
             self.sensorFlags[crystal.key] = sender.isOn
         }

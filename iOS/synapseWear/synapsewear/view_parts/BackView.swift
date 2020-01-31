@@ -17,7 +17,7 @@ class BackView: UIView {
 
         self.lineColor?.setStroke()
 
-        let path = UIBezierPath()
+        let path: UIBezierPath = UIBezierPath()
         path.move(to: CGPoint(x: rect.size.width, y: 0))
         path.addLine(to: CGPoint(x: 1.0, y: rect.size.height / 2 + 0.1))
         path.lineWidth = 1.4
@@ -28,5 +28,4 @@ class BackView: UIView {
         path.lineWidth = 1.4
         path.stroke()
     }
-
 }

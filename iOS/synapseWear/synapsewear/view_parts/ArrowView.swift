@@ -21,7 +21,8 @@ class ArrowView: UIView {
     override func draw(_ rect: CGRect) {
 
         self.triangleColor?.setStroke()
-        let path = UIBezierPath()
+
+        let path: UIBezierPath = UIBezierPath()
         if type == ArrowView.top {
             path.move(to: CGPoint(x: 0, y: rect.size.height))
             path.addLine(to: CGPoint(x: rect.size.width / 2, y: 0))
@@ -49,7 +50,7 @@ class ArrowView: UIView {
             path.addLine(to: CGPoint(x: rect.size.width, y: rect.size.height / 2))
             path.lineWidth = 1.0
             path.stroke()
-            
+
             path.move(to: CGPoint(x: rect.size.width, y: rect.size.height / 2))
             path.addLine(to: CGPoint(x: 0, y: rect.size.height))
             path.lineWidth = 1.0

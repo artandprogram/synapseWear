@@ -16,7 +16,8 @@ class CheckmarkView: UIView {
     override func draw(_ rect: CGRect) {
 
         self.triangleColor?.setStroke()
-        let path = UIBezierPath()
+
+        let path: UIBezierPath = UIBezierPath()
         path.move(to: CGPoint(x: 1.0, y: rect.size.height * 0.6))
         path.addLine(to: CGPoint(x: rect.size.width * 0.3, y: rect.size.height - 2.0))
         path.lineWidth = 2.0

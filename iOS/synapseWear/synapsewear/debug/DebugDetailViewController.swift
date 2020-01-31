@@ -7,7 +7,7 @@
 
 import UIKit
 
-class DebugDetailViewController: DebugBaseViewController, FileManagerExtension {
+class DebugDetailViewController: DebugBaseViewController, FileManagerExtension, CommonFunctionProtocol {
 
     let axDiff: CrystalStruct = CrystalStruct(key: SynapseRecordTotalType.axDiff.rawValue,
                                               name: "Acceleration X Diff",
@@ -98,7 +98,7 @@ class DebugDetailViewController: DebugBaseViewController, FileManagerExtension {
             self.tableView.reloadData()
 
             DispatchQueue.global(qos: .background).async {
-                let fileManager: FileManager = FileManager.default
+                let fileManager: FileManager = .default
                 let path: String = "\(synapseRecordFileManager.baseDirPath)/\(day)/\(synapseRecordFileManager.valuesDir)"
                 do {
                     let directories: [String] = try fileManager.contentsOfDirectory(atPath: path)
@@ -156,35 +156,42 @@ class DebugDetailViewController: DebugBaseViewController, FileManagerExtension {
         if let reusableCell = tableView.dequeueReusableCell(withIdentifier: "Cell") {
             cell = reusableCell
         }
-        cell.backgroundColor = UIColor.clear
-        cell.selectionStyle = .none
-        cell.clipsToBounds = true
-        cell.textLabel?.text = ""
-        cell.textLabel?.textColor = #colorLiteral(red: 0.6823529412, green: 0.6823529412, blue: 0.6980392157, alpha: 1)
-        cell.textLabel?.font = UIFont(name: "HiraKakuProN-W3", size: 14.0)
-        cell.textLabel?.numberOfLines = 1
-        cell.isEditing = false
+        else {
+            cell.backgroundColor = UIColor.clear
+            cell.selectionStyle = .none
+            cell.clipsToBounds = true
+            cell.textLabel?.textColor = #colorLiteral(red: 0.6823529412, green: 0.6823529412, blue: 0.6980392157, alpha: 1)
+            cell.textLabel?.font = UIFont(name: "HiraKakuProN-W3", size: 14.0)
+            cell.textLabel?.numberOfLines = 1
+        }
 
+        cell.textLabel?.text = ""
+        cell.isEditing = false
         if indexPath.section == 0 {
             cell.textLabel?.text = self.valuesFileSize
             cell.isEditing = true
         }
         else if indexPath.section <= self.sections.count {
-            let cell: DebugTableViewCell = DebugTableViewCell(style: .default, reuseIdentifier: "DebugCell")
-            cell.backgroundColor = UIColor.clear
-            cell.accessoryType = .disclosureIndicator
-            cell.clipsToBounds = true
+            var cell: DebugTableViewCell = DebugTableViewCell(style: .default, reuseIdentifier: "DebugCell")
+            if let reusableCell = tableView.dequeueReusableCell(withIdentifier: "DebugCell") as? DebugTableViewCell {
+                cell = reusableCell
+            }
+            else {
+                cell.backgroundColor = UIColor.clear
+                cell.accessoryType = .disclosureIndicator
+                cell.clipsToBounds = true
+                cell.leftLabel.textColor = #colorLiteral(red: 0.6823529412, green: 0.6823529412, blue: 0.6980392157, alpha: 1)
+                cell.leftLabel.backgroundColor = #colorLiteral(red: 0.2823529412, green: 0.2823529412, blue: 0.2901960784, alpha: 1)
+                cell.rightLabelMain.textColor = #colorLiteral(red: 0.6823529412, green: 0.6823529412, blue: 0.6980392157, alpha: 1)
+                cell.rightLabelSub.textColor = #colorLiteral(red: 0.6823529412, green: 0.6823529412, blue: 0.6980392157, alpha: 1)
+                cell.rightLabelSub2.textColor = #colorLiteral(red: 0.6823529412, green: 0.6823529412, blue: 0.6980392157, alpha: 1)
+                cell.lineView.backgroundColor = #colorLiteral(red: 0.2823529412, green: 0.2823529412, blue: 0.2901960784, alpha: 1)
+            }
 
             cell.leftLabel.text = ""
-            cell.leftLabel.textColor = #colorLiteral(red: 0.6823529412, green: 0.6823529412, blue: 0.6980392157, alpha: 1)
-            cell.leftLabel.backgroundColor = #colorLiteral(red: 0.2823529412, green: 0.2823529412, blue: 0.2901960784, alpha: 1)
             cell.rightLabelMain.text = ""
-            cell.rightLabelMain.textColor = #colorLiteral(red: 0.6823529412, green: 0.6823529412, blue: 0.6980392157, alpha: 1)
             cell.rightLabelSub.text = ""
-            cell.rightLabelSub.textColor = #colorLiteral(red: 0.6823529412, green: 0.6823529412, blue: 0.6980392157, alpha: 1)
             cell.rightLabelSub2.text = ""
-            cell.rightLabelSub2.textColor = #colorLiteral(red: 0.6823529412, green: 0.6823529412, blue: 0.6980392157, alpha: 1)
-            cell.lineView.backgroundColor = #colorLiteral(red: 0.2823529412, green: 0.2823529412, blue: 0.2901960784, alpha: 1)
             if let day = self.day, let synapseRecordFileManager = self.synapseRecordFileManager, self.tableView(tableView, heightForRowAt: indexPath) > 0 {
                 let type: String = self.sections[indexPath.section - 1].key
                 let hour: String = String(format:"%02d", indexPath.row)
@@ -197,7 +204,7 @@ class DebugDetailViewController: DebugBaseViewController, FileManagerExtension {
 
                 var subStr: String = ""
                 var records: [String]? = synapseRecordFileManager.getSynapseRecordValueTypeInHour(day: day, hour: hour, type: type, valueType: "min")
-                if records != nil && records!.count > 0 {
+                if records != nil, records!.count > 0 {
                     let record: [String] = records![0].components(separatedBy: "_")
                     if record.count > 1, let val = Double(record[1]) {
                         subStr = String(format: self.makeStringFormat(type), val)
@@ -220,14 +227,12 @@ class DebugDetailViewController: DebugBaseViewController, FileManagerExtension {
             return cell
         }
         else if indexPath.section == self.sections.count + 1, indexPath.row > 0, indexPath.row <= self.connectLogs.count {
-            let dateFormatter: DateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "HH:mm:ss"
             if let date = self.connectLogs[indexPath.row - 1]["S"] {
-                cell.textLabel?.text = dateFormatter.string(from: date)
+                cell.textLabel?.text = self.dateToString(date: date, dateFormat: "HH:mm:ss")
             }
             cell.textLabel?.text = "\(cell.textLabel!.text!) - "
             if let date = self.connectLogs[indexPath.row - 1]["E"] {
-                cell.textLabel?.text = "\(cell.textLabel!.text!)\(dateFormatter.string(from: date))"
+                cell.textLabel?.text = "\(cell.textLabel!.text!)\(self.dateToString(date: date, dateFormat: "HH:mm:ss"))"
             }
         }
         return cell

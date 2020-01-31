@@ -17,7 +17,7 @@ class CrossView: UIView {
 
         self.lineColor?.setStroke()
 
-        let path = UIBezierPath()
+        let path: UIBezierPath = UIBezierPath()
         path.move(to: CGPoint(x: 0, y: 0))
         path.addLine(to: CGPoint(x: rect.size.width, y: rect.size.height))
         path.lineWidth = 2.0

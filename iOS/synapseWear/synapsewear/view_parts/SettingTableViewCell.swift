@@ -30,29 +30,29 @@ class SettingTableViewCell: UITableViewCell {
 
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        
+
         self.setView()
     }
-    
+
     override func awakeFromNib() {
         super.awakeFromNib()
     }
-    
+
     required init(coder aDecoder: NSCoder) {
-        
+
         fatalError("init(coder: ) has not been implemented")
     }
-    
+
     override func prepareForReuse() {
         super.prepareForReuse()
     }
-    
+
     override func layoutSubviews() {
         super.layoutSubviews()
-        
+
         self.resizeView()
     }
-    
+
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
     }
@@ -92,7 +92,7 @@ class SettingTableViewCell: UITableViewCell {
 
         self.arrowView = ArrowView()
         self.arrowView.frame = CGRect(x: 0, y: 0, width: self.arrowW, height: self.arrowH)
-        self.arrowView.backgroundColor = .clear
+        self.arrowView.backgroundColor = UIColor.clear
         self.arrowView.type = ArrowView.right
         self.arrowView.triangleColor = UIColor.dynamicColor(light: UIColor.black, dark: UIColor.white)
         self.arrowView.alpha = 0.2
@@ -100,12 +100,12 @@ class SettingTableViewCell: UITableViewCell {
 
         self.checkmarkView = CheckmarkView()
         self.checkmarkView.frame = CGRect(x: 0, y: 0, width: self.checkmarkW, height: self.checkmarkH)
-        self.checkmarkView.backgroundColor = .clear
+        self.checkmarkView.backgroundColor = UIColor.clear
         self.checkmarkView.triangleColor = UIColor.fluorescentPink
         self.checkmarkView.isHidden = true
         self.contentView.addSubview(self.checkmarkView)
     }
-    
+
     func resizeView() {
 
         let cellWidth: CGFloat = self.contentView.frame.size.width
@@ -116,7 +116,10 @@ class SettingTableViewCell: UITableViewCell {
         var h: CGFloat = cellHeight
         if !self.iconImageView.isHidden {
             let imageH: CGFloat = h - 12.0
-            self.iconImageView.frame = CGRect(x: x + (h - imageH) / 2, y: y + (h - imageH) / 2, width: imageH, height: imageH)
+            self.iconImageView.frame = CGRect(x: x + (h - imageH) / 2,
+                                              y: y + (h - imageH) / 2,
+                                              width: imageH,
+                                              height: imageH)
             x += h + self.space
         }
         self.titleLabel.frame = CGRect(x: x, y: y, width: w, height: h)
@@ -170,7 +173,5 @@ class SettingTableViewCell: UITableViewCell {
     func getCellHeight(_ width: CGFloat, title: String?, subtitle: String?, isButtonHidden: Bool) -> CGFloat {
 
         return self.cellH
-    }
-     */
+    }*/
 }
-

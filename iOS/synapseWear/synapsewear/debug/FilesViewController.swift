@@ -135,10 +135,13 @@ class FilesViewController: BaseViewController, UITableViewDataSource, UITableVie
         if let reusableCell = tableView.dequeueReusableCell(withIdentifier: "Cell") {
             cell = reusableCell
         }
-        cell.backgroundColor = UIColor.clear
+        else {
+            cell.backgroundColor = UIColor.clear
+            cell.textLabel?.font = UIFont(name: "HelveticaNeue", size: 14.0)
+            cell.textLabel?.numberOfLines = 0
+        }
+
         cell.textLabel?.text = ""
-        cell.textLabel?.font = UIFont(name: "HelveticaNeue", size: 14.0)
-        cell.textLabel?.numberOfLines = 0
         if indexPath.row < self.files.count {
             cell.textLabel?.text = self.files[indexPath.row]
         }
@@ -148,8 +151,7 @@ class FilesViewController: BaseViewController, UITableViewDataSource, UITableVie
         cell.detailTextLabel?.numberOfLines = 1
         if let text = cell.textLabel?.text, self.filepath.count > 0 {
             cell.detailTextLabel?.text = self.getFileSize(text)
-        }
-         */
+        }*/
         cell.accessoryType = .none
         if let text = cell.textLabel?.text, self.isDirectory(text) {
             cell.accessoryType = .disclosureIndicator
@@ -280,27 +282,32 @@ extension FileManagerExtension {
 
         let fullPath: String = (path as NSString).expandingTildeInPath
         let fileAttributes: NSDictionary = try FileManager.default.attributesOfItem(atPath: fullPath) as NSDictionary
-
         if fileAttributes.fileType() == "NSFileTypeRegular" {
             return fileAttributes.fileSize()
         }
 
         let url: URL = URL(fileURLWithPath: fullPath)
-        guard let directoryEnumerator = FileManager.default.enumerator(at: url, includingPropertiesForKeys: [URLResourceKey.fileSizeKey], options: [.skipsHiddenFiles], errorHandler: nil) else { throw FileErrors.BadEnumeration }
+        guard let directoryEnumerator = FileManager.default.enumerator(at: url, includingPropertiesForKeys: [.fileSizeKey], options: [.skipsHiddenFiles], errorHandler: nil) else {
+            throw FileErrors.BadEnumeration
+        }
 
         var total: UInt64 = 0
         for (index, object) in directoryEnumerator.enumerated() {
-            guard let fileURL = object as? NSURL else { throw FileErrors.BadResource }
+            guard let fileURL = object as? NSURL else {
+                throw FileErrors.BadResource
+            }
             var fileSizeResource: AnyObject?
-            try fileURL.getResourceValue(&fileSizeResource, forKey: URLResourceKey.fileSizeKey)
-            guard let fileSize = fileSizeResource as? NSNumber else { continue }
+            try fileURL.getResourceValue(&fileSizeResource, forKey: .fileSizeKey)
+            guard let fileSize = fileSizeResource as? NSNumber else {
+                continue
+            }
             total += fileSize.uint64Value
             if index % 1000 == 0 {
                 print(".", terminator: "")
             }
         }
-
-        /*if total < 1048576 {
+        /*
+        if total < 1048576 {
             total = 1
         }
         else {
