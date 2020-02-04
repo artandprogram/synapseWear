@@ -17,6 +17,7 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
         "sensors",
         "temperature_scale",
         "flash_led",
+        "reboot_device",
         "bottom",
         ]
     let synapseCrystalInfo: SynapseCrystalStruct = SynapseCrystalStruct()
@@ -203,6 +204,9 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
                 num = 3
             }
             else if self.settings[section] == "flash_led" {
+                num = 3
+            }
+            else if self.settings[section] == "reboot_device" {
                 num = 3
             }
             else if self.settings[section] == "bottom" {
@@ -404,10 +408,27 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
                     return self.getLineCell(tableView: tableView)
                 }
                 else if indexPath.row == 1 {
-                    let cell: SettingTableViewCell = self.getSettingTableViewCell(tableView: tableView, identifier: "temperature_scale_cell")
+                    let cell: SettingTableViewCell = self.getSettingTableViewCell(tableView: tableView, identifier: "flash_led_cell")
                     cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
                     cell.iconImageView.isHidden = true
                     cell.titleLabel.text = "Flash LED"
+                    cell.textField.isEnabled = false
+                    cell.textField.text = ""
+                    cell.swicth.isHidden = true
+                    cell.arrowView.isHidden = true
+                    cell.lineView.isHidden = true
+                    return cell
+                }
+            }
+            else if self.settings[indexPath.section] == "reboot_device" {
+                if indexPath.row == 0 || indexPath.row == 2 {
+                    return self.getLineCell(tableView: tableView)
+                }
+                else if indexPath.row == 1 {
+                    let cell: SettingTableViewCell = self.getSettingTableViewCell(tableView: tableView, identifier: "reboot_device_cell")
+                    cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
+                    cell.iconImageView.isHidden = true
+                    cell.titleLabel.text = "Reboot Device"
                     cell.textField.isEnabled = false
                     cell.textField.text = ""
                     cell.swicth.isHidden = true
@@ -459,6 +480,9 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
                 height = 44.0
             }
             else if self.settings[section] == "flash_led" {
+                height = 44.0
+            }
+            else if self.settings[section] == "reboot_device" {
                 height = 44.0
             }
             else if self.settings[section] == "bottom" {
@@ -542,6 +566,14 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
                     height = cell!.cellH
                 }
             }
+            else if self.settings[indexPath.section] == "reboot_device" {
+                if indexPath.row == 0 || indexPath.row == 2 {
+                    height = self.getLineCellHeight()
+                }
+                else if indexPath.row == 1 {
+                    height = cell!.cellH
+                }
+            }
             cell = nil
         }
         return height
@@ -606,6 +638,11 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
             else if self.settings[indexPath.section] == "flash_led" {
                 if let nav = self.navigationController as? SettingNavigationViewController {
                     nav.sendLEDFlashToDevice()
+                }
+            }
+            else if self.settings[indexPath.section] == "reboot_device" {
+                if let nav = self.navigationController as? SettingNavigationViewController {
+                    nav.sendRebootToDevice()
                 }
             }
         }

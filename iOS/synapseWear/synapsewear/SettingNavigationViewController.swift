@@ -192,6 +192,11 @@ class SettingNavigationViewController: NavigationController, DeviceAssociatedDel
         self.nav?.sendLEDFlashToDevice()
     }
 
+    override func sendRebootToDevice() {
+
+        self.nav?.sendRebootToDevice()
+    }
+
     override func setOSCClient() {
 
         self.nav?.setOSCClient()

@@ -443,6 +443,11 @@ class NavigationController: UINavigationController, CommonFunctionProtocol {
         self.topVC.sendLEDFlashToDevice(self.topVC.mainSynapseObject)
     }
 
+    func sendRebootToDevice() {
+
+        self.topVC.sendRebootToDevice(self.topVC.mainSynapseObject)
+    }
+
     func setOSCClient() {
 
         self.topVC.setOSCClient()

@@ -3077,6 +3077,15 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         }
     }
 
+    func sendRebootToDevice(_ synapseObject: SynapseObject) {
+
+        if let synapse = synapseObject.synapse {
+            let data: Data = Data(bytes: [0x14])
+            print("sendRebootToDevice: \([UInt8](data))")
+            synapse.send(data)
+        }
+    }
+
     // MARK: mark - OSC methods
 
     func setOSCClient() {
