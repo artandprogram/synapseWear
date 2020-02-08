@@ -17,7 +17,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.5</string>
+	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -32,7 +32,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>1.5.0</string>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -40,6 +40,8 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<false/>
 	</dict>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>synapseWear uses bluetooth to communicate with the synapseWear device</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
 	<string>This app uses bluetooth to connect to the synapseWear device from which the app receives motion and enviromental data.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
