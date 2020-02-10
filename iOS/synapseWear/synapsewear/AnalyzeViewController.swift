@@ -59,20 +59,28 @@ class AnalyzeViewController: BaseViewController, UITableViewDataSource, UITableV
     var synapseSoundPt: Int?
     // realtime variables
     let realtimeGraphTimeIntervalKeys: [String] = [
+        "1s",
+        "5s",
+        "1m",
+        "5m",
+        "10m",
+        "25m",
+    ]
+    /*let realtimeGraphTimeIntervalKeys: [String] = [
         "1m",
         "5m",
         "1h",
         "6h",
         "12h",
         "24h",
-    ]
+    ]*/
     let realtimeGraphTimeIntervalValues: [String: [String: TimeInterval]] = [
-        "1m": ["interval": 0.2, "range": 1.0],
-        "5m": ["interval": 1.0, "range": 10.0],
-        "1h": ["interval": 10.0, "range": 60.0],
-        "6h": ["interval": 60.0, "range": 600.0],
-        "12h": ["interval": 120.0, "range": 600.0],
-        "24h": ["interval": 300.0, "range": 3600.0],
+        "1s": ["interval": 0.2, "range": 1.0],
+        "5s": ["interval": 1.0, "range": 10.0],
+        "1m": ["interval": 10.0, "range": 60.0],
+        "5m": ["interval": 60.0, "range": 600.0],
+        "10m": ["interval": 120.0, "range": 600.0],
+        "25m": ["interval": 300.0, "range": 3600.0],
     ]
     var isRealtime: Bool = false
     var realtimeGraphTimer: Timer?
