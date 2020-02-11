@@ -19,7 +19,7 @@
 
 #define FIRMWARE_VERSION_MAJOR 1
 #define FIRMWARE_VERSION_MINOR 3
-#define FIRMWARE_DATE 20181004
+#define FIRMWARE_DATE 20200208
 
 #define PIN_AUD       3
 #define PIN_BATTCHG   7
@@ -39,6 +39,7 @@
 #define SYNAPSEWEAR_SETTINGS_FLASH  230 // 240 - 251 used by ota_bootloader
 #define SYNAPSEWEAR_INITIALIZED_VALUE 12345678
 #define DEFAULT_INTERVAL 60000
+#define SENSOROFF_DELAY 30000
 
 class SYNAPSEWEAR {
 
@@ -112,13 +113,14 @@ class SYNAPSEWEAR {
     bool dataReady = false;
     bool timeToSleep = false;
     bool bleAuthenticated = false;
+    bool disableSensorsCountdown = false;
     uint32_t dataFrame = 0;
     uint32_t dataLastSentTime = 0;
     uint8_t lastBleCommandReceived = 0;
     uint32_t dataPrepStartTime = 0;
+    uint32_t disableSensorsTime = 0;
     synapseWearSettings_t *p = (synapseWearSettings_t*)ADDRESS_OF_PAGE(SYNAPSEWEAR_SETTINGS_FLASH);
 
 };
 
 #endif
-

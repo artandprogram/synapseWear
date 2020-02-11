@@ -45,9 +45,6 @@ void TCA6507::powerOn() {
 
 void TCA6507::disable() {	// Reset registers and put IC in shutdown mode.
   isEnabled = false;
-  if (isCharging) {
-    return;
-  }
   Pinsetst(P1, pOff);
   Pinsetst(P2, pOff);
   Pinsetst(P3, pOff);
@@ -113,6 +110,8 @@ void TCA6507::ping()
 void TCA6507::beginCharging()
 {
   Serial.println("beginCharging()");
+  if (!isEnabled)
+    return;
   powerOn();
   // TODO: save current state of LED
   Bbanksetup(Bbank0, TMS0, TMS16320, TMS0, TMS0, TMS0);

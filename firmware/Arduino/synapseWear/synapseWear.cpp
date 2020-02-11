@@ -106,6 +106,13 @@ void SYNAPSEWEAR::update()
 
   tca6507.update();
 
+  if (disableSensorsCountdown) {
+    if (millis() > disableSensorsTime) {
+      disableSensorsCountdown = false;
+      disableSensors();
+    }
+  }
+
   if (settings.interval >= 1000 && timeToSleep && millis() > (nextUpdate - 1000)) {
     uint32_t sleepTime = 1000;
     //settings.interval - (millis() - dataPrepStartTime);
@@ -243,7 +250,12 @@ void SYNAPSEWEAR::bleOnConnect()
 {
   bleConnected = true;
   bleAuthenticated = false;
-  enableSensors();
+  if (disableSensorsCountdown) {
+    disableSensorsCountdown = false;
+  }
+  else {
+    enableSensors();
+  }
   tca6507.ping();
 }
 
@@ -251,13 +263,21 @@ void SYNAPSEWEAR::bleOnDisconnect()
 {
   bleConnected = dataReady = bleAuthenticated = false;
   // don't turn off charging led if led is enabled
-  disableSensors();
+  disableSensorsCountdown = true;
+  disableSensorsTime = millis() + SENSOROFF_DELAY;
 }
 
 void SYNAPSEWEAR::bleOnReceive(char *data, int count)
 {
   if (count == 0)
     return;
+
+  for (int i = 0; i < count; i++) {
+    Serial.print("0x");
+    Serial.print(data[i], HEX);
+    Serial.print(" ");
+  }
+  Serial.println("");
 
   switch (data[0]) {
     case 0x00:
@@ -444,6 +464,12 @@ void SYNAPSEWEAR::bleOnReceive(char *data, int count)
       }
       break;
 
+    case 0x14:
+      {
+        Simblee_systemReset();
+      }
+      break;
+
     case 0xfe:
       {
         if (validateAccessKey(data, count)) {
@@ -480,6 +506,11 @@ bool SYNAPSEWEAR::validateAccessKey(char *data, uint8_t count)
   bool ok = true;
   if (count == 9) {
     for (int i = 1; i <= 8; i++) {
+      Serial.print("Should be: 0x");
+      Serial.print(settings.accessKey[(i - 1)], HEX);
+      Serial.print(" ");
+      Serial.print("Received: 0x");
+      Serial.println(data[i], HEX);
       if (data[i] != settings.accessKey[(i - 1)])
         ok = false;
     }
