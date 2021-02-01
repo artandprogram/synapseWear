@@ -8,8 +8,6 @@
 import UIKit
 import SceneKit
 import UserNotifications
-import Alamofire
-import SwiftyJSON
 
 // MARK: structs
 
@@ -2251,7 +2249,13 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         catch {}*/
 
         if let flag = self.getAppinfoValue("is_save_data") as? Bool, flag {
-            self.setSynapseValueFile(synapseObject: synapseObject, values: Data(bytes: synapseObject.receiveData), date: now, timeInterval: self.synapseTimeInterval)
+            self.setSynapseValueFile(synapseObject: synapseObject,
+                                     values: Data(bytes: synapseObject.receiveData),
+                                     date: now,
+                                     timeInterval: self.synapseTimeInterval)
+        }
+        if SettingFileManager.shared.synapseSaveLocalFile {
+            self.setSynapseValueLocalFile(synapseObject)
         }
 
         if synapseObject.synapseValues.isConnected {
@@ -2282,7 +2286,18 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
     func setSynapseValueFile(synapseObject: SynapseObject, values: Data, date: Date, timeInterval: TimeInterval) {
 
         DispatchQueue.global(qos: .background).async {
-            _ = synapseObject.synapseRecordFileManager?.setValues(values, date: date, timeInterval: timeInterval)
+            _ = synapseObject.synapseRecordFileManager?.setValues(values,
+                                                                  date: date,
+                                                                  timeInterval: timeInterval)
+        }
+    }
+
+    func setSynapseValueLocalFile(_ synapseObject: SynapseObject) {
+
+        DispatchQueue.global(qos: .background).async {
+            if let data = synapseObject.synapseValues.makeSynapseFileRecord().data(using: .utf8) {
+                _ = synapseObject.synapseRecordLocalFileManager?.setValues(data)
+            }
         }
     }
 
@@ -3816,6 +3831,7 @@ class SynapseObject: CommonFunctionProtocol {
     var synapseCrystalNode: SynapseCrystalNodes!
     var labelNode: LabelNode!
     var synapseRecordFileManager: SynapseRecordFileManager?
+    var synapseRecordLocalFileManager: SynapseRecordLocalFileManager?
     var offColorTime: TimeInterval = 0
     var canSaveSynapseValues: Bool = true
     // send data variables
@@ -3843,6 +3859,8 @@ class SynapseObject: CommonFunctionProtocol {
         self.synapseUUID = uuid
         self.synapseRecordFileManager = SynapseRecordFileManager()
         self.synapseRecordFileManager?.setSynapseId(self.synapseUUID!.uuidString)
+        self.synapseRecordLocalFileManager = SynapseRecordLocalFileManager()
+        self.synapseRecordLocalFileManager?.setSynapseId(self.synapseUUID!.uuidString)
     }
 
     func connectSynapse(_ rfduino: RFduino) {
@@ -3858,7 +3876,9 @@ class SynapseObject: CommonFunctionProtocol {
                 synapseRecordFileManager.checkEndConnectLog(time)
             }
             let _ = synapseRecordFileManager.setStartConnectLog()
-            self.setSynapseConnectLastDate(Date().timeIntervalSince1970)
+            let date: Date = Date()
+            self.setSynapseConnectLastDate(date.timeIntervalSince1970)
+            self.synapseRecordLocalFileManager?.connectDate = date
         }
     }
 
@@ -3880,6 +3900,7 @@ class SynapseObject: CommonFunctionProtocol {
         self.resetSynapseNode()
 
         self.synapseRecordFileManager = nil
+        self.synapseRecordLocalFileManager = nil
         if let uuid = self.synapseUUID {
             self.setSynapseUUID(uuid)
         }
@@ -4742,6 +4763,76 @@ class SynapseValues {
         self.gyBak = nil
         self.gzBak = nil
         self.isConnected = false
+    }
+
+    func makeSynapseFileRecord() -> String {
+
+        var str: String = ""
+        if let time = self.time {
+            str = "\(str)\(time)"
+        }
+        str = "\(str),"
+        if let co2 = self.co2 {
+            str = "\(str)\(co2)"
+        }
+        str = "\(str),"
+        if let ax = self.ax {
+            str = "\(str)\(ax)"
+        }
+        str = "\(str),"
+        if let ay = self.ay {
+            str = "\(str)\(ay)"
+        }
+        str = "\(str),"
+        if let az = self.az {
+            str = "\(str)\(az)"
+        }
+        str = "\(str),"
+        if let gx = self.gx {
+            str = "\(str)\(gx)"
+        }
+        str = "\(str),"
+        if let gy = self.gy {
+            str = "\(str)\(gy)"
+        }
+        str = "\(str),"
+        if let gz = self.gz {
+            str = "\(str)\(gz)"
+        }
+        str = "\(str),"
+        if let light = self.light {
+            str = "\(str)\(light)"
+        }
+        str = "\(str),"
+        if let temp = self.temp {
+            str = "\(str)\(temp)"
+        }
+        str = "\(str),"
+        if let humidity = self.humidity {
+            str = "\(str)\(humidity)"
+        }
+        str = "\(str),"
+        if let pressure = self.pressure {
+            str = "\(str)\(pressure)"
+        }
+        str = "\(str),"
+        if let tvoc = self.tvoc {
+            str = "\(str)\(tvoc)"
+        }
+        str = "\(str),"
+        if let power = self.power {
+            str = "\(str)\(power)"
+        }
+        str = "\(str),"
+        if let battery = self.battery {
+            str = "\(str)\(battery)"
+        }
+        str = "\(str),"
+        if let sound = self.sound {
+            str = "\(str)\(sound)"
+        }
+        str = "\(str)\n"
+        return str
     }
 
     func debug() {

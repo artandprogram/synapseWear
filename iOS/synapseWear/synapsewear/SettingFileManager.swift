@@ -24,6 +24,7 @@ class SettingFileManager: BaseFileManager {
     private let synapseSoundInfoKey: String = "synapse_sound_info"
     private let synapseValidSensorsKey: String = "synapse_valid_sensors"
     private let synapseTemperatureScaleKey: String = "synapse_temperature_scale"
+    private let synapseSaveLocalFileKey: String = "synapse_save_local_file"
     let synapseTimeIntervals: [String] = [
         "Normal",
         "Live",
@@ -42,6 +43,7 @@ class SettingFileManager: BaseFileManager {
     var synapseSoundInfo: Bool = true
     var synapseValidSensors: [String: Bool] = [:]
     var synapseTemperatureScale: String = ""
+    var synapseSaveLocalFile: Bool = false
 
     static let shared: SettingFileManager = SettingFileManager()
 
@@ -98,6 +100,9 @@ class SettingFileManager: BaseFileManager {
             if let value = data[self.synapseTemperatureScaleKey] as? String {
                 self.synapseTemperatureScale = value
             }
+            if let value = data[self.synapseSaveLocalFileKey] as? Bool {
+                self.synapseSaveLocalFile = value
+            }
             //print("loadData: \(data)")
         }
     }
@@ -117,7 +122,8 @@ class SettingFileManager: BaseFileManager {
             self.synapseFirmwareInfoKey: self.synapseFirmwareInfo,
             self.synapseSoundInfoKey: self.synapseSoundInfo,
             self.synapseValidSensorsKey: self.synapseValidSensors,
-            self.synapseTemperatureScaleKey: self.synapseTemperatureScale
+            self.synapseTemperatureScaleKey: self.synapseTemperatureScale,
+            self.synapseSaveLocalFileKey: self.synapseSaveLocalFile,
         ]
         //print("saveData: \(data)")
         return self.setSettingData(data)

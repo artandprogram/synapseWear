@@ -22,6 +22,7 @@ class SettingNavigationViewController: NavigationController, DeviceAssociatedDel
     var soundInfo: Bool = true
     var sensorFlags: [String: Bool] = [:]
     var temperatureScale: String = ""
+    var saveLocalFile: Bool = false
     // views
     var headerCloseBtn: UIButton!
     var headerCloseIcon: CrossView!
@@ -56,6 +57,7 @@ class SettingNavigationViewController: NavigationController, DeviceAssociatedDel
         self.soundInfo = SettingFileManager.shared.synapseSoundInfo
         self.sensorFlags = SettingFileManager.shared.synapseValidSensors
         self.temperatureScale = SettingFileManager.shared.synapseTemperatureScale
+        self.saveLocalFile = SettingFileManager.shared.synapseSaveLocalFile
 
         self.nav?.daDelegate = self
     }
@@ -358,7 +360,7 @@ class SettingNavigationViewController: NavigationController, DeviceAssociatedDel
             if let nav = self.nav {
                 nav.topVC.sendDataToDevice(nav.topVC.mainSynapseObject, url: url, firmwareInfo: firmwareInfo)
             }
-            })
+        })
     }
 
     // MARK: mark - DeviceAssociatedDelegate methods

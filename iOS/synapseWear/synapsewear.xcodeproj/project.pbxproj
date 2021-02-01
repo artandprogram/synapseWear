@@ -251,6 +251,7 @@
 		DD5C08942334ACD500CF10BF /* co2_s.png in Resources */ = {isa = PBXBuildFile; fileRef = DD5C08162334ACD500CF10BF /* co2_s.png */; };
 		DD5C08952334ACD500CF10BF /* temperature_l_w.png in Resources */ = {isa = PBXBuildFile; fileRef = DD5C08172334ACD500CF10BF /* temperature_l_w.png */; };
 		DD7985AF233B554200AA9BF4 /* SettingBaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD7985AE233B554200AA9BF4 /* SettingBaseViewController.swift */; };
+		DD9AD8B125C7B6650060B485 /* SynapseRecordLocalFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD9AD8B025C7B6650060B485 /* SynapseRecordLocalFileManager.swift */; };
 		DD9B2A492367FA7B0078BE7C /* DebugBaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD9B2A482367FA7B0078BE7C /* DebugBaseViewController.swift */; };
 		DDA2E1C22366D5E600A6B669 /* DebugDetailSubViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDA2E1C12366D5E600A6B669 /* DebugDetailSubViewController.swift */; };
 		DDDBE6CF233A30F800A9A850 /* playmusic_s_w@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = DDDBE6CA233A30F700A9A850 /* playmusic_s_w@3x.png */; };
@@ -591,6 +592,7 @@
 		DD7957342303F1A400EAC24C /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
 		DD7957362303F1AD00EAC24C /* UserNotificationsUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotificationsUI.framework; path = System/Library/Frameworks/UserNotificationsUI.framework; sourceTree = SDKROOT; };
 		DD7985AE233B554200AA9BF4 /* SettingBaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingBaseViewController.swift; sourceTree = "<group>"; };
+		DD9AD8B025C7B6650060B485 /* SynapseRecordLocalFileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SynapseRecordLocalFileManager.swift; sourceTree = "<group>"; };
 		DD9B2A482367FA7B0078BE7C /* DebugBaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugBaseViewController.swift; sourceTree = "<group>"; };
 		DDA2E1C12366D5E600A6B669 /* DebugDetailSubViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugDetailSubViewController.swift; sourceTree = "<group>"; };
 		DDDBE6C8233A305000A9A850 /* playmusic_s_w.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = playmusic_s_w.png; path = images/playmusic_s_w.png; sourceTree = "<group>"; };
@@ -1035,6 +1037,7 @@
 				87E6EF3B21413236008AD17D /* CommonFunction.swift */,
 				87052BF51ECB091400C8BA9A /* BaseFileManager.swift */,
 				871C027B1ED409E2009D98F0 /* SynapseRecordFileManager.swift */,
+				DD9AD8B025C7B6650060B485 /* SynapseRecordLocalFileManager.swift */,
 				8701E6B920A94C44002F9023 /* AccessKeysFileManager.swift */,
 				87DE15861ECBED560027B68A /* SettingFileManager.swift */,
 				87E66D821EB0747200434949 /* ApiManager.swift */,
@@ -1621,6 +1624,7 @@
 				873BC56D20B276BA000FEA69 /* SynapseSound.swift in Sources */,
 				87E66D831EB0747200434949 /* ApiManager.swift in Sources */,
 				8713416D2069E2470037CCB2 /* IntelHex2BinConverter.m in Sources */,
+				DD9AD8B125C7B6650060B485 /* SynapseRecordLocalFileManager.swift in Sources */,
 				871341792069E2470037CCB2 /* zip.c in Sources */,
 				870EDC92205283120043F9EC /* SettingTableViewCell.swift in Sources */,
 				87052BF61ECB091500C8BA9A /* BaseFileManager.swift in Sources */,

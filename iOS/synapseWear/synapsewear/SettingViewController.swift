@@ -32,6 +32,7 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
     var soundInfo: Bool = true
     var sensorFlags: [String: Bool] = [:]
     var temperatureScale: String = ""
+    var saveLocalFile: Bool = false
     // views
     var textField: UITextField?
 
@@ -55,6 +56,7 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
             self.firmwareURL = nav.firmwareURL
             self.firmwareInfo = nav.firmwareInfo
             self.temperatureScale = nav.temperatureScale
+            self.saveLocalFile = nav.saveLocalFile
         }
 
         if self.isFirst {
@@ -93,6 +95,7 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
             nav.firmwareURL = self.firmwareURL
             nav.sensorFlags = self.sensorFlags
             nav.temperatureScale = self.temperatureScale
+            nav.saveLocalFile = self.saveLocalFile
         }
 
         NotificationCenter.default.removeObserver(self)
@@ -164,6 +167,7 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
             self.firmwareInfo = nav.firmwareInfo
             self.sensorFlags = nav.sensorFlags
             self.soundInfo = nav.soundInfo
+            self.saveLocalFile = nav.saveLocalFile
         }
     }
 
@@ -192,7 +196,7 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
                 num = 5
             }
             else if self.settings[section] == "interval_time" {
-                num = 4
+                num = 5
             }
             else if self.settings[section] == "firmware_version" {
                 num = 4
@@ -283,7 +287,7 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
                 }
             }
             else if self.settings[indexPath.section] == "interval_time" {
-                if indexPath.row == 0 || indexPath.row == 3 {
+                if indexPath.row == 0 || indexPath.row == 4 {
                     return self.getLineCell(tableView: tableView)
                 }
                 else if indexPath.row == 1 {
@@ -306,11 +310,28 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
                     cell.textField.isEnabled = false
                     cell.swicth.isHidden = true
                     cell.arrowView.isHidden = true
-                    cell.lineView.isHidden = true
 
                     cell.textField.textColor = UIColor.lightGray
                     cell.textField.text = "OFF"
                     if self.soundInfo {
+                        cell.textField.textColor = UIColor.fluorescentPink
+                        cell.textField.text = "ON"
+                    }
+                    return cell
+                }
+                else if indexPath.row == 3 {
+                    let cell: SettingTableViewCell = self.getSettingTableViewCell(tableView: tableView, identifier: "save_local_file_cell")
+                    cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
+                    cell.iconImageView.isHidden = true
+                    cell.titleLabel.text = "Save Local File"
+                    cell.textField.isEnabled = false
+                    cell.swicth.isHidden = true
+                    cell.arrowView.isHidden = true
+                    cell.lineView.isHidden = true
+
+                    cell.textField.textColor = UIColor.lightGray
+                    cell.textField.text = "OFF"
+                    if self.saveLocalFile {
                         cell.textField.textColor = UIColor.fluorescentPink
                         cell.textField.text = "ON"
                     }
@@ -527,10 +548,10 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
                 }
             }
             else if self.settings[indexPath.section] == "interval_time" {
-                if indexPath.row == 0 || indexPath.row == 3 {
+                if indexPath.row == 0 || indexPath.row == 4 {
                     height = self.getLineCellHeight()
                 }
-                else if indexPath.row == 1 || indexPath.row == 2 {
+                else if indexPath.row == 1 || indexPath.row == 2 || indexPath.row == 3 {
                     height = cell!.cellH
                 }
             }
@@ -613,6 +634,20 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
                                 tableView.reloadRows(at: [indexPath], with: UITableViewRowAnimation.none)
                             }
                         }
+                    }
+                }
+                else if indexPath.row == 3 {
+                    let flag: Bool = !self.saveLocalFile
+                    SettingFileManager.shared.synapseSaveLocalFile = flag
+                    if SettingFileManager.shared.saveData() {
+                        if let nav = self.navigationController as? SettingNavigationViewController {
+                            nav.saveLocalFile = flag
+                        }
+                        self.saveLocalFile = flag
+                        tableView.reloadRows(at: [indexPath], with: UITableViewRowAnimation.none)
+                    }
+                    else {
+                        SettingFileManager.shared.synapseSaveLocalFile = self.saveLocalFile
                     }
                 }
             }
