@@ -101,32 +101,37 @@
     NSLog(@"SimbleeManager centralManagerDidUpdateState: %ld", (long)[_central state]);
 
     switch ([_central state]) {
-        case CBCentralManagerStateUnknown:
+        case CBManagerStateUnknown:
+        //case CBCentralManagerStateUnknown:
             break;
             
-        case CBCentralManagerStateUnsupported:
+        case CBManagerStateUnsupported:
+        //case CBCentralManagerStateUnsupported:
             if ([_delegate respondsToSelector:@selector(bleUnsupported)]) {
                 [_delegate bleUnsupported];
             }
             //[appDelegate bleUnsupported];
             break;
             
-        case CBCentralManagerStateUnauthorized:
+        case CBManagerStateUnauthorized:
+        //case CBCentralManagerStateUnauthorized:
             if ([_delegate respondsToSelector:@selector(bleUnauthorized)]) {
                 [_delegate bleUnauthorized];
             }
             //[appDelegate bleUnauthorized];
             break;
             
-        case CBCentralManagerStatePoweredOff:
+        case CBManagerStatePoweredOff:
+        //case CBCentralManagerStatePoweredOff:
             if ([_delegate respondsToSelector:@selector(blePoweredOff)]) {
                 [_delegate blePoweredOff];
             }
             //[appDelegate blePoweredOff];
             break;
             
-        case CBCentralManagerStatePoweredOn:
-            
+        case CBManagerStatePoweredOn:
+        //case CBCentralManagerStatePoweredOn:
+
             if (blePowerOnScanBlock) {
                 NSLog(@"ble powered on; executing scan block");
                 blePowerOnScanBlock();
@@ -145,7 +150,8 @@
             //[appDelegate blePoweredOn];
             break;
             
-        case CBCentralManagerStateResetting:
+        case CBManagerStateResetting:
+        //case CBCentralManagerStateResetting:
             break;
     }
 }
@@ -360,7 +366,7 @@ didDisconnectPeripheral:(CBPeripheral *)peripheral
 
     _isScanning = true;
 
-    if (_central.state != CBCentralManagerStatePoweredOn) {
+    if (_central.state != CBManagerStatePoweredOn/*CBCentralManagerStatePoweredOn*/) {
         NSLog(@"delaying startScan until ble powered on");
         SimbleeManager *this = self;
         blePowerOnScanBlock = ^{ [this startScan]; };
@@ -389,7 +395,7 @@ didDisconnectPeripheral:(CBPeripheral *)peripheral
 
     _isScanning = false;
     
-    if (_central.state != CBCentralManagerStatePoweredOn) {
+    if (_central.state != CBManagerStatePoweredOn/*CBCentralManagerStatePoweredOn*/) {
         blePowerOnScanBlock = nil;
         return;
     }

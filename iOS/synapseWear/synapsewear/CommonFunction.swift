@@ -140,7 +140,17 @@ extension CommonFunctionProtocol {
 
     func log(_ msg: String) {
 
-        print("\(self.dateToString(date: Date(), dateFormat: "yyyy-MM-dd HH:mm:ss.SSS")) \(msg)")
+        let formatter: DateFormatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"
+        print("\(formatter.string(from: Date())) \(msg)")
+    }
+
+    func debugLog(_ msg: String) {
+
+        if let debug = self.getAppinfoValue("debug_log") as? Bool, debug {
+            self.log(msg)
+        }
     }
 }
 

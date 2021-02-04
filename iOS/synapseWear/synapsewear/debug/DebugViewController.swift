@@ -163,7 +163,7 @@ class DebugViewController: DebugBaseViewController, UsageFunction {
                 synapseRecordFileManager.setSynapseId(directory)
                 path = synapseRecordFileManager.baseDirPath
             }
-            print("removeData: \(path)")
+            //print("removeData: \(path)")
 
             do {
                 try FileManager.default.removeItem(atPath: path)
@@ -172,7 +172,7 @@ class DebugViewController: DebugBaseViewController, UsageFunction {
                 //print("error")
             }
 
-            print("removeData Finish")
+            //print("removeData Finish")
             DispatchQueue.main.async {
                 self.setHiddenLoadingView(true)
                 self.setTableViewData()

@@ -64,13 +64,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             try audioSession.setCategory(AVAudioSessionCategoryPlayback)
         }
         catch {
-            print("audioSession.setCategory failed")
+            print("AudioSession.setCategory failed")
         }
         do {
             try audioSession.setActive(true)
         }
         catch {
-            print("audioSession.setActive failed")
+            print("AudioSession.setActive failed")
         }
     }
 
@@ -92,13 +92,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     return
                 }
                 if granted {
-                    print("UserNotificationCenter granted")
+                    //print("UserNotificationCenter granted")
                     DispatchQueue.main.async {
                         application.registerForRemoteNotifications()
                     }
                 }
                 else {
-                    print("UserNotificationCenter not granted")
+                    //print("UserNotificationCenter not granted")
                 }
             })
             UNUserNotificationCenter.current().delegate = self
@@ -111,26 +111,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
 
-        let deviceTokenStr: String = deviceToken.map { String(format: "%.2hhx", $0) }.joined()
-        print("didRegisterForRemoteNotificationsWithDeviceToken: \(deviceTokenStr)")
+        //let deviceTokenStr: String = deviceToken.map { String(format: "%.2hhx", $0) }.joined()
+        //print("didRegisterForRemoteNotificationsWithDeviceToken: \(deviceTokenStr)")
     }
 
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
 
-        print("didFailToRegisterForRemoteNotificationsWithError: \(error.localizedDescription)")
+        //print("didFailToRegisterForRemoteNotificationsWithError: \(error.localizedDescription)")
     }
 
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
 
-        print("didReceiveRemoteNotification userInfo: \(userInfo)")
+        //print("didReceiveRemoteNotification userInfo: \(userInfo)")
 
         completionHandler(UIBackgroundFetchResult.newData)
     }
 
-    func application(_ application: UIApplication, didReceive notification: UILocalNotification) {
+    /*func application(_ application: UIApplication, didReceive notification: UILocalNotification) {
 
         print("didReceiveLocalNotification userInfo: \(String(describing: notification.userInfo))")
-    }
+    }*/
 }
 
 @available(iOS 10, *)
@@ -143,12 +143,12 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
 
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
 
-        print("didReceive notification.request.identifier: \(response.notification.request.identifier)")
+        //print("didReceive notification.request.identifier: \(response.notification.request.identifier)")
         if response.notification.request.trigger is UNPushNotificationTrigger {
-            print("didReceive Push Notification")
+            //print("didReceive Push Notification")
         }
         else {
-            print("didReceive Local Notification")
+            //print("didReceive Local Notification")
         }
 
         completionHandler()

@@ -126,23 +126,28 @@ static CBUUID *service_uuid;
 
 - (bool)isBluetoothLESupported
 {
-    if ([central state] == CBCentralManagerStatePoweredOn)
+    if ([central state] == CBManagerStatePoweredOn)
+    //if ([central state] == CBCentralManagerStatePoweredOn)
         return YES;
 
     NSString *message;
 
     switch ([central state])
     {
-        case CBCentralManagerStateUnsupported:
+        case CBManagerStateUnsupported:
+        //case CBCentralManagerStateUnsupported:
             message = @"This hardware doesn't support Bluetooth Low Energy.";
             break;
-        case CBCentralManagerStateUnauthorized:
+        case CBManagerStateUnauthorized:
+        //case CBCentralManagerStateUnauthorized:
             message = @"This app is not authorized to use Bluetooth Low Energy.";
             break;
-        case CBCentralManagerStatePoweredOff:
+        case CBManagerStatePoweredOff:
+        //case CBCentralManagerStatePoweredOff:
             message = @"Bluetooth is currently powered off.";
             break;
-        case CBCentralManagerStateUnknown:
+        case CBManagerStateUnknown:
+        //case CBCentralManagerStateUnknown:
             // fall through
         default:
             message = @"Bluetooth state is unknown.";

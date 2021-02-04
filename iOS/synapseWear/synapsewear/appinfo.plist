@@ -19,5 +19,7 @@
 		<string>Files</string>
 		<string>Debug</string>
 	</array>
+	<key>debug_log</key>
+	<false/>
 </dict>
 </plist>

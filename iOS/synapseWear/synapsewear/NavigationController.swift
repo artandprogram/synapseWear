@@ -15,12 +15,13 @@ protocol DeviceAssociatedDelegate: class {
 class NavigationController: UINavigationController, CommonFunctionProtocol {
 
     // variables
+    weak var daDelegate: DeviceAssociatedDelegate?
     var nowMenu: IndexPath?
     var menuList: [Any] = []
     var topVC: TopViewController!
     var isDebug: Bool = false
     var isSetting: Bool = false
-    weak var daDelegate: DeviceAssociatedDelegate?
+    //var statusBarStyle: UIStatusBarStyle = .default
     // views
     var headerView: UIView!
     var headerTitle: UILabel!
@@ -252,30 +253,39 @@ class NavigationController: UINavigationController, CommonFunctionProtocol {
 
     func presetView() {
 
-        UIApplication.shared.statusBarStyle = .default
+        if let parentViewController = parent as? MainViewController {
+            parentViewController.statusBarStyle = .default
+        }
         self.setNeedsStatusBarAppearanceUpdate()
         self.setNavigationBarHidden(true, animated: false)
     }
 
     func setHeaderColor(isWhite: Bool) {
 
-        UIApplication.shared.statusBarStyle = .default
+        if let parentViewController = parent as? MainViewController {
+            parentViewController.statusBarStyle = .default
+        }
         if #available(iOS 13, *) {
             if traitCollection.userInterfaceStyle == .dark {
                 //print("dark")
-                UIApplication.shared.statusBarStyle = .darkContent
+                if let parentViewController = parent as? MainViewController {
+                    parentViewController.statusBarStyle = .darkContent
+                }
             }
         }
         self.headerTitle.textColor = UIColor.black
         self.headerSettingIcon.image = UIImage.settingSB
         self.headerSettingBtn.setTitleColor(UIColor.black, for: .normal)
         if isWhite {
-            UIApplication.shared.statusBarStyle = .lightContent
+            if let parentViewController = parent as? MainViewController {
+                parentViewController.statusBarStyle = .lightContent
+            }
             self.headerTitle.textColor = UIColor.white
             self.headerSettingIcon.image = UIImage.settingSW
             self.headerSettingBtn.setTitleColor(UIColor.white, for: .normal)
         }
         self.setHeaderBackIcon(isWhite: isWhite)
+        self.setNeedsStatusBarAppearanceUpdate()
     }
 
     func checkHeaderButtons() {

@@ -103,7 +103,7 @@ class DebugDetailViewController: DebugBaseViewController, FileManagerExtension, 
                 do {
                     let directories: [String] = try fileManager.contentsOfDirectory(atPath: path)
                     for directory in directories {
-                        print("remove: \(directory)")
+                        //print("remove: \(directory)")
                         try fileManager.removeItem(atPath: "\(path)/\(directory)")
                     }
                 }

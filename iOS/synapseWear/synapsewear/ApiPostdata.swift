@@ -23,7 +23,7 @@ class ApiPostdata: ApiManager {
                 self.url = url
             }
         }
-        print("ApiPostdata url: \(self.url)")
+        //print("ApiPostdata url: \(self.url)")
     }
 
     override convenience init() {

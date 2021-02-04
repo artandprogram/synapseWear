@@ -18,9 +18,42 @@ class SynapseRecordFileManager: BaseFileManager, UsageFunction {
     override init() {
         super.init()
 
-        self.baseDirType = "documents"
+        self.baseDirType = "application_support"
         self.baseDirName = "synapse_record"
         self.setBaseDir()
+    }
+
+    override func setBaseDir() {
+        super.setBaseDir()
+
+        self.checkBaseDir()
+    }
+
+    func checkBaseDir() {
+
+        if self.baseDirType == "documents" {
+            return
+        }
+
+        var documentsDir: String = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
+        documentsDir = "\(documentsDir)/\(self.baseDirName)"
+
+        var isDir: ObjCBool = false
+        var exists: Bool = FileManager.default.fileExists(atPath: documentsDir, isDirectory: &isDir)
+        if exists && isDir.boolValue {
+            //print("SynapseRecordFileManager checkBaseDir: \(documentsDir) -> \(self.baseDirPath)")
+            do {
+                exists = FileManager.default.fileExists(atPath: self.baseDirPath)
+                if exists {
+                    try FileManager.default.removeItem(atPath: self.baseDirPath)
+                }
+
+                try FileManager.default.moveItem(atPath: documentsDir, toPath: self.baseDirPath)
+            }
+            catch {
+                print("SynapseRecordFileManager checkBaseDir error: \(error.localizedDescription)")
+            }
+        }
     }
 
     func setSynapseId(_ synapseId: String) {
@@ -51,6 +84,7 @@ class SynapseRecordFileManager: BaseFileManager, UsageFunction {
             return try self.contentsOfDirectory(filePath)
         }
         catch {
+            print("SynapseRecordFileManager getSynapseRecords error: \(error.localizedDescription)")
             return []
         }
     }
@@ -116,6 +150,7 @@ class SynapseRecordFileManager: BaseFileManager, UsageFunction {
                 }
             }
             catch {
+                print("SynapseRecordFileManager getTotalData error: \(error.localizedDescription)")
             }
         }
         return nil
@@ -242,6 +277,7 @@ class SynapseRecordFileManager: BaseFileManager, UsageFunction {
                 }
             }
             catch {
+                print("SynapseRecordFileManager getSynapseRecordTotalIn10min error: \(error.localizedDescription)")
             }
         }
         else {
@@ -307,6 +343,7 @@ class SynapseRecordFileManager: BaseFileManager, UsageFunction {
                 }
             }
             catch {
+                print("SynapseRecordFileManager getSynapseRecordTotalInHour error: \(error.localizedDescription)")
             }
         }
         else {
@@ -382,6 +419,7 @@ class SynapseRecordFileManager: BaseFileManager, UsageFunction {
             }
         }
         catch {
+            print("SynapseRecordFileManager setSynapseRecordTotalInHour error: \(error.localizedDescription)")
         }
     }
 
@@ -398,6 +436,7 @@ class SynapseRecordFileManager: BaseFileManager, UsageFunction {
                     return try self.contentsOfDirectory(filePath)
                 }
                 catch {
+                    print("SynapseRecordFileManager getSynapseRecordValueType error: \(error.localizedDescription)")
                 }
             }
         }
@@ -417,6 +456,7 @@ class SynapseRecordFileManager: BaseFileManager, UsageFunction {
                     return try self.contentsOfDirectory(filePath)
                 }
                 catch {
+                    print("SynapseRecordFileManager getSynapseRecordValueTypeIn10min error: \(error.localizedDescription)")
                 }
             }
         }
@@ -436,6 +476,7 @@ class SynapseRecordFileManager: BaseFileManager, UsageFunction {
                     return try self.contentsOfDirectory(filePath)
                 }
                 catch {
+                    print("SynapseRecordFileManager getSynapseRecordValueTypeInHour error: \(error.localizedDescription)")
                 }
             }
         }
@@ -545,6 +586,7 @@ class SynapseRecordFileManager: BaseFileManager, UsageFunction {
             return try self.contentsOfDirectory(self.baseDirPath)
         }
         catch {
+            print("SynapseRecordFileManager getDayDirectories error: \(error.localizedDescription)")
         }
         return []
     }
@@ -557,6 +599,7 @@ class SynapseRecordFileManager: BaseFileManager, UsageFunction {
                 return try self.contentsOfDirectory(filePath)
             }
             catch {
+                print("SynapseRecordFileManager getConnectLogs error: \(error.localizedDescription)")
             }
         }
         return []
@@ -686,6 +729,7 @@ class SynapseRecordFileManager: BaseFileManager, UsageFunction {
             try values.write(to: fileURL)
         }
         catch {
+            print("SynapseRecordFileManager setValues error: \(error.localizedDescription)")
             return false
         }
         return true
@@ -729,6 +773,7 @@ class SynapseRecordFileManager: BaseFileManager, UsageFunction {
             try synapseIds = FileManager.default.contentsOfDirectory(atPath: self.baseDirPath)
         }
         catch {
+            print("SynapseRecordFileManager removeSynapseRecords error: \(error.localizedDescription)")
             return
         }
 
@@ -742,6 +787,7 @@ class SynapseRecordFileManager: BaseFileManager, UsageFunction {
                 try days = FileManager.default.contentsOfDirectory(atPath: dir)
             }
             catch {
+                print("SynapseRecordFileManager removeSynapseRecords error: \(error.localizedDescription)")
                 days = []
             }
             //print("removeSynapseRecords days: \(days)")
@@ -755,7 +801,7 @@ class SynapseRecordFileManager: BaseFileManager, UsageFunction {
                         //print("removeSynapseRecords: \(dir) \(dateStr) -> \(day)")
                     }
                     catch {
-                        //print("removeSynapseRecords error")
+                        print("SynapseRecordFileManager removeSynapseRecords error: \(error.localizedDescription)")
                     }
                 }
 
@@ -783,9 +829,10 @@ class SynapseRecordFileManager: BaseFileManager, UsageFunction {
                     if FileManager.default.fileExists(atPath: filePath) {
                         do {
                             try FileManager.default.removeItem(atPath: filePath)
-                            print("removeSynapseRecords: \(filePath)")
+                            //print("removeSynapseRecords: \(filePath)")
                         }
                         catch {
+                            print("SynapseRecordFileManager removeSynapseRecords error: \(error.localizedDescription)")
                         }
                     }
                 }

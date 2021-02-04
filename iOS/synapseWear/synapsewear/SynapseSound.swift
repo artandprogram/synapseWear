@@ -136,6 +136,7 @@ class SynapseSound: NSObject {
                 self.roopPlayer?.prepareToPlay()
             }
             catch {
+                print("SynapseSound setPlayers error: \(error.localizedDescription)")
             }
         }
         for fileName in self.lightSounds {
@@ -148,6 +149,7 @@ class SynapseSound: NSObject {
                     self.players[fileName] = player
                 }
                 catch {
+                    print("SynapseSound setPlayers error: \(error.localizedDescription)")
                 }
             }
         }
@@ -167,6 +169,7 @@ class SynapseSound: NSObject {
                     self.players["\(fileName)_B"] = playerB
                 }
                 catch {
+                    print("SynapseSound setPlayers error: \(error.localizedDescription)")
                 }
             }
         }
@@ -186,6 +189,7 @@ class SynapseSound: NSObject {
                     self.players["\(fileName)_B"] = playerB
                 }
                 catch {
+                    print("SynapseSound setPlayers error: \(error.localizedDescription)")
                 }
             }
         }
@@ -199,6 +203,7 @@ class SynapseSound: NSObject {
                     self.players[fileName] = player
                 }
                 catch {
+                    print("SynapseSound setPlayers error: \(error.localizedDescription)")
                 }
             }
         }
@@ -212,6 +217,7 @@ class SynapseSound: NSObject {
                     self.players[fileName] = player
                 }
                 catch {
+                    print("SynapseSound setPlayers error: \(error.localizedDescription)")
                 }
             }
         }
@@ -225,6 +231,7 @@ class SynapseSound: NSObject {
                     self.players[fileName] = player
                 }
                 catch {
+                    print("SynapseSound setPlayers error: \(error.localizedDescription)")
                 }
             }
         }

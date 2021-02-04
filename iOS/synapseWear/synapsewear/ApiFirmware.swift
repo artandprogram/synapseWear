@@ -24,7 +24,7 @@ class ApiFirmware: ApiManager {
             }
             self.url = self.host + "list.php"
         }
-        print("ApiFirmware url: \(self.url)")
+        //print("ApiFirmware url: \(self.url)")
     }
 
     override convenience init() {

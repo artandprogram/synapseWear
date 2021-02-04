@@ -2129,7 +2129,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
     func startScan() {
 
         if self.isSynapseScanning || self.mainSynapseObject.synapse == nil {
-            print("startScan")
+            debugLog("startScan")
             self.rfduinoManager.startScan()
         }
     }
@@ -2137,7 +2137,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
     func stopScan() {
 
         if !self.isSynapseScanning && self.mainSynapseObject.synapse != nil {
-            print("stopScan")
+            debugLog("stopScan")
             self.rfduinoManager.stopScan()
         }
     }
@@ -2160,7 +2160,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         //print("rfduino.outOfRange: \(rfduino.outOfRange)")
         //print("checkSynapse: \(String(describing: String(data: rfduino.advertisementData, encoding: String.Encoding.utf8)))")
         if self.synapseDeviceName.count > 0 && rfduino.outOfRange == 0 && rfduino.advertisementData == self.synapseDeviceName.data(using: String.Encoding.utf8) {
-            print("checkSynapse: \(rfduino.peripheral.identifier) lastAdvertisement: \(String(describing: rfduino.lastAdvertisement))")
+            debugLog("checkSynapse: \(rfduino.peripheral.identifier) lastAdvertisement: \(String(describing: rfduino.lastAdvertisement))")
             var synapseIndex: Int = -1
             for (index, synapse) in self.scanDevices.enumerated() {
                 if synapse.peripheral.identifier == rfduino.peripheral.identifier {
@@ -2367,7 +2367,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
 
     func reconnectSynapse(_ synapseObject: SynapseObject, uuid: UUID) {
 
-        print("reconnectSynapse: \(uuid.uuidString)")
+        debugLog("reconnectSynapse: \(uuid.uuidString)")
         //print("reconnectSynapse delegate: \(synapseObject.synapse?.delegate)")
         if uuid == synapseObject.synapseUUID {
             self.sendResetToDevice(synapseObject)
@@ -2518,7 +2518,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
     func didLoadServiceRFduino(_ rfduino: RFduino!) -> Void {
 
         //print("didLoadServiceRFduino: \(rfduino)")
-        print("didLoadServiceRFduino UUID: \(rfduino.peripheral.identifier)")
+        debugLog("didLoadServiceRFduino UUID: \(rfduino.peripheral.identifier)")
         if self.mainSynapseObject.synapseUUID == rfduino.peripheral.identifier {
             self.startCommunicationSynapse(self.mainSynapseObject)
         }
@@ -2643,7 +2643,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             else {
                 data.append(accessKey)
             }
-            print("sendAccessKeyToDevice: \([UInt8](data))")
+            debugLog("sendAccessKeyToDevice: \([UInt8](data))")
             synapse.send(data)
         }
     }
@@ -2655,7 +2655,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         //print("receiveAccessKeyToDevice: \(bytes)")
         if bytes.count == length {
             if Int(bytes[0]) == 0 {
-                print("receiveAccessKeyToDevice OK")
+                debugLog("receiveAccessKeyToDevice OK")
                 synapseObject.synapseValues.isConnected = true
                 if let nav = self.navigationController as? NavigationController {
                     nav.changeDeviceAssociated()
@@ -2669,7 +2669,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 self.playAudioStart(synapseObject: self.mainSynapseObject)
             }
             else {
-                print("receiveAccessKeyToDevice NG")
+                debugLog("receiveAccessKeyToDevice NG")
                 if self.accessKeysFileManager.getAccessKey(synapseObject.synapseUUID!) != nil {
                     self.sendConnectionRequestToDevice(synapseObject)
                 }
@@ -2689,7 +2689,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             else {
                 data.append(accessKey)
             }
-            print("sendStopToDevice: \([UInt8](data))")
+            debugLog("sendStopToDevice: \([UInt8](data))")
             synapse.send(data)
         }
         else {
@@ -2704,7 +2704,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         //print("receiveStopToDevice: \(bytes)")
         if bytes.count == length {
             if Int(bytes[0]) == 0 {
-                print("receiveStopToDevice OK")
+                debugLog("receiveStopToDevice OK")
                 if synapseObject.synapseSendModeNext == SendMode.I3 {
                     self.sendTimeIntervalToDevice(synapseObject)
                 }
@@ -2720,7 +2720,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                 synapseObject.synapseSendModeNext = nil
             }
             else {
-                print("receiveStopToDevice NG")
+                debugLog("receiveStopToDevice NG")
                 synapseObject.synapseSendModeNext = nil
                 if self.accessKeysFileManager.getAccessKey(synapseObject.synapseUUID!) != nil {
                     self.sendAccessKeyToDevice(synapseObject)
@@ -2762,8 +2762,10 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
 
         if let synapse = synapseObject.synapse {
             self.synapseTimeInterval = self.getSynapseTimeInterval()
-            var timeInt: Int = Int(self.synapseTimeInterval * 1000)
-            let timeData: [UInt8] = [UInt8](Data(buffer: UnsafeBufferPointer(start: &timeInt, count: 1)))
+            let timeInt: Int = Int(self.synapseTimeInterval * 1000)
+            let timeData: [UInt8] = [UInt8](withUnsafeBytes(of: timeInt) { Data($0) })
+            //let timeData: [UInt8] = [UInt8](Data(buffer: UnsafeBufferPointer(start: &timeInt, count: 1)))
+            //print("timeData: \(timeData)")
 
             var data: Data = Data(bytes: [0x04])
             if timeData.count >= 4 {
@@ -2793,7 +2795,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             data.append(SettingFileManager.shared.getSynapseTimeIntervalByteData())
 
             synapseObject.synapseSendMode = SendMode.I3
-            print("sendTimeIntervalToDevice: \([UInt8](data))")
+            debugLog("sendTimeIntervalToDevice: \([UInt8](data))")
             synapse.send(data)
         }
     }
@@ -2806,11 +2808,11 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         if bytes.count == length {
             if Int(bytes[0]) == 0 {
                 self.synapseTimeIntervalBak = self.synapseTimeInterval
-                print("receiveTimeIntervalToDevice OK: \(self.synapseTimeInterval)")
+                debugLog("receiveTimeIntervalToDevice OK: \(self.synapseTimeInterval)")
             }
             else {
                 self.synapseTimeInterval = self.synapseTimeIntervalBak
-                print("receiveTimeIntervalToDevice NG")
+                debugLog("receiveTimeIntervalToDevice NG")
             }
 
             if synapseObject.synapseSendModeNext == SendMode.I5_3_4 {
@@ -2923,7 +2925,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             data.append(byte)
 
             synapseObject.synapseSendMode = SendMode.I4
-            print("sendSensorToDevice: \([UInt8](data))")
+            debugLog("sendSensorToDevice: \([UInt8](data))")
             synapse.send(data)
         }
     }
@@ -2935,10 +2937,10 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         //print("receiveTimeIntervalToDevice: \(bytes)")
         if bytes.count == length {
             if Int(bytes[0]) == 0 {
-                print("receiveSensorToDevice OK")
+                debugLog("receiveSensorToDevice OK")
             }
             else {
-                print("receiveSensorToDevice NG")
+                debugLog("receiveSensorToDevice NG")
             }
 
             synapseObject.synapseSendModeNext = nil
@@ -2956,7 +2958,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         if let synapse = synapseObject.synapse {
             synapseObject.synapseSendMode = SendMode.I5
             let data: Data = Data(bytes: [0x06])
-            print("sendFirmwareVersionToDevice: \([UInt8](data))")
+            debugLog("sendFirmwareVersionToDevice: \([UInt8](data))")
             synapse.send(data)
         }
     }
@@ -2978,11 +2980,11 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                     "device_version": "\(versionVal1).\(versionVal2)",
                     "date": "\(dateVal1 + dateVal2 + dateVal3 + dateVal4)",
                 ]
-                print("receiveFirmwareVersionToDevice OK -> \(SettingFileManager.shared.synapseFirmwareInfo)")
+                debugLog("receiveFirmwareVersionToDevice OK -> \(SettingFileManager.shared.synapseFirmwareInfo)")
                 _ = SettingFileManager.shared.saveData()
             }
             else {
-                print("receiveFirmwareVersionToDevice Error")
+                debugLog("receiveFirmwareVersionToDevice Error")
             }
 
             if synapseObject.synapseSendModeNext == SendMode.I5_3_4 {
@@ -3006,7 +3008,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         if let synapse = synapseObject.synapse {
             synapseObject.synapseSendMode = SendMode.I6
             let data: Data = Data(bytes: [0x10])
-            print("sendConnectionRequestToDevice: \([UInt8](data))")
+            debugLog("sendConnectionRequestToDevice: \([UInt8](data))")
             synapse.send(data)
         }
     }
@@ -3014,7 +3016,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
     func receiveConnectionRequestToDevice(_ synapseObject: SynapseObject, data: Data) {
 
         let bytes: [UInt8] = [UInt8](data)
-        print("receiveConnectionRequestToDevice: \(bytes)")
+        debugLog("receiveConnectionRequestToDevice: \(bytes)")
         if bytes.count > 0 && Int(bytes[0]) == 0 {
             if let synapse = synapseObject.synapse {
                 let data: Data = Data(bytes: [0x00])
@@ -3022,7 +3024,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             }
 
             let accessKey: Data = data.subdata(in: 1..<data.count)
-            print("receiveConnectionRequestToDevice accessKey: \([UInt8](accessKey))")
+            debugLog("receiveConnectionRequestToDevice accessKey: \([UInt8](accessKey))")
             if self.accessKeysFileManager.setAccessKey(synapseObject.synapseUUID!, accessKey: accessKey) {
                 self.sendAccessKeyToDevice(synapseObject)
             }
@@ -3046,14 +3048,14 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
             self.present(alert, animated: true, completion: nil)
         }
         else {
-            print("receiveConnectionRequestToDevice Error")
+            debugLog("receiveConnectionRequestToDevice Error")
         }
     }
 
     func sendDataToDevice(_ synapseObject: SynapseObject, url: URL, firmwareInfo: [String: Any]) {
 
         if let synapse = synapseObject.synapse {
-            print("sendDataToDevice hex: \(url)")
+            debugLog("sendDataToDevice hex: \(url)")
             let data: Data = Data(bytes: [0xfe])
             synapse.send(data)
             //self.disconnectSynapse()
@@ -3075,7 +3077,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
         synapseObject.synapseSendModeNext = nil
         if let synapse = synapseObject.synapse {
             let data: Data = Data(bytes: [0x12, 0x01])
-            print("sendResetToDevice: \([UInt8](data))")
+            debugLog("sendResetToDevice: \([UInt8](data))")
             synapse.send(data)
 
             self.sendConnectionRequestToDevice(synapseObject)
@@ -3087,7 +3089,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
 
         if let synapse = synapseObject.synapse {
             let data: Data = Data(bytes: [0x13])
-            print("sendLEDFlashToDevice: \([UInt8](data))")
+            debugLog("sendLEDFlashToDevice: \([UInt8](data))")
             synapse.send(data)
         }
     }
@@ -3096,7 +3098,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
 
         if let synapse = synapseObject.synapse {
             let data: Data = Data(bytes: [0x14])
-            print("sendRebootToDevice: \([UInt8](data))")
+            debugLog("sendRebootToDevice: \([UInt8](data))")
             synapse.send(data)
         }
     }
@@ -3283,7 +3285,7 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                     self.oscSynapseObject?.synapseValues.isConnected = false
                 }
                 if let oscSynapseObject = self.oscSynapseObject, !oscSynapseObject.synapseValues.isConnected {
-                    print("Start OSCRecvMode")
+                    debugLog("Start OSCRecvMode")
                     self.oscSynapseObject?.synapseValues.isConnected = true
                     self.oscSynapseObject?.synapseCrystalNode.setSynapseNodes(scnView: self.scnView, position: SCNVector3(x: 3.5, y: 0, z: 0))
                     self.oscSynapseObject?.synapseCrystalNode.setColorSynapseNodes(colorLevel: 0)
@@ -3293,10 +3295,10 @@ class TopViewController: BaseViewController, RFduinoManagerDelegate, RFduinoDele
                         self.oscServer?.port = oscPort
                         self.oscServer?.delegate = self
                         if self.oscServer!.startListening() {
-                            print("Listening for messages on port: \(self.oscServer!.port)")
+                            debugLog("Listening for messages on port: \(self.oscServer!.port)")
                         }
                         else {
-                            print("Error: Server was unable to start listening on port: \(self.oscServer!.port)")
+                            debugLog("Error: Server was unable to start listening on port: \(self.oscServer!.port)")
                         }
                     }
                 }
@@ -4532,7 +4534,7 @@ class SynapseObject: CommonFunctionProtocol {
 
     func startSynapseSendData(url: String) {
 
-        print("startSynapseSendData: \(url)")
+        debugLog("startSynapseSendData: \(url)")
         self.apiPostdata = ApiPostdata(url: url)
         self.checkSynapseValuesSendBackward()
     }
@@ -4658,13 +4660,13 @@ class SynapseObject: CommonFunctionProtocol {
                     sendData = ""
                 }
             }
-            print("sendSynapseValues: \(day)\(hour)")
+            debugLog("sendSynapseValues: \(day)\(hour)")
             //print("sendSynapseValues: \(sendData)")
 
             if sendData.count > 0 {
                 apiPostdata.postDataRequest(data: sendData, success: {
                     (response: HTTPURLResponse?) in
-                    print("res -> ok: \(String(describing: response?.statusCode))")
+                    self.debugLog("res -> ok: \(String(describing: response?.statusCode))")
                     if let response = response, response.statusCode == 200 {
                         _ = synapseRecordFileManager.setSynapseSendHistory(day: day, hour: hour)
 
@@ -4673,7 +4675,7 @@ class SynapseObject: CommonFunctionProtocol {
                                 if time.count >= 10 {
                                     let day: String = String(time[time.startIndex..<time.index(time.startIndex, offsetBy: 8)])
                                     let hour: String = String(time[time.index(time.startIndex, offsetBy: 8)..<time.index(time.startIndex, offsetBy: 10)])
-                                    print("sendDataRestTime: \(day)\(hour)")
+                                    self.debugLog("sendDataRestTime: \(day)\(hour)")
                                     DispatchQueue.global(qos: .background).async {
                                         self.sendSynapseValues(day: day, hour: hour, crystals: self.sendDataCrystals)
                                     }
@@ -4687,7 +4689,7 @@ class SynapseObject: CommonFunctionProtocol {
                     }
                 }, fail: {
                     (error: Error?) in
-                    print("res -> error: \(String(describing: error))")
+                    self.debugLog("res -> error: \(String(describing: error))")
                     self.sendDataRestTimes.append("\(day)\(hour)")
                 })
             }
@@ -4700,7 +4702,7 @@ class SynapseObject: CommonFunctionProtocol {
 
 // MARK: class - SynapseValues
 
-class SynapseValues {
+class SynapseValues: CommonFunctionProtocol {
 
     var name: String?
     var time: TimeInterval?
@@ -4993,7 +4995,7 @@ class SynapseValues {
         }
         str = "\(str), "
         str = "\(str)isConnected: \(self.isConnected)"
-        print(str)
+        debugLog(str)
     }
 }
 
@@ -5793,7 +5795,7 @@ class AllSynapseValueLabels {
 
 // MARK: class - SynapseDataMaxAndMin
 
-class SynapseDataMaxAndMin {
+class SynapseDataMaxAndMin: CommonFunctionProtocol {
 
     var maxNow: Double?
     var minNow: Double?
@@ -5957,7 +5959,7 @@ class SynapseDataMaxAndMin {
         else {
             str = "\(str)dateStr: nil"
         }
-        print(str)
+        debugLog(str)
     }
 }
 
@@ -6078,7 +6080,7 @@ class AllSynapseDataMaxAndMins {
 
 // MARK: class - SynapseNotification
 
-class SynapseNotification {
+class SynapseNotification: CommonFunctionProtocol {
 
     var notificationId: String?
     var body: String?
@@ -6142,10 +6144,10 @@ class SynapseNotification {
             let center: UNUserNotificationCenter = UNUserNotificationCenter.current()
             center.add(request) { (error: Error?) in
                 if let error = error {
-                    print("UserNotificationCenter error : \(error.localizedDescription)")
+                    self.debugLog("UserNotificationCenter error : \(error.localizedDescription)")
                 }
                 else {
-                    print("UserNotificationCenter success")
+                    self.debugLog("UserNotificationCenter success")
                 }
             }
         }

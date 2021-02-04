@@ -10,6 +10,7 @@ import UIKit
 class SynapseRecordLocalFileManager: BaseFileManager {
 
     let limitSize: UInt64 = 1024 * 1024
+
     var connectDate: Date?
 
     override init() {
@@ -54,6 +55,7 @@ class SynapseRecordLocalFileManager: BaseFileManager {
                     try FileManager.default.removeItem(atPath: filePath!.path)
                 }
                 catch {
+                    print("SynapseRecordLocalFileManager setValues error: \(error.localizedDescription)")
                     return false
                 }
             }
@@ -63,11 +65,12 @@ class SynapseRecordLocalFileManager: BaseFileManager {
                                                         attributes: nil)
             }
             catch {
+                print("SynapseRecordLocalFileManager setValues error: \(error.localizedDescription)")
                 return false
             }
         }
 
-        let filename: String = self.getFilename(date: date)
+        let filename: String = self.getFilename(filePath: filePath!, date: date)
         filePath = filePath!.appendingPathComponent(filename)
         var output: OutputStream? = OutputStream(toFileAtPath: filePath!.path, append: true)
         output?.open()
@@ -83,41 +86,53 @@ class SynapseRecordLocalFileManager: BaseFileManager {
         return true
     }
 
-    func getFilename(date: Date) -> String {
+    func getFilename(filePath: URL, date: Date) -> String {
 
-        let fileNameBase: String = "\(date.timeIntervalSince1970)"
-        var fileName: String = fileNameBase
-        var count: Int = 0
-
-        var files: [String]? = nil
+        let fileNameBase: String = "\(date.timeIntervalSince1970)".replacingOccurrences(of: ".", with: "_")
+        let fileName: String = "\(fileNameBase).csv"
+        /*
         do {
-            files = try FileManager.default.contentsOfDirectory(atPath: self.baseDirPath)
-            files!.sort { $1 < $0 }
-        }
-        catch {
-        }
+           let contents = try FileManager.default.contentsOfDirectory(at: filePath,
+                                                                      includingPropertiesForKeys: [.contentModificationDateKey],
+                                                                      options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants])
+            .sorted(by: {
+                let date0 = try $0.promisedItemResourceValues(forKeys:[.contentModificationDateKey]).contentModificationDate!
+                let date1 = try $1.promisedItemResourceValues(forKeys:[.contentModificationDateKey]).contentModificationDate!
+                return date0.compare(date1) == .orderedDescending
+            })
 
-        if let files = files, files.count > 0, let firstFile = files.first {
-            if fileName != firstFile, let _ = firstFile.range(of: fileName) {
-                fileName = firstFile
-                var parts: [String]? = firstFile.components(separatedBy: ".")
-                if let part = parts?.last, let value = Int(part) {
-                    count = value
+            if contents.count > 0 {
+                /*if let t = try? contents[0].promisedItemResourceValues(forKeys:[.contentModificationDateKey]).contentModificationDate {
+                    print ("\(t), \(contents[0].lastPathComponent)")
+                }*/
+
+                var count: Int = 0
+                let firstFile: String = contents[0].lastPathComponent
+                if fileName != firstFile, let _ = firstFile.range(of: fileNameBase) {
+                    fileName = firstFile
+                    var parts: [String]? = firstFile.components(separatedBy: ".")
+                    if let parts = parts, parts.count > 2, let _count = Int(parts[1]) {
+                        count = _count
+                    }
+                    parts = nil
                 }
-                parts = nil
-            }
-        }
-        files = nil
 
-        do {
-            let size: UInt64 = try self.findSize(path: "\(self.baseDirPath)/\(fileName)")
-            if size > self.limitSize {
-                fileName = "\(fileNameBase).\(count + 1)"
+                var path: String = filePath.appendingPathComponent(fileName).absoluteString
+                if let pathRange = path.range(of: "file://") {
+                    path.replaceSubrange(pathRange, with: "")
+                    //print("setLocalFile: \(path)")
+                    let size: UInt64 = try self.findSize(path: path)
+                    //print("setLocalFile: \(fileName) -> \(size)")
+                    if size > self.limitSize {
+                        fileName = "\(fileNameBase).\(count + 1).csv"
+                    }
+                }
             }
         }
         catch {
+            //print(error)
         }
-
+         */
         return fileName
     }
 
@@ -144,7 +159,6 @@ class SynapseRecordLocalFileManager: BaseFileManager {
                 print(".", terminator: "")
             }
         }
-
         /*if total < 1048576 {
             total = 1
         }

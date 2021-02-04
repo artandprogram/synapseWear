@@ -14,6 +14,7 @@ class MainViewController: UIViewController {
     // variables
     var mainViewController: NavigationController!
     var menuViewController: MenuViewController!
+    var statusBarStyle: UIStatusBarStyle = .default
     // views
     var mainContainerView: UIView!
     var menuContainerView: UIView!
@@ -52,16 +53,10 @@ class MainViewController: UIViewController {
         return true
     }
     
-    /*override var preferredStatusBarStyle: UIStatusBarStyle {
+    override var preferredStatusBarStyle: UIStatusBarStyle {
 
-        if #available(iOS 13, *) {
-            print("darkContent")
-            return .darkContent
-        }
-        else {
-            return .default
-        }
-    }*/
+        return self.statusBarStyle
+    }
 
     // MARK: mark - Set Variables methods
 

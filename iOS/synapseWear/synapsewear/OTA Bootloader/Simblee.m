@@ -309,7 +309,7 @@ didWriteValueForCharacteristic:(CBCharacteristic *)characteristic
 {
     NSLog(@"Simblee connect: %@", services);
 
-    if (_simbleeManager.central.state != CBCentralManagerStatePoweredOn) {
+    if (_simbleeManager.central.state != CBManagerStatePoweredOn/*CBCentralManagerStatePoweredOn*/) {
         NSLog(@"delaying connect until ble powered on");
         Simblee *this = self;
         [_simbleeManager addBlePowerOnBlock: ^{ [this connect:services]; } ];

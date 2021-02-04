@@ -193,10 +193,10 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
         var num: Int = 0
         if section < self.settings.count {
             if self.settings[section] == "synapse_wear_id" {
-                num = 5
+                num = 6
             }
             else if self.settings[section] == "interval_time" {
-                num = 5
+                num = 4
             }
             else if self.settings[section] == "firmware_version" {
                 num = 4
@@ -224,7 +224,7 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
 
         if indexPath.section < self.settings.count {
             if self.settings[indexPath.section] == "synapse_wear_id" {
-                if indexPath.row == 0 || indexPath.row == 4 {
+                if indexPath.row == 0 || indexPath.row == 5 {
                     return self.getLineCell(tableView: tableView)
                 }
                 else if indexPath.row == 1 {
@@ -276,7 +276,6 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
                     cell.titleLabel.text = "Upload Settings"
                     cell.textField.isEnabled = false
                     cell.swicth.isHidden = true
-                    cell.lineView.isHidden = true
 
                     cell.textField.textColor = UIColor.lightGray
                     if SettingFileManager.shared.synapseSendFlag {
@@ -285,9 +284,27 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
                     cell.textField.text = SettingFileManager.shared.synapseSendURL
                     return cell
                 }
+                else if indexPath.row == 4 {
+                    let cell: SettingTableViewCell = self.getSettingTableViewCell(tableView: tableView, identifier: "save_local_file_cell")
+                    cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
+                    cell.iconImageView.isHidden = true
+                    cell.titleLabel.text = "Save Local File"
+                    cell.textField.isEnabled = false
+                    cell.swicth.isHidden = true
+                    cell.arrowView.isHidden = true
+                    cell.lineView.isHidden = true
+
+                    cell.textField.textColor = UIColor.lightGray
+                    cell.textField.text = "OFF"
+                    if self.saveLocalFile {
+                        cell.textField.textColor = UIColor.fluorescentPink
+                        cell.textField.text = "ON"
+                    }
+                    return cell
+                }
             }
             else if self.settings[indexPath.section] == "interval_time" {
-                if indexPath.row == 0 || indexPath.row == 4 {
+                if indexPath.row == 0 || indexPath.row == 3 {
                     return self.getLineCell(tableView: tableView)
                 }
                 else if indexPath.row == 1 {
@@ -310,28 +327,11 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
                     cell.textField.isEnabled = false
                     cell.swicth.isHidden = true
                     cell.arrowView.isHidden = true
-
-                    cell.textField.textColor = UIColor.lightGray
-                    cell.textField.text = "OFF"
-                    if self.soundInfo {
-                        cell.textField.textColor = UIColor.fluorescentPink
-                        cell.textField.text = "ON"
-                    }
-                    return cell
-                }
-                else if indexPath.row == 3 {
-                    let cell: SettingTableViewCell = self.getSettingTableViewCell(tableView: tableView, identifier: "save_local_file_cell")
-                    cell.backgroundColor = UIColor.dynamicColor(light: UIColor.white, dark: UIColor.darkGrayBGColor)
-                    cell.iconImageView.isHidden = true
-                    cell.titleLabel.text = "Save Local File"
-                    cell.textField.isEnabled = false
-                    cell.swicth.isHidden = true
-                    cell.arrowView.isHidden = true
                     cell.lineView.isHidden = true
 
                     cell.textField.textColor = UIColor.lightGray
                     cell.textField.text = "OFF"
-                    if self.saveLocalFile {
+                    if self.soundInfo {
                         cell.textField.textColor = UIColor.fluorescentPink
                         cell.textField.text = "ON"
                     }
@@ -534,7 +534,7 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
         if indexPath.section < self.settings.count {
             var cell: SettingTableViewCell? = SettingTableViewCell()
             if self.settings[indexPath.section] == "synapse_wear_id" {
-                if indexPath.row == 0 || indexPath.row == 4 {
+                if indexPath.row == 0 || indexPath.row == 5 {
                     height = self.getLineCellHeight()
                 }
                 else if indexPath.row == 1 {
@@ -546,12 +546,15 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
                 else if indexPath.row == 3 {
                     height = cell!.cellH
                 }
+                else if indexPath.row == 4 {
+                    height = cell!.cellH
+                }
             }
             else if self.settings[indexPath.section] == "interval_time" {
-                if indexPath.row == 0 || indexPath.row == 4 {
+                if indexPath.row == 0 || indexPath.row == 3 {
                     height = self.getLineCellHeight()
                 }
-                else if indexPath.row == 1 || indexPath.row == 2 || indexPath.row == 3 {
+                else if indexPath.row == 1 || indexPath.row == 2 {
                     height = cell!.cellH
                 }
             }
@@ -618,6 +621,20 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
                     let vc: SynapseUploadSettingsViewController = SynapseUploadSettingsViewController()
                     self.navigationController?.pushViewController(vc, animated: true)
                 }
+                else if indexPath.row == 4 {
+                    let flag: Bool = !self.saveLocalFile
+                    SettingFileManager.shared.synapseSaveLocalFile = flag
+                    if SettingFileManager.shared.saveData() {
+                        if let nav = self.navigationController as? SettingNavigationViewController {
+                            nav.saveLocalFile = flag
+                        }
+                        self.saveLocalFile = flag
+                        tableView.reloadRows(at: [indexPath], with: UITableViewRowAnimation.none)
+                    }
+                    else {
+                        SettingFileManager.shared.synapseSaveLocalFile = self.saveLocalFile
+                    }
+                }
             }
             else if self.settings[indexPath.section] == "interval_time" {
                 if indexPath.row == 1 {
@@ -634,20 +651,6 @@ class SettingViewController: SettingBaseViewController, UITextFieldDelegate {
                                 tableView.reloadRows(at: [indexPath], with: UITableViewRowAnimation.none)
                             }
                         }
-                    }
-                }
-                else if indexPath.row == 3 {
-                    let flag: Bool = !self.saveLocalFile
-                    SettingFileManager.shared.synapseSaveLocalFile = flag
-                    if SettingFileManager.shared.saveData() {
-                        if let nav = self.navigationController as? SettingNavigationViewController {
-                            nav.saveLocalFile = flag
-                        }
-                        self.saveLocalFile = flag
-                        tableView.reloadRows(at: [indexPath], with: UITableViewRowAnimation.none)
-                    }
-                    else {
-                        SettingFileManager.shared.synapseSaveLocalFile = self.saveLocalFile
                     }
                 }
             }

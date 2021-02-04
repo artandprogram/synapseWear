@@ -21,6 +21,9 @@ class BaseFileManager: NSObject, CommonFunctionProtocol {
         else if self.baseDirType == "documents" {
             self.baseDirPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
         }
+        else if self.baseDirType == "application_support" {
+            self.baseDirPath = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true)[0]
+        }
         else if self.baseDirType == "tmp" {
             self.baseDirPath = NSTemporaryDirectory()
         }
@@ -31,11 +34,12 @@ class BaseFileManager: NSObject, CommonFunctionProtocol {
             var isDir: ObjCBool = false
             let exists: Bool = FileManager.default.fileExists(atPath: self.baseDirPath, isDirectory: &isDir)
             if !exists || !isDir.boolValue {
-                print("setBaseDir : \(self.baseDirPath)")
+                //print("setBaseDir : \(self.baseDirPath)")
                 do {
                     try FileManager.default.createDirectory(atPath: self.baseDirPath, withIntermediateDirectories: true, attributes: nil)
                 }
                 catch {
+                    print("setBaseDir error: \(error.localizedDescription)")
                 }
             }
         }
@@ -52,6 +56,7 @@ class BaseFileManager: NSObject, CommonFunctionProtocol {
                 return try Data(contentsOf: dataURL, options: [])
             }
             catch {
+                print("setBaseDir error: \(error.localizedDescription)")
                 return nil
             }
         }
@@ -69,6 +74,7 @@ class BaseFileManager: NSObject, CommonFunctionProtocol {
                     try FileManager.default.removeItem(atPath: filePath)
                 }
                 catch {
+                    print("setData error: \(error.localizedDescription)")
                     return false
                 }
             }
@@ -80,6 +86,7 @@ class BaseFileManager: NSObject, CommonFunctionProtocol {
                 try data.write(to: dataURL)
             }
             catch {
+                print("setData error: \(error.localizedDescription)")
                 return false
             }
             return true
@@ -97,6 +104,7 @@ class BaseFileManager: NSObject, CommonFunctionProtocol {
                     try FileManager.default.removeItem(atPath: filePath)
                 }
                 catch {
+                    print("createDirectory error: \(error.localizedDescription)")
                     return false
                 }
             }
@@ -107,6 +115,7 @@ class BaseFileManager: NSObject, CommonFunctionProtocol {
                                                         attributes: nil)
             }
             catch {
+                print("createDirectory error: \(error.localizedDescription)")
                 return false
             }
         }
@@ -124,6 +133,7 @@ class BaseFileManager: NSObject, CommonFunctionProtocol {
                     try FileManager.default.removeItem(atPath: filePath)
                 }
                 catch {
+                    print("createFile error: \(error.localizedDescription)")
                     return false
                 }
             }

@@ -50,12 +50,46 @@ class SettingFileManager: BaseFileManager {
     override init() {
         super.init()
 
-        self.baseDirType = "documents"
+        self.baseDirType = "application_support"
         self.baseDirName = ""
         self.setBaseDir()
 
         self.synapseTimeInterval = self.synapseTimeIntervals[0]
         self.synapseTemperatureScale = TemperatureScaleKey.celsius.rawValue
+    }
+
+    override func setBaseDir() {
+        super.setBaseDir()
+
+        self.checkBaseDir()
+    }
+
+    func checkBaseDir() {
+
+        if self.baseDirType == "documents" {
+            return
+        }
+
+        let documentsDir: String = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
+        let atFile: String = "\(documentsDir)/\(self.fileName)"
+        let toFile: String = "\(self.baseDirPath)/\(self.fileName)"
+
+        var isDir: ObjCBool = false
+        var exists: Bool = FileManager.default.fileExists(atPath: atFile, isDirectory: &isDir)
+        if exists && !isDir.boolValue {
+            //print("SettingFileManager checkBaseDir: \(atFile) -> \(toFile)")
+            do {
+                exists = FileManager.default.fileExists(atPath: toFile)
+                if exists {
+                    try FileManager.default.removeItem(atPath: toFile)
+                }
+
+                try FileManager.default.moveItem(atPath: atFile, toPath: toFile)
+            }
+            catch {
+                print("SettingFileManager checkBaseDir error: \(error.localizedDescription)")
+            }
+        }
     }
 
     func loadData() {

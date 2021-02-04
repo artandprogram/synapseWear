@@ -46,7 +46,7 @@ class FilesViewController: BaseViewController, UITableViewDataSource, UITableVie
             }
         }
         else {
-            self.files = ["caches", "documents", "tmp"]
+            self.files = ["caches", "documents", "application_support", "tmp"]
         }
     }
 
@@ -249,6 +249,9 @@ class FilesViewController: BaseViewController, UITableViewDataSource, UITableVie
                 else if filename == "documents" {
                     filepathNext = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
                 }
+                else if filename == "application_support" {
+                    filepathNext = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true)[0]
+                }
                 else if filename == "tmp" {
                     filepathNext = NSTemporaryDirectory()
                 }
@@ -303,7 +306,7 @@ extension FileManagerExtension {
             }
             total += fileSize.uint64Value
             if index % 1000 == 0 {
-                print(".", terminator: "")
+                //print(".", terminator: "")
             }
         }
         /*

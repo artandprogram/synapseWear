@@ -79,7 +79,7 @@ class SynapseFirmwareViewController: SettingBaseViewController {
             self.settingTableView.reloadData()
         }, fail: {
             (error: Error?) in
-            print("res -> error: \(String(describing: error))")
+            self.debugLog("getFirmwareData error: \(String(describing: error))")
 
             self.setHiddenLoadingView(true)
         })
@@ -242,7 +242,7 @@ class SynapseFirmwareViewController: SettingBaseViewController {
         let destination: DownloadRequest.DownloadFileDestination = { _, _ in
             return (fileUrl, [.removePreviousFile, .createIntermediateDirectories])
         }
-        print("startDownload: \(fileUrl.absoluteString)")
+        debugLog("startDownload: \(fileUrl.absoluteString)")
 
         self.setHiddenLoadingView(false)
 
